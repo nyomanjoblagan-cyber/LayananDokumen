@@ -133,7 +133,7 @@ function SPKBuilder() {
              <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase">Lingkup Kerja</label><textarea className="w-full p-2 border border-slate-200 rounded text-xs h-24" value={data.scope} onChange={e => setData({...data, scope: e.target.value})} /></div>
           </div>
 
-          {/* IKLAN ADSTERRA (FIXED URL SYNTAX) */}
+          {/* IKLAN ADSTERRA SIDEBAR - FIXED: MENGGUNAKAN TANDA KUTIP SATU (') */}
           <div className="no-print bg-white/50 border border-dashed border-slate-300 rounded-xl p-4 flex justify-center">
             <iframe
               srcDoc={`<html><body style='margin:0;display:flex;justify-content:center;background:transparent;'><div id='container-680bbbb6a0645f106a122dd96bf54b25'></div><script async src='https://pl28427514.effectivegatecpm.com/680bbbb6a0645f106a122dd96bf54b25/invoke.js'></script></body></html>`}
