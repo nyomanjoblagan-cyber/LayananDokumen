@@ -8,34 +8,26 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
-// KOMPONEN PENJARA IKLAN UNTUK MENJAGA POSISI DI TENGAH
-const AdCage = ({ adKey, w, h, id }: { adKey: string, w: number, h: number, id: string }) => {
-  const content = `
-    <html>
-      <body style="margin:0; padding:0; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden;">
-        <script type="text/javascript">
-          atOptions = { 'key' : '${adKey}', 'format' : 'iframe', 'height' : ${h}, 'width' : ${w}, 'params' : {} };
-        </script>
-        <script type="text/javascript" src="https://www.highperformanceformat.com/${adKey}/invoke.js"></script>
-      </body>
-    </html>
-  `;
+// --- KOMPONEN PENJARA IKLAN (SAFE MODE) ---
+// Menggunakan kutip satu (') untuk mencegah error parsing URL
+const AdCage = ({ adKey, w, h }: { adKey: string, w: number, h: number }) => {
+  const content = `<html><body style='margin:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;'><script type='text/javascript'>atOptions={'key':'${adKey}','format':'iframe','height':${h},'width':${w},'params':{}};</script><script type='text/javascript' src='https://www.highperformanceformat.com/${adKey}/invoke.js'></script></body></html>`;
+  
   return (
-    <div className="flex justify-center w-full my-6 overflow-hidden bg-white/30 border border-dashed border-slate-200 rounded-xl py-4">
+    <div className="flex justify-center w-full my-6 overflow-hidden bg-white/30 border border-dashed border-slate-200 rounded-xl py-4 no-print">
       <iframe
-        id={id}
         srcDoc={content}
         width={w}
         height={h}
         frameBorder="0"
         scrolling="no"
-        style={{ border: 'none', overflow: 'hidden' }}
+        title="Sponsor"
       />
     </div>
   );
 };
 
-export default function KatalogLengkapCompact() {
+export default function KatalogLengkapPage() {
   const [search, setSearch] = useState('');
 
   const FULL_CATALOG = [
@@ -282,14 +274,9 @@ export default function KatalogLengkapCompact() {
                 ))}
               </div>
 
-              {/* SISIPAN IKLAN ADSTERRA DI AKHIR SETIAP LIST KATEGORI */}
-              <div className="mt-8">
-                 <AdCage 
-                    adKey="8fd377728513d5d23b9caf7a2bba1a73" 
-                    w={728} 
-                    h={90} 
-                    id={`ad-katalog-${idx}`} 
-                 />
+              {/* IKLAN SISIPAN - MUNCUL SETIAP AKHIR GRUP - DENGAN SYNTAX AMAN */}
+              <div className="mt-4">
+                 <AdCage adKey="8fd377728513d5d23b9caf7a2bba1a73" w={728} h={90} />
               </div>
             </section>
           ))}
