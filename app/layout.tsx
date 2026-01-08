@@ -23,8 +23,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id" className="scroll-smooth">
       <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen`}>
         
-        {/* IKLAN ATAS GLOBAL (728x90) */}
-        <div className="w-full flex justify-center pt-4 px-4 overflow-hidden">
+        {/* IKLAN ATAS GLOBAL (Ditambah no-print) */}
+        <div className="no-print w-full flex justify-center pt-4 px-4 overflow-hidden">
           <iframe
             srcDoc={`
               <html><body style="margin:0;display:flex;justify-content:center;align-items:center;">
@@ -40,8 +40,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <main className="flex-grow">{children}</main>
 
-        {/* IKLAN BAWAH GLOBAL (NATIVE ASLI DARI MAS) */}
-        <div className="w-full bg-white border-t border-slate-200 py-6 mt-10">
+        {/* IKLAN BAWAH GLOBAL (Ditambah no-print) */}
+        <div className="no-print w-full bg-white border-t border-slate-200 py-6 mt-10">
           <div className="max-w-4xl mx-auto px-4 flex flex-col items-center">
             <span className="text-[9px] text-slate-400 font-bold uppercase mb-4">Sponsor Kami</span>
             <div className="w-full flex justify-center overflow-hidden">
