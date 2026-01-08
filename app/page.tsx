@@ -350,7 +350,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TOMBOL YANG TADI HILANG: EKSPLORASI KATALOG */}
+      {/* --- BAGIAN INI YANG TADI SEMPAT HILANG (BAR EKSPLORASI) --- */}
       <div className="relative z-20 max-w-5xl mx-auto px-6 mb-4">
         <a 
           href="#directory" 
@@ -375,10 +375,9 @@ export default function HomePage() {
         </a>
       </div>
 
-      {/* IKLAN TENGAH (SAFE MODE) */}
+      {/* IKLAN BANNER TENGAH (SAFE MODE) */}
       <div className="max-w-5xl mx-auto px-6 mt-4 mb-4">
-         <div className="w-full min-h-[100px] bg-white/50 border border-slate-200 border-dashed rounded-xl flex items-center justify-center overflow-hidden py-4">
-            {/* FIXED AD SYNTAX */}
+         <div className="w-full min-h-[100px] bg-white/50 border border-slate-200 border-dashed rounded-xl flex items-center justify-center overflow-hidden py-4 no-print">
             <AdCage adKey="8fd377728513d5d23b9caf7a2bba1a73" w={728} h={90} />
          </div>
       </div>
@@ -388,10 +387,10 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredDirectory.map((cat, idx) => (
               <Fragment key={idx}>
+                {/* IKLAN KOTAK (NATIVE) DI SELA-SELA KATEGORI */}
                 {idx > 0 && idx % 3 === 0 && (
-                   <div className="flex flex-col bg-white/50 border border-slate-200 border-dashed rounded-xl overflow-hidden h-full items-center justify-center p-4 min-h-[280px]">
+                   <div className="flex flex-col bg-white/50 border border-slate-200 border-dashed rounded-xl overflow-hidden h-full items-center justify-center p-4 min-h-[280px] no-print">
                       <span className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-4">Sponsored Advertisement</span>
-                      {/* IKLAN KOTAK (SAFE MODE) */}
                       <AdCage adKey="9873c2eb956caac3e296de9c4fea56fc" w={300} h={250} />
                    </div>
                 )}
