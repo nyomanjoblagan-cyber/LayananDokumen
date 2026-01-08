@@ -9,17 +9,11 @@ import {
 import Link from 'next/link';
 import { useState, useMemo, Fragment } from 'react';
 
-// --- KOMPONEN UNTUK MENJINAKKAN IKLAN AGAR TETAP DI TENGAH ---
+// --- KOMPONEN PENJARA IKLAN (FIXED URL SYNTAX) ---
 const AdCage = ({ adKey, w, h }: { adKey: string, w: number, h: number }) => {
-  const content = `
-    <style>
-      body { margin: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
-    </style>
-    <script type="text/javascript">
-      atOptions = { 'key' : '${adKey}', 'format' : 'iframe', 'height' : ${h}, 'width' : ${w}, 'params' : {} };
-    </script>
-    <script type="text/javascript" src="https://www.highperformanceformat.com/${adKey}/invoke.js"></script>
-  `;
+  // Menggunakan kutip satu di dalam HTML string agar aman
+  const content = `<html><body style="margin:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;"><script type="text/javascript">atOptions={'key':'${adKey}','format':'iframe','height':${h},'width':${w},'params':{}};</script><script type="text/javascript" src="https://www.highperformanceformat.com/${adKey}/invoke.js"></script></body></html>`;
+  
   return (
     <div className="flex justify-center w-full overflow-hidden">
       <iframe
@@ -37,7 +31,7 @@ const AdCage = ({ adKey, w, h }: { adKey: string, w: number, h: number }) => {
 export default function HomePage() {
   const [search, setSearch] = useState('');
   
-  // 1. DATABASE DOKUMEN (KEMBALI LENGKAP)
+  // DATABASE DOKUMEN LENGKAP
   const DIRECTORY = [
     {
       group: "Bisnis & UMKM",
@@ -382,6 +376,7 @@ export default function HomePage() {
       {/* ADSTERRA 728x90: PENJARA IFRAME AGAR PASTI DI TENGAH */}
       <div className="max-w-5xl mx-auto px-6 mt-4 mb-4">
          <div className="w-full min-h-[100px] bg-white/50 border border-slate-200 border-dashed rounded-xl flex items-center justify-center overflow-hidden py-4">
+            {/* FIXED AD SYNTAX */}
             <AdCage adKey="8fd377728513d5d23b9caf7a2bba1a73" w={728} h={90} />
          </div>
       </div>
@@ -394,7 +389,7 @@ export default function HomePage() {
                 {idx > 0 && idx % 3 === 0 && (
                    <div className="flex flex-col bg-white/50 border border-slate-200 border-dashed rounded-xl overflow-hidden h-full items-center justify-center p-4 min-h-[280px]">
                       <span className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-4">Sponsored Advertisement</span>
-                      {/* ADSTERRA 300x250: PENJARA IFRAME AGAR PASTI DI TENGAH */}
+                      {/* ADSTERRA 300x250: FIXED AD SYNTAX */}
                       <AdCage adKey="9873c2eb956caac3e296de9c4fea56fc" w={300} h={250} />
                    </div>
                 )}
