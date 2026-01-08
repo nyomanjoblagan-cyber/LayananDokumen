@@ -7,13 +7,12 @@ import {
   Stethoscope, PartyPopper, BookOpen, ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
-import Script from 'next/script'; // Import Script Next.js
+import Script from 'next/script';
 import { useState, useMemo, Fragment } from 'react';
 
 export default function HomePage() {
   const [search, setSearch] = useState('');
   
-  // 1. DATABASE DOKUMEN (LENGKAP 100 ALAT)
   const DIRECTORY = [
     {
       group: "Bisnis & UMKM",
@@ -355,26 +354,27 @@ export default function HomePage() {
         </a>
       </div>
 
-      {/* AREA IKLAN BANNER 728x90 */}
+      {/* ADSTERRA 728x90 BANNER (CENTERED) */}
       <div className="max-w-5xl mx-auto px-6 mt-4 mb-4">
-         <div className="w-full min-h-[90px] bg-slate-100 border border-slate-200 border-dashed rounded-xl flex items-center justify-center overflow-hidden">
-            {/* INTEGRASI ADSTERRA 728x90 */}
-            <div id="container-adsterra-728">
-               <Script id="adsterra-728-config" strategy="afterInteractive">
-                 {`
-                   atOptions = {
-                     'key' : '8fd377728513d5d23b9caf7a2bba1a73',
-                     'format' : 'iframe',
-                     'height' : 90,
-                     'width' : 728,
-                     'params' : {}
-                   };
-                 `}
-               </Script>
-               <Script 
-                 src="https://www.highperformanceformat.com/8fd377728513d5d23b9caf7a2bba1a73/invoke.js" 
-                 strategy="afterInteractive" 
-               />
+         <div className="w-full min-h-[100px] bg-white/50 border border-slate-200 border-dashed rounded-xl flex items-center justify-center overflow-hidden py-4">
+            <div className="flex justify-center w-full scale-90 md:scale-100 origin-center">
+               <div id="container-adsterra-728">
+                  <Script id="adsterra-728-config" strategy="afterInteractive">
+                    {`
+                      atOptions = {
+                        'key' : '8fd377728513d5d23b9caf7a2bba1a73',
+                        'format' : 'iframe',
+                        'height' : 90,
+                        'width' : 728,
+                        'params' : {}
+                      };
+                    `}
+                  </Script>
+                  <Script 
+                    src="https://www.highperformanceformat.com/8fd377728513d5d23b9caf7a2bba1a73/invoke.js" 
+                    strategy="afterInteractive" 
+                  />
+               </div>
             </div>
          </div>
       </div>
@@ -385,24 +385,27 @@ export default function HomePage() {
             {filteredDirectory.map((cat, idx) => (
               <Fragment key={idx}>
                 {idx > 0 && idx % 3 === 0 && (
-                   <div className="flex flex-col bg-slate-50 border border-slate-200 border-dashed rounded-xl overflow-hidden h-full items-center justify-center p-4 min-h-[180px]">
-                      {/* INTEGRASI ADSTERRA 300x250 */}
-                      <div id="container-adsterra-300">
-                        <Script id={`adsterra-300-config-${idx}`} strategy="afterInteractive">
-                          {`
-                            atOptions = {
-                              'key' : '9873c2eb956caac3e296de9c4fea56fc',
-                              'format' : 'iframe',
-                              'height' : 250,
-                              'width' : 300,
-                              'params' : {}
-                            };
-                          `}
-                        </Script>
-                        <Script 
-                          src="https://www.highperformanceformat.com/9873c2eb956caac3e296de9c4fea56fc/invoke.js" 
-                          strategy="afterInteractive" 
-                        />
+                   <div className="flex flex-col bg-white/50 border border-slate-200 border-dashed rounded-xl overflow-hidden h-full items-center justify-center p-4 min-h-[280px]">
+                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-4">Sponsored Advertisement</span>
+                      {/* ADSTERRA 300x250 NATIVE (CENTERED) */}
+                      <div className="flex justify-center w-full">
+                        <div id={`container-adsterra-300-${idx}`}>
+                          <Script id={`adsterra-300-config-${idx}`} strategy="afterInteractive">
+                            {`
+                              atOptions = {
+                                'key' : '9873c2eb956caac3e296de9c4fea56fc',
+                                'format' : 'iframe',
+                                'height' : 250,
+                                'width' : 300,
+                                'params' : {}
+                              };
+                            `}
+                          </Script>
+                          <Script 
+                            src="https://www.highperformanceformat.com/9873c2eb956caac3e296de9c4fea56fc/invoke.js" 
+                            strategy="afterInteractive" 
+                          />
+                        </div>
                       </div>
                    </div>
                 )}
