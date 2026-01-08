@@ -7,6 +7,7 @@ import {
   Stethoscope, PartyPopper, BookOpen, ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
+import Script from 'next/script'; // Import Script Next.js
 import { useState, useMemo, Fragment } from 'react';
 
 export default function HomePage() {
@@ -179,7 +180,6 @@ export default function HomePage() {
     }
   ];
 
-  // 2. LOGIKA PENCARIAN
   const allItems = useMemo(() => {
     return DIRECTORY.flatMap(cat => cat.items.map(item => ({ ...item, group: cat.group })));
   }, []);
@@ -196,7 +196,6 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen font-sans text-slate-900 bg-[#f8fafc]">
-      {/* GLOBAL CSS UNTUK SMOOTH SCROLL */}
       <style jsx global>{`
         html { scroll-behavior: smooth !important; }
       `}</style>
@@ -221,7 +220,6 @@ export default function HomePage() {
             </div>
           </Link>
           
-          {/* NAVBAR FIX: Menggunakan tag <a> untuk anchor link internal */}
           <nav className="hidden md:flex items-center gap-6">
              <a href="#directory" className="text-xs font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1.5 transition-colors cursor-pointer">
                 <LayoutGrid size={14}/> Kategori
@@ -246,7 +244,6 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* SECTION HERO */}
       <section className="relative z-10 pt-10 pb-6 md:pt-16 md:pb-10 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 space-y-6">
@@ -334,7 +331,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* BAR PENANDA SCROLL - Menggunakan tag <a> */}
       <div className="relative z-20 max-w-5xl mx-auto px-6 mb-10">
         <a 
           href="#directory" 
@@ -359,11 +355,30 @@ export default function HomePage() {
         </a>
       </div>
 
+      {/* AREA IKLAN BANNER 728x90 */}
       <div className="max-w-5xl mx-auto px-6 mt-4 mb-4">
-         <div className="w-full h-[90px] bg-slate-100 border border-slate-200 border-dashed rounded-xl flex items-center justify-center text-slate-400 text-xs italic">Space Iklan Banner (728x90)</div>
+         <div className="w-full min-h-[90px] bg-slate-100 border border-slate-200 border-dashed rounded-xl flex items-center justify-center overflow-hidden">
+            {/* INTEGRASI ADSTERRA 728x90 */}
+            <div id="container-adsterra-728">
+               <Script id="adsterra-728-config" strategy="afterInteractive">
+                 {`
+                   atOptions = {
+                     'key' : '8fd377728513d5d23b9caf7a2bba1a73',
+                     'format' : 'iframe',
+                     'height' : 90,
+                     'width' : 728,
+                     'params' : {}
+                   };
+                 `}
+               </Script>
+               <Script 
+                 src="https://www.highperformanceformat.com/8fd377728513d5d23b9caf7a2bba1a73/invoke.js" 
+                 strategy="afterInteractive" 
+               />
+            </div>
+         </div>
       </div>
 
-      {/* SECTION DIRECTORY - Ditambahkan scroll-mt-20 agar tidak tertutup Navbar */}
       <section id="directory" className="px-6 max-w-5xl mx-auto py-12 relative z-10 scroll-mt-20">
         {filteredDirectory.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -371,8 +386,24 @@ export default function HomePage() {
               <Fragment key={idx}>
                 {idx > 0 && idx % 3 === 0 && (
                    <div className="flex flex-col bg-slate-50 border border-slate-200 border-dashed rounded-xl overflow-hidden h-full items-center justify-center p-4 min-h-[180px]">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-widest mb-2">Sponsored</span>
-                      <div className="w-[300px] h-[250px] bg-slate-200 rounded flex items-center justify-center text-xs text-slate-500">Slot Iklan Native (300x250)</div>
+                      {/* INTEGRASI ADSTERRA 300x250 */}
+                      <div id="container-adsterra-300">
+                        <Script id={`adsterra-300-config-${idx}`} strategy="afterInteractive">
+                          {`
+                            atOptions = {
+                              'key' : '9873c2eb956caac3e296de9c4fea56fc',
+                              'format' : 'iframe',
+                              'height' : 250,
+                              'width' : 300,
+                              'params' : {}
+                            };
+                          `}
+                        </Script>
+                        <Script 
+                          src="https://www.highperformanceformat.com/9873c2eb956caac3e296de9c4fea56fc/invoke.js" 
+                          strategy="afterInteractive" 
+                        />
+                      </div>
                    </div>
                 )}
                 <div className={`flex flex-col bg-white border ${cat.border} rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group h-full`}>
@@ -404,7 +435,6 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* FOOTER */}
       <footer className="bg-slate-50 text-slate-600 py-8 border-t border-slate-200 mt-8 relative z-10">
         <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8">
           <div className="md:col-span-5 space-y-2">
