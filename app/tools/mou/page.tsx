@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, Map, 
-  BadgeDollarSign, Users, GripHorizontal, CreditCard, CalendarDays, FileText
+  BadgeDollarSign, Users, GripHorizontal, CreditCard, CalendarDays, FileText, Edit3, Eye
 } from 'lucide-react';
 import Link from 'next/link';
+import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 export default function JualBeliTanahPage() {
   return (
@@ -19,35 +20,30 @@ function LandSaleBuilder() {
   // --- STATE ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [isClient, setIsClient] = useState(false);
 
   // DATA DEFAULT
   const [data, setData] = useState({
-    // WAKTU & TEMPAT
     day: 'Senin',
-    date: new Date().toISOString().split('T')[0],
+    date: '',
     city: 'Sleman',
-
-    // PIHAK 1
     p1Name: 'BAMBANG SUDARSO', p1Age: '52', p1Job: 'Pensiunan PNS', p1Address: 'Jl. Kaliurang KM 10, Sleman, Yogyakarta', p1Nik: '3404010101740001', 
-    p1Spouse: 'Siti Aminah', // Penyetuju
-    
-    // PIHAK 2
+    p1Spouse: 'Siti Aminah', 
     p2Name: 'ANDI PRATAMA', p2Age: '30', p2Job: 'Wiraswasta', p2Address: 'Jl. Gejayan No. 15, Depok, Sleman', p2Nik: '3471010101960002',
-    
-    // OBJEK TANAH
     landCertType: 'SHM', landCertNo: '01234/Sardonoharjo', landArea: '500', landAddress: 'Desa Sardonoharjo, Kec. Ngaglik, Kab. Sleman',
     bNorth: 'Tanah Bapak Joko', bSouth: 'Jalan Desa (Aspal)', bEast: 'Selokan Mataram', bWest: 'Rumah Ibu Ani',
-    
-    // HARGA & BAYAR
     price: 1500000000, priceText: 'Satu Milyar Lima Ratus Juta Rupiah', dp: 500000000, paymentMethod: 'Transfer Bank BCA',
-    
-    // SAKSI
     witness1: 'Ketua RT 05 (Pak Rahmat)', 
     witness2: 'Adik Kandung Penjual',
-
-    // PASAL TAMBAHAN
     additionalClause: '' 
   });
+
+  useEffect(() => {
+    setIsClient(true);
+    const today = new Date().toISOString().split('T')[0];
+    setData(prev => ({ ...prev, date: today }));
+  }, []);
 
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
@@ -58,24 +54,14 @@ function LandSaleBuilder() {
   ];
   const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
 
-  // --- KOMPONEN KERTAS (UPDATED FOR PRINT FIX) ---
+  // --- KOMPONEN KERTAS ---
   const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
     <div className={`
-      /* TAMPILAN LAYAR */
-      w-[210mm] min-h-[297mm] 
-      bg-white shadow-2xl 
-      p-[20mm] mx-auto 
+      bg-white shadow-2xl print:shadow-none mx-auto
+      p-[20mm] 
       text-slate-900 font-serif leading-relaxed text-[11pt]
-      relative box-border mb-10
-
-      /* TAMPILAN PRINT (FIXED) */
-      print:fixed print:top-0 print:left-0 
-      print:w-[210mm] print:h-[296mm] /* Kurangi 1mm untuk safety */
-      print:shadow-none print:mb-0 
-      print:p-[20mm]
-      print:overflow-hidden /* Potong kelebihan konten */
-      print:z-[9999]
-      
+      relative box-border mb-8 print:mb-0 print:m-0
+      w-[210mm] min-h-[296mm] h-auto
       ${className}
     `}>
       {children}
@@ -83,18 +69,17 @@ function LandSaleBuilder() {
   );
 
   // --- ISI DOKUMEN ---
-  const DocumentContent = (
-    <>
+  const DocumentContent = () => (
+    <div className="flex flex-col gap-8 print:gap-0">
       {/* TEMPLATE 1: FORMAL (2 HALAMAN) */}
       {templateId === 1 && (
         <>
-          {/* HALAMAN 1 */}
-          <div className="bg-white shadow-2xl print:shadow-none w-[210mm] min-h-[297mm] p-[20mm] mx-auto text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-10 print:mb-0 print:break-after-page print:h-[296mm] print:overflow-hidden">
+          <Kertas>
               <div className="text-center mb-8 pb-4 border-b-2 border-black">
                 <h1 className="font-black text-xl uppercase tracking-widest underline">SURAT PERJANJIAN JUAL BELI TANAH</h1>
               </div>
 
-              <p className="mb-4 text-justify">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
+              <p className="mb-4 text-justify">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
 
               <div className="ml-4 mb-4 text-sm">
                 <table className="w-full leading-snug">
@@ -150,10 +135,9 @@ function LandSaleBuilder() {
               </div>
 
               <div className="absolute bottom-10 right-10 text-[10px] text-slate-400 italic">Halaman 1 dari 2</div>
-          </div>
+          </Kertas>
 
-          {/* HALAMAN 2 */}
-          <div className="bg-white shadow-2xl print:shadow-none w-[210mm] min-h-[297mm] p-[20mm] mx-auto text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-10 print:mb-0 print:h-[296mm] print:overflow-hidden">
+          <Kertas>
               <div className="space-y-6 text-justify pt-4">
                 <div>
                     <div className="text-center font-bold uppercase mb-2">PASAL 3<br/>PEMBAYARAN</div>
@@ -171,7 +155,6 @@ function LandSaleBuilder() {
                     <p className="text-sm">Biaya balik nama ditanggung PIHAK KEDUA. Pajak Penjual ditanggung PIHAK PERTAMA.</p>
                 </div>
 
-                {/* PASAL TAMBAHAN */}
                 {data.additionalClause && (
                   <div>
                     <div className="text-center font-bold uppercase mb-2">PASAL TAMBAHAN</div>
@@ -189,7 +172,7 @@ function LandSaleBuilder() {
                 </div>
                 <div>
                     <p className="mb-4 font-bold">PIHAK PERTAMA</p>
-                    <div className="border border-slate-300 w-24 h-16 mx-auto mb-2 flex items-center justify-center text-[10px] text-slate-400">MATERAI</div>
+                    <div className="border border-slate-300 w-24 h-16 mx-auto mb-2 flex items-center justify-center text-[10px] text-slate-400 italic">MATERAI 10.000</div>
                     <p className="font-bold underline uppercase">{data.p1Name}</p>
                 </div>
               </div>
@@ -201,7 +184,7 @@ function LandSaleBuilder() {
               </div>
 
               <div className="absolute bottom-10 right-10 text-[10px] text-slate-400 italic">Halaman 2 dari 2</div>
-          </div>
+          </Kertas>
         </>
       )}
 
@@ -211,8 +194,7 @@ function LandSaleBuilder() {
             <div className="text-center mb-6 border-b-2 border-black pb-2">
               <h1 className="font-bold text-xl uppercase underline">PERJANJIAN JUAL BELI TANAH</h1>
             </div>
-            
-            <p className="mb-4 text-justify">Pada {data.day}, {new Date(data.date).toLocaleDateString('id-ID', {dateStyle:'full'})}, bertempat di {data.city}, kami yang bertanda tangan di bawah ini:</p>
+            <p className="mb-4 text-justify">Pada {data.day}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {dateStyle:'full'}) : '...'}, bertempat di {data.city}, kami yang bertanda tangan di bawah ini:</p>
 
             <div className="mb-3 text-sm">
               <div className="font-bold uppercase underline">I. PIHAK PERTAMA (PENJUAL)</div>
@@ -247,7 +229,6 @@ function LandSaleBuilder() {
 
             <div className="mb-8 text-justify text-sm">
               Pihak Pertama menjamin tanah tersebut bebas sengketa. Biaya balik nama ditanggung Pihak Kedua. Perjanjian ini dibuat rangkap dua bermaterai cukup.
-              {/* PASAL TAMBAHAN COMPACT */}
               {data.additionalClause && (
                 <span className="block mt-2 font-bold italic">Catatan Tambahan: {data.additionalClause}</span>
               )}
@@ -260,7 +241,7 @@ function LandSaleBuilder() {
               </div>
               <div className="w-40">
                   <p className="mb-2 font-bold">PIHAK PERTAMA</p>
-                  <div className="border border-slate-300 w-20 h-12 mx-auto mb-2 flex items-center justify-center text-[8px] text-slate-300">MATERAI</div>
+                  <div className="border border-slate-300 w-20 h-12 mx-auto mb-2 flex items-center justify-center text-[8px] text-slate-300 italic">MATERAI 10.000</div>
                   <p className="font-bold underline uppercase">{data.p1Name}</p>
               </div>
             </div>
@@ -275,219 +256,236 @@ function LandSaleBuilder() {
             </div>
         </Kertas>
       )}
-    </>
+    </div>
   );
 
+  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
+
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-800 print:bg-white">
+    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
       
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0mm; }
-          body { margin: 0 !important; padding: 0 !important; }
-          .no-print, header, nav, .sidebar { display: none !important; }
-          
-          /* Utility Page Break */
-          .print-break-after-page { page-break-after: always; break-after: page; }
-          
-          /* Color Fix */
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          @page { size: A4; margin: 0; } 
+          body { background: white; margin: 0; padding: 0; }
+          .no-print { display: none !important; }
+          #print-only-root { 
+            display: block !important; 
+            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+          }
         }
       `}</style>
 
-      {/* HEADER */}
-      <div className="bg-slate-900 text-white shadow-lg print:hidden sticky top-0 z-50 border-b border-slate-700 h-16">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
+      {/* HEADER NAV */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
+        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-              <ArrowLeft size={18} /> <span className="text-sm font-medium">Dashboard</span>
+            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+               <ArrowLeft size={18} /> Dashboard
             </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2"></div>
-            <h1 className="text-sm font-bold tracking-wide text-emerald-400 uppercase">Jual Beli Tanah</h1>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
+               <Map size={16} className="text-emerald-500" /> <span>LAND SALE BUILDER</span>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[180px] justify-between">
-                <div className="flex items-center gap-2"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
-                <ChevronDown size={12} className={`transition-transform ${showTemplateMenu ? 'rotate-180' : ''}`} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
+                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
+                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
               {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase">Pilih Template</div>
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
+                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
                   {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-700'}`}>
-                      <div><div className="font-medium">{t.name}</div><div className="text-[10px] text-slate-400">{t.desc}</div></div>
+                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
+                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
                       {templateId === t.id && <Check size={14} className="text-blue-600" />}
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase hover:bg-emerald-500 shadow-lg ring-1 ring-emerald-400/50">
-              <Printer size={16} /> Print
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
+              <Printer size={16} /> <span className="hidden md:inline">Print</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         
         {/* SIDEBAR INPUT */}
-        <div className="sidebar w-full lg:w-[450px] shrink-0 h-full overflow-y-auto pr-2 pb-20 space-y-6">
-           
-           {/* 1. BAGIAN WAKTU & TEMPAT */}
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-              <div className="flex items-center gap-2 border-b pb-2">
-                 <CalendarDays size={14} className="text-slate-600"/>
-                 <h3 className="text-xs font-bold uppercase">Waktu & Tempat</h3>
-              </div>
-              <div className="space-y-3">
-                 <div>
-                    <label className="text-[10px] text-slate-500 font-bold block mb-1">Kota / Tempat Penandatanganan</label>
-                    <input className="w-full p-2 border rounded text-xs font-bold text-emerald-700" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Contoh: Sleman" />
+        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+             
+              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+
+              {/* 1. WAKTU & TEMPAT */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <div className="flex items-center gap-2 border-b pb-2">
+                    <CalendarDays size={14} className="text-slate-600"/>
+                    <h3 className="text-xs font-bold uppercase">Waktu & Tempat</h3>
                  </div>
+                 <div className="space-y-3">
+                    <div>
+                       <label className="text-[10px] text-slate-500 font-bold block mb-1">Kota</label>
+                       <input className="w-full p-2 border rounded text-xs font-bold text-emerald-700" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Contoh: Sleman" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                       <div>
+                          <label className="text-[10px] text-slate-500 font-bold block mb-1">Hari</label>
+                          <input className="w-full p-2 border rounded text-xs" value={data.day} onChange={e => handleDataChange('day', e.target.value)} placeholder="Senin" />
+                       </div>
+                       <div>
+                          <label className="text-[10px] text-slate-500 font-bold block mb-1">Tanggal</label>
+                          <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                       </div>
+                    </div>
+                 </div>
+              </div>
+
+              {/* 2. IDENTITAS */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-6">
+                <div className="border-l-4 border-red-500 pl-3">
+                   <h4 className="text-xs font-bold text-red-600 mb-2 uppercase">Penjual (Pihak 1)</h4>
+                   <div className="space-y-2">
+                      <input className="w-full p-2 border rounded text-xs font-bold" placeholder="Nama" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} />
+                      <div className="grid grid-cols-2 gap-2">
+                         <input className="w-full p-2 border rounded text-xs" placeholder="NIK" value={data.p1Nik} onChange={e => handleDataChange('p1Nik', e.target.value)} />
+                         <input className="w-full p-2 border rounded text-xs" placeholder="Umur" value={data.p1Age} onChange={e => handleDataChange('p1Age', e.target.value)} />
+                      </div>
+                      <input className="w-full p-2 border rounded text-xs" placeholder="Pekerjaan" value={data.p1Job} onChange={e => handleDataChange('p1Job', e.target.value)} />
+                      <textarea className="w-full p-2 border rounded text-xs h-12" placeholder="Alamat" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} />
+                   </div>
+                </div>
+                <div className="border-l-4 border-blue-500 pl-3">
+                   <h4 className="text-xs font-bold text-blue-600 mb-2 uppercase">Pembeli (Pihak 2)</h4>
+                   <div className="space-y-2">
+                      <input className="w-full p-2 border rounded text-xs font-bold" placeholder="Nama" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} />
+                      <div className="grid grid-cols-2 gap-2">
+                         <input className="w-full p-2 border rounded text-xs" placeholder="NIK" value={data.p2Nik} onChange={e => handleDataChange('p2Nik', e.target.value)} />
+                         <input className="w-full p-2 border rounded text-xs" placeholder="Umur" value={data.p2Age} onChange={e => handleDataChange('p2Age', e.target.value)} />
+                      </div>
+                      <input className="w-full p-2 border rounded text-xs" placeholder="Pekerjaan" value={data.p2Job} onChange={e => handleDataChange('p2Job', e.target.value)} />
+                      <textarea className="w-full p-2 border rounded text-xs h-12" placeholder="Alamat" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} />
+                   </div>
+                </div>
+              </div>
+
+              {/* 3. OBJEK TANAH */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <div className="flex items-center gap-2 border-b pb-2"><Map size={14}/><h3 className="text-xs font-bold uppercase">Objek Tanah</h3></div>
                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Hari</label>
-                        <input className="w-full p-2 border rounded text-xs" value={data.day} onChange={e => handleDataChange('day', e.target.value)} placeholder="Senin" />
-                    </div>
-                    <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Tanggal</label>
-                        <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                    <input className="w-full p-2 border rounded text-xs" value={data.landCertType} onChange={e => handleDataChange('landCertType', e.target.value)} placeholder="Jenis Sertifikat" />
+                    <input className="w-full p-2 border rounded text-xs" value={data.landCertNo} onChange={e => handleDataChange('landCertNo', e.target.value)} placeholder="No Sertifikat" />
+                 </div>
+                 <input className="w-full p-2 border rounded text-xs" value={data.landArea} onChange={e => handleDataChange('landArea', e.target.value)} placeholder="Luas (m2)" />
+                 <textarea className="w-full p-2 border rounded text-xs h-12" value={data.landAddress} onChange={e => handleDataChange('landAddress', e.target.value)} placeholder="Alamat Tanah" />
+                 
+                 <div className="bg-slate-50 p-2 border rounded">
+                    <div className="flex items-center gap-2 mb-2"><GripHorizontal size={12}/><label className="text-[10px] font-bold">BATAS-BATAS</label></div>
+                    <div className="grid grid-cols-2 gap-2">
+                       <input className="w-full p-1.5 border rounded text-[10px]" value={data.bNorth} onChange={e => handleDataChange('bNorth', e.target.value)} placeholder="Utara" />
+                       <input className="w-full p-1.5 border rounded text-[10px]" value={data.bSouth} onChange={e => handleDataChange('bSouth', e.target.value)} placeholder="Selatan" />
+                       <input className="w-full p-1.5 border rounded text-[10px]" value={data.bEast} onChange={e => handleDataChange('bEast', e.target.value)} placeholder="Timur" />
+                       <input className="w-full p-1.5 border rounded text-[10px]" value={data.bWest} onChange={e => handleDataChange('bWest', e.target.value)} placeholder="Barat" />
                     </div>
                  </div>
               </div>
-           </div>
 
-           {/* 2. IDENTITAS */}
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-6">
-             <div className="border-l-4 border-red-500 pl-3">
-                <h4 className="text-xs font-bold text-red-600 mb-2 uppercase">Penjual (Pihak 1)</h4>
-                <div className="space-y-2">
-                   <input className="w-full p-2 border rounded text-xs font-bold" placeholder="Nama" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} />
-                   <div className="grid grid-cols-2 gap-2">
-                      <input className="w-full p-2 border rounded text-xs" placeholder="NIK" value={data.p1Nik} onChange={e => handleDataChange('p1Nik', e.target.value)} />
-                      <input className="w-full p-2 border rounded text-xs" placeholder="Umur" value={data.p1Age} onChange={e => handleDataChange('p1Age', e.target.value)} />
-                   </div>
-                   <input className="w-full p-2 border rounded text-xs" placeholder="Pekerjaan" value={data.p1Job} onChange={e => handleDataChange('p1Job', e.target.value)} />
-                   <textarea className="w-full p-2 border rounded text-xs h-12" placeholder="Alamat" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} />
-                </div>
-             </div>
-             <div className="border-l-4 border-blue-500 pl-3">
-                <h4 className="text-xs font-bold text-blue-600 mb-2 uppercase">Pembeli (Pihak 2)</h4>
-                <div className="space-y-2">
-                   <input className="w-full p-2 border rounded text-xs font-bold" placeholder="Nama" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} />
-                   <div className="grid grid-cols-2 gap-2">
-                      <input className="w-full p-2 border rounded text-xs" placeholder="NIK" value={data.p2Nik} onChange={e => handleDataChange('p2Nik', e.target.value)} />
-                      <input className="w-full p-2 border rounded text-xs" placeholder="Umur" value={data.p2Age} onChange={e => handleDataChange('p2Age', e.target.value)} />
-                   </div>
-                   <input className="w-full p-2 border rounded text-xs" placeholder="Pekerjaan" value={data.p2Job} onChange={e => handleDataChange('p2Job', e.target.value)} />
-                   <textarea className="w-full p-2 border rounded text-xs h-12" placeholder="Alamat" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} />
-                </div>
-             </div>
-           </div>
-
-           {/* 3. OBJEK TANAH */}
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-              <div className="flex items-center gap-2 border-b pb-2"><Map size={14}/><h3 className="text-xs font-bold uppercase">Objek Tanah</h3></div>
-              <div className="grid grid-cols-2 gap-3">
-                 <input className="w-full p-2 border rounded text-xs" value={data.landCertType} onChange={e => handleDataChange('landCertType', e.target.value)} placeholder="Jenis Sertifikat" />
-                 <input className="w-full p-2 border rounded text-xs" value={data.landCertNo} onChange={e => handleDataChange('landCertNo', e.target.value)} placeholder="No Sertifikat" />
+              {/* 4. HARGA & BAYAR */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <div className="flex items-center gap-2 border-b pb-2"><BadgeDollarSign size={14}/><h3 className="text-xs font-bold uppercase">Harga Total</h3></div>
+                 <input type="number" className="w-full p-2 border rounded text-sm font-bold" value={data.price} onChange={e => handleDataChange('price', parseInt(e.target.value))} />
+                 <div className="text-[10px] font-bold text-emerald-600 text-right">{formatRupiah(data.price)}</div>
+                 <textarea className="w-full p-2 border rounded text-xs h-12" value={data.priceText} onChange={e => handleDataChange('priceText', e.target.value)} placeholder="Terbilang" />
               </div>
-              <input className="w-full p-2 border rounded text-xs" value={data.landArea} onChange={e => handleDataChange('landArea', e.target.value)} placeholder="Luas (m2)" />
-              <textarea className="w-full p-2 border rounded text-xs h-12" value={data.landAddress} onChange={e => handleDataChange('landAddress', e.target.value)} placeholder="Alamat Tanah" />
-              
-              {/* INPUT BATAS TANAH */}
-              <div className="bg-slate-50 p-2 border rounded">
-                 <div className="flex items-center gap-2 mb-2"><GripHorizontal size={12}/><label className="text-[10px] font-bold">BATAS-BATAS</label></div>
-                 <div className="grid grid-cols-2 gap-2">
-                     <input className="w-full p-1.5 border rounded text-[10px]" value={data.bNorth} onChange={e => handleDataChange('bNorth', e.target.value)} placeholder="Utara" />
-                     <input className="w-full p-1.5 border rounded text-[10px]" value={data.bSouth} onChange={e => handleDataChange('bSouth', e.target.value)} placeholder="Selatan" />
-                     <input className="w-full p-1.5 border rounded text-[10px]" value={data.bEast} onChange={e => handleDataChange('bEast', e.target.value)} placeholder="Timur" />
-                     <input className="w-full p-1.5 border rounded text-[10px]" value={data.bWest} onChange={e => handleDataChange('bWest', e.target.value)} placeholder="Barat" />
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <div className="flex items-center gap-2 border-b pb-2"><CreditCard size={14}/><h3 className="text-xs font-bold uppercase">Pembayaran</h3></div>
+                 <div className="space-y-3">
+                     <div>
+                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Uang Muka (DP)</label>
+                        <input type="number" className="w-full p-2 border rounded text-xs" value={data.dp} onChange={e => handleDataChange('dp', parseInt(e.target.value))} placeholder="Nominal DP" />
+                        <div className="text-[9px] text-emerald-600 text-right mt-1">{formatRupiah(data.dp)}</div>
+                     </div>
+                     <div>
+                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Cara Pembayaran Sisa</label>
+                        <input className="w-full p-2 border rounded text-xs" value={data.paymentMethod} onChange={e => handleDataChange('paymentMethod', e.target.value)} placeholder="Contoh: Transfer BCA / Tunai Bertahap" />
+                     </div>
                  </div>
               </div>
-           </div>
 
-           {/* 4. HARGA & BAYAR */}
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-              <div className="flex items-center gap-2 border-b pb-2"><BadgeDollarSign size={14}/><h3 className="text-xs font-bold uppercase">Harga Total</h3></div>
-              <input type="number" className="w-full p-2 border rounded text-sm font-bold" value={data.price} onChange={e => handleDataChange('price', parseInt(e.target.value))} />
-              <div className="text-[10px] font-bold text-emerald-600 text-right">{formatRupiah(data.price)}</div>
-              <textarea className="w-full p-2 border rounded text-xs h-12" value={data.priceText} onChange={e => handleDataChange('priceText', e.target.value)} placeholder="Terbilang" />
-           </div>
-
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-              <div className="flex items-center gap-2 border-b pb-2"><CreditCard size={14}/><h3 className="text-xs font-bold uppercase">Pembayaran</h3></div>
-              <div className="space-y-3">
-                  <div>
-                     <label className="text-[10px] text-slate-500 font-bold block mb-1">Uang Muka (DP)</label>
-                     <input type="number" className="w-full p-2 border rounded text-xs" value={data.dp} onChange={e => handleDataChange('dp', parseInt(e.target.value))} placeholder="Nominal DP" />
-                     <div className="text-[9px] text-emerald-600 text-right mt-1">{formatRupiah(data.dp)}</div>
-                  </div>
-                  <div>
-                     <label className="text-[10px] text-slate-500 font-bold block mb-1">Cara Pembayaran Sisa</label>
-                     <input className="w-full p-2 border rounded text-xs" value={data.paymentMethod} onChange={e => handleDataChange('paymentMethod', e.target.value)} placeholder="Contoh: Transfer BCA / Tunai Bertahap" />
-                  </div>
-              </div>
-           </div>
-
-           {/* 5. SAKSI & PENYETUJU */}
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-              <div className="flex items-center gap-2 border-b pb-2">
-                <Users size={14} className="text-slate-600"/>
-                <h3 className="text-xs font-bold uppercase">Saksi & Persetujuan</h3>
-              </div>
-              
-              <div className="space-y-1">
-                 <label className="text-[10px] font-bold text-slate-500 uppercase">Penyetuju (Suami/Istri Penjual)</label>
-                 <input className="w-full p-2 border rounded text-xs" value={data.p1Spouse} onChange={e => handleDataChange('p1Spouse', e.target.value)} placeholder="Nama Suami/Istri" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+              {/* 5. SAKSI & PENYETUJU */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <div className="flex items-center gap-2 border-b pb-2">
+                   <Users size={14} className="text-slate-600"/>
+                   <h3 className="text-xs font-bold uppercase">Saksi & Persetujuan</h3>
+                 </div>
+                 
                  <div className="space-y-1">
-                     <label className="text-[10px] font-bold text-slate-500 uppercase">Saksi 1</label>
-                     <input className="w-full p-2 border rounded text-xs" value={data.witness1} onChange={e => handleDataChange('witness1', e.target.value)} placeholder="Nama Saksi 1" />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Penyetuju (Suami/Istri Penjual)</label>
+                    <input className="w-full p-2 border rounded text-xs" value={data.p1Spouse} onChange={e => handleDataChange('p1Spouse', e.target.value)} placeholder="Nama Suami/Istri" />
+                 </div>
+
+                 <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-bold text-slate-500 uppercase">Saksi 1</label>
+                       <input className="w-full p-2 border rounded text-xs" value={data.witness1} onChange={e => handleDataChange('witness1', e.target.value)} placeholder="Nama Saksi 1" />
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-bold text-slate-500 uppercase">Saksi 2</label>
+                       <input className="w-full p-2 border rounded text-xs" value={data.witness2} onChange={e => handleDataChange('witness2', e.target.value)} placeholder="Nama Saksi 2" />
+                    </div>
+                 </div>
+              </div>
+
+              {/* 6. PASAL TAMBAHAN */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <div className="flex items-center gap-2 border-b pb-2">
+                   <FileText size={14} className="text-slate-600"/>
+                   <h3 className="text-xs font-bold uppercase">Pasal Tambahan (Opsional)</h3>
                  </div>
                  <div className="space-y-1">
-                     <label className="text-[10px] font-bold text-slate-500 uppercase">Saksi 2</label>
-                     <input className="w-full p-2 border rounded text-xs" value={data.witness2} onChange={e => handleDataChange('witness2', e.target.value)} placeholder="Nama Saksi 2" />
+                    <label className="text-[10px] text-slate-500 block mb-1">Isi jika ingin menambahkan klausul khusus di akhir surat.</label>
+                    <textarea 
+                       className="w-full p-3 border rounded text-xs h-32 leading-relaxed" 
+                       value={data.additionalClause} 
+                       onChange={e => handleDataChange('additionalClause', e.target.value)} 
+                       placeholder="Contoh: Jika pembeli membatalkan sepihak, maka DP hangus..." 
+                    />
                  </div>
               </div>
-           </div>
 
-           {/* 6. PASAL TAMBAHAN */}
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-              <div className="flex items-center gap-2 border-b pb-2">
-                <FileText size={14} className="text-slate-600"/>
-                <h3 className="text-xs font-bold uppercase">Pasal Tambahan (Opsional)</h3>
-              </div>
-              <div className="space-y-1">
-                 <label className="text-[10px] text-slate-500 block mb-1">Isi jika ingin menambahkan klausul khusus di akhir surat.</label>
-                 <textarea 
-                    className="w-full p-3 border rounded text-xs h-32 leading-relaxed" 
-                    value={data.additionalClause} 
-                    onChange={e => handleDataChange('additionalClause', e.target.value)} 
-                    placeholder="Contoh: Jika pembeli membatalkan sepihak, maka DP hangus..." 
-                 />
-              </div>
+              <div className="h-20 md:hidden"></div>
            </div>
-
         </div>
 
         {/* PREVIEW AREA */}
-        <div className="flex-1 w-full flex justify-center print:hidden pb-20">
-             <div className="w-[210mm] origin-top scale-[0.5] sm:scale-[0.6] lg:scale-100 transition-transform">
-                {DocumentContent}
-             </div>
+        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
+            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                 <div style={{ width: '210mm' }}>
+                    <DocumentContent />
+                 </div>
+               </div>
+            </div>
         </div>
+      </main>
 
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
+         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA (HIDDEN EXCEPT WHEN PRINTING) */}
-      <div className="hidden print:block absolute top-0 left-0 w-full">
-          {DocumentContent}
+      {/* PRINT AREA */}
+      <div id="print-only-root" className="hidden">
+         <div className="flex flex-col">
+            <DocumentContent />
+         </div>
       </div>
 
     </div>

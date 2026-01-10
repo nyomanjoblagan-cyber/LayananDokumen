@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useRef, Suspense } from 'react';
 import { 
   Printer, ArrowLeft, Heart, Building2, UserCircle2, 
-  X, PenTool, ShieldCheck, HandHelping, Coins, MessageSquareQuote
+  X, PenTool, ShieldCheck, HandHelping, Coins, MessageSquareQuote,
+  LayoutTemplate, ChevronDown, Check, ArrowLeftCircle, Edit3, Eye, QrCode
 } from 'lucide-react';
 import Link from 'next/link';
+import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 export default function PermohonanDonasiPage() {
   return (
@@ -16,9 +18,15 @@ export default function PermohonanDonasiPage() {
 }
 
 function DonationBuilder() {
+  // --- STATE SYSTEM ---
+  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
+  const [templateId, setTemplateId] = useState<number>(1);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+
+  // DATA DEFAULT
   const [data, setData] = useState({
     city: 'Denpasar',
-    date: '2026-01-08',
+    date: new Date().toISOString().split('T')[0],
     docNo: '012/PAN-SOSIAL/I/2026',
     
     // PENYELENGGARA
@@ -45,133 +53,271 @@ function DonationBuilder() {
     treasurerName: 'MADE WIRA KUSUMA'
   });
 
+  const TEMPLATES = [
+    { id: 1, name: "Format Yayasan (Sosial)", desc: "Cocok untuk galang dana kemanusiaan" },
+    { id: 2, name: "Format Event (Sponsor)", desc: "Cocok untuk kegiatan/acara komunitas" }
+  ];
+  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+
   const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
 
-  const DonationContent = () => (
-    <div className="bg-white mx-auto box-border p-[20mm] print:p-[15mm] text-slate-900 font-serif shadow-sm print:shadow-none" 
-         style={{ width: '210mm' }}>
-      
-      {/* HEADER SURAT - FORMAL SOSIAL */}
-      <div className="flex flex-col items-center border-b-4 border-double border-emerald-700 pb-4 mb-8 text-center shrink-0">
-        <h1 className="text-[14pt] font-black uppercase leading-tight tracking-tighter text-emerald-800">{data.orgName}</h1>
-        <p className="text-[9pt] font-sans mt-1 italic text-slate-600">{data.orgAddress}</p>
-      </div>
-
-      {/* JUDUL & NOMOR */}
-      <div className="mb-8 text-[11pt] leading-normal">
-        <div className="flex justify-between mb-4">
-           <div>
-              <p>Nomor : {data.docNo}</p>
-              <p>Hal : <b>Permohonan Donasi & Bantuan Sosial</b></p>
+  // --- KOMPONEN ISI SURAT ---
+  const ContentInside = () => {
+    if (templateId === 1) {
+      // --- TEMPLATE 1: YAYASAN (Formal Emosional - Compact) ---
+      return (
+        <div className="font-serif text-[10.5pt] text-slate-900 leading-snug">
+           
+           {/* HEADER SURAT */}
+           <div className="flex flex-col items-center border-b-4 border-double border-emerald-700 pb-3 mb-6 text-center shrink-0">
+              <h1 className="text-[13pt] font-black uppercase leading-tight tracking-tighter text-emerald-800">{data.orgName}</h1>
+              <p className="text-[9pt] font-sans mt-1 italic text-slate-600">{data.orgAddress}</p>
            </div>
-           <p>{data.city}, {new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
-        </div>
-        <div className="mt-6 leading-snug">
-          <p>Yth. <b>{data.targetName}</b></p>
-          <p>{data.targetLocation}</p>
-        </div>
-      </div>
 
-      {/* ISI SURAT */}
-      <div className="text-[11pt] leading-relaxed text-justify space-y-5">
-        <p>Dengan hormat, sehubungan dengan rencana pelaksanaan kegiatan <b>{data.activityName}</b> yang akan dilaksanakan pada tanggal {data.executionDate}, kami bermaksud memohon dukungan Bapak/Ibu.</p>
-        
-        <p>Kegiatan ini bertujuan untuk membantu <b>{data.targetAudience}</b> yang saat ini sangat membutuhkan uluran tangan kita bersama. Adapun estimasi total dana yang dibutuhkan adalah sebesar <b>{data.totalNeed}</b>.</p>
+           {/* JUDUL & NOMOR */}
+           <div className="mb-6 text-[10.5pt]">
+              <div className="flex justify-between mb-3 items-start">
+                 <div>
+                    <p>Nomor : {data.docNo}</p>
+                    <p>Hal : <b>Permohonan Donasi & Bantuan Sosial</b></p>
+                 </div>
+                 <p className="text-right">{data.city}, {new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+              </div>
+              <div className="mt-4 leading-snug">
+                 <p>Yth. <b>{data.targetName}</b></p>
+                 <p>{data.targetLocation}</p>
+              </div>
+           </div>
 
-        <div className="bg-emerald-50 p-5 rounded-2xl border-2 border-dashed border-emerald-200 font-sans text-[10.5pt] italic text-center text-emerald-900 leading-relaxed shadow-inner">
-           <MessageSquareQuote size={20} className="mx-auto mb-2 opacity-30" />
-           "{data.closingWord}"
+           {/* ISI SURAT */}
+           <div className="text-[10.5pt] leading-snug text-justify space-y-3 flex-grow">
+              <p>Dengan hormat,</p>
+              <p>Sehubungan dengan rencana pelaksanaan kegiatan <b>{data.activityName}</b> yang akan dilaksanakan pada tanggal {data.executionDate}, kami bermaksud memohon dukungan Bapak/Ibu.</p>
+              
+              <p>Kegiatan ini bertujuan untuk membantu <b>{data.targetAudience}</b> yang saat ini sangat membutuhkan uluran tangan kita bersama. Adapun estimasi total dana yang dibutuhkan adalah sebesar <b>{data.totalNeed}</b>.</p>
+
+              <div className="bg-emerald-50 p-4 rounded-xl border-2 border-dashed border-emerald-200 font-sans text-[10pt] italic text-center text-emerald-900 leading-relaxed shadow-inner my-4">
+                 <MessageSquareQuote size={18} className="mx-auto mb-1 opacity-30" />
+                 "{data.closingWord}"
+              </div>
+
+              <p>Bagi Bapak/Ibu yang berkenan memberikan donasi, bantuan dapat disalurkan melalui:</p>
+              <div className="p-3 border-l-4 border-emerald-600 bg-slate-50 font-mono text-[10pt] tracking-tight">
+                 {data.bankInfo}
+              </div>
+
+              <p>Demikian permohonan ini kami sampaikan. Atas keikhlasan dan partisipasi Bapak/Ibu, kami ucapkan terima kasih yang sebesar-besarnya. Semoga Tuhan Yang Maha Esa membalas kebaikan Anda.</p>
+           </div>
+
+           {/* TANDA TANGAN */}
+           <div className="mt-8 pt-4 border-t border-slate-100" style={{ pageBreakInside: 'avoid' }}>
+              <table className="w-full table-fixed text-[10.5pt]">
+                 <tbody>
+                    <tr>
+                       <td className="text-center pb-16 align-top">
+                          <p className="uppercase text-[8pt] font-black text-slate-400 tracking-widest mb-1">Ketua Panitia,</p>
+                       </td>
+                       <td className="text-center pb-16 align-top">
+                          <p className="uppercase text-[8pt] font-black text-slate-400 tracking-widest mb-1">Bendahara,</p>
+                       </td>
+                    </tr>
+                    <tr>
+                       <td className="text-center">
+                          <p className="font-bold underline uppercase">{data.chairmanName}</p>
+                       </td>
+                       <td className="text-center">
+                          <p className="font-bold underline uppercase">{data.treasurerName}</p>
+                       </td>
+                    </tr>
+                 </tbody>
+              </table>
+              <div className="mt-6 text-[8pt] text-slate-400 text-center font-sans italic border-t pt-2">
+                 Konfirmasi & Dokumentasi: {data.contactPerson}
+              </div>
+           </div>
         </div>
+      );
+    } else {
+      // --- TEMPLATE 2: EVENT SPONSORSHIP (Modern Compact) ---
+      return (
+        <div className="font-sans text-[10.5pt] text-slate-800 leading-snug">
+           
+           {/* HEADER MODERN */}
+           <div className="flex justify-between items-end border-b-2 border-slate-900 pb-3 mb-6">
+              <div>
+                 <h1 className="text-xl font-black uppercase tracking-tight text-slate-900 leading-none">{data.orgName}</h1>
+                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Organizing Committee</p>
+              </div>
+              <div className="text-right text-[10px]">
+                 <p>{data.city}, {new Date(data.date).toLocaleDateString('id-ID')}</p>
+                 <p className="font-mono">{data.docNo}</p>
+              </div>
+           </div>
 
-        <p>Bagi Bapak/Ibu yang berkenan memberikan donasi, bantuan dapat disalurkan melalui:</p>
-        <div className="p-4 border-l-4 border-emerald-600 bg-slate-50 font-mono text-[10pt] tracking-tight">
-            {data.bankInfo}
+           <div className="mb-6">
+              <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-1">Kepada Yth,</p>
+              <p className="font-bold text-base">{data.targetName}</p>
+              <p className="text-slate-600 text-sm">{data.targetLocation}</p>
+           </div>
+
+           <div className="space-y-4 text-justify">
+              <p>
+                 Kami selaku panitia pelaksana dengan ini mengajukan permohonan <strong>Sponsorship / Bantuan Dana</strong> untuk menyukseskan kegiatan:
+              </p>
+
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                 <h2 className="text-lg font-black text-blue-900 uppercase mb-2">{data.activityName}</h2>
+                 <p className="text-xs text-slate-600 mb-1">Target Peserta: <strong>{data.targetAudience}</strong></p>
+                 <p className="text-xs text-slate-600">Pelaksanaan: <strong>{data.executionDate}</strong></p>
+              </div>
+
+              <p>
+                 Total kebutuhan dana untuk kegiatan ini adalah sebesar <strong>{data.totalNeed}</strong>. Dukungan dari perusahaan/instansi Bapak/Ibu akan sangat berarti bagi kelancaran acara ini dan akan kami apresiasi dalam bentuk publikasi logo pada media promosi acara.
+              </p>
+
+              <div className="flex items-center gap-4 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                 <div className="bg-white p-2 rounded shadow-sm">
+                    <QrCode size={32} className="text-slate-800"/>
+                 </div>
+                 <div className="flex-1">
+                    <p className="text-[9px] font-bold text-blue-800 uppercase tracking-widest mb-1">Saluran Donasi Resmi</p>
+                    <p className="font-mono text-xs font-bold text-slate-900">{data.bankInfo}</p>
+                 </div>
+              </div>
+
+              <p>
+                 Besar harapan kami agar Bapak/Ibu dapat berpartisipasi. Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.
+              </p>
+           </div>
+
+           <div className="mt-8 flex justify-end" style={{ pageBreakInside: 'avoid' }}>
+              <div className="text-center w-60">
+                 <p className="mb-16 font-bold text-[10px] uppercase tracking-widest text-slate-400">Ketua Pelaksana</p>
+                 <p className="font-black text-slate-900 border-b-2 border-slate-900 inline-block uppercase text-sm">{data.chairmanName}</p>
+                 <p className="text-[9px] mt-1 text-slate-500">Contact: {data.contactPerson}</p>
+              </div>
+           </div>
         </div>
-
-        <p>Demikian permohonan ini kami sampaikan. Atas keikhlasan dan partisipasi Bapak/Ibu, kami ucapkan terima kasih yang sebesar-besarnya. Semoga Tuhan Yang Maha Esa membalas kebaikan Anda.</p>
-      </div>
-
-      {/* TANDA TANGAN - DOUBLE VERIFICATION */}
-      <div className="mt-12 pt-6 border-t border-slate-100 break-inside-avoid">
-        <table className="w-full table-fixed">
-          <tbody>
-            <tr>
-              <td className="text-center">
-                <p className="uppercase text-[8pt] font-black text-slate-400 mb-20 tracking-widest">Ketua Panitia,</p>
-                <p className="font-bold underline uppercase text-[11pt]">{data.chairmanName}</p>
-              </td>
-              <td className="text-center">
-                <p className="uppercase text-[8pt] font-black text-slate-400 mb-20 tracking-widest">Bendahara,</p>
-                <p className="font-bold underline uppercase text-[11pt]">{data.treasurerName}</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div className="mt-8 text-[8.5pt] text-slate-400 text-center font-sans italic border-t pt-4">
-           Konfirmasi & Dokumentasi: {data.contactPerson}
-        </div>
-      </div>
-    </div>
-  );
+      );
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-200 font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
+      
+      {/* --- JURUS TABLE WRAPPER (Print Fix) --- */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0 !important; }
-          body, html { margin: 0 !important; padding: 0 !important; background: white !important; overflow: visible !important; }
-          #ui-root { display: none !important; }
-          #print-only-root { display: block !important; }
-          .break-inside-avoid { break-inside: avoid !important; }
+          @page { size: A4; margin: 0; }
+          .no-print { display: none !important; }
+          body { background: white; margin: 0; padding: 0; display: block !important; }
+          #print-only-root { display: block !important; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 9999; background: white; }
+          
+          .print-table { width: 100%; border-collapse: collapse; }
+          .print-table thead { height: 20mm; } 
+          .print-table tfoot { height: 20mm; } 
+          .print-content-wrapper { padding: 0 20mm; }
+          
+          tr, .keep-together { page-break-inside: avoid !important; }
         }
       `}</style>
 
-      {/* UI EDITOR */}
-      <div id="ui-root" className="flex flex-col h-screen no-print">
-        <div className="bg-slate-900 text-white h-16 shrink-0 flex items-center justify-between px-6 border-b border-slate-700 shadow-xl">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-all"><ArrowLeft size={20} /></Link>
-            <h1 className="font-black text-sm uppercase tracking-tighter text-emerald-400 flex items-center gap-2 italic">
-               <Heart size={18} /> Charity <span className="text-white not-italic opacity-40 font-normal italic">Fundraiser</span>
-            </h1>
-          </div>
-          <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-2 rounded-xl font-black uppercase text-xs flex items-center gap-2 active:scale-95 transition-all shadow-lg">
-            <Printer size={16} /> Print Surat Donasi
-          </button>
-        </div>
+      {/* HEADER NAVY */}
+      <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
+         <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
+            <div className="flex items-center gap-4">
+               <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-800 rounded-full transition-all group">
+                  <ArrowLeftCircle size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors"/>
+                  <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
+               </Link>
+               <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
+               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Surat Donasi <span className="text-emerald-400">Generator</span></h1></div>
+            </div>
+            <div className="flex items-center gap-3">
+               <div className="hidden md:flex relative">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
+                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Format Yayasan' : 'Format Sponsor'}</span><ChevronDown size={14} className="text-slate-500"/>
+                  </button>
+                  {showTemplateMenu && (
+                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
+                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> Format Yayasan</button>
+                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Format Sponsor</button>
+                     </div>
+                  )}
+               </div>
+               <div className="relative md:hidden"><button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">Tampilan <ChevronDown size={14}/></button></div>
+               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+            </div>
+         </div>
+      </header>
 
-        <div className="flex-grow flex overflow-hidden">
-          {/* SIDEBAR */}
-          <div className="w-[420px] bg-white border-r overflow-y-auto p-6 space-y-8 scrollbar-thin text-slate-900 shadow-inner">
-             <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Penyelenggara</h3>
-                <input className="w-full p-3 border rounded-xl text-xs font-bold uppercase bg-slate-50" value={data.orgName} onChange={e => handleDataChange('orgName', e.target.value)} />
-                <input className="w-full p-3 border rounded-xl text-xs" value={data.contactPerson} onChange={e => handleDataChange('contactPerson', e.target.value)} />
-             </div>
-             <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><HandHelping size={12}/> Target & Tujuan</h3>
-                <textarea className="w-full p-3 border rounded-xl text-xs h-24 resize-none leading-relaxed" value={data.activityName} onChange={e => handleDataChange('activityName', e.target.value)} />
-                <input className="w-full p-3 border rounded-xl text-xs" value={data.targetAudience} onChange={e => handleDataChange('targetAudience', e.target.value)} placeholder="Target Penerima Bantuan" />
-             </div>
-             <div className="space-y-4 pb-10">
-                <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 flex items-center gap-2"><Coins size={12}/> Detail Dana</h3>
-                <input className="w-full p-3 border rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50" value={data.totalNeed} onChange={e => handleDataChange('totalNeed', e.target.value)} />
-                <textarea className="w-full p-3 border rounded-xl text-xs h-20 resize-none font-mono" value={data.bankInfo} onChange={e => handleDataChange('bankInfo', e.target.value)} />
-                <input className="w-full p-3 border rounded-xl text-xs" value={data.chairmanName} onChange={e => handleDataChange('chairmanName', e.target.value)} placeholder="Nama Ketua" />
-                <input className="w-full p-3 border rounded-xl text-xs" value={data.treasurerName} onChange={e => handleDataChange('treasurerName', e.target.value)} placeholder="Nama Bendahara" />
-             </div>
-          </div>
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+         {/* EDITOR */}
+         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
+               <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
 
-          <div className="flex-1 overflow-y-auto p-12 flex justify-center bg-slate-300/30 shadow-inner">
-             <div className="origin-top scale-[0.55] lg:scale-[0.8] xl:scale-95 transition-transform shadow-2xl">
-                <DonationContent />
+               {/* PENYELENGGARA */}
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Penyelenggara</h3>
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Organisasi/Yayasan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase" value={data.orgName} onChange={e => handleDataChange('orgName', e.target.value)} /></div>
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat Lengkap</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none" value={data.orgAddress} onChange={e => handleDataChange('orgAddress', e.target.value)} /></div>
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kontak Person</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.contactPerson} onChange={e => handleDataChange('contactPerson', e.target.value)} /></div>
+                  </div>
+               </div>
+
+               {/* KEGIATAN */}
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><HandHelping size={12}/> Detail Kegiatan</h3>
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Kegiatan</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase h-16 resize-none" value={data.activityName} onChange={e => handleDataChange('activityName', e.target.value)} /></div>
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Target Penerima</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.targetAudience} onChange={e => handleDataChange('targetAudience', e.target.value)} /></div>
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal Pelaksanaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.executionDate} onChange={e => handleDataChange('executionDate', e.target.value)} /></div>
+                  </div>
+               </div>
+
+               {/* KEUANGAN */}
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Coins size={12}/> Dana & Rekening</h3>
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kebutuhan Dana</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold text-emerald-600" value={data.totalNeed} onChange={e => handleDataChange('totalNeed', e.target.value)} /></div>
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Info Rekening</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono h-16 resize-none" value={data.bankInfo} onChange={e => handleDataChange('bankInfo', e.target.value)} /></div>
+                     <div className="grid grid-cols-2 gap-3 pt-2 border-t border-dashed border-slate-200">
+                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ketua</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold" value={data.chairmanName} onChange={e => handleDataChange('chairmanName', e.target.value)} /></div>
+                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Bendahara</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold" value={data.treasurerName} onChange={e => handleDataChange('treasurerName', e.target.value)} /></div>
+                     </div>
+                  </div>
+               </div>
+               <div className="h-20 md:hidden"></div>
+            </div>
+         </div>
+
+         {/* PREVIEW */}
+         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
+             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0">
+                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
+                      <ContentInside />
+                   </div>
+                </div>
              </div>
-          </div>
-        </div>
+         </div>
+      </main>
+
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
+         <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
+      {/* --- PRINT PORTAL (FIX: TABLE WRAPPER) --- */}
       <div id="print-only-root" className="hidden">
-         <DonationContent />
+         <table className="print-table">
+            <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
+            <tbody><tr><td><div className="print-content-wrapper"><ContentInside /></div></td></tr></tbody>
+            <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
+         </table>
       </div>
     </div>
   );

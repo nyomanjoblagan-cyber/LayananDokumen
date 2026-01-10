@@ -1,51 +1,70 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useRef, Suspense } from 'react';
 import { 
-  Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  Box, Briefcase, Key, Plus, Trash2, CalendarDays, FileText, User
+  Printer, ArrowLeft, GraduationCap, User, 
+  Wallet, FileText, LayoutTemplate, ChevronDown, 
+  CheckSquare, ArrowLeftCircle, Edit3, Eye, Building2
 } from 'lucide-react';
 import Link from 'next/link';
+import AdsterraBanner from '@/components/AdsterraBanner'; 
 
-export default function BASTPage() {
+export default function BeasiswaPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Sistem Logistik...</div>}>
-      <BASTBuilder />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Sistem Beasiswa...</div>}>
+      <ScholarshipBuilder />
     </Suspense>
   );
 }
 
-function BASTBuilder() {
-  // --- STATE ---
+function ScholarshipBuilder() {
+  // --- STATE SYSTEM ---
+  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
 
   // DATA DEFAULT
   const [data, setData] = useState({
-    // META
-    no: '001/BAST/LOG/I/2026',
-    day: 'Senin',
-    date: new Date().toISOString().split('T')[0],
     city: 'Jakarta',
+    date: new Date().toISOString().split('T')[0],
     
-    // PIHAK 1 (YANG MENYERAHKAN)
-    p1Name: 'BUDI SANTOSO', p1Title: 'Staff Gudang', p1Dept: 'Logistik',
+    // Tujuan Surat
+    targetName: 'Rektor Universitas Indonesia',
+    targetDept: 'u.p. Direktur Kemahasiswaan',
+    targetAddress: 'Di Tempat',
     
-    // PIHAK 2 (YANG MENERIMA)
-    p2Name: 'SISKA AMELIA', p2Title: 'Staff IT', p2Dept: 'Information Technology',
+    // Data Diri
+    name: 'ANDI PRATAMA',
+    nim: '2023102030',
+    placeDateBirth: 'Bandung, 12 Mei 2003',
+    major: 'S1 Teknik Informatika',
+    semester: '5 (Lima)',
+    ipk: '3.85',
+    address: 'Jl. Margonda Raya No. 123, Depok',
+    phone: '0812-3456-7890',
     
-    // JENIS & ISI
-    type: 'Barang', // Barang / Pekerjaan
-    items: [
-      { id: 1, name: 'Laptop Dell Latitude 7420', qty: '1 Unit', condition: 'Baik / Baru' },
-      { id: 2, name: 'Mouse Wireless Logitech', qty: '1 Pcs', condition: 'Baik' },
-      { id: 3, name: 'Tas Laptop Original', qty: '1 Pcs', condition: 'Baik' },
-    ],
-    desc: 'Telah diserahterimakan kunci ruang server dan akses card level 3 sehubungan dengan libur panjang lebaran.',
+    // Data Bank (Penting untuk transfer)
+    bankName: 'Bank Mandiri',
+    bankAcc: '123-00-9876543-2',
+    bankHolder: 'Andi Pratama',
+
+    // Data Orang Tua
+    fatherName: 'Budi Santoso',
+    fatherJob: 'Wiraswasta',
     
-    // TAMBAHAN
-    witness: 'Pak Rahmat (Kepala GA)',
-    additionalNote: '' // Catatan tambahan opsional
+    // Isi
+    scholarshipName: 'Beasiswa Unggulan Berprestasi',
+    reason: 'Saya berasal dari keluarga sederhana dan saat ini sedang membutuhkan bantuan biaya pendidikan untuk menunjang perkuliahan saya. Saya aktif dalam organisasi himpunan mahasiswa dan mempertahankan IPK di atas 3.50 setiap semester.',
+    
+    // Lampiran (Checklist)
+    attachments: {
+      ktm: true,
+      ktp: true,
+      transkrip: true,
+      sktm: false,
+      piagam: true,
+      proposal: false
+    }
   });
 
   // HANDLERS
@@ -53,429 +72,349 @@ function BASTBuilder() {
     setData({ ...data, [field]: val });
   };
 
-  const addItem = () => {
-    setData({ ...data, items: [...data.items, { id: Date.now(), name: '', qty: '', condition: '' }] });
-  };
-  
-  const removeItem = (idx: number) => {
-    const newItems = [...data.items];
-    newItems.splice(idx, 1);
-    setData({ ...data, items: newItems });
-  };
-  
-  const updateItem = (idx: number, field: string, val: string) => {
-    const newItems:any = [...data.items];
-    newItems[idx][field] = val;
-    setData({ ...data, items: newItems });
+  const toggleAttachment = (key: keyof typeof data.attachments) => {
+    setData({
+      ...data,
+      attachments: { ...data.attachments, [key]: !data.attachments[key] }
+    });
   };
 
-  // PRESETS (TOMBOL CEPAT)
-  const applyPreset = (type: 'goods' | 'job' | 'key') => {
-    if (type === 'goods') {
-      setTemplateId(1);
-      setData(prev => ({
-        ...prev, type: 'Barang',
-        items: [{ id: Date.now(), name: 'Laptop Kantor', qty: '1 Unit', condition: 'Baik' }]
-      }));
-    } else if (type === 'job') {
-      setTemplateId(1);
-      setData(prev => ({
-        ...prev, type: 'Pekerjaan',
-        items: [{ id: Date.now(), name: 'Source Code Aplikasi POS', qty: '1 Flashdisk', condition: 'Final v1.0' }]
-      }));
-    } else if (type === 'key') {
-      setTemplateId(2);
-      setData(prev => ({
-        ...prev, type: 'Aset/Kunci',
-        desc: 'Serah terima kunci kendaraan operasional Toyota Avanza B 1234 CD beserta STNK asli.'
-      }));
+  // --- KOMPONEN ISI SURAT ---
+  const ContentInside = () => {
+    const lampiranList = [
+      data.attachments.ktm && 'Fotokopi Kartu Tanda Mahasiswa (KTM)',
+      data.attachments.ktp && 'Fotokopi KTP',
+      data.attachments.transkrip && 'Transkrip Nilai Terakhir (Legalisir)',
+      data.attachments.sktm && 'Surat Keterangan Tidak Mampu (SKTM)',
+      data.attachments.piagam && 'Fotokopi Sertifikat/Piagam Prestasi',
+      data.attachments.proposal && 'Proposal Pengajuan Dana',
+    ].filter(Boolean);
+
+    if (templateId === 1) {
+      // --- TEMPLATE 1: FORMAL INSTITUSIONAL ---
+      return (
+        <div className="font-serif text-[11pt] text-slate-900 leading-relaxed">
+           
+           {/* HEADER SURAT */}
+           <div className="flex justify-between items-start mb-8">
+              <div>
+                 <div className="mb-1">Hal: <strong>Permohonan {data.scholarshipName}</strong></div>
+                 <div>Lampiran: 1 (Satu) Berkas</div>
+              </div>
+              <div className="text-right">
+                 {data.city}, {new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}
+              </div>
+           </div>
+
+           <div className="mb-6">
+              <p>Yth. <strong>{data.targetName}</strong></p>
+              {data.targetDept && <p>{data.targetDept}</p>}
+              <p>{data.targetAddress}</p>
+           </div>
+
+           <div className="text-justify">
+              <p className="mb-4">Dengan hormat,</p>
+              <p className="mb-4">Saya yang bertanda tangan di bawah ini, mahasiswa:</p>
+              
+              <div className="ml-4 mb-4">
+                 <table className="w-full text-[11pt]">
+                    <tbody>
+                        <tr><td className="w-[160px]">Nama</td><td className="w-4">:</td><td className="font-bold uppercase">{data.name}</td></tr>
+                        <tr><td>NIM / NPM</td><td>:</td><td>{data.nim}</td></tr>
+                        <tr><td>Fakultas / Jurusan</td><td>:</td><td>{data.major}</td></tr>
+                        <tr><td>Semester</td><td>:</td><td>{data.semester}</td></tr>
+                        <tr><td>IPK Terakhir</td><td>:</td><td className="font-bold">{data.ipk}</td></tr>
+                        <tr><td>Tempat/Tgl Lahir</td><td>:</td><td>{data.placeDateBirth}</td></tr>
+                        <tr><td>Alamat</td><td>:</td><td>{data.address}</td></tr>
+                        <tr><td>No. HP / WA</td><td>:</td><td>{data.phone}</td></tr>
+                    </tbody>
+                 </table>
+              </div>
+
+              <p className="mb-4">
+                 Bersama surat ini, saya bermaksud mengajukan permohonan untuk mendapatkan <strong>{data.scholarshipName}</strong>. 
+                 Adapun alasan saya mengajukan beasiswa ini adalah:
+              </p>
+              
+              <div className="bg-slate-50 p-4 border-l-4 border-slate-400 mb-6 text-justify italic rounded">
+                 "{data.reason}"
+              </div>
+
+              <p className="mb-2">Sebagai bahan pertimbangan Bapak/Ibu, bersama ini saya lampirkan kelengkapan administrasi sebagai berikut:</p>
+              
+              <ol className="list-decimal list-inside mb-6 ml-2 space-y-1">
+                 {lampiranList.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                 ))}
+                 <li>Pas Foto Terbaru ukuran 4x6</li>
+              </ol>
+
+              <p className="mb-2">Apabila permohonan ini disetujui, dana beasiswa dapat disalurkan melalui:</p>
+              <div className="ml-4 mb-6 font-bold">
+                 {data.bankName} — No. Rek: {data.bankAcc} <br/>
+                 a.n {data.bankHolder}
+              </div>
+
+              <p className="mb-8">
+                 Demikian surat permohonan ini saya buat dengan sebenar-benarnya dan sungguh-sungguh. Besar harapan saya agar permohonan ini dapat dikabulkan. Atas perhatian dan kebijaksanaan Bapak/Ibu, saya ucapkan terima kasih.
+              </p>
+           </div>
+
+           {/* TTD */}
+           <div className="flex justify-end" style={{ pageBreakInside: 'avoid' }}>
+              <div className="text-center w-64">
+                 <p className="mb-24">Hormat saya,</p>
+                 <p className="font-bold border-b border-black inline-block uppercase">{data.name}</p>
+                 <p>NIM. {data.nim}</p>
+              </div>
+           </div>
+        </div>
+      );
+    } else {
+      // --- TEMPLATE 2: MODERN CLEAN ---
+      return (
+        <div className="font-sans text-[10.5pt] text-slate-800 leading-relaxed">
+           
+           {/* HEADER MODERN */}
+           <div className="mb-10 border-b-2 border-emerald-500 pb-4">
+              <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">Permohonan Beasiswa</h1>
+              <div className="flex justify-between mt-2">
+                 <p className="text-emerald-600 font-bold">{data.scholarshipName}</p>
+                 <p className="text-slate-500 text-sm">{data.city}, {new Date(data.date).toLocaleDateString('id-ID', {dateStyle: 'long'})}</p>
+              </div>
+           </div>
+
+           <div className="mb-8">
+              <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-1">Kepada Yth.</p>
+              <p className="font-bold text-lg">{data.targetName}</p>
+              <p className="text-slate-600">{data.targetDept}</p>
+           </div>
+
+           <div className="grid grid-cols-2 gap-6 mb-8">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                 <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-3 border-b pb-1">Data Mahasiswa</p>
+                 <div className="space-y-1 text-sm">
+                    <p><span className="text-slate-500 block text-[8pt]">Nama Lengkap</span><span className="font-bold uppercase">{data.name}</span></p>
+                    <p><span className="text-slate-500 block text-[8pt]">NIM</span><span className="font-mono">{data.nim}</span></p>
+                    <p><span className="text-slate-500 block text-[8pt]">Jurusan</span>{data.major}</p>
+                    <p><span className="text-slate-500 block text-[8pt]">IPK Saat Ini</span><span className="font-bold text-emerald-600">{data.ipk}</span></p>
+                 </div>
+              </div>
+              
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                 <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-3 border-b pb-1">Rekening Pencairan</p>
+                 <div className="space-y-1 text-sm">
+                    <p><span className="text-slate-500 block text-[8pt]">Nama Bank</span>{data.bankName}</p>
+                    <p><span className="text-slate-500 block text-[8pt]">Nomor Rekening</span><span className="font-mono text-lg tracking-wider">{data.bankAcc}</span></p>
+                    <p><span className="text-slate-500 block text-[8pt]">Atas Nama</span>{data.bankHolder}</p>
+                 </div>
+              </div>
+           </div>
+
+           <div className="mb-8">
+              <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-2">Latar Belakang Permohonan</p>
+              <p className="text-justify mb-4">Dengan ini saya mengajukan permohonan beasiswa dengan alasan sebagai berikut:</p>
+              <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-100 text-justify text-sm italic">
+                 "{data.reason}"
+              </div>
+           </div>
+
+           <div className="mb-10">
+              <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-2">Lampiran Dokumen</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                 {lampiranList.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                       <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[8px] font-bold">✓</div>
+                       {item}
+                    </div>
+                 ))}
+              </div>
+           </div>
+
+           <div className="flex justify-end pt-8 border-t border-slate-100" style={{ pageBreakInside: 'avoid' }}>
+              <div className="text-center w-64">
+                 <p className="mb-20 font-bold text-slate-500 text-xs uppercase tracking-widest">Pemohon</p>
+                 <p className="font-black text-slate-900 border-b-2 border-slate-900 inline-block uppercase">{data.name}</p>
+                 <p className="text-xs mt-1 text-slate-400">{data.nim}</p>
+              </div>
+           </div>
+        </div>
+      );
     }
   };
 
-  const TEMPLATES = [
-    { id: 1, name: "Format Tabel (Barang/Jasa)", desc: "Cocok untuk list inventory banyak" },
-    { id: 2, name: "Format Narasi (Simple)", desc: "Cocok untuk serah terima kunci/dokumen tunggal" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
-
-  // --- KOMPONEN KERTAS (ALL-IN-ONE) ---
-  const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-    <div className={`
-      w-[210mm] h-[296mm] 
-      bg-white shadow-2xl print:shadow-none 
-      p-[20mm] mx-auto 
-      text-slate-900 font-sans leading-relaxed text-[10pt]
-      overflow-hidden relative
-      mb-8 print:mb-0 print:mt-0 
-      ${className}
-    `}>
-      {children}
-    </div>
-  );
-
-  // --- ISI DOKUMEN (PREVIEW & PRINT SAMA) ---
-  const DocumentContent = (
-    <Kertas>
-        {/* TEMPLATE 1: TABEL FORMAL */}
-        {templateId === 1 && (
-          <div className="h-full flex flex-col">
-             <div className="text-center mb-8 pb-4 border-b-2 border-black">
-                <h1 className="text-xl font-black uppercase tracking-tight">BERITA ACARA SERAH TERIMA {data.type.toUpperCase()}</h1>
-                <div className="text-sm font-bold text-slate-500">No: {data.no}</div>
-             </div>
-
-             <p className="mb-4 text-justify">
-                Pada hari ini <strong>{data.day}</strong>, tanggal <strong>{new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:
-             </p>
-
-             <div className="mb-6 grid gap-4">
-                <div className="bg-slate-50 print:bg-transparent p-3 border border-slate-200 print:border-slate-300">
-                   <div className="font-bold text-xs uppercase text-slate-500 mb-1">PIHAK PERTAMA (Yang Menyerahkan)</div>
-                   <table className="w-full text-sm">
-                      <tbody>
-                         <tr><td className="w-20 font-bold">Nama</td><td className="w-3">:</td><td>{data.p1Name}</td></tr>
-                         <tr><td className="font-bold">Jabatan</td><td>:</td><td>{data.p1Title}</td></tr>
-                         <tr><td className="font-bold">Divisi</td><td>:</td><td>{data.p1Dept}</td></tr>
-                      </tbody>
-                   </table>
-                </div>
-
-                <div className="bg-slate-50 print:bg-transparent p-3 border border-slate-200 print:border-slate-300">
-                   <div className="font-bold text-xs uppercase text-slate-500 mb-1">PIHAK KEDUA (Yang Menerima)</div>
-                   <table className="w-full text-sm">
-                      <tbody>
-                         <tr><td className="w-20 font-bold">Nama</td><td className="w-3">:</td><td>{data.p2Name}</td></tr>
-                         <tr><td className="font-bold">Jabatan</td><td>:</td><td>{data.p2Title}</td></tr>
-                         <tr><td className="font-bold">Divisi</td><td>:</td><td>{data.p2Dept}</td></tr>
-                      </tbody>
-                   </table>
-                </div>
-             </div>
-
-             <p className="mb-4 text-justify">
-                PIHAK PERTAMA menyerahkan kepada PIHAK KEDUA, dan PIHAK KEDUA menyatakan telah menerima dari PIHAK PERTAMA, barang/pekerjaan dengan rincian sebagai berikut:
-             </p>
-
-             <div className="mb-4 border border-black">
-                <table className="w-full text-sm">
-                   <thead className="bg-slate-100 print:bg-slate-200 text-xs font-bold uppercase">
-                      <tr>
-                         <th className="py-2 px-3 border-b border-r border-black text-center w-10">No</th>
-                         <th className="py-2 px-3 border-b border-r border-black text-left">Nama Barang / Deskripsi</th>
-                         <th className="py-2 px-3 border-b border-r border-black text-center w-24">Jumlah</th>
-                         <th className="py-2 px-3 border-b border-black text-center w-32">Kondisi</th>
-                      </tr>
-                   </thead>
-                   <tbody>
-                      {data.items.map((item, idx) => (
-                         <tr key={item.id}>
-                            <td className="py-2 px-3 border-r border-black text-center border-b last:border-b-0">{idx + 1}</td>
-                            <td className="py-2 px-3 border-r border-black font-bold border-b last:border-b-0">{item.name}</td>
-                            <td className="py-2 px-3 border-r border-black text-center border-b last:border-b-0">{item.qty}</td>
-                            <td className="py-2 px-3 border-black text-center border-b last:border-b-0">{item.condition}</td>
-                         </tr>
-                      ))}
-                   </tbody>
-                </table>
-             </div>
-
-             {data.additionalNote && (
-                <div className="mb-4 text-sm italic">
-                   <strong>Catatan:</strong> {data.additionalNote}
-                </div>
-             )}
-
-             <p className="mb-8 text-justify text-sm">
-                Sejak ditandatanganinya Berita Acara ini, maka tanggung jawab atas barang/pekerjaan tersebut beralih dari PIHAK PERTAMA kepada PIHAK KEDUA.
-             </p>
-
-             <div className="flex justify-between text-center mt-auto mb-8">
-                <div className="w-48">
-                   <p className="mb-1 text-xs font-bold text-slate-500">YANG MENERIMA</p>
-                   <p className="mb-20 font-bold">PIHAK KEDUA</p>
-                   <p className="font-bold border-b border-black inline-block px-4">{data.p2Name}</p>
-                </div>
-                <div className="w-48">
-                   <p className="mb-1 text-xs font-bold text-slate-500">YANG MENYERAHKAN</p>
-                   <p className="mb-20 font-bold">PIHAK PERTAMA</p>
-                   <p className="font-bold border-b border-black inline-block px-4">{data.p1Name}</p>
-                </div>
-             </div>
-
-             {data.witness && (
-                <div className="text-center">
-                   <p className="mb-16 text-xs font-bold">MENGETAHUI (SAKSI)</p>
-                   <p className="border-b border-black inline-block px-4">{data.witness}</p>
-                </div>
-             )}
-          </div>
-        )}
-
-        {/* TEMPLATE 2: NARASI SIMPLE */}
-        {templateId === 2 && (
-          <div className="font-serif text-[11pt] leading-loose">
-             <div className="text-center mb-8">
-                <h1 className="font-bold text-xl uppercase underline">BERITA ACARA SERAH TERIMA</h1>
-                <div className="text-sm font-bold mt-1">No: {data.no}</div>
-             </div>
-
-             <p className="mb-4 text-justify">
-                Pada hari ini <strong>{data.day}</strong>, tanggal <strong>{new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</strong>, kami yang bertanda tangan di bawah ini:
-             </p>
-
-             <div className="ml-4 mb-4">
-                <table className="w-full leading-snug">
-                   <tbody>
-                      <tr><td className="w-24 font-bold">1. Nama</td><td className="w-3">:</td><td className="font-bold uppercase">{data.p1Name}</td></tr>
-                      <tr><td>Jabatan</td><td>:</td><td>{data.p1Title} ({data.p1Dept})</td></tr>
-                   </tbody>
-                </table>
-                <div className="mt-1">Selanjutnya disebut sebagai <strong>PIHAK PERTAMA</strong>.</div>
-             </div>
-
-             <div className="ml-4 mb-6">
-                <table className="w-full leading-snug">
-                   <tbody>
-                      <tr><td className="w-24 font-bold">2. Nama</td><td className="w-3">:</td><td className="font-bold uppercase">{data.p2Name}</td></tr>
-                      <tr><td>Jabatan</td><td>:</td><td>{data.p2Title} ({data.p2Dept})</td></tr>
-                   </tbody>
-                </table>
-                <div className="mt-1">Selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong>.</div>
-             </div>
-
-             <p className="mb-4 text-justify">
-                PIHAK PERTAMA dengan ini menyerahkan kepada PIHAK KEDUA, dan PIHAK KEDUA menerima dari PIHAK PERTAMA hal sebagai berikut:
-             </p>
-
-             <div className="bg-slate-50 print:bg-transparent p-6 border-l-4 border-black mb-8 italic text-justify leading-relaxed">
-                "{data.desc}"
-             </div>
-
-             {data.additionalNote && (
-                <p className="mb-4 text-sm italic">
-                   Catatan Tambahan: {data.additionalNote}
-                </p>
-             )}
-
-             <p className="mb-8 text-justify">
-                Demikian Berita Acara Serah Terima ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya.
-             </p>
-
-             <div className="flex justify-between text-center mt-12">
-                <div className="w-48">
-                   <p className="mb-24 font-bold">PIHAK KEDUA</p>
-                   <p className="font-bold border-b border-black">{data.p2Name}</p>
-                </div>
-                <div className="w-48">
-                   <p className="mb-24 font-bold">PIHAK PERTAMA</p>
-                   <p className="font-bold border-b border-black">{data.p1Name}</p>
-                </div>
-             </div>
-          </div>
-        )}
-    </Kertas>
-  );
-
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-800 print:bg-white">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* GLOBAL CSS PRINT */}
+      {/* --- JURUS TABLE WRAPPER (Print Fix) --- */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0mm; }
-          body { margin: 0 !important; padding: 0 !important; }
+          @page { size: A4; margin: 0; }
+          .no-print { display: none !important; }
+          body { background: white; margin: 0; padding: 0; display: block !important; }
+          
+          #print-only-root { 
+            display: block !important; 
+            width: 100%; 
+            height: auto; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            z-index: 9999; 
+            background: white; 
+          }
+          
+          .print-table { width: 100%; border-collapse: collapse; }
+          .print-table thead { height: 20mm; } 
+          .print-table tfoot { height: 20mm; } 
+          .print-content-wrapper { padding: 0 20mm; }
+          
+          tr, .keep-together { page-break-inside: avoid !important; }
         }
       `}</style>
 
-      {/* HEADER */}
-      <div className="bg-slate-900 text-white shadow-lg print:hidden sticky top-0 z-50 border-b border-slate-700 h-16">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-              <ArrowLeft size={18} /> <span className="text-sm font-medium">Dashboard</span>
-            </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2"></div>
-            <h1 className="text-sm font-bold tracking-wide text-emerald-400 uppercase">Berita Acara Serah Terima</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[180px] justify-between">
-                <div className="flex items-center gap-2"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
-                <ChevronDown size={12} className={`transition-transform ${showTemplateMenu ? 'rotate-180' : ''}`} />
-              </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase">Pilih Gaya Dokumen</div>
-                  {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-700'}`}>
-                      <div><div className="font-medium">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
-                      {templateId === t.id && <Check size={14} className="text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              )}
+      {/* HEADER NAVY */}
+      <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
+         <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
+            <div className="flex items-center gap-4">
+               <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-800 rounded-full transition-all group">
+                  <ArrowLeftCircle size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors"/>
+                  <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
+               </Link>
+               <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
+               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Beasiswa <span className="text-emerald-400">Builder</span></h1></div>
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg ring-1 ring-emerald-400/50">
-              <Printer size={16} /> Cetak PDF
-            </button>
-          </div>
-        </div>
-      </div>
+            <div className="flex items-center gap-3">
+               <div className="hidden md:flex relative">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
+                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Formal (Resmi)' : 'Modern (Clean)'}</span><ChevronDown size={14} className="text-slate-500"/>
+                  </button>
+                  {showTemplateMenu && (
+                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
+                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> Formal (Resmi)</button>
+                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Modern (Clean)</button>
+                     </div>
+                  )}
+               </div>
+               <div className="relative md:hidden"><button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">Tampilan <ChevronDown size={14}/></button></div>
+               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+            </div>
+         </div>
+      </header>
 
-      <div className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)]">
-        
-        {/* --- LEFT SIDEBAR: INPUT --- */}
-        <div className="w-full lg:w-[450px] shrink-0 h-full overflow-y-auto pr-2 pb-20 print:hidden space-y-6">
-          
-          {/* Quick Preset */}
-          <div className="bg-emerald-50 rounded-xl shadow-sm border border-emerald-100 overflow-hidden">
-             <div className="px-4 py-3 border-b border-emerald-200 flex items-center gap-2">
-                <Box size={14} className="text-emerald-600" />
-                <h3 className="text-xs font-bold text-emerald-800 uppercase">Isi Otomatis</h3>
-             </div>
-             <div className="p-4 grid grid-cols-3 gap-2">
-                <button onClick={() => applyPreset('goods')} className="bg-white hover:bg-emerald-100 border border-emerald-200 text-emerald-700 py-2 rounded text-[10px] font-bold transition-colors flex flex-col items-center gap-1">
-                   <Box size={14}/> Barang
-                </button>
-                <button onClick={() => applyPreset('job')} className="bg-white hover:bg-blue-100 border border-blue-200 text-blue-700 py-2 rounded text-[10px] font-bold transition-colors flex flex-col items-center gap-1">
-                   <Briefcase size={14}/> Pekerjaan
-                </button>
-                <button onClick={() => applyPreset('key')} className="bg-white hover:bg-amber-100 border border-amber-200 text-amber-700 py-2 rounded text-[10px] font-bold transition-colors flex flex-col items-center gap-1">
-                   <Key size={14}/> Kunci/Aset
-                </button>
-             </div>
-          </div>
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+         {/* EDITOR */}
+         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
+               <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
 
-          {/* 1. WAKTU & NOMOR SURAT */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-             <div className="flex items-center gap-2 border-b pb-2">
-               <CalendarDays size={14} className="text-slate-600"/>
-               <h3 className="text-xs font-bold uppercase">Waktu & Tempat</h3>
-             </div>
-             <div className="space-y-3">
-                 <div>
-                    <label className="text-[10px] text-slate-500 font-bold block mb-1">Nomor Surat</label>
-                    <input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.no} onChange={e => handleDataChange('no', e.target.value)} />
-                 </div>
-                 <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Hari</label>
-                        <input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.day} onChange={e => handleDataChange('day', e.target.value)} />
-                    </div>
-                    <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Tanggal</label>
-                        <input type="date" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                    </div>
-                 </div>
-                 <div>
-                    <label className="text-[10px] text-slate-500 font-bold block mb-1">Kota</label>
-                    <input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
-                 </div>
-             </div>
-          </div>
+               {/* TARGET SURAT */}
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12} /> Tujuan & Jenis Beasiswa</h3>
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Beasiswa</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold" value={data.scholarshipName} onChange={e => handleDataChange('scholarshipName', e.target.value)} /></div>
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tujuan (Rektor/Yayasan)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.targetName} onChange={e => handleDataChange('targetName', e.target.value)} /></div>
+                     <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Divisi/UP</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.targetDept} onChange={e => handleDataChange('targetDept', e.target.value)} /></div>
+                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal Surat</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
+                     </div>
+                  </div>
+               </div>
 
-          {/* 2. PARA PIHAK */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-             <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-                <Briefcase size={14} className="text-blue-600" />
-                <h3 className="text-xs font-bold text-slate-700 uppercase">Pihak 1 & Pihak 2</h3>
-             </div>
-             <div className="p-4 space-y-4">
-                <div className="border-l-2 border-red-500 pl-3">
-                   <h4 className="text-xs font-bold text-red-600 mb-2 uppercase">Yang Menyerahkan (Pihak 1)</h4>
-                   <div className="space-y-2">
-                      <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs font-bold" placeholder="Nama Lengkap" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} />
-                      <div className="grid grid-cols-2 gap-2">
-                         <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" placeholder="Jabatan" value={data.p1Title} onChange={e => handleDataChange('p1Title', e.target.value)} />
-                         <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" placeholder="Divisi/Dept" value={data.p1Dept} onChange={e => handleDataChange('p1Dept', e.target.value)} />
-                      </div>
-                   </div>
-                </div>
+               {/* DATA MAHASISWA */}
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><GraduationCap size={12}/> Data Mahasiswa</h3>
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold" value={data.name} onChange={e => handleDataChange('name', e.target.value)} /></div>
+                     <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIM / NPM</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono" value={data.nim} onChange={e => handleDataChange('nim', e.target.value)} /></div>
+                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">IPK Terakhir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold" value={data.ipk} onChange={e => handleDataChange('ipk', e.target.value)} /></div>
+                     </div>
+                     <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Fakultas/Jurusan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.major} onChange={e => handleDataChange('major', e.target.value)} /></div>
+                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Semester</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.semester} onChange={e => handleDataChange('semester', e.target.value)} /></div>
+                     </div>
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tempat Tanggal Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.placeDateBirth} onChange={e => handleDataChange('placeDateBirth', e.target.value)} /></div>
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.address} onChange={e => handleDataChange('address', e.target.value)} /></div>
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">No. HP / WA</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.phone} onChange={e => handleDataChange('phone', e.target.value)} /></div>
+                  </div>
+               </div>
 
-                <div className="border-l-2 border-emerald-500 pl-3">
-                   <h4 className="text-xs font-bold text-emerald-600 mb-2 uppercase">Yang Menerima (Pihak 2)</h4>
-                   <div className="space-y-2">
-                      <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs font-bold" placeholder="Nama Lengkap" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} />
-                      <div className="grid grid-cols-2 gap-2">
-                         <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" placeholder="Jabatan" value={data.p2Title} onChange={e => handleDataChange('p2Title', e.target.value)} />
-                         <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" placeholder="Divisi/Dept" value={data.p2Dept} onChange={e => handleDataChange('p2Dept', e.target.value)} />
-                      </div>
-                   </div>
-                </div>
-             </div>
-          </div>
+               {/* DATA BANK & ORTU */}
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Wallet size={12}/> Bank & Orang Tua</h3>
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-slate-500 block">Rekening Pencairan</label>
+                        <div className="grid grid-cols-[1fr_1.5fr] gap-2">
+                           <input className="px-3 py-2 border border-slate-200 rounded-lg text-xs" placeholder="Nama Bank" value={data.bankName} onChange={e => handleDataChange('bankName', e.target.value)} />
+                           <input className="px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono" placeholder="No. Rekening" value={data.bankAcc} onChange={e => handleDataChange('bankAcc', e.target.value)} />
+                        </div>
+                        <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" placeholder="Atas Nama" value={data.bankHolder} onChange={e => handleDataChange('bankHolder', e.target.value)} />
+                     </div>
+                     <div className="pt-3 border-t border-dashed border-slate-200 space-y-2">
+                        <label className="text-[10px] font-bold text-slate-500 block">Data Orang Tua (Ayah/Wali)</label>
+                        <div className="grid grid-cols-2 gap-2">
+                           <input className="px-3 py-2 border border-slate-200 rounded-lg text-xs" placeholder="Nama Ayah" value={data.fatherName} onChange={e => handleDataChange('fatherName', e.target.value)} />
+                           <input className="px-3 py-2 border border-slate-200 rounded-lg text-xs" placeholder="Pekerjaan" value={data.fatherJob} onChange={e => handleDataChange('fatherJob', e.target.value)} />
+                        </div>
+                     </div>
+                  </div>
+               </div>
 
-          {/* 3. ISI (BARANG / DESKRIPSI) */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-             <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-                <Box size={14} className="text-blue-600" />
-                <h3 className="text-xs font-bold text-slate-700 uppercase">Objek Serah Terima</h3>
-             </div>
-             
-             {templateId === 1 ? (
-                <div className="p-4 space-y-2">
-                   {data.items.map((item, idx) => (
-                      <div key={item.id} className="flex gap-2 items-start group">
-                         <div className="w-6 text-center pt-2 text-xs text-slate-400 font-bold">{idx + 1}.</div>
-                         <div className="flex-1 space-y-1">
-                            <input type="text" className="w-full p-1.5 border border-slate-300 rounded text-xs font-bold" placeholder="Nama Barang" value={item.name} onChange={e => updateItem(idx, 'name', e.target.value)} />
-                            <div className="grid grid-cols-2 gap-1">
-                               <input type="text" className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Jumlah (Qty)" value={item.qty} onChange={e => updateItem(idx, 'qty', e.target.value)} />
-                               <input type="text" className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Kondisi" value={item.condition} onChange={e => updateItem(idx, 'condition', e.target.value)} />
-                            </div>
-                         </div>
-                         <button onClick={() => removeItem(idx)} className="p-1.5 text-slate-300 hover:text-red-500 transition-colors mt-1"><Trash2 size={12} /></button>
-                      </div>
-                   ))}
-                   <button onClick={addItem} className="w-full py-2 border border-dashed border-slate-300 rounded text-xs text-slate-500 hover:bg-slate-50 hover:text-blue-600 transition-colors flex items-center justify-center gap-1 mt-2">
-                      <Plus size={12}/> Tambah Barang
-                   </button>
-                </div>
-             ) : (
-                <div className="p-4">
-                   <label className="text-[10px] font-bold text-slate-500 uppercase">Deskripsi Serah Terima</label>
-                   <textarea className="w-full p-2 border border-slate-300 rounded text-sm h-32 resize-none leading-relaxed" value={data.desc} onChange={e => handleDataChange('desc', e.target.value)} />
-                </div>
-             )}
-          </div>
+               {/* ALASAN & LAMPIRAN */}
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Edit3 size={12}/> Alasan & Lampiran</h3>
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alasan Mengajukan</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-24 resize-none leading-relaxed" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)} /></div>
+                     
+                     <div className="space-y-2 pt-2">
+                        <label className="text-[10px] font-bold text-slate-500">Checklist Lampiran</label>
+                        <div className="grid grid-cols-2 gap-2">
+                           {Object.keys(data.attachments).map((key) => (
+                              <button 
+                                 key={key}
+                                 onClick={() => toggleAttachment(key as any)}
+                                 className={`px-3 py-2 rounded-lg text-xs font-medium text-left flex items-center gap-2 border transition-all ${data.attachments[key as keyof typeof data.attachments] ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-50 border-transparent text-slate-400'}`}
+                              >
+                                 <CheckSquare size={14} className={data.attachments[key as keyof typeof data.attachments] ? 'opacity-100' : 'opacity-30'}/>
+                                 <span className="uppercase">{key}</span>
+                              </button>
+                           ))}
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div className="h-20 md:hidden"></div>
+            </div>
+         </div>
 
-          {/* 4. PENUTUP & SAKSI */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-             <div className="flex items-center gap-2 border-b pb-2">
-               <User size={14} className="text-slate-600"/>
-               <h3 className="text-xs font-bold uppercase">Penutup & Saksi</h3>
-             </div>
-             <div className="space-y-3">
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Saksi (Opsional)</label>
-                   <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.witness} onChange={e => handleDataChange('witness', e.target.value)} placeholder="Nama Saksi" />
-                </div>
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Catatan Tambahan</label>
-                   <div className="flex items-center gap-2">
-                        <FileText size={14} className="text-slate-400"/>
-                        <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.additionalNote} onChange={e => handleDataChange('additionalNote', e.target.value)} placeholder="Contoh: Barang diterima dalam keadaan baik" />
+         {/* PREVIEW */}
+         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
+             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0">
+                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
+                      <ContentInside />
                    </div>
                 </div>
              </div>
-          </div>
+         </div>
+      </main>
 
-        </div>
-
-        {/* --- RIGHT PREVIEW (ALL-IN-ONE) --- */}
-        <div className="flex-1 w-full flex justify-center print:hidden pb-20">
-             <div className="w-[210mm] origin-top scale-[0.5] sm:scale-[0.6] lg:scale-100 transition-transform">
-                {DocumentContent}
-             </div>
-        </div>
-
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
+         <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA (Hidden in view, visible in print) */}
-      <div className="hidden print:block absolute top-0 left-0 w-full">
-          {DocumentContent}
+      {/* PRINT PORTAL */}
+      <div id="print-only-root" className="hidden">
+         <table className="print-table">
+            <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
+            <tbody><tr><td><div className="print-content-wrapper"><ContentInside /></div></td></tr></tbody>
+            <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
+         </table>
       </div>
-
     </div>
   );
 }

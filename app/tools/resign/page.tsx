@@ -1,63 +1,59 @@
 'use client';
 
-import { useState, useRef, Suspense } from 'react';
+import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Upload, LayoutTemplate, 
-  User, Building2, Calendar, PenTool, HeartHandshake, Briefcase, ChevronDown, Check
+  Printer, ArrowLeft, LayoutTemplate, 
+  User, Building2, Calendar, PenTool, HeartHandshake, Briefcase, ChevronDown, Check, Edit3, Eye
 } from 'lucide-react';
 import Link from 'next/link';
+import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 export default function ResignPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs">Memuat Editor Surat...</div>}>
       <ResignToolBuilder />
     </Suspense>
   );
 }
 
 function ResignToolBuilder() {
-  // --- STATE ---
+  // --- STATE SYSTEM (SERAGAM) ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-
-  // Helper Dates
-  const today = new Date();
-  const oneMonthNotice = new Date(new Date().setDate(today.getDate() + 30));
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [isClient, setIsClient] = useState(false);
 
   // DATA DEFAULT
   const [data, setData] = useState({
     city: 'Jakarta',
-    signDate: new Date().toISOString().split('T')[0], // Tgl Tanda Tangan
-    lastDate: oneMonthNotice.toISOString().split('T')[0], // Tgl Terakhir Kerja
-    
-    // KARYAWAN
+    signDate: '',
+    lastDate: '', 
     empName: 'Ahmad Fauzi',
     empPosition: 'Senior Marketing Executive',
     empDept: 'Divisi Pemasaran',
-    
-    // TUJUAN (ATASAN/HRD)
     managerName: 'Bapak Budi Santoso',
     managerTitle: 'HRD Manager',
     companyName: 'PT. MAJU MUNDUR SEJAHTERA',
     companyAddress: 'Gedung Cyber, Jl. Rasuna Said, Jakarta',
-    
-    // ISI SURAT (Auto-Generated)
     opening: 'Melalui surat ini, saya bermaksud untuk menyampaikan permohonan pengunduran diri saya dari jabatan Senior Marketing Executive di PT. Maju Mundur Sejahtera.',
-    
     reason: 'Keputusan ini saya ambil setelah pertimbangan matang untuk melanjutkan pengembangan karir saya di tempat yang baru. Saya ingin mengucapkan terima kasih yang sebesar-besarnya atas kesempatan dan kepercayaan yang telah diberikan selama saya bekerja di sini.',
-    
     handover: 'Saya akan tetap melaksanakan tugas dan tanggung jawab saya hingga hari terakhir bekerja. Saya juga berkomitmen untuk membantu proses transisi dan serah terima pekerjaan kepada rekan yang menggantikan agar operasional tetap berjalan lancar.',
-    
     closing: 'Saya memohon maaf jika ada kesalahan yang pernah saya perbuat selama bekerja. Semoga PT. Maju Mundur Sejahtera semakin sukses dan berkembang di masa depan.'
   });
 
-  // HELPER DATE
-  const formatDateIndo = (dateStr: string) => {
-    if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-  };
+  useEffect(() => {
+    setIsClient(true);
+    const today = new Date();
+    const oneMonth = new Date(new Date().setDate(today.getDate() + 30));
+    setData(prev => ({ 
+        ...prev, 
+        signDate: today.toISOString().split('T')[0],
+        lastDate: oneMonth.toISOString().split('T')[0]
+    }));
+  }, []);
 
-  // LOGIC AUTO TEXT (ALASAN RESIGN)
+  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+
   const applyReason = (type: 'standard' | 'career' | 'personal') => {
     if (type === 'standard') {
       setData(prev => ({
@@ -83,320 +79,165 @@ function ResignToolBuilder() {
     }
   };
 
-  // HANDLERS
-  const handleDataChange = (field: string, val: any) => {
-    setData({ ...data, [field]: val });
-  };
-
   const TEMPLATES = [
-    { id: 1, name: "Formal Sopan (Standard)", desc: "Format baku, aman untuk semua perusahaan" },
-    { id: 2, name: "Modern Heartfelt", desc: "Lebih personal, cocok untuk atasan dekat" }
+    { id: 1, name: "Formal Standard", desc: "Format baku korporat" },
+    { id: 2, name: "Modern Direct", desc: "Layout bersih & personal" }
   ];
   const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
 
-  // --- KOMPONEN KERTAS (ANTI SCROLLBAR) ---
-  const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-    <div className={`
-      /* TAMPILAN LAYAR */
-      w-[210mm] min-h-[297mm] 
-      bg-white shadow-2xl 
-      p-[25mm] mx-auto 
-      text-[#1e293b] font-serif leading-relaxed text-[11pt]
-      relative box-border mb-8 
+  // --- KOMPONEN ISI SURAT ---
+  const DocumentContent = () => (
+    <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 print:h-auto print:min-h-0 print:p-[15mm] ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
       
-      /* TAMPILAN PRINT (LOCKED) */
-      print:fixed print:top-0 print:left-0 
-      print:w-[210mm] print:h-[297mm] 
-      print:shadow-none print:mb-0 print:p-[25mm] 
-      print:overflow-hidden /* KUNCI UTAMA */
-      print:z-[9999]
-      
-      /* SCALING AMAN */
-      print:transform print:scale-[0.95] print:origin-top
-      
-      ${className}
-    `}>
-      {children}
+      {/* TANGGAL & PERIHAL */}
+      <div className="text-right mb-8 shrink-0">
+        <p>{data.city}, {isClient && data.signDate ? new Date(data.signDate).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : ''}</p>
+      </div>
+
+      <div className="mb-8 shrink-0 text-left">
+        <p>Perihal: <b>Pengunduran Diri</b></p>
+        <div className="mt-4 leading-relaxed">
+          Kepada Yth,<br/>
+          <b>{data.managerName}</b><br/>
+          {data.managerTitle} {data.companyName}<br/>
+          <span className="text-sm italic text-slate-500 print:text-black">{data.companyAddress}</span>
+        </div>
+      </div>
+
+      {/* ISI SURAT */}
+      <div className="flex-grow space-y-5 text-justify overflow-hidden leading-relaxed">
+        <p>Dengan hormat,</p>
+        <p className="whitespace-pre-line">{data.opening}</p>
+        
+        <div className="bg-slate-50 p-4 border-l-4 border-slate-300 italic font-medium print:bg-transparent print:border-black">
+          "Terhitung sejak tanggal <b>{isClient && data.lastDate ? new Date(data.lastDate).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : ''}</b>, saya sudah tidak lagi menjadi bagian dari perusahaan."
+        </div>
+
+        <p className="whitespace-pre-line">{data.reason}</p>
+        <p className="whitespace-pre-line">{data.handover}</p>
+        <p className="whitespace-pre-line">{data.closing}</p>
+      </div>
+
+      {/* TANDA TANGAN */}
+      <div className="shrink-0 mt-10 pt-8 border-t border-slate-100 print:border-black" style={{ pageBreakInside: 'avoid' }}>
+        <div className="flex justify-end text-center">
+          <div className="w-64">
+            <p className="mb-20 font-bold uppercase text-[9pt] text-slate-400 print:text-black tracking-widest">Hormat Saya,</p>
+            <p className="font-bold underline uppercase text-base tracking-tight leading-none">{data.empName}</p>
+            <p className="text-[9pt] text-slate-500 mt-1 uppercase print:text-black">{data.empPosition}</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
+  if (!isClient) return null;
+
   return (
-    <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800 print:bg-white">
-      
-      {/* CSS PRINT - TOTAL RESET */}
+    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; }
-          
-          body { 
-            margin: 0 !important; 
-            padding: 0 !important; 
-            background: white; 
-            overflow: hidden !important; 
-          }
-
-          ::-webkit-scrollbar { display: none !important; width: 0 !important; }
-          * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
-
-          header, nav, .no-print { display: none !important; }
-          
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          @page { size: A4; margin: 0; } 
+          body { background: white !important; margin: 0 !important; }
+          .no-print, header, .mobile-nav { display: none !important; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
         }
       `}</style>
 
-      {/* HEADER */}
+      {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16">
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-              <ArrowLeft size={18} /> <span className="text-sm font-medium">Dashboard</span>
+            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+               <ArrowLeft size={18} /> <span>Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2"></div>
-            <h1 className="text-sm font-bold tracking-wide text-emerald-400 uppercase">Surat Resign</h1>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-400 uppercase tracking-tighter italic">
+               <HeartHandshake size={16} /> <span>Resignation Builder</span>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <button 
-                onClick={() => setShowTemplateMenu(!showTemplateMenu)}
-                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium transition-colors min-w-[180px] justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <LayoutTemplate size={14} className="text-blue-400" />
-                  <span>{activeTemplateName}</span>
-                </div>
-                <ChevronDown size={12} className={`transition-transform ${showTemplateMenu ? 'rotate-180' : ''}`} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium transition-all">
+                <LayoutTemplate size={14} className="text-blue-400" />
+                <span className="hidden sm:inline">{activeTemplateName}</span>
+                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-transform' : ''} />
               </button>
               {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Gaya Surat</div>
-                  {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-700'}`}>
-                      <div><div className="font-medium">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
-                      {templateId === t.id && <Check size={14} className="text-blue-600" />}
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 z-50 text-slate-900 font-sans overflow-hidden">
+                  {TEMPLATES.map(t => (
+                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600' : ''}`}>
+                      <div>{t.name}</div>
+                      <div className="text-[10px] text-slate-400 font-normal">{t.desc}</div>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg ring-1 ring-emerald-400/50">
-              <Printer size={16} /> Cetak PDF
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Print</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)]">
-        
-        {/* --- LEFT SIDEBAR: INPUT --- */}
-        <div className="no-print w-full lg:w-[450px] shrink-0 h-full overflow-y-auto pr-2 pb-20 space-y-6">
-          
-          {/* Quick Generator */}
-          <div className="bg-emerald-50 rounded-xl shadow-sm border border-emerald-100 overflow-hidden">
-             <div className="px-4 py-3 border-b border-emerald-200 flex items-center gap-2">
-                <HeartHandshake size={14} className="text-emerald-600" />
-                <h3 className="text-xs font-bold text-emerald-800 uppercase">Isi Otomatis (Alasan Resign)</h3>
-             </div>
-             <div className="p-4 grid grid-cols-3 gap-2">
-                <button onClick={() => applyReason('standard')} className="bg-white hover:bg-emerald-100 border border-emerald-200 text-emerald-700 py-2 rounded text-[10px] font-bold transition-colors">
-                   Standar (1 Month)
-                </button>
-                <button onClick={() => applyReason('career')} className="bg-white hover:bg-blue-100 border border-blue-200 text-blue-700 py-2 rounded text-[10px] font-bold transition-colors">
-                   Pindah Kerja
-                </button>
-                <button onClick={() => applyReason('personal')} className="bg-white hover:bg-amber-100 border border-amber-200 text-amber-700 py-2 rounded text-[10px] font-bold transition-colors">
-                   Alasan Pribadi
-                </button>
-             </div>
-          </div>
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative">
+        {/* SIDEBAR INPUT */}
+        <div className={`no-print w-full lg:w-[450px] bg-white border-r overflow-y-auto p-4 md:p-6 space-y-6 z-20 h-full ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
+           <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 space-y-3">
+              <h3 className="text-[10px] font-black uppercase text-emerald-800 flex items-center gap-2"><Check size={12}/> Pilih Alasan (Quick Fill)</h3>
+              <div className="grid grid-cols-3 gap-2">
+                 <button onClick={() => applyReason('standard')} className="bg-white p-2 rounded border border-emerald-200 text-[8px] font-bold hover:bg-emerald-100">STANDAR</button>
+                 <button onClick={() => applyReason('career')} className="bg-white p-2 rounded border border-blue-200 text-[8px] font-bold hover:bg-blue-100">KARIR</button>
+                 <button onClick={() => applyReason('personal')} className="bg-white p-2 rounded border border-amber-200 text-[8px] font-bold hover:bg-amber-100">PRIBADI</button>
+              </div>
+           </div>
 
-          {/* Data Karyawan */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-             <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-                <User size={14} className="text-blue-600" />
-                <h3 className="text-xs font-bold text-slate-700 uppercase">Data Anda</h3>
-             </div>
-             <div className="p-4 space-y-4">
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
-                   <input type="text" className="w-full p-2 border border-slate-300 rounded text-sm font-semibold" value={data.empName} onChange={e => handleDataChange('empName', e.target.value)} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                   <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan</label>
-                      <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.empPosition} onChange={e => handleDataChange('empPosition', e.target.value)} />
-                   </div>
-                   <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Divisi/Departemen</label>
-                      <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.empDept} onChange={e => handleDataChange('empDept', e.target.value)} />
-                   </div>
-                </div>
-             </div>
-          </div>
+           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans text-left">
+              <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><User size={12}/> Identitas Anda</h3>
+              <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.empName} onChange={e => handleDataChange('empName', e.target.value)} />
+              <input className="w-full p-2 border rounded text-xs" value={data.empPosition} onChange={e => handleDataChange('empPosition', e.target.value)} placeholder="Jabatan" />
+              <input className="w-full p-2 border rounded text-xs" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
+           </div>
 
-          {/* Tujuan & Tanggal */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-             <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-                <Building2 size={14} className="text-blue-600" />
-                <h3 className="text-xs font-bold text-slate-700 uppercase">Tujuan & Waktu</h3>
-             </div>
-             <div className="p-4 space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                   <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Kota & Tgl Surat</label>
-                      <div className="flex gap-1">
-                         <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
-                         <input type="date" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.signDate} onChange={e => handleDataChange('signDate', e.target.value)} />
-                      </div>
-                   </div>
-                   <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase text-red-600">Hari Terakhir Kerja</label>
-                      <input type="date" className="w-full p-2 border border-slate-300 rounded text-xs font-bold" value={data.lastDate} onChange={e => handleDataChange('lastDate', e.target.value)} />
-                   </div>
-                </div>
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Atasan / HRD</label>
-                   <input type="text" className="w-full p-2 border border-slate-300 rounded text-sm" placeholder="Yth. Bapak..." value={data.managerName} onChange={e => handleDataChange('managerName', e.target.value)} />
-                   <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs mt-1" placeholder="Jabatan Atasan" value={data.managerTitle} onChange={e => handleDataChange('managerTitle', e.target.value)} />
-                </div>
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Perusahaan</label>
-                   <input type="text" className="w-full p-2 border border-slate-300 rounded text-sm" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} />
-                </div>
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Kantor (Opsional)</label>
-                   <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-14 resize-none" value={data.companyAddress} onChange={e => handleDataChange('companyAddress', e.target.value)} />
-                </div>
-             </div>
-          </div>
+           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans text-left">
+              <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 flex items-center gap-2"><Calendar size={12}/> Tanggal Efektif</h3>
+              <div className="space-y-1">
+                 <label className="text-[9px] font-bold text-slate-400">HARI TERAKHIR KERJA</label>
+                 <input type="date" className="w-full p-2 border rounded text-xs font-black" value={data.lastDate} onChange={e => handleDataChange('lastDate', e.target.value)} />
+              </div>
+           </div>
 
-          {/* Isi Surat */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-             <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-                <PenTool size={14} className="text-blue-600" />
-                <h3 className="text-xs font-bold text-slate-700 uppercase">Isi Surat</h3>
-             </div>
-             <div className="p-4 space-y-4">
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase">Pembuka (Maksud)</label>
-                   <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-20 resize-none" value={data.opening} onChange={e => handleDataChange('opening', e.target.value)} />
-                </div>
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase">Alasan & Ucapan Terima Kasih</label>
-                   <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-24 resize-none" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)} />
-                </div>
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase">Komitmen Handover</label>
-                   <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-20 resize-none" value={data.handover} onChange={e => handleDataChange('handover', e.target.value)} />
-                </div>
-                <div>
-                   <label className="text-[10px] font-bold text-slate-500 uppercase">Penutup (Doa)</label>
-                   <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-16 resize-none" value={data.closing} onChange={e => handleDataChange('closing', e.target.value)} />
-                </div>
-             </div>
-          </div>
-
+           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans text-left">
+              <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 flex items-center gap-2"><PenTool size={12}/> Isi Konten</h3>
+              <textarea className="w-full p-2 border rounded text-xs h-24 resize-none leading-relaxed" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)} placeholder="Alasan Resign" />
+              <textarea className="w-full p-2 border rounded text-xs h-20 resize-none leading-relaxed" value={data.closing} onChange={e => handleDataChange('closing', e.target.value)} placeholder="Penutup" />
+           </div>
+           <div className="h-20 md:hidden"></div>
         </div>
 
-        {/* --- RIGHT PREVIEW --- */}
-        <div className="flex-1 h-full bg-slate-200/50 rounded-xl flex justify-center p-8 overflow-y-auto print:p-0 print:bg-white print:w-full">
-          
-          <Kertas>
-            
-            {/* TEMPLATE 1: FORMAL SOPAN (Standard Corporate) */}
-            {templateId === 1 && (
-              <div className="font-serif text-[11pt] leading-loose text-justify">
-                 {/* Tanggal */}
-                 <div className="text-right mb-8">
-                    {data.city}, {formatDateIndo(data.signDate)}
-                 </div>
-
-                 {/* Tujuan */}
-                 <div className="mb-8">
-                    <div className="mb-2">Perihal: <strong>Pengunduran Diri</strong></div>
-                    
-                    <div className="leading-normal">
-                       Kepada Yth,<br/>
-                       <strong>{data.managerName}</strong><br/>
-                       {data.managerTitle} {data.companyName}<br/>
-                       <span className="text-slate-600 text-sm">{data.companyAddress}</span>
-                    </div>
-                 </div>
-
-                 {/* Isi */}
-                 <div className="mb-6">
-                    Dengan hormat,
-                 </div>
-
-                 <div className="mb-6 whitespace-pre-line">
-                    {data.opening}
-                 </div>
-
-                 <div className="mb-6">
-                    Adapun hari terakhir saya bekerja adalah tanggal <strong>{formatDateIndo(data.lastDate)}</strong>.
-                 </div>
-
-                 <div className="mb-6 whitespace-pre-line">
-                    {data.reason}
-                 </div>
-
-                 <div className="mb-6 whitespace-pre-line">
-                    {data.handover}
-                 </div>
-
-                 <div className="mb-6 whitespace-pre-line">
-                    {data.closing}
-                 </div>
-
-                 {/* TTD */}
-                 <div className="mt-16 text-right mr-10">
-                    <p className="mb-20">Hormat saya,</p>
-                    <p className="font-bold underline uppercase">{data.empName}</p>
-                 </div>
+        {/* PREVIEW AREA (RE-FIXED FOR MOBILE) */}
+        <div className={`flex-1 bg-slate-200/50 relative h-full no-print ${mobileView === 'editor' ? 'hidden lg:block' : 'block'}`}>
+           <div className="absolute inset-0 overflow-y-auto overflow-x-hidden p-4 md:p-12 flex justify-center custom-scrollbar">
+              <div className="origin-top transition-transform duration-300 transform scale-[0.43] sm:scale-[0.55] md:scale-[0.8] lg:scale-100 h-fit mb-12">
+                 <DocumentContent />
+                 <div className="h-24 lg:hidden"></div>
               </div>
-            )}
-
-            {/* TEMPLATE 2: MODERN HEARTFELT (Clean & Direct) */}
-            {templateId === 2 && (
-              <div className="font-sans text-[10pt] leading-relaxed h-full flex flex-col">
-                 {/* Header */}
-                 <div className="border-b-2 border-slate-100 pb-6 mb-8 flex justify-between items-start">
-                    <div>
-                       <h1 className="text-2xl font-bold text-slate-800 uppercase tracking-wide">Surat Pengunduran Diri</h1>
-                       <div className="text-slate-500 mt-1">{data.empName} — {data.empPosition}</div>
-                    </div>
-                    <div className="text-right text-sm text-slate-500">
-                       {formatDateIndo(data.signDate)}
-                    </div>
-                 </div>
-
-                 <div className="mb-8 text-sm">
-                    <div className="text-slate-500 uppercase text-[10px] tracking-widest mb-1">Kepada Yth.</div>
-                    <div className="font-bold text-lg">{data.managerName}</div>
-                    <div className="text-slate-600">{data.managerTitle}, {data.companyName}</div>
-                 </div>
-
-                 <div className="space-y-6 text-justify text-slate-700 text-sm">
-                    <div className="whitespace-pre-line">{data.opening}</div>
-                    
-                    <div className="bg-slate-50 p-4 border-l-4 border-slate-800">
-                       Saya mengajukan pengunduran diri ini dengan pemberitahuan efektif hingga tanggal terakhir kerja saya pada <strong>{formatDateIndo(data.lastDate)}</strong>.
-                    </div>
-
-                    <div className="whitespace-pre-line">{data.reason}</div>
-                    <div className="whitespace-pre-line">{data.handover}</div>
-                    <div className="whitespace-pre-line">{data.closing}</div>
-                 </div>
-
-                 <div className="mt-16 text-right">
-                    <div className="font-['Caveat',cursive] text-2xl text-slate-500 mb-2">Salam,</div>
-                    <div className="font-bold text-lg text-slate-800 uppercase">{data.empName}</div>
-                 </div>
-              </div>
-            )}
-
-          </Kertas>
-
+           </div>
         </div>
+      </main>
+
+      {/* MOBILE NAV (SERAGAM) */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 z-50 mobile-nav">
+         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> Preview</button>
+      </div>
+
+      <div id="print-only-root" className="hidden">
+         <div className="flex flex-col">
+            <DocumentContent />
+         </div>
       </div>
     </div>
   );

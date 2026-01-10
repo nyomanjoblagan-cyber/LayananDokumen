@@ -8,26 +8,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo, Fragment } from 'react';
-
-// --- KOMPONEN PENJARA IKLAN (VERSI AMAN - SYNTAX FIXED) ---
-const AdCage = ({ adKey, w, h }: { adKey: string, w: number, h: number }) => {
-  // PENTING: String HTML menggunakan kutip satu (') untuk atributnya
-  const content = `<html><body style='margin:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;'><script type='text/javascript'>atOptions={'key':'${adKey}','format':'iframe','height':${h},'width':${w},'params':{}};</script><script type='text/javascript' src='https://www.highperformanceformat.com/${adKey}/invoke.js'></script></body></html>`;
-  
-  return (
-    <div className="flex justify-center w-full overflow-hidden my-4 no-print">
-      <iframe
-        srcDoc={content}
-        width={w}
-        height={h}
-        frameBorder="0"
-        scrolling="no"
-        className="mx-auto"
-        title="Sponsored Ad"
-      />
-    </div>
-  );
-};
+// IMPORT KOMPONEN BARU
+import AdsterraBanner from '@/components/AdsterraBanner';
 
 export default function HomePage() {
   const [search, setSearch] = useState('');
@@ -350,7 +332,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* --- BAGIAN INI YANG TADI SEMPAT HILANG (BAR EKSPLORASI) --- */}
       <div className="relative z-20 max-w-5xl mx-auto px-6 mb-4">
         <a 
           href="#directory" 
@@ -378,7 +359,7 @@ export default function HomePage() {
       {/* IKLAN BANNER TENGAH (SAFE MODE) */}
       <div className="max-w-5xl mx-auto px-6 mt-4 mb-4">
          <div className="w-full min-h-[100px] bg-white/50 border border-slate-200 border-dashed rounded-xl flex items-center justify-center overflow-hidden py-4 no-print">
-            <AdCage adKey="8fd377728513d5d23b9caf7a2bba1a73" w={728} h={90} />
+            <AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={728} height={90} />
          </div>
       </div>
 
@@ -387,11 +368,11 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredDirectory.map((cat, idx) => (
               <Fragment key={idx}>
-                {/* IKLAN KOTAK (NATIVE) DI SELA-SELA KATEGORI */}
+                {/* IKLAN KOTAK DI SELA-SELA KATEGORI */}
                 {idx > 0 && idx % 3 === 0 && (
                    <div className="flex flex-col bg-white/50 border border-slate-200 border-dashed rounded-xl overflow-hidden h-full items-center justify-center p-4 min-h-[280px] no-print">
                       <span className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-4">Sponsored Advertisement</span>
-                      <AdCage adKey="9873c2eb956caac3e296de9c4fea56fc" w={300} h={250} />
+                      <AdsterraBanner adKey="9873c2eb956caac3e296de9c4fea56fc" width={300} height={250} />
                    </div>
                 )}
                 <div className={`flex flex-col bg-white border ${cat.border} rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group h-full`}>
@@ -403,14 +384,14 @@ export default function HomePage() {
                     </div>
                   </div>
                   <ul className="flex-grow divide-y divide-slate-50 p-1">
-                     {cat.items.map((item, iIdx) => (
+                      {cat.items.map((item, iIdx) => (
                         <li key={iIdx}>
                           <Link href={item.href} className="flex items-center justify-between px-3 py-2 rounded-md text-xs text-slate-600 hover:bg-slate-50 hover:text-emerald-700 hover:pl-4 transition-all duration-200 group/link">
                             <span className="font-medium truncate pr-2">{item.name}</span>
                             <ChevronRight size={12} className="text-slate-300 opacity-0 group-hover/link:opacity-100 transition-opacity" />
                           </Link>
                         </li>
-                     ))}
+                      ))}
                   </ul>
                 </div>
               </Fragment>
@@ -418,7 +399,7 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-slate-200">
-             <Search size={32} className="mx-auto text-slate-300 mb-2"/><p className="text-sm text-slate-500 font-medium">Kategori tidak ditemukan.</p>
+              <Search size={32} className="mx-auto text-slate-300 mb-2"/><p className="text-sm text-slate-500 font-medium">Kategori tidak ditemukan.</p>
           </div>
         )}
       </section>

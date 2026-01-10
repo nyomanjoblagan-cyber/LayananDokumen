@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, Suspense, useRef } from 'react';
+import { useState, Suspense, useRef, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, FileText, Building2, UserCircle2, 
-  ShieldCheck, LayoutTemplate, X, PenTool, Scale, Fingerprint
+  ShieldCheck, LayoutTemplate, X, PenTool, Scale, Fingerprint, Edit3, Eye, Check, ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
+import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 export default function KuasaPajakPage() {
   return (
@@ -16,12 +17,19 @@ export default function KuasaPajakPage() {
 }
 
 function TaxProxyBuilder() {
-  const [logo, setLogo] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // --- STATE SYSTEM ---
+  const [templateId, setTemplateId] = useState<number>(1);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [isClient, setIsClient] = useState(false);
+  const [logo, setLogo] = useState<string | null>(null);
+
+  // DATA DEFAULT
   const [data, setData] = useState({
     city: 'Denpasar',
-    date: new Date().toISOString().split('T')[0],
+    date: '',
     docNo: 'SK.PAJAK/001/I/2026',
     
     // PEMBERI KUASA (WAJIB PAJAK / DIREKTUR)
@@ -44,11 +52,32 @@ function TaxProxyBuilder() {
     kppName: 'KPP Pratama Denpasar Barat'
   });
 
+  useEffect(() => {
+    setIsClient(true);
+    const today = new Date().toISOString().split('T')[0];
+    setData(prev => ({ ...prev, date: today }));
+  }, []);
+
   const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setLogo(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const TEMPLATES = [
+    { id: 1, name: "Format Standar", desc: "Sesuai ketentuan umum perpajakan" },
+    { id: 2, name: "Format Perusahaan", desc: "Khusus badan usaha" }
+  ];
+  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+
+  // --- KOMPONEN ISI SURAT ---
   const ProxyContent = () => (
-    <div className="bg-white mx-auto flex flex-col box-border print:m-0 print:border-none print:shadow-none p-[25mm] print:p-[20mm] text-slate-900 font-serif" 
-         style={{ width: '210mm', height: '290mm' }}>
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[25mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0">
       
       {/* JUDUL */}
       <div className="text-center mb-10 shrink-0">
@@ -90,12 +119,12 @@ function TaxProxyBuilder() {
       </div>
 
       {/* TANDA TANGAN SIMETRIS (TABLE BASED) */}
-      <div className="shrink-0 mt-8">
+      <div className="shrink-0 mt-8" style={{ pageBreakInside: 'avoid' }}>
         <table className="w-full table-fixed">
           <tbody>
             <tr>
               <td colSpan={2} className="text-right font-bold text-[10.5pt] pb-10">
-                {data.city}, {new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}
+                {data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '...'}
               </td>
             </tr>
             <tr className="text-[8pt] font-black text-slate-400 uppercase tracking-[0.2em] text-center">
@@ -110,7 +139,7 @@ function TaxProxyBuilder() {
               </td>
               <td className="text-center align-bottom">
                 <div className="h-32 flex flex-col justify-end items-center">
-                   <div className="border border-slate-300 w-24 h-14 flex items-center justify-center text-[7pt] text-slate-400 italic mb-4">MATERAI 10.000</div>
+                   <div className="border border-slate-300 w-24 h-14 flex items-center justify-center text-[7pt] text-slate-400 italic mb-4 print:border-black print:text-black">MATERAI 10.000</div>
                    <p className="font-bold underline uppercase text-[11pt]">{data.p1Name}</p>
                 </div>
               </td>
@@ -121,64 +150,125 @@ function TaxProxyBuilder() {
     </div>
   );
 
+  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
+
   return (
-    <div className="min-h-screen bg-slate-200 font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+      
+      {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0 !important; }
-          body, html { height: 297mm !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; background: white !important; }
-          #ui-root { display: none !important; }
-          #print-only-root { display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; width: 210mm !important; }
+          @page { size: A4; margin: 0; } 
+          body { background: white; margin: 0; padding: 0; }
+          .no-print { display: none !important; }
+          #print-only-root { 
+            display: block !important; 
+            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+          }
         }
       `}</style>
 
-      {/* UI ROOT */}
-      <div id="ui-root" className="flex flex-col h-screen no-print">
-        <div className="bg-slate-900 text-white h-16 shrink-0 flex items-center justify-between px-6 border-b border-slate-700 shadow-xl">
+      {/* HEADER NAV */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
+        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white"><ArrowLeft size={20} /></Link>
-            <h1 className="font-black text-sm uppercase tracking-tighter text-blue-400 italic">Tax Proxy <span className="text-white not-italic opacity-50">Builder</span></h1>
+            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+               <ArrowLeft size={18} /> Dashboard
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
+               <FileText size={16} className="text-blue-500" /> <span>TAX PROXY BUILDER</span>
+            </div>
           </div>
-          <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-2 rounded-xl font-black uppercase text-xs flex items-center gap-2 shadow-lg active:scale-95 transition-all">
-            <Printer size={16} /> Print Surat Kuasa
-          </button>
-        </div>
-
-        <div className="flex-grow flex overflow-hidden">
-          {/* SIDEBAR */}
-          <div className="w-[420px] bg-white border-r overflow-y-auto p-6 space-y-8 scrollbar-thin text-slate-900 shadow-inner">
-             <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Fingerprint size={12}/> Pemberi Kuasa</h3>
-                <input className="w-full p-3 border rounded-xl text-xs font-bold uppercase bg-slate-50" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} placeholder="Nama Direktur/WP" />
-                <input className="w-full p-3 border rounded-xl text-xs" value={data.p1Npwp} onChange={e => handleDataChange('p1Npwp', e.target.value)} placeholder="NPWP Wajib Pajak" />
-                <input className="w-full p-3 border rounded-xl text-xs" value={data.p1Company} onChange={e => handleDataChange('p1Company', e.target.value)} placeholder="Nama Perusahaan" />
-             </div>
-
-             <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Penerima Kuasa</h3>
-                <input className="w-full p-3 border rounded-xl text-xs font-bold uppercase" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} placeholder="Nama Staf/Konsultan" />
-                <input className="w-full p-3 border rounded-xl text-xs" value={data.p2Job} onChange={e => handleDataChange('p2Job', e.target.value)} placeholder="Pekerjaan" />
-             </div>
-
-             <div className="space-y-4 pb-10">
-                <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 flex items-center gap-2"><Scale size={12}/> Ruang Lingkup Kuasa</h3>
-                <input className="w-full p-3 border rounded-xl text-xs font-bold" value={data.taxType} onChange={e => handleDataChange('taxType', e.target.value)} placeholder="Jenis Pajak" />
-                <input className="w-full p-3 border rounded-xl text-xs" value={data.taxYear} onChange={e => handleDataChange('taxYear', e.target.value)} placeholder="Masa/Tahun Pajak" />
-                <input className="w-full p-3 border rounded-xl text-xs font-bold" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
-             </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-12 flex justify-center bg-slate-300/30 shadow-inner">
-             <div className="origin-top scale-[0.55] lg:scale-[0.85] xl:scale-100 transition-transform shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)]">
-                <ProxyContent />
-             </div>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
+                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
+                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
+              </button>
+              {showTemplateMenu && (
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
+                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
+                  {TEMPLATES.map((t) => (
+                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
+                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
+                      {templateId === t.id && <Check size={14} className="text-blue-600" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
+              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+            </button>
           </div>
         </div>
       </div>
 
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+        
+        {/* SIDEBAR INPUT */}
+        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+             
+              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Fingerprint size={12}/> Pemberi Kuasa</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} placeholder="Nama Direktur/WP" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.p1Npwp} onChange={e => handleDataChange('p1Npwp', e.target.value)} placeholder="NPWP Wajib Pajak" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.p1Company} onChange={e => handleDataChange('p1Company', e.target.value)} placeholder="Nama Perusahaan" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.p1Job} onChange={e => handleDataChange('p1Job', e.target.value)} placeholder="Jabatan" />
+                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} placeholder="Alamat" />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Penerima Kuasa</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} placeholder="Nama Staf/Konsultan" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.p2Nik} onChange={e => handleDataChange('p2Nik', e.target.value)} placeholder="NIK Penerima" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.p2Job} onChange={e => handleDataChange('p2Job', e.target.value)} placeholder="Pekerjaan" />
+                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} placeholder="Alamat" />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 flex items-center gap-2"><Scale size={12}/> Ruang Lingkup Kuasa</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.taxType} onChange={e => handleDataChange('taxType', e.target.value)} placeholder="Jenis Pajak" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.taxYear} onChange={e => handleDataChange('taxYear', e.target.value)} placeholder="Masa/Tahun Pajak" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.kppName} onChange={e => handleDataChange('kppName', e.target.value)} placeholder="Kantor Pajak (KPP)" />
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs font-bold" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
+                    <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                 </div>
+              </div>
+              <div className="h-20 md:hidden"></div>
+           </div>
+        </div>
+
+        {/* PREVIEW AREA */}
+        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
+            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                 <div style={{ width: '210mm' }}>
+                    <ProxyContent />
+                 </div>
+               </div>
+            </div>
+        </div>
+      </main>
+
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
+         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      </div>
+
+      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
-         <ProxyContent />
+         <div className="flex flex-col">
+            <ProxyContent />
+         </div>
       </div>
+
     </div>
   );
 }

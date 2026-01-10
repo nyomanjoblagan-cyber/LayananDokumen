@@ -1,29 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { 
   ArrowLeft, Calculator, Banknote, 
   Wallet, Info, TrendingDown, Building2,
-  PieChart, DollarSign, Briefcase
+  PieChart, DollarSign, Briefcase, Check, Edit3, Eye
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PphPage() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
-      <PphCalculator />
-    </div>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs">Memuat Kalkulator Pajak...</div>}>
+      <PphCalculatorBuilder />
+    </Suspense>
   );
 }
 
-function PphCalculator() {
+function PphCalculatorBuilder() {
+  // --- STATE SYSTEM (SERAGAM) ---
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [isClient, setIsClient] = useState(false);
+
   // --- STATE INPUT ---
-  const [salary, setSalary] = useState<number>(10000000); // Gaji Pokok
-  const [allowance, setAllowance] = useState<number>(500000); // Tunjangan
-  const [thr, setThr] = useState<number>(0); // Bonus/THR Tahunan
+  const [salary, setSalary] = useState<number>(10000000); 
+  const [allowance, setAllowance] = useState<number>(500000); 
+  const [thr, setThr] = useState<number>(0); 
   const [ptkpStatus, setPtkpStatus] = useState<string>('TK/0');
   const [hasNpwp, setHasNpwp] = useState<boolean>(true);
-  const [includeBPJS, setIncludeBPJS] = useState<boolean>(true); // Asumsi JHT 2% + JP 1%
+  const [includeBPJS, setIncludeBPJS] = useState<boolean>(true); 
 
   // --- STATE OUTPUT ---
   const [result, setResult] = useState({
@@ -32,308 +36,236 @@ function PphCalculator() {
     iuranPensiun: 0,
     nettoYear: 0,
     ptkpAmount: 0,
-    pkp: 0, // Penghasilan Kena Pajak
+    pkp: 0, 
     taxYear: 0,
     taxMonth: 0,
     takeHomePay: 0,
-    topBracket: 0 // Tarif tertinggi yang kena
+    topBracket: 0 
   });
 
-  // HELPER FORMAT
-  const formatRupiah = (num: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
-  };
-
-  // PTKP RATES
   const PTKP_LIST: Record<string, number> = {
-    'TK/0': 54000000,
-    'TK/1': 58500000,
-    'TK/2': 63000000,
-    'TK/3': 67500000,
-    'K/0': 58500000,
-    'K/1': 63000000,
-    'K/2': 67500000,
-    'K/3': 72000000,
+    'TK/0': 54000000, 'TK/1': 58500000, 'TK/2': 63000000, 'TK/3': 67500000,
+    'K/0': 58500000, 'K/1': 63000000, 'K/2': 67500000, 'K/3': 72000000,
   };
 
-  // CALCULATION LOGIC (UU HPP Harmonisasi Peraturan Perpajakan)
   useEffect(() => {
-    // 1. Penghasilan Bruto Setahun
+    setIsClient(true);
     const grossMonth = salary + allowance;
     const grossYear = (grossMonth * 12) + thr;
 
-    // 2. Pengurang (Deductions)
-    // Biaya Jabatan: 5% dari Bruto, Max 6jt/tahun (500rb/bulan)
     let bJabatan = grossYear * 0.05;
     if (bJabatan > 6000000) bJabatan = 6000000;
 
-    // Iuran Pensiun / JHT (Tanggungan Karyawan)
-    // Asumsi standar: JHT 2% + JP 1% = 3% dari Gaji Pokok (bukan bruto total)
     let iPensiun = 0;
     if (includeBPJS) {
        iPensiun = (salary * 0.03) * 12;
     }
 
-    // 3. Netto Setahun
     const netto = grossYear - bJabatan - iPensiun;
-
-    // 4. PKP (Penghasilan Kena Pajak)
     const ptkpVal = PTKP_LIST[ptkpStatus] || 54000000;
     let pkpCalc = netto - ptkpVal;
     if (pkpCalc < 0) pkpCalc = 0;
-    
-    // Pembulatan PKP ke ribuan ke bawah (aturan pajak)
     pkpCalc = Math.floor(pkpCalc / 1000) * 1000;
 
-    // 5. Hitung Pajak Progresif (Tarif Pasal 17 UU HPP)
     let tax = 0;
     let remainingPKP = pkpCalc;
     let bracket = 0;
 
-    // Tier 1: 0 - 60jt (5%)
     if (remainingPKP > 0) {
        const tier1 = Math.min(remainingPKP, 60000000);
        tax += tier1 * 0.05;
        remainingPKP -= tier1;
        bracket = 5;
     }
-    // Tier 2: 60jt - 250jt (15%)
     if (remainingPKP > 0) {
-       const tier2 = Math.min(remainingPKP, 190000000); // 250 - 60 = 190
+       const tier2 = Math.min(remainingPKP, 190000000);
        tax += tier2 * 0.15;
        remainingPKP -= tier2;
        bracket = 15;
     }
-    // Tier 3: 250jt - 500jt (25%)
     if (remainingPKP > 0) {
-       const tier3 = Math.min(remainingPKP, 250000000); // 500 - 250 = 250
+       const tier3 = Math.min(remainingPKP, 250000000);
        tax += tier3 * 0.25;
        remainingPKP -= tier3;
        bracket = 25;
     }
-    // Tier 4: 500jt - 5M (30%)
     if (remainingPKP > 0) {
-       const tier4 = Math.min(remainingPKP, 4500000000); // 5M - 500jt
+       const tier4 = Math.min(remainingPKP, 4500000000);
        tax += tier4 * 0.30;
        remainingPKP -= tier4;
        bracket = 30;
     }
-    // Tier 5: > 5M (35%)
     if (remainingPKP > 0) {
        tax += remainingPKP * 0.35;
        bracket = 35;
     }
 
-    // Denda Non-NPWP (120% tarif normal)
-    if (!hasNpwp) {
-       tax = tax * 1.2;
-    }
+    if (!hasNpwp) tax = tax * 1.2;
 
     const monthlyTax = tax / 12;
     const thp = grossMonth - monthlyTax - (includeBPJS ? (salary * 0.03) : 0);
 
     setResult({
-      grossYear,
-      biayaJabatan: bJabatan,
-      iuranPensiun: iPensiun,
-      nettoYear: netto,
-      ptkpAmount: ptkpVal,
-      pkp: pkpCalc,
-      taxYear: tax,
-      taxMonth: monthlyTax,
-      takeHomePay: thp,
-      topBracket: bracket
+      grossYear, biayaJabatan: bJabatan, iuranPensiun: iPensiun,
+      nettoYear: netto, ptkpAmount: ptkpVal, pkp: pkpCalc,
+      taxYear: tax, taxMonth: monthlyTax, takeHomePay: thp, topBracket: bracket
     });
-
   }, [salary, allowance, thr, ptkpStatus, hasNpwp, includeBPJS]);
 
+  const formatRupiah = (num: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+  };
+
+  if (!isClient) return null;
+
   return (
-    <div className="max-w-7xl mx-auto p-4 lg:p-8">
+    <div className="min-h-screen bg-slate-100 font-sans text-slate-900">
       
-      {/* HEADER */}
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/" className="bg-white p-2 rounded-full border border-gray-200 hover:bg-gray-50 text-slate-600 transition-colors shadow-sm">
-          <ArrowLeft size={20} />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            Kalkulator PPh 21 <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase">UU HPP</span>
-          </h1>
-          <p className="text-sm text-slate-500">Hitung pajak penghasilan & gaji bersih.</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* --- LEFT: INPUT --- */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-sm text-slate-400 uppercase tracking-widest mb-4">Komponen Gaji</h3>
-            
-            <div className="space-y-5">
-              {/* Gaji Pokok */}
-              <div>
-                <label className="text-sm font-semibold text-slate-700 mb-1 block">Gaji Pokok (Sebulan)</label>
-                <div className="relative group">
-                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs group-focus-within:text-blue-500">Rp</span>
-                   <input type="number" className="w-full pl-8 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
-                     value={salary} onChange={(e) => setSalary(Number(e.target.value))} />
-                </div>
-              </div>
-
-              {/* Tunjangan */}
-              <div>
-                <label className="text-sm font-semibold text-slate-700 mb-1 block">Tunjangan Tetap (Sebulan)</label>
-                <div className="relative group">
-                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs group-focus-within:text-blue-500">Rp</span>
-                   <input type="number" className="w-full pl-8 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
-                     value={allowance} onChange={(e) => setAllowance(Number(e.target.value))} />
-                </div>
-              </div>
-
-              {/* Bonus / THR */}
-              <div>
-                <label className="text-sm font-semibold text-slate-700 mb-1 block">Bonus / THR (Setahun)</label>
-                <div className="relative group">
-                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs group-focus-within:text-blue-500">Rp</span>
-                   <input type="number" className="w-full pl-8 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
-                     value={thr} onChange={(e) => setThr(Number(e.target.value))} />
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-4">
-                 {/* PTKP */}
-                 <div>
-                    <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Status PTKP</label>
-                    <select 
-                      className="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none"
-                      value={ptkpStatus}
-                      onChange={(e) => setPtkpStatus(e.target.value)}
-                    >
-                       <option value="TK/0">TK/0 (Lajang)</option>
-                       <option value="TK/1">TK/1 (1 Tanggungan)</option>
-                       <option value="TK/2">TK/2 (2 Tanggungan)</option>
-                       <option value="TK/3">TK/3 (3 Tanggungan)</option>
-                       <option value="K/0">K/0 (Nikah, 0 Anak)</option>
-                       <option value="K/1">K/1 (Nikah, 1 Anak)</option>
-                       <option value="K/2">K/2 (Nikah, 2 Anak)</option>
-                       <option value="K/3">K/3 (Nikah, 3 Anak)</option>
-                    </select>
-                 </div>
-                 
-                 {/* OPTIONS */}
-                 <div className="flex flex-col gap-2 pt-1">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                       <input type="checkbox" checked={hasNpwp} onChange={e => setHasNpwp(e.target.checked)} className="rounded text-blue-600 focus:ring-blue-500" />
-                       <span className="text-xs font-medium text-slate-600">Punya NPWP</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                       <input type="checkbox" checked={includeBPJS} onChange={e => setIncludeBPJS(e.target.checked)} className="rounded text-blue-600 focus:ring-blue-500" />
-                       <span className="text-xs font-medium text-slate-600">Hitung JHT (2%) & JP (1%)</span>
-                    </label>
-                 </div>
-              </div>
+      {/* HEADER NAV */}
+      <div className="bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16">
+        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+               <ArrowLeft size={18} /> <span className="hidden sm:inline">Dashboard</span>
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-blue-400 uppercase tracking-tighter">
+               <Calculator size={16} /> <span>PPh 21 Calculator (UU HPP)</span>
             </div>
           </div>
+          <div className="flex items-center gap-2 bg-blue-600/20 px-3 py-1 rounded-lg border border-blue-500/30">
+            <TrendingDown size={14} className="text-blue-400" />
+            <span className="text-[10px] font-bold text-blue-100 uppercase tracking-widest">Tax Year 2026</span>
+          </div>
         </div>
-
-        {/* --- RIGHT: RESULT --- */}
-        <div className="lg:col-span-7 space-y-6">
-           
-           {/* MAIN CARD: TAKE HOME PAY */}
-           <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
-              {/* Decor */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20 -mr-16 -mt-16"></div>
-              
-              <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                 <div>
-                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Estimasi Gaji Bersih (Bulanan)</p>
-                    <h2 className="text-4xl lg:text-5xl font-black tracking-tight">{formatRupiah(result.takeHomePay).replace(',00','')}</h2>
-                    <p className="text-xs text-slate-500 mt-2">
-                       *Setelah dipotong PPh 21 {includeBPJS ? '& Iuran BPJS (3%)' : ''}
-                    </p>
-                 </div>
-                 <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10 min-w-[180px]">
-                    <div className="text-xs text-slate-300 mb-1 flex items-center gap-1">
-                       <Building2 size={12}/> Pajak Disetor Negara
-                    </div>
-                    <div className="text-xl font-bold text-red-400">{formatRupiah(result.taxMonth)}</div>
-                    <div className="text-[10px] text-slate-400 mt-1">per bulan</div>
-                 </div>
-              </div>
-           </div>
-
-           {/* BREAKDOWN CARD */}
-           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                 <h3 className="font-bold text-slate-700 flex items-center gap-2">
-                    <PieChart size={18} className="text-blue-600"/> Analisis Pajak Tahunan
-                 </h3>
-                 {result.topBracket > 0 ? (
-                    <span className="bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full border border-orange-200">
-                       Lapisan Tarif Tertinggi: {result.topBracket}%
-                    </span>
-                 ) : (
-                    <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-200">
-                       Nihil Pajak (Di Bawah PTKP)
-                    </span>
-                 )}
-              </div>
-              
-              <div className="p-6 space-y-3 text-sm">
-                 <div className="flex justify-between items-center">
-                    <span className="text-slate-500">Penghasilan Bruto Setahun</span>
-                    <span className="font-bold text-slate-800">{formatRupiah(result.grossYear)}</span>
-                 </div>
-                 
-                 <div className="pl-4 border-l-2 border-slate-200 space-y-2 my-2">
-                    <div className="flex justify-between items-center text-xs">
-                       <span className="text-slate-400 flex items-center gap-1">(-) Biaya Jabatan (Max 6jt)</span>
-                       <span className="text-red-500">-{formatRupiah(result.biayaJabatan)}</span>
-                    </div>
-                    {includeBPJS && (
-                       <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 flex items-center gap-1">(-) Iuran Pensiun/JHT (3%)</span>
-                          <span className="text-red-500">-{formatRupiah(result.iuranPensiun)}</span>
-                       </div>
-                    )}
-                 </div>
-
-                 <div className="flex justify-between items-center pt-2 border-t border-slate-100 border-dashed">
-                    <span className="text-slate-500 font-medium">Penghasilan Netto</span>
-                    <span className="font-bold text-slate-800">{formatRupiah(result.nettoYear)}</span>
-                 </div>
-
-                 <div className="flex justify-between items-center text-emerald-600">
-                    <span className="flex items-center gap-1">(-) PTKP ({ptkpStatus}) <Info size={12}/></span>
-                    <span className="font-bold">-{formatRupiah(result.ptkpAmount)}</span>
-                 </div>
-
-                 <div className="bg-blue-50 p-3 rounded-lg flex justify-between items-center mt-2 border border-blue-100">
-                    <span className="text-blue-800 font-bold text-xs uppercase">PKP (Penghasilan Kena Pajak)</span>
-                    <span className="text-blue-800 font-black text-lg">{formatRupiah(result.pkp)}</span>
-                 </div>
-                 
-                 <div className="flex justify-between items-center pt-2">
-                    <span className="text-slate-700 font-bold">Total PPh 21 Terutang (Tahun)</span>
-                    <span className="text-red-600 font-black text-lg">{formatRupiah(result.taxYear)}</span>
-                 </div>
-              </div>
-           </div>
-
-           {/* INFO BRACKET */}
-           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-center">
-              {[5, 15, 25, 30].map((rate) => (
-                 <div key={rate} className={`p-2 rounded border ${result.topBracket >= rate ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-105' : 'bg-white text-slate-300 border-slate-100'}`}>
-                    <div className="font-bold text-lg">{rate}%</div>
-                    <div>{rate===5 ? '0-60jt' : rate===15 ? '60-250jt' : rate===25 ? '250-500jt' : '>500jt'}</div>
-                 </div>
-              ))}
-           </div>
-
-        </div>
-
       </div>
+
+      <main className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden">
+        
+        {/* SIDEBAR INPUT */}
+        <div className={`w-full lg:w-[450px] bg-white border-r overflow-y-auto p-4 md:p-6 space-y-6 z-20 ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
+           <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-4">
+              <h3 className="text-[10px] font-black uppercase text-blue-600 border-b border-blue-200 pb-1 flex items-center gap-2"><DollarSign size={12}/> Pendapatan Bulanan</h3>
+              <div className="space-y-3">
+                <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Gaji Pokok</label>
+                    <input type="number" className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={salary} onChange={(e) => setSalary(Number(e.target.value))} />
+                </div>
+                <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tunjangan Tetap</label>
+                    <input type="number" className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={allowance} onChange={(e) => setAllowance(Number(e.target.value))} />
+                </div>
+              </div>
+           </div>
+
+           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+              <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 flex items-center gap-2"><Briefcase size={12}/> Parameter Lainnya</h3>
+              <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Bonus / THR (Tahunan)</label>
+                  <input type="number" className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={thr} onChange={(e) => setThr(Number(e.target.value))} />
+              </div>
+              <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Status PTKP</label>
+                  <select className="w-full p-2 border rounded-lg text-sm font-bold mt-1 bg-slate-50" value={ptkpStatus} onChange={(e) => setPtkpStatus(e.target.value)}>
+                    <option value="TK/0">TK/0 (Lajang)</option>
+                    <option value="TK/1">TK/1 (1 Tanggungan)</option>
+                    <option value="K/0">K/0 (Menikah)</option>
+                    <option value="K/1">K/1 (Menikah, 1 Anak)</option>
+                    <option value="K/2">K/2 (Menikah, 2 Anak)</option>
+                  </select>
+              </div>
+              <div className="flex flex-col gap-3 pt-2">
+                <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="checkbox" checked={hasNpwp} onChange={e => setHasNpwp(e.target.checked)} className="w-4 h-4 rounded text-blue-600" />
+                    <span className="text-xs font-bold text-slate-600 group-hover:text-blue-600">Memiliki NPWP</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="checkbox" checked={includeBPJS} onChange={e => setIncludeBPJS(e.target.checked)} className="w-4 h-4 rounded text-blue-600" />
+                    <span className="text-xs font-bold text-slate-600 group-hover:text-blue-600">Potong BPJS TK (3%)</span>
+                </label>
+              </div>
+           </div>
+           <div className="h-20 md:hidden"></div>
+        </div>
+
+        {/* PREVIEW AREA (STABILIZED MOBILE SCALE) */}
+        <div className={`flex-1 bg-slate-200/50 flex flex-col items-center overflow-hidden h-full ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
+           <div className="w-full overflow-y-auto overflow-x-hidden flex flex-col items-center p-4 md:p-8 h-full custom-scrollbar">
+              
+              <div className="origin-top transition-transform duration-300 transform scale-[0.9] sm:scale-[1] w-full max-w-2xl space-y-6">
+                
+                {/* TAKE HOME PAY CARD */}
+                <div className="bg-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500 rounded-full blur-[80px] opacity-20 -mr-10 -mt-10"></div>
+                  <p className="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Estimasi Gaji Bersih</p>
+                  <h2 className="text-4xl md:text-5xl font-black tracking-tighter">{formatRupiah(result.takeHomePay)}</h2>
+                  <div className="mt-6 flex items-center gap-4 pt-6 border-t border-white/10">
+                    <div>
+                      <p className="text-[9px] text-slate-500 uppercase font-bold">Pajak / Bulan</p>
+                      <p className="text-red-400 font-bold">{formatRupiah(result.taxMonth)}</p>
+                    </div>
+                    <div className="w-px h-8 bg-white/10"></div>
+                    <div>
+                      <p className="text-[9px] text-slate-500 uppercase font-bold">BPJS / Bulan</p>
+                      <p className="text-orange-400 font-bold">{formatRupiah(includeBPJS ? salary * 0.03 : 0)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BREAKDOWN DETAIL */}
+                <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                  <div className="p-4 bg-slate-50 border-b flex justify-between items-center">
+                    <h3 className="text-xs font-black uppercase tracking-widest flex items-center gap-2"><PieChart size={14}/> Rincian Perhitungan</h3>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${result.topBracket > 0 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'}`}>
+                      {result.topBracket > 0 ? `Tarif ${result.topBracket}%` : 'Bebas Pajak'}
+                    </span>
+                  </div>
+                  <div className="p-6 space-y-4 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Penghasilan Bruto (Tahun)</span>
+                      <span className="font-bold">{formatRupiah(result.grossYear)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-red-500 pl-4 border-l-2 border-red-100">
+                      <span>Biaya Jabatan & Pensiun</span>
+                      <span>- {formatRupiah(result.biayaJabatan + result.iuranPensiun)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-green-600 pl-4 border-l-2 border-green-100">
+                      <span>PTKP ({ptkpStatus})</span>
+                      <span>- {formatRupiah(result.ptkpAmount)}</span>
+                    </div>
+                    <div className="flex justify-between py-3 border-t border-dashed font-bold text-blue-700">
+                      <span>Penghasilan Kena Pajak (PKP)</span>
+                      <span>{formatRupiah(result.pkp)}</span>
+                    </div>
+                    <div className="flex justify-between items-end pt-2 border-t">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total PPh 21 Terutang</div>
+                      <div className="text-2xl font-black text-slate-900">{formatRupiah(result.taxYear)}<span className="text-xs font-normal text-slate-400"> / tahun</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* PROGRESSIVE BRACKETS VISUAL */}
+                <div className="grid grid-cols-4 gap-2">
+                  {[5, 15, 25, 35].map((t) => (
+                    <div key={t} className={`p-3 rounded-xl border text-center transition-all ${result.topBracket >= t ? 'bg-blue-600 border-blue-600 shadow-lg -translate-y-1' : 'bg-white border-slate-200 opacity-40'}`}>
+                      <div className={`text-sm font-black ${result.topBracket >= t ? 'text-white' : 'text-slate-400'}`}>{t}%</div>
+                      <div className={`text-[8px] font-bold uppercase ${result.topBracket >= t ? 'text-blue-100' : 'text-slate-300'}`}>{t === 5 ? 'Tier 1' : t === 15 ? 'Tier 2' : 'Tier 3+'}</div>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+              <div className="h-12"></div>
+           </div>
+        </div>
+      </main>
+
+      {/* MOBILE NAV (SERAGAM) */}
+      <div className="md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 z-50">
+         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}><Edit3 size={16}/> Input</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> Hasil</button>
+      </div>
+
     </div>
   );
 }

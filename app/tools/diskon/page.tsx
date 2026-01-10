@@ -231,9 +231,9 @@ function DiscountCalculator() {
            )}
 
            <div className="pt-4 flex justify-end">
-              <button onClick={() => {setPrice(0); setDisc1(0); setDisc2(0);}} className="text-xs text-slate-400 hover:text-red-500 flex items-center gap-1 font-medium transition-colors">
-                 <RefreshCcw size={12}/> Reset Form
-              </button>
+             <button onClick={() => {setPrice(0); setDisc1(0); setDisc2(0);}} className="text-xs text-slate-400 hover:text-red-500 flex items-center gap-1 font-medium transition-colors">
+                <RefreshCcw size={12}/> Reset Form
+             </button>
            </div>
         </div>
       </div>

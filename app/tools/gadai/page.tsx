@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  Wallet, ShieldCheck, Scale, CalendarDays, FileText, User, Box
+  Wallet, ShieldCheck, Scale, CalendarDays, FileText, User, Box, 
+  Edit3, Eye, Briefcase
 } from 'lucide-react';
 import Link from 'next/link';
+import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 export default function GadaiAsetPage() {
   return (
@@ -19,18 +21,20 @@ function GadaiBuilder() {
   // --- STATE ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor'); // Logic Mobile Tab
+  const [isClient, setIsClient] = useState(false);
 
   // DATA DEFAULT
   const [data, setData] = useState({
     day: 'Senin',
-    date: new Date().toISOString().split('T')[0],
+    date: '', // Hydration fix
     city: 'Jakarta',
 
-    // PIHAK 1 (PENERIMA GADAI / YANG MEMINJAMKAN UANG)
+    // PIHAK 1 (PENERIMA GADAI)
     p1Name: 'BUDI SANTOSO', p1Nik: '3171010101780001', 
     p1Address: 'Jl. Merdeka No. 10, Jakarta Selatan',
     
-    // PIHAK 2 (PEMBERI GADAI / YANG MEMINJAM UANG)
+    // PIHAK 2 (PEMBERI GADAI)
     p2Name: 'ANDI WIJAYA', p2Nik: '3171020202920005',
     p2Address: 'Jl. Sudirman No. 45, Jakarta Pusat',
     
@@ -41,7 +45,7 @@ function GadaiBuilder() {
     // PINJAMAN & JANGKA WAKTU
     loanAmount: 10000000,
     loanAmountText: 'Sepuluh Juta Rupiah',
-    dueDate: '2026-07-08',
+    dueDate: '', // Hydration fix
     interest: '0% (Tanpa Bunga)',
     
     // SAKSI
@@ -50,6 +54,19 @@ function GadaiBuilder() {
 
     additionalClause: 'Apabila sampai jatuh tempo Pihak Kedua tidak melunasi hutangnya, maka Pihak Pertama berhak menjual aset tersebut untuk pelunasan.' 
   });
+
+  useEffect(() => {
+    setIsClient(true);
+    const today = new Date();
+    const nextYear = new Date(today);
+    nextYear.setFullYear(today.getFullYear() + 1);
+    
+    setData(prev => ({ 
+        ...prev, 
+        date: today.toISOString().split('T')[0],
+        dueDate: nextYear.toISOString().split('T')[0] 
+    }));
+  }, []);
 
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
@@ -60,18 +77,19 @@ function GadaiBuilder() {
   ];
   const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
 
-  // --- LOGIKA ISI DOKUMEN ---
-  const DocumentContent = (
-    <div id="print-area">
-      {templateId === 1 ? (
+  // --- KOMPONEN ISI DOKUMEN ---
+  const DocumentContent = () => (
+    <div className="w-full h-full text-slate-900">
+      
+      {templateId === 1 && (
         <>
-          {/* HALAMAN 1 */}
-          <div className="kertas-print bg-white shadow-2xl mx-auto mb-8 font-serif text-[11pt] p-[25mm] w-[210mm] min-h-[296mm] flex flex-col print:shadow-none">
+          {/* HALAMAN 1 (PADDING DITAMBAHKAN MANUAL DI SINI) */}
+          <div className="font-serif text-[11pt] leading-relaxed p-[25mm] print:p-[25mm]">
             <div className="text-center mb-8 pb-4 border-b-2 border-black">
               <h1 className="font-black text-xl uppercase tracking-widest underline">SURAT PERJANJIAN GADAI ASET</h1>
             </div>
 
-            <p className="mb-4 text-justify">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</strong>, kami yang bertanda tangan di bawah ini:</p>
+            <p className="mb-4 text-justify">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>, kami yang bertanda tangan di bawah ini:</p>
 
             <div className="ml-4 mb-4 space-y-4">
               <div className="text-sm">
@@ -112,16 +130,16 @@ function GadaiBuilder() {
                 {data.assetDetail}
               </div>
             </div>
-
-            <div className="mt-auto text-center text-[10px] text-slate-400 italic">Halaman 1 dari 2</div>
+            
+            <div className="mt-20 text-center text-[10px] text-slate-400 italic">Halaman 1 dari 2</div>
           </div>
 
-          {/* HALAMAN 2 */}
-          <div className="kertas-print bg-white shadow-2xl mx-auto font-serif text-[11pt] p-[25mm] w-[210mm] min-h-[296mm] flex flex-col print:shadow-none">
-            <div className="space-y-6 text-justify pt-4">
+          {/* HALAMAN 2 (Menggunakan page-break-before) */}
+          <div className="font-serif text-[11pt] leading-relaxed p-[25mm] pt-[15mm] print:p-[25mm] print:pt-[15mm]" style={{ pageBreakBefore: 'always' }}>
+            <div className="space-y-6 text-justify">
               <div>
                   <div className="text-center font-bold uppercase mb-2">PASAL 3<br/>JANGKA WAKTU & PENGEMBALIAN</div>
-                  <p className="text-sm">PIHAK KEDUA berjanji akan melunasi pinjaman tersebut paling lambat pada tanggal <strong>{new Date(data.dueDate).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</strong>. Apabila pinjaman telah lunas, PIHAK PERTAMA wajib mengembalikan aset gadai dalam kondisi baik.</p>
+                  <p className="text-sm">PIHAK KEDUA berjanji akan melunasi pinjaman tersebut paling lambat pada tanggal <strong>{isClient && data.dueDate ? new Date(data.dueDate).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>. Apabila pinjaman telah lunas, PIHAK PERTAMA wajib mengembalikan aset gadai dalam kondisi baik.</p>
               </div>
               <div>
                   <div className="text-center font-bold uppercase mb-2">PASAL 4<br/>KONSEKUENSI WANPRESTASI</div>
@@ -139,11 +157,11 @@ function GadaiBuilder() {
             <p className="mt-8 mb-8 text-sm text-justify text-slate-600 italic">Demikian perjanjian ini dibuat rangkap 2 (dua) di atas kertas bermaterai cukup dan mempunyai kekuatan hukum yang sama.</p>
 
             <div className="grid grid-cols-2 gap-8 text-center text-sm mb-12">
-              <div>
+              <div className="break-inside-avoid">
                   <p className="mb-20 font-bold uppercase underline">Pihak Kedua</p>
                   <p className="font-bold uppercase leading-none">{data.p2Name}</p>
               </div>
-              <div>
+              <div className="break-inside-avoid">
                   <p className="mb-4 font-bold uppercase underline">Pihak Pertama</p>
                   <div className="border border-slate-300 w-24 h-16 mx-auto mb-2 flex items-center justify-center text-[10px] text-slate-400">MATERAI 10.000</div>
                   <p className="font-bold uppercase leading-none">{data.p1Name}</p>
@@ -151,33 +169,35 @@ function GadaiBuilder() {
             </div>
 
             <div className="grid grid-cols-2 gap-12 text-center text-sm">
-              <div><p className="mb-16 font-bold text-xs">Saksi I</p><p className="border-b border-black">{data.witness1}</p></div>
-              <div><p className="mb-16 font-bold text-xs">Saksi II</p><p className="border-b border-black">{data.witness2}</p></div>
+              <div className="break-inside-avoid"><p className="mb-16 font-bold text-xs">Saksi I</p><p className="border-b border-black">{data.witness1}</p></div>
+              <div className="break-inside-avoid"><p className="mb-16 font-bold text-xs">Saksi II</p><p className="border-b border-black">{data.witness2}</p></div>
             </div>
 
             <div className="mt-auto text-center text-[10px] text-slate-400 italic">Halaman 2 dari 2</div>
           </div>
         </>
-      ) : (
+      )}
+      
+      {templateId === 2 && (
         /* TEMPLATE 2: RINGKAS */
-        <div className="bg-white shadow-2xl mx-auto p-[25mm] w-[210mm] min-h-[296mm] font-serif text-[11pt] print:shadow-none">
+        <div className="font-serif text-[11pt] p-[25mm] print:p-[25mm]">
             <div className="text-center mb-6 border-b-2 border-black pb-2">
               <h1 className="font-bold text-xl uppercase underline tracking-tighter">SURAT BUKTI GADAI</h1>
             </div>
             <p className="mb-4 text-justify text-sm italic">Kami yang bertanda tangan di bawah ini sepakat melakukan serah terima aset gadai sebagai jaminan hutang:</p>
 
             <div className="grid grid-cols-2 gap-4 mb-4 text-[10px] font-sans">
-              <div className="border p-2 rounded">
+              <div className="border p-2 rounded break-inside-avoid">
                 <div className="font-bold uppercase mb-1 border-b">Penerima Gadai (Pihak I)</div>
                 Nama: {data.p1Name}<br/>Alamat: {data.p1Address}
               </div>
-              <div className="border p-2 rounded">
+              <div className="border p-2 rounded break-inside-avoid">
                 <div className="font-bold uppercase mb-1 border-b">Pemberi Gadai (Pihak II)</div>
                 Nama: {data.p2Name}<br/>Alamat: {data.p2Address}
               </div>
             </div>
 
-            <div className="mb-4 border border-black p-4 text-sm bg-slate-50">
+            <div className="mb-4 border border-black p-4 text-sm bg-slate-50 break-inside-avoid">
               <div className="font-bold border-b mb-2">OBJEK JAMINAN:</div>
               {data.assetName}<br/>
               <span className="text-xs text-slate-600">{data.assetDetail}</span>
@@ -185,16 +205,16 @@ function GadaiBuilder() {
 
             <div className="mb-6 text-sm space-y-2">
               <p>1. Pihak II meminjam sebesar <strong>{formatRupiah(data.loanAmount)}</strong>.</p>
-              <p>2. Jatuh tempo pelunasan pada: <strong>{new Date(data.dueDate).toLocaleDateString('id-ID', {dateStyle:'full'})}</strong>.</p>
+              <p>2. Jatuh tempo pelunasan pada: <strong>{isClient && data.dueDate ? new Date(data.dueDate).toLocaleDateString('id-ID', {dateStyle:'full'}) : '...'}</strong>.</p>
               <p>3. Jika tidak lunas, aset menjadi milik Pihak I atau dijual.</p>
             </div>
 
             <div className="flex justify-between text-center mt-20 mb-12 text-sm">
-              <div className="w-40">
+              <div className="w-40 break-inside-avoid">
                   <p className="mb-20 font-bold uppercase underline">Pihak II</p>
                   <p className="font-bold uppercase">{data.p2Name}</p>
               </div>
-              <div className="w-40">
+              <div className="w-40 break-inside-avoid">
                   <p className="mb-4 font-bold uppercase underline">Pihak I</p>
                   <div className="border border-slate-300 w-20 h-12 mx-auto mb-2 flex items-center justify-center text-[8px] text-slate-300">MATERAI</div>
                   <p className="font-bold uppercase">{data.p1Name}</p>
@@ -205,54 +225,85 @@ function GadaiBuilder() {
     </div>
   );
 
+  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
+
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-800 print:bg-white">
+    <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800 overflow-x-hidden">
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0mm; }
-          body { margin: 0 !important; padding: 0 !important; background: white !important; }
-          header, nav, aside, button, .no-print { display: none !important; }
-          #main-content { padding: 0 !important; margin: 0 !important; display: block !important; }
+          /* HILANGKAN HEADER/FOOTER BROWSER DENGAN MARGIN 0 */
+          @page { size: A4; margin: 0; } 
+          
+          body { background: white; margin: 0; padding: 0; }
+          .no-print { display: none !important; }
+          
+          /* KONTROL HALAMAN */
+          .break-inside-avoid { page-break-inside: avoid !important; }
+          
+          #print-only-root { 
+            display: block !important; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            z-index: 9999; 
+            background: white;
+          }
+          
+          /* Reset container untuk print */
+          #print-only-root > div {
+             width: 100% !important;
+             min-height: auto !important; 
+             margin: 0 !important;
+             padding: 0 !important; /* Padding dihandle oleh class print:p-[25mm] */
+             box-shadow: none !important;
+             border: none !important;
+          }
         }
       `}</style>
 
-      {/* HEADER NAV */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16">
+      {/* NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-colors"><ArrowLeft size={18} /></Link>
-            <div className="h-6 w-px bg-slate-700 mx-2"></div>
-            <h1 className="text-sm font-bold text-emerald-400 uppercase tracking-widest">Perjanjian Gadai</h1>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-bold uppercase tracking-widest text-xs">
+              <ArrowLeft size={18} /> Dashboard
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
+               <Briefcase size={16} /> <span>GADAI ASET EDITOR</span>
+            </div>
           </div>
+
           <div className="flex items-center gap-4">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[180px] justify-between transition-all">
-                <div className="flex items-center gap-2"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
-                <ChevronDown size={12} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium transition-colors min-w-[160px] justify-between">
+                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
+                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
               {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-700">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
+                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
                   {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-medium' : ''}`}>
-                      <div className="font-medium">{t.name}</div>
-                      <div className="text-[10px] text-slate-400">{t.desc}</div>
+                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
+                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
+                      {templateId === t.id && <Check size={14} className="text-blue-600"/>}
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase hover:bg-emerald-500 shadow-lg">
-              <Printer size={16} /> Cetak
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
+              <Printer size={16} /> <span className="hidden md:inline">Print</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div id="main-content" className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden">
+      <div className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden">
         
-        {/* --- SIDEBAR EDITOR --- */}
-        <div className="no-print w-full lg:w-[450px] shrink-0 h-full overflow-y-auto pr-2 pb-20 space-y-6 font-sans">
-           
+        {/* INPUT SIDEBAR */}
+        <div className={`no-print w-full lg:w-[450px] shrink-0 h-full overflow-y-auto pr-2 pb-20 space-y-6 font-sans ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
            <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
               <div className="flex items-center gap-2 border-b pb-2"><CalendarDays size={14}/><h3 className="text-xs font-bold uppercase">Waktu & Tempat</h3></div>
               <div className="grid grid-cols-2 gap-3">
@@ -291,12 +342,12 @@ function GadaiBuilder() {
                 <input className="w-full p-2 border rounded text-xs" placeholder="Terbilang Rupiah" value={data.loanAmountText} onChange={e => handleDataChange('loanAmountText', e.target.value)} />
                 <div className="grid grid-cols-2 gap-3 pt-2">
                    <div>
-                     <label className="text-[9px] font-bold uppercase text-slate-400">Jatuh Tempo</label>
-                     <input type="date" className="w-full p-2 border rounded text-xs" value={data.dueDate} onChange={e => handleDataChange('dueDate', e.target.value)} />
+                      <label className="text-[9px] font-bold uppercase text-slate-400">Jatuh Tempo</label>
+                      <input type="date" className="w-full p-2 border rounded text-xs" value={data.dueDate} onChange={e => handleDataChange('dueDate', e.target.value)} />
                    </div>
                    <div>
-                     <label className="text-[9px] font-bold uppercase text-slate-400">Bunga / Biaya</label>
-                     <input className="w-full p-2 border rounded text-xs" value={data.interest} onChange={e => handleDataChange('interest', e.target.value)} />
+                      <label className="text-[9px] font-bold uppercase text-slate-400">Bunga / Biaya</label>
+                      <input className="w-full p-2 border rounded text-xs" value={data.interest} onChange={e => handleDataChange('interest', e.target.value)} />
                    </div>
                 </div>
               </div>
@@ -306,20 +357,33 @@ function GadaiBuilder() {
               <div className="flex items-center gap-2 border-b pb-2"><FileText size={14}/><h3 className="text-xs font-bold uppercase">Pasal Tambahan</h3></div>
               <textarea className="w-full p-2 border rounded text-xs h-24" value={data.additionalClause} onChange={e => handleDataChange('additionalClause', e.target.value)} placeholder="Contoh: Jika tidak lunas aset dijual..." />
            </div>
+           <div className="h-20 lg:hidden"></div>
         </div>
 
         {/* --- PREVIEW AREA --- */}
-        <div className="flex-1 w-full flex justify-center print:hidden pb-20 overflow-y-auto h-full bg-slate-300/30 rounded-xl p-8">
-             <div className="origin-top scale-[0.5] sm:scale-[0.6] lg:scale-[0.85] xl:scale-100 transition-transform">
-                {DocumentContent}
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex justify-center p-0 md:p-8 overflow-y-auto overflow-x-auto h-full ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
+           <div className="w-full max-w-full flex justify-center items-start pt-4 md:pt-0 min-w-[210mm] md:min-w-0">
+             <div className="relative origin-top-left md:origin-top transition-transform duration-300 scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-0 shadow-2xl">
+                <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+                  <DocumentContent />
+                </div>
              </div>
+           </div>
         </div>
 
       </div>
 
-      {/* PRINT AREA */}
-      <div className="hidden print:block absolute top-0 left-0 w-full">
-          {DocumentContent}
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-[100] h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
+         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      </div>
+
+      {/* PRINT PORTAL */}
+      <div id="print-only-root" className="hidden">
+         <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+            <DocumentContent />
+         </div>
       </div>
 
     </div>

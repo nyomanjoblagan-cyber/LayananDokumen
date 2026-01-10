@@ -3,42 +3,47 @@
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Cake, Star, User, 
-  Hourglass, Fingerprint, Sparkles
+  Hourglass, Fingerprint, Sparkles, Heart, Wind, Orbit, Timer
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AgeCalculatorPage() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+    <div className="min-h-screen bg-[#f8fafc] font-sans text-slate-800 pb-20">
       <AgeCalculator />
     </div>
   );
 }
 
 function AgeCalculator() {
-  // --- STATE ---
   const [birthDate, setBirthDate] = useState<string>('');
   const [today, setToday] = useState<string>(new Date().toISOString().split('T')[0]);
   
   const [age, setAge] = useState({ years: 0, months: 0, days: 0 });
-  const [nextBday, setNextBday] = useState({ days: 0, months: 0 });
-  
-  // STATS
+  const [nextBday, setNextBday] = useState({ days: 0, months: 0, totalDays: 0 });
+  const [stats, setStats] = useState({
+    totalDays: 0,
+    totalHours: 0,
+    totalMinutes: 0,
+    totalSeconds: 0,
+    heartBeats: 0,
+    breaths: 0,
+    sunOrbits: 0
+  });
+
   const [zodiac, setZodiac] = useState('-');
-  const [weton, setWeton] = useState('-');
-  const [neptu, setNeptu] = useState(0);
+  const [weton, setWeton] = useState({ name: '-', neptu: 0, character: '-' });
   const [shio, setShio] = useState('-');
   const [generation, setGeneration] = useState('-');
-  const [totalDays, setTotalDays] = useState(0);
 
-  // LOGIC
   useEffect(() => {
     if (!birthDate) return;
 
     const start = new Date(birthDate);
     const end = new Date(today);
+    const diffTime = end.getTime() - start.getTime();
 
-    // 1. Hitung Umur Presisi
+    // 1. Precise Age Calculation
     let years = end.getFullYear() - start.getFullYear();
     let months = end.getMonth() - start.getMonth();
     let days = end.getDate() - start.getDate();
@@ -54,227 +59,224 @@ function AgeCalculator() {
     }
     setAge({ years, months, days });
 
-    // 2. Next Birthday (Countdown)
-    const currentYear = end.getFullYear();
-    let nextBirthday = new Date(start);
-    nextBirthday.setFullYear(currentYear);
-    if (nextBirthday < end) nextBirthday.setFullYear(currentYear + 1);
+    // 2. Life Journey Stats
+    const totalDays = Math.floor(diffTime / (1000 * 3600 * 24));
+    setStats({
+      totalDays,
+      totalHours: totalDays * 24,
+      totalMinutes: totalDays * 24 * 60,
+      totalSeconds: totalDays * 24 * 3600,
+      heartBeats: totalDays * 24 * 60 * 72, // Avg 72 bpm
+      breaths: totalDays * 24 * 60 * 16,    // Avg 16 breaths pm
+      sunOrbits: Number((totalDays / 365.25).toFixed(2))
+    });
 
-    const diffTime = Math.abs(nextBirthday.getTime() - end.getTime());
-    const diffDaysTotal = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-    setNextBday({ months: Math.floor(diffDaysTotal / 30), days: diffDaysTotal % 30 });
+    // 3. Next Birthday Countdown
+    let nextB = new Date(start);
+    nextB.setFullYear(end.getFullYear());
+    if (nextB < end) nextB.setFullYear(end.getFullYear() + 1);
+    const diffNext = Math.ceil((nextB.getTime() - end.getTime()) / (1000 * 3600 * 24));
+    setNextBday({ totalDays: diffNext, months: Math.floor(diffNext / 30), days: diffNext % 30 });
 
-    // 3. Zodiak Barat
-    const d = start.getDate();
-    const m = start.getMonth() + 1;
-    let z = '';
-    if ((m == 1 && d >= 20) || (m == 2 && d <= 18)) z = "Aquarius";
-    else if ((m == 2 && d >= 19) || (m == 3 && d <= 20)) z = "Pisces";
-    else if ((m == 3 && d >= 21) || (m == 4 && d <= 19)) z = "Aries";
-    else if ((m == 4 && d >= 20) || (m == 5 && d <= 20)) z = "Taurus";
-    else if ((m == 5 && d >= 21) || (m == 6 && d <= 20)) z = "Gemini";
-    else if ((m == 6 && d >= 21) || (m == 7 && d <= 22)) z = "Cancer";
-    else if ((m == 7 && d >= 23) || (m == 8 && d <= 22)) z = "Leo";
-    else if ((m == 8 && d >= 23) || (m == 9 && d <= 22)) z = "Virgo";
-    else if ((m == 9 && d >= 23) || (m == 10 && d <= 22)) z = "Libra";
-    else if ((m == 10 && d >= 23) || (m == 11 && d <= 21)) z = "Scorpio";
-    else if ((m == 11 && d >= 22) || (m == 12 && d <= 21)) z = "Sagittarius";
-    else if ((m == 12 && d >= 22) || (m == 1 && d <= 19)) z = "Capricorn";
-    setZodiac(z);
+    // 4. Western Zodiac
+    const d = start.getDate(), m = start.getMonth() + 1;
+    const zodiacs = [
+      { name: "Capricorn", start: [12, 22], end: [1, 19] }, { name: "Aquarius", start: [1, 20], end: [2, 18] },
+      { name: "Pisces", start: [2, 19], end: [3, 20] }, { name: "Aries", start: [3, 21], end: [4, 19] },
+      { name: "Taurus", start: [4, 20], end: [5, 20] }, { name: "Gemini", start: [5, 21], end: [6, 20] },
+      { name: "Cancer", start: [6, 21], end: [7, 22] }, { name: "Leo", start: [7, 23], end: [8, 22] },
+      { name: "Virgo", start: [8, 23], end: [9, 22] }, { name: "Libra", start: [9, 23], end: [10, 22] },
+      { name: "Scorpio", start: [10, 23], end: [11, 21] }, { name: "Sagittarius", start: [11, 22], end: [12, 21] }
+    ];
+    const myZodiac = zodiacs.find(z => (m === z.start[0] && d >= z.start[1]) || (m === z.end[0] && d <= z.end[1]));
+    setZodiac(myZodiac?.name || "Capricorn");
 
-    // 4. Weton (Jawa)
-    // Anchor: 1 Jan 1900 = Senin Pahing
-    const knownDate = new Date(1900, 0, 1); // Bulan 0 = Jan
-    const timeDiff = start.getTime() - knownDate.getTime();
-    const daysPassed = Math.floor(timeDiff / (1000 * 3600 * 24));
-    
+    // 5. Weton Logic
     const pasaranNames = ["Legi", "Pahing", "Pon", "Wage", "Kliwon"];
     const hariNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    
-    // Nilai Neptu
-    const neptuHari = [5, 4, 3, 7, 8, 6, 9]; // Minggu=5, Senin=4, dst
-    const neptuPasaran = [5, 9, 7, 4, 8]; // Legi=5, Pahing=9, dst
+    const neptuHari = [5, 4, 3, 7, 8, 6, 9], neptuPas = [5, 9, 7, 4, 8];
+    const baseDate = new Date(1900, 0, 1);
+    const diffDays = Math.floor((start.getTime() - baseDate.getTime()) / (1000 * 3600 * 24));
+    let pasIdx = (diffDays + 1) % 5; if (pasIdx < 0) pasIdx += 5;
+    const hIdx = start.getDay();
+    setWeton({
+      name: `${hariNames[hIdx]} ${pasaranNames[pasIdx]}`,
+      neptu: neptuHari[hIdx] + neptuPas[pasIdx],
+      character: getWetonChar(pasaranNames[pasIdx])
+    });
 
-    // Hitung index
-    // Hati-hati dgn modulo bilangan negatif jika lahir sebelum 1900 (tapi asumsi user > 1900)
-    let idxPasaran = (daysPassed + 1) % 5; // +1 karena 1 Jan 1900 adalah Pahing (index 1)
-    if (idxPasaran < 0) idxPasaran += 5;
-    
-    const hariLahir = start.getDay(); // 0=Minggu, 1=Senin
-    const namaHari = hariNames[hariLahir];
-    const namaPasaran = pasaranNames[idxPasaran];
-    
-    setWeton(`${namaHari} ${namaPasaran}`);
-    setNeptu(neptuHari[hariLahir] + neptuPasaran[idxPasaran]);
-
-    // 5. Shio (China)
-    const shioList = ["Monyet", "Ayam", "Anjing", "Babi", "Tikus", "Kerbau", "Macan", "Kelinci", "Naga", "Ular", "Kuda", "Kambing"];
-    setShio(shioList[start.getFullYear() % 12]);
-
-    // 6. Generasi & Total Hari
+    // 6. Shio & Generation
+    const shios = ["Monyet", "Ayam", "Anjing", "Babi", "Tikus", "Kerbau", "Macan", "Kelinci", "Naga", "Ular", "Kuda", "Kambing"];
+    setShio(shios[start.getFullYear() % 12]);
     const y = start.getFullYear();
-    if (y >= 2013) setGeneration("Gen Alpha");
-    else if (y >= 1997) setGeneration("Gen Z");
-    else if (y >= 1981) setGeneration("Millennial");
-    else if (y >= 1965) setGeneration("Gen X");
-    else setGeneration("Baby Boomer");
-
-    const totalDiff = Math.abs(end.getTime() - start.getTime());
-    setTotalDays(Math.ceil(totalDiff / (1000 * 3600 * 24)));
+    setGeneration(y >= 2013 ? "Gen Alpha" : y >= 1997 ? "Gen Z" : y >= 1981 ? "Millennial" : y >= 1965 ? "Gen X" : "Baby Boomer");
 
   }, [birthDate, today]);
 
+  const getWetonChar = (p: string) => {
+    if (p === "Legi") return "Optimis & Murah Hati";
+    if (p === "Pahing") return "Ambisius & Cerdas";
+    if (p === "Pon") return "Sabar & Berwibawa";
+    if (p === "Wage") return "Teguh & Mandiri";
+    return "Setia & Berhati-hati";
+  };
+
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8">
-      
+    <div className="max-w-6xl mx-auto p-4 md:p-8">
       {/* HEADER */}
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/" className="bg-white p-2 rounded-full border border-gray-200 hover:bg-gray-50 text-slate-600 transition-colors shadow-sm">
-          <ArrowLeft size={20} />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <User className="text-indigo-600" /> Usia & Weton
-          </h1>
-          <p className="text-sm text-slate-500">Kalkulator umur lengkap dengan pasaran Jawa.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="bg-white p-2.5 rounded-xl border border-slate-200 hover:border-indigo-500 text-slate-600 transition-all shadow-sm">
+            <ArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Data Usia & Metafisika</h1>
+            <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Life Journey Tracker Pro</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+            <div className="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-indigo-200 flex items-center gap-2">
+                <Sparkles size={16}/>
+                <span className="text-xs font-black uppercase tracking-tighter">Verified Logic 2026</span>
+            </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* INPUT SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* LEFT: INPUT & MAIN AGE */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h3 className="font-bold text-sm text-slate-400 uppercase tracking-widest mb-4">Input Data</h3>
-            
-            <div className="mb-4">
-               <label className="text-xs font-bold text-slate-700 mb-1.5 block">Tanggal Lahir</label>
-               <input 
-                 type="date" 
-                 className="w-full px-4 py-3 bg-indigo-50 border-2 border-indigo-100 rounded-xl font-bold text-indigo-900 text-lg focus:outline-none focus:border-indigo-500 transition-all cursor-pointer"
-                 value={birthDate}
-                 onChange={(e) => setBirthDate(e.target.value)}
-               />
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+            <div className="flex items-center gap-2 mb-6">
+                <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
+                <h3 className="font-black text-sm uppercase tracking-wider text-slate-700">Identitas Kelahiran</h3>
             </div>
-            
-            <div>
-               <label className="text-xs font-bold text-slate-400 mb-1.5 block">Hitung Per Tanggal</label>
-               <input 
-                 type="date" 
-                 className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:border-slate-400 transition-all"
-                 value={today}
-                 onChange={(e) => setToday(e.target.value)}
-               />
+            <div className="space-y-4">
+               <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Tanggal Lahir Mas/Mbak</label>
+                  <input type="date" className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-indigo-600 text-xl focus:outline-none focus:border-indigo-500 transition-all" value={birthDate} onChange={(e) => setBirthDate(e.target.value)}/>
+               </div>
+               <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Dihitung Per Tanggal</label>
+                  <input type="date" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 focus:outline-none focus:border-indigo-400" value={today} onChange={(e) => setToday(e.target.value)}/>
+               </div>
             </div>
           </div>
 
-          {/* Quick Stats */}
           {birthDate && (
-             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                <div className="relative z-10">
-                   <div className="flex items-center gap-2 mb-2 opacity-60">
-                      <Hourglass size={16}/>
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Durasi Hidup</span>
-                   </div>
-                   <div className="text-3xl font-black mb-1">{new Intl.NumberFormat('id-ID').format(totalDays)}</div>
-                   <div className="text-xs opacity-60">Hari telah Anda lalui di dunia ini.</div>
-                </div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-full blur-[60px] opacity-20"></div>
-             </div>
+            <div className="bg-indigo-900 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
+               <div className="relative z-10">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 mb-4">Ringkasan Usia</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-7xl font-black tracking-tighter">{age.years}</span>
+                    <span className="text-xl font-bold text-indigo-300">Tahun</span>
+                  </div>
+                  <p className="text-sm font-medium text-indigo-200 mt-2">{age.months} Bulan, {age.days} Hari</p>
+                  <div className="mt-8 flex items-center gap-2 bg-white/10 w-fit px-4 py-2 rounded-full backdrop-blur-md">
+                     <Timer size={14} className="text-indigo-300"/>
+                     <span className="text-[10px] font-bold uppercase tracking-widest">{generation}</span>
+                  </div>
+               </div>
+               <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-500 rounded-full blur-[80px] opacity-30 group-hover:scale-150 transition-transform duration-700"></div>
+            </div>
           )}
         </div>
 
-        {/* RESULT SECTION */}
+        {/* RIGHT: DETAILED METRICS */}
         <div className="lg:col-span-8 space-y-6">
-          
-          {/* Main Age Card */}
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden relative">
-             <div className="bg-indigo-600 text-white p-4 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                   <Cake size={18} />
-                   <span className="font-bold text-sm uppercase">Usia Detail</span>
-                </div>
-                {generation !== '-' && (
-                   <span className="bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">
-                      {generation}
-                   </span>
-                )}
-             </div>
+          {!birthDate ? (
+            <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-white rounded-3xl border-2 border-dashed border-slate-200 text-slate-400">
+               <Hourglass size={48} className="mb-4 animate-pulse"/>
+               <p className="font-bold uppercase tracking-widest text-xs">Silakan pilih tanggal lahir</p>
+            </div>
+          ) : (
+            <>
+              {/* LIFE METRICS GRID */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <MetricCard icon={<Hourglass className="text-blue-500"/>} label="Total Hari" value={new Intl.NumberFormat('id-ID').format(stats.totalDays)} />
+                <MetricCard icon={<Timer className="text-emerald-500"/>} label="Total Jam" value={new Intl.NumberFormat('id-ID').format(stats.totalHours)} />
+                <MetricCard icon={<Heart className="text-red-500"/>} label="Detak Jantung*" value={new Intl.NumberFormat('id-ID').format(stats.heartBeats)} />
+                <MetricCard icon={<Orbit className="text-amber-500"/>} label="Orbit Matahari" value={stats.sunOrbits} />
+              </div>
 
-             <div className="p-8">
-                <div className="flex flex-wrap justify-center items-end gap-2 md:gap-6 text-center">
-                   <div>
-                      <div className="text-5xl md:text-7xl font-black text-slate-800 mb-1 leading-none">{age.years}</div>
-                      <div className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Tahun</div>
-                   </div>
-                   <div className="text-3xl md:text-5xl text-slate-200 font-light mb-2">/</div>
-                   <div>
-                      <div className="text-3xl md:text-5xl font-bold text-slate-600 mb-1 leading-none">{age.months}</div>
-                      <div className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Bulan</div>
-                   </div>
-                   <div className="text-3xl md:text-5xl text-slate-200 font-light mb-2">/</div>
-                   <div>
-                      <div className="text-3xl md:text-5xl font-bold text-slate-600 mb-1 leading-none">{age.days}</div>
-                      <div className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Hari</div>
-                   </div>
-                </div>
+              {/* CULTURE & METAPHYSICS */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <InfoCard 
+                  title="Weton Jawa" 
+                  icon={<Fingerprint size={20} className="text-amber-600"/>}
+                  value={weton.name}
+                  sub={`Neptu: ${weton.neptu} (${weton.character})`}
+                  color="bg-amber-50"
+                />
+                <InfoCard 
+                  title="Zodiak Barat" 
+                  icon={<Star size={20} className="text-purple-600"/>}
+                  value={zodiac}
+                  sub="Elemen & Horoskop"
+                  color="bg-purple-50"
+                />
+                <InfoCard 
+                  title="Shio (China)" 
+                  icon={<div className="text-red-600 font-black text-xs">CN</div>}
+                  value={shio}
+                  sub="Tahun Kelahiran"
+                  color="bg-red-50"
+                />
+              </div>
 
-                <div className="mt-8 pt-6 border-t border-slate-100 flex justify-center">
-                   <div className="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2">
-                      <Sparkles size={14} />
-                      Ulang tahun berikutnya dalam <strong>{nextBday.months} bulan, {nextBday.days} hari</strong>
-                   </div>
+              {/* NEXT BIRTHDAY BIG CARD */}
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                <div className="relative z-10 bg-indigo-50 p-6 rounded-2xl">
+                   <Cake size={48} className="text-indigo-600"/>
                 </div>
-             </div>
-          </div>
+                <div className="relative z-10 text-center md:text-left flex-1">
+                  <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Hitung Mundur Ulang Tahun</h4>
+                  <p className="text-2xl font-black text-slate-800">
+                    {nextBday.totalDays === 0 ? "SELAMAT ULANG TAHUN! 🥳" : `${nextBday.totalDays} Hari Lagi`}
+                  </p>
+                  <p className="text-sm text-slate-500 mt-1">Anda akan merayakan usia ke-{age.years + 1} tahun.</p>
+                </div>
+                <div className="flex gap-4">
+                    <div className="text-center">
+                        <div className="text-2xl font-black text-indigo-600">{nextBday.months}</div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase">Bulan</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-2xl font-black text-indigo-600">{nextBday.days}</div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase">Hari</div>
+                    </div>
+                </div>
+              </div>
 
-          {/* CULTURAL STATS (Weton & Shio) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-             
-             {/* Weton Card */}
-             <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-indigo-300 transition-colors">
-                <div className="flex items-center gap-2 mb-3 text-amber-600">
-                   <Fingerprint size={18} />
-                   <span className="text-xs font-bold uppercase tracking-wide">Weton Jawa</span>
-                </div>
-                <div>
-                   <div className="text-xl font-black text-slate-800 uppercase">{weton}</div>
-                   <div className="text-xs text-slate-500 mt-1">Neptu: <strong className="text-slate-800">{neptu}</strong></div>
-                </div>
-                <div className="absolute -bottom-4 -right-4 text-slate-50 opacity-10 group-hover:opacity-20 transition-opacity">
-                   <Fingerprint size={80} />
-                </div>
-             </div>
-
-             {/* Zodiac Card */}
-             <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-indigo-300 transition-colors">
-                <div className="flex items-center gap-2 mb-3 text-purple-600">
-                   <Star size={18} />
-                   <span className="text-xs font-bold uppercase tracking-wide">Bintang</span>
-                </div>
-                <div>
-                   <div className="text-xl font-black text-slate-800 uppercase">{zodiac}</div>
-                   <div className="text-xs text-slate-500 mt-1">Zodiak Barat</div>
-                </div>
-             </div>
-
-             {/* Shio Card */}
-             <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-indigo-300 transition-colors">
-                <div className="flex items-center gap-2 mb-3 text-red-600">
-                   <div className="w-4 h-4 border-2 border-red-600 rounded-full flex items-center justify-center text-[8px] font-bold">CN</div>
-                   <span className="text-xs font-bold uppercase tracking-wide">Shio</span>
-                </div>
-                <div>
-                   <div className="text-xl font-black text-slate-800 uppercase">{shio}</div>
-                   <div className="text-xs text-slate-500 mt-1">Kalender China</div>
-                </div>
-             </div>
-
-          </div>
-
+              <div className="bg-slate-100 p-4 rounded-2xl text-[10px] text-slate-400 italic text-center">
+                *Statistik kesehatan (detak jantung & napas) adalah angka estimasi berdasarkan rata-rata manusia sehat.
+              </div>
+            </>
+          )}
         </div>
-
       </div>
+    </div>
+  );
+}
+
+function MetricCard({ icon, label, value }: { icon: any, label: string, value: string | number }) {
+  return (
+    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-2">
+      <div className="bg-slate-50 w-8 h-8 rounded-lg flex items-center justify-center">{icon}</div>
+      <div>
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">{label}</p>
+        <p className="text-lg font-black text-slate-800 tracking-tighter">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function InfoCard({ title, icon, value, sub, color }: { title: string, icon: any, value: string, sub: string, color: string }) {
+  return (
+    <div className={`p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md`}>
+      <div className={`${color} w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-inner`}>{icon}</div>
+      <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{title}</p>
+      <p className="text-xl font-black text-slate-800 uppercase tracking-tighter">{value}</p>
+      <p className="text-[10px] font-bold text-slate-500 mt-2 leading-relaxed">{sub}</p>
     </div>
   );
 }
