@@ -154,8 +154,6 @@ export default function BlogIndexPage() {
                    &copy; 2026 Seluruh Hak Cipta Dilindungi.
                 </p>
                 <div className="flex gap-4 text-[10px] font-bold text-slate-400 uppercase">
-                   <Link href="/privacy" className="hover:text-emerald-600">Privacy</Link>
-                   <Link href="/terms" className="hover:text-emerald-600">Terms</Link>
                 </div>
              </div>
           </div>
