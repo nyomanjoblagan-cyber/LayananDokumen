@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo, Fragment } from 'react';
-// IMPORT KOMPONEN BARU
 import AdsterraBanner from '@/components/AdsterraBanner';
 
 export default function HomePage() {
@@ -225,6 +224,13 @@ export default function HomePage() {
              <a href="#directory" className="text-xs font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1.5 transition-colors cursor-pointer">
                 <LayoutGrid size={14}/> Kategori
              </a>
+             
+             {/* --- LINK PANDUAN (BARU) --- */}
+             <Link href="/panduan" className="text-xs font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1.5 transition-colors">
+                <BookOpen size={14}/> Pusat Panduan
+             </Link>
+             {/* --------------------------- */}
+
              <Link href="/legalitas?tab=disclaimer" className="text-xs font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1.5 transition-colors">
                 <AlertCircle size={14}/> Disclaimer
              </Link>
