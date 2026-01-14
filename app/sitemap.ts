@@ -1,9 +1,13 @@
 import { MetadataRoute } from 'next'
+import { getAllArticles } from '@/lib/blogData' // Import fungsi untuk ambil artikel
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://layanandokumen.com' // SESUAIKAN DENGAN DOMAIN MAS
+  const baseUrl = 'https://layanandokumen.com'
 
-  // Daftar semua alat berdasarkan database kita
+  // Ambil semua artikel dari blogData
+  const articles = getAllArticles()
+
+  // Daftar semua alat (tools) - sesuai dengan yang ada
   const tools = [
     // Bisnis & UMKM
     '/tools/finance?mode=invoice',
@@ -124,12 +128,89 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/legalitas',
   ]
 
-  const routes = ['', ...tools].map((route) => ({
-    url: `${baseUrl}${route}`,
+  // Routes dasar (halaman utama dan halaman penting)
+  const baseRoutes: MetadataRoute.Sitemap = [
+    // Halaman utama
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 1,
+    },
+    // Halaman listing panduan/artikel
+    {
+      url: `${baseUrl}/panduan`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    },
+    // Halaman legalitas
+    {
+      url: `${baseUrl}/legalitas`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    },
+  ]
+
+  // Routes untuk tools
+  const toolRoutes = tools.map((tool) => ({
+    url: `${baseUrl}${tool}`,
     lastModified: new Date(),
-    changeFrequency: 'daily' as const, // Diubah ke daily karena Mas lagi aktif update
-    priority: route === '' ? 1 : 0.7,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
   }))
 
-  return routes
+  // Routes untuk artikel/panduan detail
+  const articleRoutes = articles.map((article) => {
+    // Parse tanggal dari string ke Date object
+    // Format: "12 Januari 2026" -> perlu diubah ke format Date
+    let lastModified = new Date()
+    
+    try {
+      // Coba parse tanggal dari artikel
+      if (article.date) {
+        // Ubah format "12 Januari 2026" ke "12 January 2026" untuk parsing
+        const indonesianMonths: Record<string, string> = {
+          'januari': 'January', 'februari': 'February', 'maret': 'March',
+          'april': 'April', 'mei': 'May', 'juni': 'June',
+          'juli': 'July', 'agustus': 'August', 'september': 'September',
+          'oktober': 'October', 'november': 'November', 'desember': 'December'
+        }
+        
+        let dateStr = article.date.toLowerCase()
+        for (const [id, en] of Object.entries(indonesianMonths)) {
+          dateStr = dateStr.replace(id, en)
+        }
+        
+        const parsedDate = new Date(dateStr)
+        if (!isNaN(parsedDate.getTime())) {
+          lastModified = parsedDate
+        }
+      }
+    } catch (error) {
+      console.error(`Error parsing date for article ${article.slug}:`, error)
+      // Default to current date if parsing fails
+    }
+
+    return {
+      url: `${baseUrl}/panduan/${article.slug}`,
+      lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    }
+  })
+
+  // Optional: Tambahkan halaman kategori jika ada
+  // Ambil semua kategori unik dari artikel
+  const categories = Array.from(new Set(articles.map(article => article.category)))
+  const categoryRoutes = categories.map((category) => ({
+    url: `${baseUrl}/panduan/kategori/${encodeURIComponent(category.toLowerCase())}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.5,
+  }))
+
+  // Gabungkan semua routes
+  return [...baseRoutes, ...toolRoutes, ...articleRoutes, ...categoryRoutes]
 }
