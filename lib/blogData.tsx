@@ -18383,58 +18383,6 @@ export const BLOG_DATA: Record<string, BlogPost> = {
       </div>
     ),
   },
-  izin: {
-    title: 'Surat Izin: Fungsi Formal, Jenis-Jenis, dan Tata Cara Penulisan yang Benar',
-    category: 'Administrasi',
-    date: '18 Maret 2026',
-    imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2070&auto=format&fit=crop',
-    excerpt: 'Surat izin digunakan untuk menyampaikan permohonan izin secara resmi agar dapat diterima dan dipertanggungjawabkan.',
-    toolLink: '/tools/izin',
-    toolText: 'Buat Surat Izin',
-    readingTime: '7 menit baca',
-    tags: ['Surat Izin', 'Administrasi', 'Surat Resmi'],
-    content: (
-      <div className="space-y-6">
-        <section>
-          <p>
-            Surat izin merupakan dokumen resmi yang digunakan untuk menyampaikan
-            permohonan izin kepada pihak berwenang atas suatu ketidakhadiran,
-            kegiatan tertentu, atau pelaksanaan usaha.
-          </p>
-          <p>
-            Penggunaan surat izin yang tidak sesuai kaidah sering kali menyebabkan
-            permohonan ditolak atau tidak diproses.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold">Jenis-Jenis Surat Izin</h2>
-          <ul className="list-disc pl-5">
-            <li>Surat izin tidak masuk sekolah atau kerja</li>
-            <li>Surat izin kegiatan</li>
-            <li>Surat izin usaha atau operasional</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold">Prinsip Penulisan Surat Izin</h2>
-          <ul className="list-disc pl-5">
-            <li>Alasan disampaikan secara jujur dan jelas</li>
-            <li>Mencantumkan durasi izin</li>
-            <li>Menggunakan bahasa formal dan sopan</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold">Risiko Tanpa Surat Izin</h2>
-          <p>
-            Ketidakhadiran tanpa izin tertulis dapat dianggap sebagai pelanggaran
-            disiplin dan berujung pada sanksi administratif.
-          </p>
-        </section>
-      </div>
-    ),
-  },
 
   tandaTerima: {
     title: 'Surat Tanda Terima: Bukti Pembayaran, Serah Terima, dan Validasi Transaksi',
