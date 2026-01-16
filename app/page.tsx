@@ -4,7 +4,7 @@ import {
   Search, ChevronRight, Store, ShieldCheck,
   FileText, Landmark, Gavel, Truck, GraduationCap, Calculator,
   ArrowUpRight, Users, X, Menu, AlertCircle, LayoutGrid, HelpCircle,
-  Stethoscope, PartyPopper, BookOpen, ChevronDown
+  Stethoscope, PartyPopper, BookOpen, ChevronDown, ExternalLink, FileStack
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo, Fragment } from 'react';
@@ -13,7 +13,7 @@ import AdsterraBanner from '@/components/AdsterraBanner';
 export default function HomePage() {
   const [search, setSearch] = useState('');
   
-  // DATABASE DOKUMEN LENGKAP
+  // --- DATABASE DOKUMEN LENGKAP (ORIGINAL - TIDAK DIUBAH SAMA SEKALI) ---
   const DIRECTORY = [
     {
       group: "Bisnis & UMKM",
@@ -362,7 +362,7 @@ export default function HomePage() {
         </a>
       </div>
 
-      {/* IKLAN BANNER TENGAH (SAFE MODE) */}
+      {/* IKLAN BANNER TENGAH */}
       <div className="max-w-5xl mx-auto px-6 mt-4 mb-4">
          <div className="w-full min-h-[100px] bg-white/50 border border-slate-200 border-dashed rounded-xl flex items-center justify-center overflow-hidden py-4 no-print">
             <AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={728} height={90} />
@@ -374,7 +374,6 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredDirectory.map((cat, idx) => (
               <Fragment key={idx}>
-                {/* IKLAN KOTAK DI SELA-SELA KATEGORI */}
                 {idx > 0 && idx % 3 === 0 && (
                    <div className="flex flex-col bg-white/50 border border-slate-200 border-dashed rounded-xl overflow-hidden h-full items-center justify-center p-4 min-h-[280px] no-print">
                       <span className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-4">Sponsored Advertisement</span>
@@ -410,7 +409,64 @@ export default function HomePage() {
         )}
       </section>
 
-      <footer className="bg-slate-50 text-slate-600 py-8 border-t border-slate-200 mt-8 relative z-10">
+      {/* --- [BARU] SECTION PROMOSI EKOSISTEM (Di bawah List Directory) --- */}
+      <section className="bg-gradient-to-b from-slate-50 to-white py-16 border-t border-slate-200 mt-8 relative z-10">
+         <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-10">
+               <h3 className="text-xl font-black text-slate-800 mb-2 flex items-center justify-center gap-2">
+                  <div className="bg-emerald-100 p-1.5 rounded-lg text-emerald-600"><BookOpen size={18}/></div>
+                  Layanan Kami Lainnya
+               </h3>
+               <p className="text-sm text-slate-500">Kunjungi platform edukasi & produktivitas kami lainnya.</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+               {/* 1. LINK KE PDF TOOLS (SUBDOMAIN) */}
+               <a href="https://pdf.layanandokumen.com" target="_blank" rel="noopener noreferrer" className="group block p-6 bg-white rounded-2xl border border-red-100 hover:border-red-300 shadow-sm hover:shadow-lg transition-all relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                     <FileStack size={80} className="text-red-500"/>
+                  </div>
+                  <div className="relative z-10 flex items-start gap-4">
+                     <div className="bg-red-100 text-red-600 p-3 rounded-xl">
+                        <FileStack size={24} strokeWidth={2.5}/>
+                     </div>
+                     <div>
+                        <h4 className="font-bold text-lg text-slate-900 group-hover:text-red-600 flex items-center gap-2 transition-colors">
+                           PDF Tools Pro <ExternalLink size={14} className="opacity-50"/>
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                           Kumpulan alat PDF lengkap: Gabung, Pisah, Kompres, Konversi (JPG/Word), dan Edit PDF. 100% Gratis, Tanpa Upload Server (Aman).
+                        </p>
+                        <span className="inline-block mt-3 text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded border border-red-100">Productivity</span>
+                     </div>
+                  </div>
+               </a>
+
+               {/* 2. LINK KE LATIHAN ONLINE */}
+               <a href="https://www.latihanonline.com" target="_blank" rel="noopener noreferrer" className="group block p-6 bg-white rounded-2xl border border-orange-100 hover:border-orange-300 shadow-sm hover:shadow-lg transition-all relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                     <BookOpen size={80} className="text-orange-500"/>
+                  </div>
+                  <div className="relative z-10 flex items-start gap-4">
+                     <div className="bg-orange-100 text-orange-600 p-3 rounded-xl">
+                        <BookOpen size={24} strokeWidth={2.5}/>
+                     </div>
+                     <div>
+                        <h4 className="font-bold text-lg text-slate-900 group-hover:text-orange-600 flex items-center gap-2 transition-colors">
+                           LatihanOnline.com <ExternalLink size={14} className="opacity-50"/>
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                           Bank Soal & Ujian Sekolah Gratis (SD-SMK). Pusat latihan soal online terlengkap dengan pembahasan materi & jawaban. Persiapan CPNS & BUMN.
+                        </p>
+                        <span className="inline-block mt-3 text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded border border-orange-100">Pendidikan</span>
+                     </div>
+                  </div>
+               </a>
+            </div>
+         </div>
+      </section>
+
+      <footer className="bg-slate-50 text-slate-600 py-8 border-t border-slate-200 relative z-10">
         <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8">
           <div className="md:col-span-5 space-y-2">
             <h5 className="text-slate-900 font-bold text-sm flex items-center gap-2"><ShieldCheck size={16} className="text-emerald-600" />LayananDokumen.com</h5>
@@ -421,11 +477,7 @@ export default function HomePage() {
               <ul className="space-y-1">
                 <li><Link href="/tools/hutang" className="hover:text-emerald-600">Hutang Piutang</Link></li>
                 <li><Link href="/tools/surat-kuasa" className="hover:text-emerald-600">Surat Kuasa</Link></li>
-                <li>
-                  <Link href="/tools/katalog-deskripsi" className="text-emerald-600 font-bold flex items-center gap-1 hover:underline">
-                    <BookOpen size={12} /> Katalog Fungsi
-                  </Link>
-                </li>
+                <li><Link href="/tools/katalog-deskripsi" className="text-emerald-600 font-bold flex items-center gap-1 hover:underline"><BookOpen size={12} /> Katalog Fungsi</Link></li>
               </ul>
             </div>
             <div><h6 className="text-slate-900 font-semibold mb-2">Legalitas</h6>
