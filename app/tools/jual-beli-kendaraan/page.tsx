@@ -2,11 +2,12 @@
 
 /**
  * FILE: JualBeliKendaraanPage.tsx
- * STATUS: FINAL FIX (TABLE WRAPPER TECHNIQUE)
+ * STATUS: FINAL FIXED (PREVIEW & PRINT)
  * DESC: Generator Surat Jual Beli Kendaraan
  * FIXES: 
- * - @page margin 0 -> Menghilangkan tulisan URL/Header browser.
- * - Table Structure -> Membuat margin atas (spacer) berulang otomatis di halaman 2, 3, dst.
+ * - Perbaikan area Saksi agar tidak meluber di Preview (Ganti Flex ke Grid).
+ * - Menambahkan overflow-hidden pada kertas preview.
+ * - Konsistensi margin Table Wrapper.
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -18,9 +19,7 @@ import Link from 'next/link';
 
 // --- 1. TYPE DEFINITIONS ---
 interface SaleData {
-  day: string;
-  date: string;
-  city: string;
+  day: string; date: string; city: string;
   p1Name: string; p1Nik: string; p1Job: string; p1Address: string;
   p2Name: string; p2Nik: string; p2Job: string; p2Address: string;
   brand: string; type: string; year: string; color: string; nopol: string;
@@ -94,11 +93,11 @@ function VehicleSaleBuilder() {
 
   // --- CONTENT ---
   const DocumentContent = () => (
-    <div className="font-serif text-slate-900 leading-tight text-[10pt] text-justify">
+    <div className="font-serif text-slate-900 leading-tight text-[10pt] text-justify w-full">
         
         {/* TEMPLATE 1: LEGAL FORMAL */}
         {templateId === 1 && (
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full w-full">
                 <div className="text-center mb-6 border-b-2 border-black pb-2 shrink-0">
                    <h1 className="font-black text-lg uppercase underline tracking-wide text-black">SURAT PERJANJIAN JUAL BELI KENDARAAN</h1>
                 </div>
@@ -106,7 +105,7 @@ function VehicleSaleBuilder() {
                 <div className="flex-grow">
                     <p className="mb-4 text-black leading-relaxed">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
 
-                    <div className="ml-2 mb-4 break-inside-avoid">
+                    <div className="ml-2 mb-4">
                        <div className="font-bold underline text-xs uppercase mb-1 text-black">I. PIHAK PERTAMA (PENJUAL)</div>
                        <table className="w-full leading-snug">
                           <tbody>
@@ -118,7 +117,7 @@ function VehicleSaleBuilder() {
                        </table>
                     </div>
 
-                    <div className="ml-2 mb-6 break-inside-avoid">
+                    <div className="ml-2 mb-6">
                        <div className="font-bold underline text-xs uppercase mb-1 text-black">II. PIHAK KEDUA (PEMBELI)</div>
                        <table className="w-full leading-snug">
                           <tbody>
@@ -132,7 +131,7 @@ function VehicleSaleBuilder() {
 
                     <p className="mb-4 text-black">Kedua belah pihak sepakat melakukan transaksi jual beli kendaraan dengan spesifikasi sebagai berikut:</p>
 
-                    <div className="mb-6 border border-black p-3 bg-slate-50 print:bg-transparent break-inside-avoid">
+                    <div className="mb-6 border border-black p-3 bg-slate-50 print:bg-transparent">
                        <table className="w-full leading-snug">
                           <tbody>
                              <tr><td className="w-24 font-bold text-black">Merk / Type</td><td className="w-3 text-black">:</td><td className="text-black">{data.brand} / {data.type}</td><td className="w-20 font-bold text-black pl-2">No. Polisi</td><td className="w-3 text-black">:</td><td className="font-bold text-black">{data.nopol}</td></tr>
@@ -143,15 +142,15 @@ function VehicleSaleBuilder() {
                     </div>
 
                     <div className="space-y-4">
-                       <div className="break-inside-avoid">
+                       <div>
                           <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 1: HARGA & PEMBAYARAN</div>
                           <p className="text-black leading-relaxed">Disepakati harga kendaraan tersebut sebesar <strong>{formatRupiah(data.price)}</strong> (<em>{data.priceText}</em>) yang dibayarkan tunai/transfer oleh Pihak Kedua kepada Pihak Pertama secara <strong>{data.paymentMethod}</strong>.</p>
                        </div>
-                       <div className="break-inside-avoid">
+                       <div>
                           <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 2: PENYERAHAN & JAMINAN</div>
                           <p className="text-black leading-relaxed">Kendaraan diserahkan dalam kondisi "as is" (apa adanya). Pihak Pertama menjamin bahwa kendaraan tersebut adalah milik sah, tidak dalam sengketa, dan bebas dari sitaan pihak manapun.</p>
                        </div>
-                       <div className="break-inside-avoid">
+                       <div>
                           <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 3: BALIK NAMA & PAJAK</div>
                           <p className="text-black leading-relaxed">Segala biaya balik nama menjadi tanggung jawab Pihak Kedua. Pajak/E-Tilang yang terjadi <strong>SEBELUM</strong> tanggal transaksi ini adalah tanggung jawab Pihak Pertama.</p>
                        </div>
@@ -160,29 +159,31 @@ function VehicleSaleBuilder() {
                     <p className="mt-6 text-[10pt] italic text-black text-center">Demikian surat perjanjian ini dibuat rangkap dua bermaterai cukup dan memiliki kekuatan hukum yang sama.</p>
                 </div>
 
-                <div className="shrink-0 mt-12 break-inside-avoid">
-                    <div className="flex justify-between text-center mb-8">
-                       <div className="w-48">
+                <div className="shrink-0 mt-8 mb-4">
+                    {/* TANDA TANGAN UTAMA - GRID 2 KOLOM */}
+                    <div className="grid grid-cols-2 gap-8 text-center mb-8">
+                       <div>
                           <p className="mb-20 font-bold text-black text-xs uppercase tracking-widest">PIHAK KEDUA (Pembeli)</p>
                           <p className="font-bold underline uppercase text-black">{data.p2Name}</p>
                        </div>
-                       <div className="w-48">
+                       <div>
                           <p className="mb-4 font-bold text-black text-xs uppercase tracking-widest">PIHAK PERTAMA (Penjual)</p>
                           <div className="border border-black w-24 h-16 mx-auto mb-2 flex items-center justify-center text-[8px] text-black bg-slate-50 print:bg-transparent">MATERAI 10.000</div>
                           <p className="font-bold underline uppercase text-black">{data.p1Name}</p>
                        </div>
                     </div>
 
+                    {/* SAKSI - GRID 2 KOLOM (FIX: TIDAK MELUBER) */}
                     <div className="text-center text-xs">
                        <p className="mb-4 font-bold underline text-black">SAKSI-SAKSI</p>
-                       <div className="flex justify-center gap-16">
-                          <div className="text-center w-40">
-                             <div className="border-b border-black text-black pb-1 mb-1">{data.witness1}</div>
-                             <div className="text-[8pt] text-black">( Saksi Pihak I )</div>
+                       <div className="grid grid-cols-2 gap-8">
+                          <div>
+                             <div className="text-[9pt] mb-8 font-bold text-black">Saksi I</div>
+                             <div className="border-b border-black text-black pb-1">{data.witness1}</div>
                           </div>
-                          <div className="text-center w-40">
-                             <div className="border-b border-black text-black pb-1 mb-1">{data.witness2}</div>
-                             <div className="text-[8pt] text-black">( Saksi Pihak II )</div>
+                          <div>
+                             <div className="text-[9pt] mb-8 font-bold text-black">Saksi II</div>
+                             <div className="border-b border-black text-black pb-1">{data.witness2}</div>
                           </div>
                        </div>
                     </div>
@@ -192,7 +193,7 @@ function VehicleSaleBuilder() {
 
         {/* TEMPLATE 2: KWITANSI BESAR */}
         {templateId === 2 && (
-            <div className="border-4 double border-black p-6 h-full flex flex-col justify-between">
+            <div className="border-4 double border-black p-6 h-full flex flex-col justify-between w-full">
                 <div>
                     <div className="flex justify-between items-start border-b-2 border-black pb-4 mb-6">
                         <div>
@@ -213,7 +214,7 @@ function VehicleSaleBuilder() {
                         <div className="text-black">Alamat</div><div className="text-black">:</div><div className="text-xs text-black">{data.p2Address}</div>
                     </div>
 
-                    <div className="bg-slate-50 print:bg-transparent p-6 rounded-xl mb-6 border border-black break-inside-avoid">
+                    <div className="bg-slate-50 print:bg-transparent p-6 rounded-xl mb-6 border border-black">
                         <h3 className="font-bold text-xs mb-3 border-b border-black pb-2 text-black uppercase tracking-widest">DATA KENDARAAN</h3>
                         <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                             <div className="flex justify-between"><span className="text-black">Merk/Type</span><span className="text-black">:</span></div><div className="font-bold text-black">{data.brand} {data.type}</div>
@@ -224,14 +225,14 @@ function VehicleSaleBuilder() {
                         </div>
                     </div>
 
-                    <div className="mb-6 break-inside-avoid">
+                    <div className="mb-6">
                         <div className="text-xs font-bold text-black uppercase tracking-widest mb-1">TOTAL HARGA</div>
                         <div className="text-3xl font-black text-black mb-2">{formatRupiah(data.price)}</div>
                         <div className="text-sm italic text-black bg-slate-50 print:bg-transparent p-2 border-l-4 border-black">"{data.priceText}"</div>
                     </div>
                 </div>
 
-                <div className="flex justify-between mt-auto pt-8 border-t-2 border-dashed border-black break-inside-avoid">
+                <div className="flex justify-between mt-auto pt-8 border-t-2 border-dashed border-black">
                     <div className="text-center w-40">
                         <div className="mb-24 text-xs font-bold uppercase tracking-wider text-black">Pembeli</div>
                         <div className="font-bold uppercase border-b border-black text-sm text-black">{data.p2Name}</div>
@@ -255,15 +256,14 @@ function VehicleSaleBuilder() {
       {/* GLOBAL CSS PRINT (TABLE WRAPPER TECHNIQUE) */}
       <style jsx global>{`
         @media print {
-          @page { size: A4 portrait; margin: 0mm; } /* HILANGKAN MARGIN BROWSER & URL */
+          @page { size: A4 portrait; margin: 0mm; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
           
-          /* KUNCI: TABLE HEADER/FOOTER SPACER */
           .print-table { width: 100%; border-collapse: collapse; }
-          .print-header-space { height: 20mm; } /* Jarak Atas Halaman 1, 2, dst */
-          .print-footer-space { height: 20mm; } /* Jarak Bawah Halaman 1, 2, dst */
-          .print-content-wrapper { padding: 0 20mm; } /* Padding Kiri Kanan */
+          .print-header-space { height: 15mm; } 
+          .print-footer-space { height: 15mm; } 
+          .print-content-wrapper { padding: 0 15mm; }
           
           #print-only-root { 
             display: block !important; 
@@ -408,9 +408,9 @@ function VehicleSaleBuilder() {
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   {/* PREVIEW ONLY WRAPPER (Visual Padding) */}
-                   <div className="p-[20mm]">
+                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col overflow-hidden relative">
+                   {/* Visual padding for preview ONLY */}
+                   <div className="p-[15mm]">
                       <DocumentContent />
                    </div>
                  </div>
@@ -425,7 +425,7 @@ function VehicleSaleBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA (HIDDEN) */}
+      {/* PRINT AREA (TABLE WRAPPER) */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
             <thead><tr><td><div className="print-header-space"></div></td></tr></thead>
