@@ -1,71 +1,106 @@
 'use client';
 
-import { useState, Suspense, useMemo } from 'react';
+/**
+ * FILE: IzinCutiPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Izin Cuti / Sakit
+ * FEATURES:
+ * - Auto Days Calculation (Hitung Hari Otomatis)
+ * - Auto Reason Generator (Tahunan/Sakit/Hamil)
+ * - Dual Template (Formal vs Modern)
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
+import { useState, useRef, Suspense, useMemo, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, CalendarDays, UserCircle2, 
   Stethoscope, Baby, Palmtree, LayoutTemplate, ChevronDown, Check,
-  Info, FileText, BadgeCheck, ArrowLeftCircle, Edit3, Eye, Briefcase
+  Info, FileText, BadgeCheck, ArrowLeftCircle, Edit3, Eye, Briefcase, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface LeaveData {
+  city: string;
+  date: string;
+  name: string;
+  empId: string;
+  position: string;
+  department: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  substitute: string;
+  managerName: string;
+  managerJob: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: LeaveData = {
+  city: 'BANDUNG',
+  date: '', // Diisi useEffect
+  name: 'ANISA PUTRI',
+  empId: 'EMP-99021',
+  position: 'Senior Accounting',
+  department: 'Finance & Tax',
+  startDate: '2026-02-01',
+  endDate: '2026-02-03',
+  reason: 'Mengambil hak cuti tahunan untuk keperluan acara keluarga di luar kota.',
+  substitute: 'RENDI ARISANDI',
+  managerName: 'BAMBANG HERMAWAN',
+  managerJob: 'HR Manager'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function IzinCutiPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat Izin...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat Izin...</div>}>
       <LeaveRequestBuilder />
     </Suspense>
   );
 }
 
 function LeaveRequestBuilder() {
-  // --- STATE SYSTEM ---
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [leaveType, setLeaveType] = useState<'Tahunan' | 'Hamil' | 'Sakit'>('Tahunan');
+  const [data, setData] = useState<LeaveData>(INITIAL_DATA);
 
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Bandung',
-    date: new Date().toISOString().split('T')[0],
-    name: 'ANISA PUTRI',
-    empId: 'EMP-99021',
-    position: 'Senior Accounting',
-    department: 'Finance & Tax',
-    startDate: '2026-02-01',
-    endDate: '2026-02-03',
-    reason: 'Mengambil hak cuti tahunan untuk keperluan acara keluarga di luar kota.',
-    substitute: 'Rendi Arisandi',
-    managerName: 'BAMBANG HERMAWAN',
-    managerJob: 'HR Manager'
-  });
+  // Set Tanggal Hari Ini saat Mount
+  useEffect(() => {
+    setData(prev => ({ 
+        ...prev, 
+        date: new Date().toISOString().split('T')[0] 
+    }));
+  }, []);
 
-  const TEMPLATES = [
-    { id: 1, name: "Klasik Korporat", desc: "Format Standar Perkantoran" },
-    { id: 2, name: "Modern Minimalis", desc: "Desain Bersih & Elegan" }
-  ];
+  // --- LOGIC ---
+  const handleDataChange = (field: keyof LeaveData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  const activeTemplate = TEMPLATES.find(t => t.id === templateId) || TEMPLATES[0];
-  const activeTemplateName = activeTemplate.name;
-
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
-
-  // --- LOGIKA GANTI KATEGORI & ALASAN OTOMATIS ---
+  // Logic Ganti Kategori & Auto Text
   const handleCategoryChange = (type: 'Tahunan' | 'Hamil' | 'Sakit') => {
     setLeaveType(type);
-    
     let newReason = '';
+    
     if (type === 'Tahunan') {
-        newReason = 'Mengambil hak cuti tahunan untuk keperluan acara keluarga / liburan.';
+       newReason = 'Mengambil hak cuti tahunan untuk keperluan acara keluarga / liburan.';
     } else if (type === 'Hamil') {
-        newReason = 'Persiapan persalinan dan pemulihan pasca melahirkan sesuai HPL dokter.';
+       newReason = 'Persiapan persalinan dan pemulihan pasca melahirkan sesuai HPL dokter.';
     } else if (type === 'Sakit') {
-        newReason = 'Kondisi kesehatan menurun (Demam/Flu) dan disarankan dokter untuk istirahat total.';
+       newReason = 'Kondisi kesehatan menurun (Demam/Flu) dan disarankan dokter untuk istirahat total.';
     }
 
     setData(prev => ({ ...prev, reason: newReason }));
   };
 
+  // Hitung Selisih Hari
   const diffDays = useMemo(() => {
     const start = new Date(data.startDate);
     const end = new Date(data.endDate);
@@ -74,112 +109,147 @@ function LeaveRequestBuilder() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
   }, [data.startDate, data.endDate]);
 
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
+    }
+  };
+
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Klasik Korporat
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Modern Minimalis
+        </button>
+    </div>
+  );
+
+  // --- ICON HELPER ---
   const getIcon = () => {
     if (leaveType === 'Hamil') return <Baby size={32} />;
     if (leaveType === 'Sakit') return <Stethoscope size={32} />;
     return <Palmtree size={32} />;
   };
 
-  // --- KOMPONEN ISI SURAT ---
+  // --- KONTEN SURAT ---
   const ContentInside = () => {
+    // Format Tanggal
+    const formatDate = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+        } catch { return dateString; }
+    };
+
     if (templateId === 1) {
-      // --- TEMPLATE 1: FORMAL BERBOBOT (Compact) ---
+      // === TEMPLATE 1: KLASIK KORPORAT ===
       return (
-        <div className="font-serif text-[11pt] text-slate-900 leading-relaxed">
-           <div className="text-right text-[10pt] mb-10">
-              <p className="font-bold">{data.city}, {new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+        <div className="font-serif text-[11pt] text-black leading-relaxed">
+           
+           <div className="text-right text-[11pt] mb-10">
+              <p className="font-bold">{data.city}, {formatDate(data.date)}</p>
            </div>
 
            <div className="mb-8 space-y-1">
               <p>Hal: <b>Permohonan Izin {leaveType === 'Tahunan' ? 'Cuti Tahunan' : (leaveType === 'Sakit' ? 'Sakit (Medical Leave)' : 'Cuti Melahirkan')}</b></p>
               <div className="pt-4">
                  <p>Kepada Yth,</p>
-                 <p className="font-bold">Bapak/Ibu {data.managerName}</p>
+                 <p className="font-bold uppercase">Bapak/Ibu {data.managerName}</p>
                  <p>{data.managerJob}</p>
-                 <p className="font-medium">{data.department}</p>
+                 <p className="font-medium">Di Tempat</p>
               </div>
            </div>
 
-           <div className="space-y-4 flex-grow">
+           <div className="space-y-4 flex-grow text-justify">
               <p>Dengan hormat,</p>
               <p>Saya yang bertanda tangan di bawah ini:</p>
               
-              <div className="ml-4 space-y-1 bg-slate-50 p-3 border border-slate-200 rounded text-[10.5pt]">
+              <div className="ml-4 space-y-1 bg-slate-50 p-3 border border-slate-200 rounded text-[11pt]">
                  <table className="w-full">
                     <tbody>
-                        <tr><td className="w-36">Nama Lengkap</td><td className="w-3">:</td><td className="font-bold uppercase">{data.name}</td></tr>
-                        <tr><td>Nomor Induk</td><td>:</td><td>{data.empId}</td></tr>
-                        <tr><td>Jabatan</td><td>:</td><td>{data.position}</td></tr>
-                        <tr><td>Departemen</td><td>:</td><td>{data.department}</td></tr>
+                       <tr><td className="w-36 align-top">Nama Lengkap</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.name}</td></tr>
+                       <tr><td className="align-top">Nomor Induk</td><td className="align-top">:</td><td className="align-top">{data.empId}</td></tr>
+                       <tr><td className="align-top">Jabatan</td><td className="align-top">:</td><td className="align-top">{data.position}</td></tr>
+                       <tr><td className="align-top">Departemen</td><td className="align-top">:</td><td className="align-top">{data.department}</td></tr>
                     </tbody>
                  </table>
               </div>
 
-              <p className="text-justify">
-                 Bermaksud mengajukan permohonan <b>{leaveType === 'Sakit' ? 'IZIN SAKIT' : 'CUTI KERJA'}</b> selama <b>{diffDays} hari kerja</b>, terhitung mulai tanggal <b>{new Date(data.startDate).toLocaleDateString('id-ID', {dateStyle: 'long'})}</b> s.d. <b>{new Date(data.endDate).toLocaleDateString('id-ID', {dateStyle: 'long'})}</b>.
+              <p>
+                 Bermaksud mengajukan permohonan <b>{leaveType === 'Sakit' ? 'IZIN SAKIT' : 'CUTI KERJA'}</b> selama <b>{diffDays} hari kerja</b>, terhitung mulai tanggal <b>{formatDate(data.startDate)}</b> sampai dengan <b>{formatDate(data.endDate)}</b>.
               </p>
               
-              <div className="bg-slate-50 p-3 border-l-4 border-slate-400 italic text-[10.5pt] text-justify rounded-r">
+              <div className="bg-slate-50 p-3 border-l-4 border-black italic text-[11pt] text-justify rounded-r">
                  Alasan: "{data.reason}"
               </div>
               
-              <p className="text-justify">
+              <p>
                  Selama saya tidak berada di tempat, tanggung jawab pekerjaan sementara akan saya delegasikan kepada rekan kerja saya: <strong>{data.substitute}</strong>.
               </p>
               
-              <p className="text-justify">Demikian permohonan ini saya ajukan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.</p>
+              <p>Demikian permohonan ini saya ajukan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.</p>
            </div>
 
            <div className="shrink-0 mt-12 grid grid-cols-2 gap-10 text-center" style={{ pageBreakInside: 'avoid' }}>
-              <div className="space-y-20">
-                 <p className="uppercase text-[9pt] font-bold text-slate-500">Menyetujui,</p>
+              <div className="space-y-24">
+                 <p className="uppercase text-[10pt] font-bold text-slate-500">Menyetujui,</p>
                  <div>
                     <p className="font-bold underline uppercase">{data.managerName}</p>
-                    <p className="text-[9pt]">{data.managerJob}</p>
+                    <p className="text-[10pt]">{data.managerJob}</p>
                  </div>
               </div>
-              <div className="space-y-20">
-                 <p className="uppercase text-[9pt] font-bold text-slate-500">Hormat Saya,</p>
+              <div className="space-y-24">
+                 <p className="uppercase text-[10pt] font-bold text-slate-500">Hormat Saya,</p>
                  <div>
                     <p className="font-bold underline uppercase">{data.name}</p>
-                    <p className="text-[9pt]">Pemohon</p>
+                    <p className="text-[10pt]">Pemohon</p>
                  </div>
               </div>
            </div>
         </div>
       );
     } else {
-      // --- TEMPLATE 2: MODERN CLEAN (Compact) ---
+      // === TEMPLATE 2: MODERN MINIMALIS ===
       return (
-        <div className="font-sans text-[10.5pt] text-slate-800 leading-snug h-full flex flex-col pt-6">
+        <div className="font-sans text-[10.5pt] text-slate-900 leading-snug h-full flex flex-col pt-6">
+           
+           {/* HEADER MODERN */}
            <div className="flex justify-between items-center mb-8 border-b-4 border-slate-900 pb-6">
               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-slate-900 text-white rounded-2xl shadow print:text-black print:bg-transparent print:border-2 print:border-black">{getIcon()}</div>
+                 <div className="p-3 bg-slate-900 text-white rounded-2xl shadow print:text-black print:bg-transparent print:border-2 print:border-black">
+                    {getIcon()}
+                 </div>
                  <div>
                     <h1 className="text-2xl font-black tracking-tighter uppercase leading-none italic">Leave Form</h1>
                     <p className="text-[9px] font-black text-blue-600 tracking-[0.3em] uppercase mt-1">ID: {data.empId}</p>
                  </div>
               </div>
               <div className="text-right">
-                 <div className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-[8pt] font-black mb-1 inline-block border border-amber-200">PENDING</div>
-                 <p className="text-[10px] font-bold text-slate-400 uppercase">{data.city}, {data.date}</p>
+                 <div className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-[8pt] font-black mb-1 inline-block border border-amber-200">PENDING APPROVAL</div>
+                 <p className="text-[10px] font-bold text-slate-400 uppercase">{data.city}, {formatDate(data.date)}</p>
               </div>
            </div>
 
+           {/* INFO GRID */}
            <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                  <p className="text-[8pt] font-black text-slate-400 uppercase mb-1">Applicant</p>
-                 <p className="font-bold text-slate-900 text-sm">{data.name}</p>
+                 <p className="font-bold text-slate-900 text-sm uppercase">{data.name}</p>
                  <p className="text-[9pt] text-slate-500">{data.position}</p>
               </div>
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                  <p className="text-[8pt] font-black text-slate-400 uppercase mb-1">Duration</p>
                  <p className="font-bold text-slate-900 text-sm">{diffDays} Days</p>
-                 <p className="text-[9pt] text-slate-500">{data.startDate} / {data.endDate}</p>
+                 <p className="text-[9pt] text-slate-500">{formatDate(data.startDate)} - {formatDate(data.endDate)}</p>
               </div>
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                  <p className="text-[8pt] font-black text-slate-400 uppercase mb-1">Delegated To</p>
-                 <p className="font-bold text-slate-900 text-sm">{data.substitute}</p>
+                 <p className="font-bold text-slate-900 text-sm uppercase">{data.substitute}</p>
                  <p className="text-[9pt] text-slate-500">Back-up Person</p>
               </div>
            </div>
@@ -201,8 +271,11 @@ function LeaveRequestBuilder() {
 
            <div className="shrink-0 pt-8 border-t border-slate-100 flex justify-between items-end" style={{ pageBreakInside: 'avoid' }}>
               <div className="space-y-4">
-                 <div className="w-40 h-10 border-b-2 border-slate-200"></div>
-                 <p className="text-[8pt] font-black uppercase text-slate-300 tracking-widest">Management Approval</p>
+                 <div className="w-40 h-20 border-b-2 border-slate-200"></div>
+                 <div>
+                    <p className="text-[8pt] font-black uppercase text-slate-300 tracking-widest">Approved By</p>
+                    <p className="text-[10pt] font-bold uppercase text-slate-700">{data.managerName}</p>
+                 </div>
               </div>
               <div className="text-right">
                  <p className="text-xl font-black text-slate-900 tracking-tighter uppercase leading-none border-b-2 border-blue-600 inline-block pb-1">{data.name}</p>
@@ -217,20 +290,18 @@ function LeaveRequestBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* --- JURUS TABLE WRAPPER (Print Fix) --- */}
+      {/* CSS PRINT FIXED */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; }
-          .no-print { display: none !important; }
-          body { background: white; margin: 0; padding: 0; display: block !important; }
-          #print-only-root { display: block !important; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 9999; background: white; }
-          
-          .print-table { width: 100%; border-collapse: collapse; }
-          .print-table thead { height: 20mm; } 
-          .print-table tfoot { height: 20mm; } 
-          .print-content-wrapper { padding: 0 20mm; }
-          
-          tr, .keep-together { page-break-inside: avoid !important; }
+            @page { size: A4 portrait; margin: 0; }
+            .no-print { display: none !important; }
+            body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
+            .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+            .print-table thead { height: 15mm; display: table-header-group; } 
+            .print-table tfoot { height: 15mm; display: table-footer-group; } 
+            .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
+            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
         }
       `}</style>
 
@@ -246,73 +317,81 @@ function LeaveRequestBuilder() {
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Surat Cuti <span className="text-emerald-400">Generator</span></h1></div>
             </div>
             <div className="flex items-center gap-3">
+               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
-                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Format Klasik' : 'Format Modern'}</span><ChevronDown size={14} className="text-slate-500"/>
+                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Klasik Korporat' : 'Modern Minimalis'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
-                  {showTemplateMenu && (
-                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
-                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> Format Klasik</button>
-                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Format Modern</button>
-                     </div>
-                  )}
+                  {showTemplateMenu && <TemplateMenu />}
                </div>
-               <div className="relative md:hidden"><button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">Tampilan <ChevronDown size={14}/></button></div>
+
+               {/* MOBILE MENU TRIGGER */}
+               <div className="relative md:hidden">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
+                    Template <ChevronDown size={14}/>
+                  </button>
+                  {showTemplateMenu && <TemplateMenu />}
+               </div>
+
                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         {/* EDITOR */}
+         {/* EDITOR SIDEBAR */}
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Cuti</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
-               {/* KATEGORI */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
+               {/* 1. KATEGORI */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-1">Jenis Cuti</h3>
                   <div className="grid grid-cols-3 gap-2">
-                     {(['Tahunan', 'Hamil', 'Sakit'] as const).map(type => (
-                        <button key={type} onClick={() => handleCategoryChange(type)} className={`py-2 text-[10px] font-black rounded-lg border transition-all uppercase tracking-tighter ${leaveType === type ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}>
-                           {type}
-                        </button>
-                     ))}
+                      {(['Tahunan', 'Hamil', 'Sakit'] as const).map(type => (
+                         <button key={type} onClick={() => handleCategoryChange(type)} className={`py-2 text-[10px] font-black rounded-lg border transition-all uppercase tracking-tighter ${leaveType === type ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}>
+                            {type}
+                         </button>
+                      ))}
                   </div>
                </div>
 
-               {/* KARYAWAN */}
+               {/* 2. KARYAWAN */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><UserCircle2 size={12}/> Data Karyawan</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase" value={data.name} onChange={e => handleDataChange('name', e.target.value)} /></div>
-                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nomor Induk (NIK)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.empId} onChange={e => handleDataChange('empId', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Departemen</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.department} onChange={e => handleDataChange('department', e.target.value)} /></div>
-                     </div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jabatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.position} onChange={e => handleDataChange('position', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.name} onChange={e => handleDataChange('name', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nomor Induk (NIK)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.empId} onChange={e => handleDataChange('empId', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Departemen</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.department} onChange={e => handleDataChange('department', e.target.value)} /></div>
+                      </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jabatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.position} onChange={e => handleDataChange('position', e.target.value)} /></div>
                   </div>
                </div>
 
-               {/* WAKTU */}
+               {/* 3. WAKTU */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><CalendarDays size={12}/> Jadwal Cuti</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Mulai Cuti</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.startDate} onChange={e => handleDataChange('startDate', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Selesai Cuti</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.endDate} onChange={e => handleDataChange('endDate', e.target.value)} /></div>
-                     </div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alasan Cuti</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-20 resize-none" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)} /></div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Delegasi Tugas (Backup)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold" value={data.substitute} onChange={e => handleDataChange('substitute', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Mulai Cuti</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.startDate} onChange={e => handleDataChange('startDate', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Selesai Cuti</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.endDate} onChange={e => handleDataChange('endDate', e.target.value)} /></div>
+                      </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alasan Cuti</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Delegasi Tugas (Backup)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.substitute} onChange={e => handleDataChange('substitute', e.target.value)} /></div>
                   </div>
                </div>
 
-               {/* ATASAN */}
+               {/* 4. ATASAN */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Briefcase size={12}/> Persetujuan Atasan</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Manager/HRD</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase" value={data.managerName} onChange={e => handleDataChange('managerName', e.target.value)} /></div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jabatan Manager</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.managerJob} onChange={e => handleDataChange('managerJob', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Manager/HRD</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.managerName} onChange={e => handleDataChange('managerName', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jabatan Manager</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.managerJob} onChange={e => handleDataChange('managerJob', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kota Surat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} /></div>
                   </div>
                </div>
                <div className="h-20 md:hidden"></div>
@@ -337,11 +416,19 @@ function LeaveRequestBuilder() {
          <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* --- PRINT PORTAL (FIX: TABLE WRAPPER) --- */}
+      {/* --- PRINT PORTAL --- */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
             <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
-            <tbody><tr><td><div className="print-content-wrapper"><ContentInside /></div></td></tr></tbody>
+            <tbody>
+               <tr>
+                  <td>
+                     <div className="print-content-wrapper">
+                        <ContentInside />
+                     </div>
+                  </td>
+               </tr>
+            </tbody>
             <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
          </table>
       </div>
