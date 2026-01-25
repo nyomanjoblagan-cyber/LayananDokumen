@@ -1,13 +1,73 @@
 'use client';
 
+/**
+ * FILE: HilangKirimPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Pernyataan Kehilangan Paket / Barang
+ * FEATURES:
+ * - Dual Template (Logistics Formal vs Incident Report)
+ * - Auto Date Logic
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
 import { useState, Suspense, useRef, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, PackageX, Building2, UserCircle2, 
-  LayoutTemplate, ChevronDown, Check, AlertTriangle, FileSearch, Edit3, Eye, FileWarning
+  LayoutTemplate, ChevronDown, Check, AlertTriangle, FileSearch, Edit3, Eye, FileWarning, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface LostData {
+  city: string;
+  date: string;
+  docNo: string;
+  
+  // Data Ekspedisi & Barang
+  courierName: string;
+  awbNumber: string;
+  itemName: string;
+  itemValue: string;
+  sendDate: string;
+  
+  // Data Pelapor
+  declarantName: string;
+  declarantNik: string;
+  declarantPhone: string;
+  declarantAddress: string;
+  
+  // Kronologi & Saksi
+  chronology: string;
+  witnessName: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: LostData = {
+  city: 'DENPASAR',
+  date: '', // Diisi useEffect
+  docNo: 'SK-HILANG/BWC/I/2026',
+  
+  courierName: 'JNE Express / PT. Jalur Nugraha Ekakurir',
+  awbNumber: '882100992233445',
+  itemName: '1 Unit Handphone Samsung Galaxy S24 Ultra',
+  itemValue: 'Rp 18.500.000,-',
+  sendDate: '', // Diisi useEffect
+  
+  declarantName: 'BAGUS RAMADHAN',
+  declarantNik: '5171010101990001',
+  declarantPhone: '0812-3456-7890',
+  declarantAddress: 'Jl. Ahmad Yani No. 100, Denpasar Utara',
+  
+  chronology: 'Berdasarkan data tracking resmi, paket seharusnya tiba pada tanggal 30 Desember 2025. Namun, hingga saat surat ini dibuat, paket belum diterima. Pihak ekspedisi telah mengonfirmasi bahwa status paket dinyatakan hilang (Lost in Transit) di pusat sortir Bekasi.',
+  
+  witnessName: 'I MADE WIRA (Petugas Logistik)'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function HilangKirimPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat Kehilangan...</div>}>
@@ -22,31 +82,7 @@ function LostPackageBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  const [data, setData] = useState({
-    city: 'Denpasar',
-    date: '', 
-    docNo: 'SK-HILANG/BWC/I/2026',
-    
-    // DATA EKSPEDISI & BARANG
-    courierName: 'JNE Express / PT. Jalur Nugraha Ekakurir',
-    awbNumber: '882100992233445',
-    itemName: '1 Unit Handphone Samsung Galaxy S24 Ultra',
-    itemValue: 'Rp 18.500.000,-',
-    sendDate: '', 
-
-    // DATA PEMBUAT PERNYATAAN (PENGIRIM/PENERIMA)
-    declarantName: 'BAGUS RAMADHAN',
-    declarantNik: '5171010101990001',
-    declarantPhone: '0812-3456-7890',
-    declarantAddress: 'Jl. Ahmad Yani No. 100, Denpasar Utara',
-
-    // KRONOLOGI
-    chronology: 'Berdasarkan data tracking resmi, paket seharusnya tiba pada tanggal 30 Desember 2025. Namun, hingga saat surat ini dibuat, paket belum diterima. Pihak ekspedisi telah mengonfirmasi bahwa status paket dinyatakan hilang (Lost in Transit) di pusat sortir Bekasi.',
-
-    // SAKSI
-    witnessName: 'I MADE WIRA (Petugas Logistik)'
-  });
+  const [data, setData] = useState<LostData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
@@ -61,21 +97,43 @@ function LostPackageBuilder() {
     }));
   }, []);
 
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof LostData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  const TEMPLATES = [
-    { id: 1, name: "Resmi Logistik", desc: "Format standar klaim asuransi (Serif)" },
-    { id: 2, name: "Berita Acara", desc: "Format laporan modern (Sans)" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date();
+        const lastWeek = new Date(today);
+        lastWeek.setDate(today.getDate() - 10);
+        setData({ 
+            ...INITIAL_DATA, 
+            date: today.toISOString().split('T')[0], 
+            sendDate: lastWeek.toISOString().split('T')[0] 
+        });
+    }
+  };
+
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Resmi Logistik (Serif)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Berita Acara (Sans)
+        </button>
+    </div>
+  );
 
   // --- KOMPONEN ISI SURAT ---
-  const LostContent = () => (
-    <div className="bg-white mx-auto flex flex-col box-border w-full h-full text-slate-900 p-[25mm] print:p-[25mm]" 
-         style={{ minHeight: '296mm' }}>
-      
-      {templateId === 1 && (
-        <div className="font-serif text-[11pt] leading-relaxed text-justify h-full flex flex-col">
+  const LostContent = () => {
+    if (templateId === 1) {
+      // --- TEMPLATE 1: RESMI LOGISTIK ---
+      return (
+        <div className="font-serif text-[11pt] leading-relaxed text-justify text-black">
           {/* JUDUL */}
           <div className="text-center mb-6 shrink-0">
             <h1 className="text-lg font-black underline uppercase decoration-2 underline-offset-4">SURAT PERNYATAAN KEHILANGAN</h1>
@@ -128,17 +186,18 @@ function LostPackageBuilder() {
                     <p className="font-bold underline uppercase">({data.witnessName})</p>
                   </td>
                   <td className="text-center align-bottom h-24">
-                     <div className="border border-slate-300 w-20 h-10 flex items-center justify-center text-[7pt] text-slate-400 italic mb-2 mx-auto">MATERAI</div>
-                     <p className="font-bold underline uppercase text-[11pt]">{data.declarantName}</p>
+                      <div className="border border-slate-300 w-20 h-10 flex items-center justify-center text-[7pt] text-slate-400 italic mb-2 mx-auto bg-white">MATERAI</div>
+                      <p className="font-bold underline uppercase text-[11pt]">{data.declarantName}</p>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
-      )}
-
-      {templateId === 2 && (
+      );
+    } else {
+      // --- TEMPLATE 2: BERITA ACARA ---
+      return (
         <div className="font-sans text-[10pt] leading-snug text-slate-800 h-full flex flex-col">
             <div className="flex justify-between items-center border-b-4 border-red-600 pb-4 mb-8">
                <div>
@@ -152,7 +211,7 @@ function LostPackageBuilder() {
             </div>
 
             <div className="grid grid-cols-2 gap-6 mb-6">
-                <div className="p-4 bg-slate-50 rounded border border-slate-200">
+                <div className="p-4 bg-slate-50 rounded border border-slate-200 break-inside-avoid">
                    <h3 className="font-black text-xs uppercase text-slate-400 mb-3 border-b pb-1">Identitas Pelapor</h3>
                    <div className="space-y-1 text-sm">
                       <p className="font-bold uppercase">{data.declarantName}</p>
@@ -161,7 +220,7 @@ function LostPackageBuilder() {
                       <p className="text-xs text-slate-500 mt-1">{data.declarantAddress}</p>
                    </div>
                 </div>
-                <div className="p-4 bg-red-50 rounded border border-red-100">
+                <div className="p-4 bg-red-50 rounded border border-red-100 break-inside-avoid">
                    <h3 className="font-black text-xs uppercase text-red-400 mb-3 border-b border-red-200 pb-1">Objek Hilang</h3>
                    <div className="space-y-1 text-sm">
                       <p className="font-bold">{data.itemName}</p>
@@ -196,31 +255,31 @@ function LostPackageBuilder() {
                </div>
             </div>
         </div>
-      )}
-    </div>
-  );
+      );
+    }
+  };
 
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800 overflow-x-hidden">
+      
+      {/* CSS PRINT FIXED */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          @page { size: A4 portrait; margin: 0; }
           .no-print { display: none !important; }
-          .break-inside-avoid { page-break-inside: avoid !important; }
-          #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white;
-          }
-          #print-only-root > div {
-             width: 100% !important; min-height: auto !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important;
-          }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
+          .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+          .print-table thead { height: 25mm; display: table-header-group; } 
+          .print-table tfoot { height: 25mm; display: table-footer-group; } 
+          .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
+          tr, .break-inside-avoid { page-break-inside: avoid !important; }
         }
       `}</style>
 
-      {/* NAVBAR STANDARD */}
+      {/* NAVBAR */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
           <div className="flex items-center gap-6">
@@ -236,22 +295,12 @@ function LostPackageBuilder() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium transition-colors min-w-[160px] justify-between">
-                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
+                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{templateId === 1 ? 'Resmi Logistik' : 'Berita Acara'}</span></div>
                 <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
-                  {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
-                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
-                      {templateId === t.id && <Check size={14} className="text-blue-600"/>}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showTemplateMenu && <TemplateMenu />}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-red-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-red-500 transition-all shadow-lg active:scale-95">
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
             </button>
           </div>
@@ -262,6 +311,7 @@ function LostPackageBuilder() {
         
         {/* INPUT SIDEBAR */}
         <div className={`no-print w-full lg:w-[450px] shrink-0 h-full overflow-y-auto pr-2 pb-20 space-y-6 font-sans ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
+           
            <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
               <div className="flex items-center gap-2 border-b pb-1"><FileSearch size={14}/><h3 className="text-xs font-bold uppercase">Info Pengiriman</h3></div>
               <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.courierName} onChange={e => handleDataChange('courierName', e.target.value)} />
@@ -306,7 +356,7 @@ function LostPackageBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA */}
+      {/* PRINT PORTAL */}
       <div id="print-only-root" className="hidden">
          <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
             <LostContent />
