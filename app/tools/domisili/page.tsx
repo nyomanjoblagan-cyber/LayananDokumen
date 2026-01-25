@@ -1,16 +1,90 @@
 'use client';
 
-import { useState, useRef, Suspense } from 'react';
+/**
+ * FILE: DomisiliPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Keterangan Domisili
+ * FEATURES:
+ * - Dual Template (RT/RW vs Kelurahan)
+ * - Kop Surat Otomatis
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
+import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Upload, ChevronDown, Check, LayoutTemplate, MapPin, 
-  User, Building2, ArrowLeftCircle, Edit3, Eye
+  User, Building2, ArrowLeftCircle, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface DomisiliData {
+  no: string;
+  date: string;
+  
+  // Wilayah
+  rt: string;
+  rw: string;
+  village: string;
+  district: string;
+  city: string;
+  address_office: string;
+  
+  // Pemohon
+  name: string;
+  nik: string;
+  ttl: string;
+  gender: string;
+  religion: string;
+  job: string;
+  status: string;
+  citizenship: string;
+  address: string;
+  
+  // Pejabat
+  nameRT: string;
+  nameRW: string;
+  lurahName: string;
+  lurahNIP: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: DomisiliData = {
+  no: '470 / 015 / 02.005 / 2026',
+  date: '', // Diisi useEffect
+  
+  rt: '005',
+  rw: '002',
+  village: 'KELURAHAN JATIMULYA',
+  district: 'KECAMATAN CILODONG',
+  city: 'KOTA DEPOK',
+  address_office: 'Jl. H. Dimun Raya BBM No. 10', 
+  
+  name: 'SURYADI',
+  nik: '3276010203950004',
+  ttl: 'Depok, 02 Maret 1995',
+  gender: 'Laki-laki',
+  religion: 'Islam',
+  job: 'Karyawan Swasta',
+  status: 'Kawin',
+  citizenship: 'WNI',
+  address: 'Kp. Sawah RT 005 RW 002, Jatimulya, Cilodong, Depok',
+  
+  nameRT: 'Bambang S.',
+  nameRW: 'H. Maman',
+  
+  lurahName: 'Drs. AWAN SETIAWAN, MM',
+  lurahNIP: 'NIP. 19700505 199803 1 008'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function DomisiliPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Sistem Administrasi...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem Administrasi...</div>}>
       <DomisiliToolBuilder />
     </Suspense>
   );
@@ -24,58 +98,48 @@ function DomisiliToolBuilder() {
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
+  const [data, setData] = useState<DomisiliData>(INITIAL_DATA);
 
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    // SURAT
-    no: '470 / 015 / 02.005 / 2026',
-    date: new Date().toISOString().split('T')[0],
-    
-    // WILAYAH
-    rt: '005',
-    rw: '002',
-    village: 'KELURAHAN JATIMULYA',
-    district: 'KECAMATAN CILODONG',
-    city: 'KOTA DEPOK',
-    address_office: 'Jl. H. Dimun Raya BBM No. 10', // Alamat kantor desa/kelurahan
-    
-    // PEMOHON
-    name: 'SURYADI',
-    nik: '3276010203950004',
-    ttl: 'Depok, 02 Maret 1995',
-    gender: 'Laki-laki',
-    religion: 'Islam',
-    job: 'Karyawan Swasta',
-    status: 'Kawin',
-    citizenship: 'WNI',
-    address: 'Kp. Sawah RT 005 RW 002, Jatimulya, Cilodong, Depok',
-    
-    // PEJABAT RT/RW (Template 1)
-    nameRT: 'Bambang S.',
-    nameRW: 'H. Maman',
-    
-    // PEJABAT LURAH (Template 2)
-    lurahName: 'Drs. AWAN SETIAWAN, MM',
-    lurahNIP: 'NIP. 19700505 199803 1 008'
-  });
+  // Set Tanggal Hari Ini saat Mount
+  useEffect(() => {
+    setData(prev => ({ 
+        ...prev, 
+        date: new Date().toISOString().split('T')[0] 
+    }));
+  }, []);
 
-  // HANDLERS
+  // --- HANDLERS ---
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setLogo(URL.createObjectURL(file));
   };
 
-  const handleDataChange = (field: string, val: string) => {
-    setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof DomisiliData, val: string) => {
+    setData(prev => ({ ...prev, [field]: val }));
   };
 
-  const TEMPLATES = [
-    { id: 1, name: "Pengantar RT / RW", desc: "Format sederhana, tanda tangan Ketua RT & RW" },
-    { id: 2, name: "Surat Keterangan Kelurahan", desc: "Format resmi dengan Kop Pemerintah" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
+        setLogo(null);
+    }
+  };
 
-  // --- KOMPONEN ISI SURAT ---
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Pengantar RT/RW
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format Kelurahan
+        </button>
+    </div>
+  );
+
+  // --- KONTEN SURAT ---
   const ContentInside = () => {
     if (templateId === 1) {
       // --- TEMPLATE 1: PENGANTAR RT/RW (SIMPLE) ---
@@ -200,20 +264,18 @@ function DomisiliToolBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* --- JURUS TABLE WRAPPER (Print Fix) --- */}
+      {/* CSS PRINT FIXED */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; }
-          .no-print { display: none !important; }
-          body { background: white; margin: 0; padding: 0; display: block !important; }
-          #print-only-root { display: block !important; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 9999; background: white; }
-          
-          .print-table { width: 100%; border-collapse: collapse; }
-          .print-table thead { height: 20mm; } 
-          .print-table tfoot { height: 20mm; } 
-          .print-content-wrapper { padding: 0 20mm; }
-          
-          tr, .keep-together { page-break-inside: avoid !important; }
+            @page { size: A4 portrait; margin: 0; }
+            .no-print { display: none !important; }
+            body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
+            .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+            .print-table thead { height: 15mm; display: table-header-group; } 
+            .print-table tfoot { height: 15mm; display: table-footer-group; } 
+            .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
+            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
         }
       `}</style>
 
@@ -229,88 +291,97 @@ function DomisiliToolBuilder() {
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Keterangan Domisili <span className="text-emerald-400">Generator</span></h1></div>
             </div>
             <div className="flex items-center gap-3">
+               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Pengantar RT/RW' : 'Format Kelurahan'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
-                  {showTemplateMenu && (
-                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
-                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> Pengantar RT/RW</button>
-                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Format Kelurahan</button>
-                     </div>
-                  )}
+                  {showTemplateMenu && <TemplateMenu />}
                </div>
-               <div className="relative md:hidden"><button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">Tampilan <ChevronDown size={14}/></button></div>
+
+               {/* MOBILE MENU TRIGGER */}
+               <div className="relative md:hidden">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
+                    Template <ChevronDown size={14}/>
+                  </button>
+                  {showTemplateMenu && <TemplateMenu />}
+               </div>
+
                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         {/* EDITOR */}
+         {/* EDITOR SIDEBAR */}
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Surat</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
-               {/* WILAYAH */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
+               
+               {/* 1. WILAYAH */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><MapPin size={12}/> Data Wilayah</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="flex gap-4 items-center">
-                        <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 bg-slate-50 shrink-0">
-                           {logo ? <img src={logo} className="w-full h-full object-contain p-1" alt="Logo" /> : <div className="text-[8px] text-center text-slate-400 font-bold">LOGO<br/>GARUDA</div>}
-                           <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
-                        </div>
-                        <div className="flex-1 space-y-2">
-                           <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase" value={data.district} onChange={e => handleDataChange('district', e.target.value)} placeholder="Kecamatan..." />
-                           <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase" value={data.village} onChange={e => handleDataChange('village', e.target.value)} placeholder="Desa/Kelurahan..." />
-                        </div>
-                     </div>
-                     <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota/Kabupaten..." />
-                     <div className="grid grid-cols-2 gap-3">
-                        <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.rt} onChange={e => handleDataChange('rt', e.target.value)} placeholder="RT" />
-                        <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.rw} onChange={e => handleDataChange('rw', e.target.value)} placeholder="RW" />
-                     </div>
-                     {templateId === 2 && <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none" value={data.address_office} onChange={e => handleDataChange('address_office', e.target.value)} placeholder="Alamat Kantor Desa..." />}
+                      <div className="flex gap-4 items-center">
+                         <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 bg-slate-50 shrink-0 relative overflow-hidden group">
+                            {logo ? <img src={logo} className="w-full h-full object-contain p-1" alt="Logo" /> : <div className="text-[8px] text-center text-slate-400 font-bold">LOGO<br/>GARUDA</div>}
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[8px] font-bold">UBAH</div>
+                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
+                         </div>
+                         <div className="flex-1 space-y-2">
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.district} onChange={e => handleDataChange('district', e.target.value)} placeholder="Kecamatan..." />
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.village} onChange={e => handleDataChange('village', e.target.value)} placeholder="Desa/Kelurahan..." />
+                         </div>
+                      </div>
+                      <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota/Kabupaten..." />
+                      <div className="grid grid-cols-2 gap-3">
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.rt} onChange={e => handleDataChange('rt', e.target.value)} placeholder="RT" />
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.rw} onChange={e => handleDataChange('rw', e.target.value)} placeholder="RW" />
+                      </div>
+                      {templateId === 2 && <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address_office} onChange={e => handleDataChange('address_office', e.target.value)} placeholder="Alamat Kantor Desa..." />}
                   </div>
                </div>
 
-               {/* DATA PEMOHON */}
+               {/* 2. DATA PEMOHON */}
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><User size={12}/> Data Warga</h3>
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><User size={12}/> Data Pemohon</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase" value={data.name} onChange={e => handleDataChange('name', e.target.value)} /></div>
-                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">TTL</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.ttl} onChange={e => handleDataChange('ttl', e.target.value)} /></div>
-                     </div>
-                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Agama</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.religion} onChange={e => handleDataChange('religion', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Status</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.status} onChange={e => handleDataChange('status', e.target.value)} /></div>
-                     </div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.name} onChange={e => handleDataChange('name', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Lahir</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tempat Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.ttl.split(',')[0]} onChange={e => handleDataChange('ttl', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pekerjaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.job} onChange={e => handleDataChange('job', e.target.value)} /></div>
+                      </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} /></div>
                   </div>
                </div>
 
-               {/* PEJABAT */}
+               {/* 3. PEJABAT */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Pejabat Penandatangan</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     {templateId === 1 ? (
-                        <div className="grid grid-cols-2 gap-3">
-                           <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ketua RT</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.nameRT} onChange={e => handleDataChange('nameRT', e.target.value)} /></div>
-                           <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ketua RW</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.nameRW} onChange={e => handleDataChange('nameRW', e.target.value)} /></div>
-                        </div>
-                     ) : (
-                        <div className="space-y-3">
-                           <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lurah/Kades</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold" value={data.lurahName} onChange={e => handleDataChange('lurahName', e.target.value)} /></div>
-                           <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.lurahNIP} onChange={e => handleDataChange('lurahNIP', e.target.value)} /></div>
-                        </div>
-                     )}
-                     <div className="grid grid-cols-2 gap-3 pt-2 border-t border-dashed border-slate-200">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">No. Surat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.no} onChange={e => handleDataChange('no', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Surat</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
-                     </div>
+                      {templateId === 1 ? (
+                         <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ketua RT</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nameRT} onChange={e => handleDataChange('nameRT', e.target.value)} /></div>
+                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ketua RW</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nameRW} onChange={e => handleDataChange('nameRW', e.target.value)} /></div>
+                         </div>
+                      ) : (
+                         <div className="space-y-3">
+                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lurah/Kades</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.lurahName} onChange={e => handleDataChange('lurahName', e.target.value)} /></div>
+                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.lurahNIP} onChange={e => handleDataChange('lurahNIP', e.target.value)} /></div>
+                         </div>
+                      )}
+                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-dashed border-slate-200">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">No. Surat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.no} onChange={e => handleDataChange('no', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Surat</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
+                      </div>
                   </div>
                </div>
                <div className="h-20 md:hidden"></div>
@@ -335,7 +406,7 @@ function DomisiliToolBuilder() {
          <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* --- PRINT PORTAL (FIX: TABLE WRAPPER) --- */}
+      {/* --- PRINT PORTAL --- */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
             <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
