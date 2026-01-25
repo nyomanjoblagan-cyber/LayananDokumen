@@ -352,7 +352,6 @@ function KPRCalculator() {
                           <span className="font-semibold">{formatRupiah(result.dpAmount)}</span>
                        </div>
                        <div className="flex justify-between">
-                          {/* FIX: Use span wrapper for title/tooltip */}
                           <span className="text-slate-600 flex items-center gap-1" title="5% x (Harga - NPOPTKP 60jt)">
                              2. BPHTB (Pajak Pembeli) <Info size={12} className="text-slate-400 cursor-help" />
                           </span>
