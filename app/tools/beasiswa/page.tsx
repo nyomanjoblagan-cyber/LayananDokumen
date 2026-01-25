@@ -2,9 +2,9 @@
 
 /**
  * FILE: BeasiswaPage.tsx
- * STATUS: FIXED LAYOUT (Anti-Crash & Rapi)
+ * STATUS: FINAL & MOBILE READY
  * DESC: Generator Surat Permohonan Beasiswa
- * FIX: Memisahkan baris Tanggal dan Perihal agar tidak saling dorong.
+ * FIX: Menambahkan menu pilihan template untuk tampilan Mobile
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -65,7 +65,7 @@ interface ScholarshipData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: ScholarshipData = {
   city: 'JAKARTA',
-  date: '', // Diisi useEffect
+  date: '', 
   
   targetName: 'Rektor Universitas Indonesia',
   targetDept: 'u.p. Direktur Kemahasiswaan',
@@ -141,6 +141,20 @@ function ScholarshipBuilder() {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
+
+  // --- TEMPLATE MENU COMPONENT (Agar Rapi) ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Formal (Resmi)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Modern (Clean)
+        </button>
+    </div>
+  );
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
@@ -350,18 +364,25 @@ function ScholarshipBuilder() {
                <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Beasiswa <span className="text-emerald-400">Builder</span></h1></div>
             </div>
+            
             <div className="flex items-center gap-3">
+               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Formal (Resmi)' : 'Modern (Clean)'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
-                  {showTemplateMenu && (
-                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
-                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> Formal (Resmi)</button>
-                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Modern (Clean)</button>
-                     </div>
-                  )}
+                  {showTemplateMenu && <TemplateMenu />}
                </div>
+
+               {/* MOBILE MENU TRIGGER */}
+               <div className="relative md:hidden">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
+                    Template <ChevronDown size={14}/>
+                  </button>
+                  {/* MOBILE DROPDOWN */}
+                  {showTemplateMenu && <TemplateMenu />}
+               </div>
+
                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
