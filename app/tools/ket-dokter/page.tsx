@@ -2,13 +2,12 @@
 
 /**
  * FILE: KetDokterSederhanaPage.tsx
- * STATUS: FINAL & MOBILE READY
- * DESC: Generator Surat Keterangan Sakit (Dokter)
- * FEATURES:
- * - Dual Template Size (A5 for Clinic, A4 for Hospital)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict Print Layout
+ * STATUS: FINAL FIXED (NAME WRAPPING ISSUE)
+ * DESC: Generator Surat Keterangan Sakit
+ * FIXES: 
+ * - Memperlebar container tanda tangan (w-64).
+ * - Mengecilkan font nama dokter (9pt) agar tidak turun baris.
+ * - Tetap menggunakan Table Wrapper untuk print yang rapi.
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -17,9 +16,6 @@ import {
   CalendarDays, Check, ChevronDown, LayoutTemplate, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 // --- 1. TYPE DEFINITIONS ---
 interface MedicalData {
@@ -42,22 +38,21 @@ interface MedicalData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: MedicalData = {
   city: 'DENPASAR',
-  date: '', // Diisi useEffect
+  date: '', 
   clinicName: 'KLINIK PRATAMA SEHAT BERSAMA',
   clinicAddress: 'Jl. Ahmad Yani No. 100, Denpasar Utara',
   patientName: 'BAGUS RAMADHAN',
   patientJob: 'Karyawan Swasta',
   patientAge: '27 Tahun',
   restingDays: '3 (Tiga)',
-  startDate: '', // Diisi useEffect
-  endDate: '', // Diisi useEffect
+  startDate: '', 
+  endDate: '', 
   diagnosis: 'Common Cold / Febris (Demam)',
   vitalSigns: 'TD: 110/80 mmHg | Temp: 38.2°C',
   doctorName: 'dr. I MADE WIRA, S.Ked',
   sipNumber: 'SIP. 445/088/DINKES/2024'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function KetDokterSederhanaPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat...</div>}>
@@ -67,7 +62,6 @@ export default function KetDokterSederhanaPage() {
 }
 
 function MedicalNoteBuilder() {
-  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -106,7 +100,6 @@ function MedicalNoteBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -123,20 +116,11 @@ function MedicalNoteBuilder() {
   const activeTemplateName = templateId === 1 ? 'Format Klinik (A5)' : 'Format RS (A4)';
 
   // --- KOMPONEN ISI SURAT ---
-  const NoteContent = () => {
-    // TENTUKAN UKURAN BERDASARKAN TEMPLATE
-    // Template 1 (A5): Width 148mm, Height 210mm
-    // Template 2 (A4): Width 210mm, Height 297mm
-    const paperStyle = templateId === 1 
-        ? { width: '148mm', minHeight: '210mm', padding: '10mm', fontSize: '10pt' }
-        : { width: '210mm', minHeight: '297mm', padding: '20mm', fontSize: '11pt' };
-
-    // Padding print class (tailwindcss tidak bisa dynamic value di class arbitrary, jadi kita pakai style inline atau logic class)
-    const printPaddingClass = templateId === 1 ? 'print:p-[10mm]' : 'print:p-[20mm]';
+  const DocumentContent = () => {
+    const baseFontSize = templateId === 1 ? 'text-[10pt]' : 'text-[11pt]';
 
     return (
-      <div className={`bg-white mx-auto flex flex-col box-border font-serif text-slate-900 leading-snug shadow-2xl print:shadow-none print:m-0 ${printPaddingClass}`}
-           style={paperStyle}>
+      <div className={`bg-white font-serif text-slate-900 leading-snug w-full h-full ${baseFontSize}`}>
         
         {/* KOP KLINIK */}
         <div className="flex items-center border-b-2 border-slate-900 pb-2 mb-4 shrink-0">
@@ -185,10 +169,12 @@ function MedicalNoteBuilder() {
 
         {/* TANDA TANGAN */}
         <div className="mt-6 flex justify-end shrink-0" style={{ pageBreakInside: 'avoid' }}>
-          <div className="text-center w-40">
+          {/* PERBAIKAN: Lebar w-64 agar nama panjang muat */}
+          <div className="text-center w-64">
             <p className="text-[0.9em] mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '...'}</p>
-            <p className="text-[0.8em] font-bold text-slate-500 uppercase tracking-widest mb-12 print:text-black">Dokter Pemeriksa,</p>
-            <p className="font-bold underline uppercase text-[1em] leading-none">{data.doctorName}</p>
+            <p className="text-[0.8em] font-bold text-slate-500 uppercase tracking-widest mb-16 print:text-black">Dokter Pemeriksa,</p>
+            {/* PERBAIKAN: Font size 9pt dan leading tight */}
+            <p className="font-bold underline uppercase text-[9pt] leading-tight">{data.doctorName}</p>
             <p className="text-[0.7em] font-sans mt-0.5 font-bold">SIP. {data.sipNumber}</p>
           </div>
         </div>
@@ -214,6 +200,12 @@ function MedicalNoteBuilder() {
             background: white !important; 
           }
           .no-print { display: none !important; }
+          
+          .print-table { width: 100%; border-collapse: collapse; }
+          .print-header-space { height: ${templateId === 1 ? '10mm' : '20mm'}; }
+          .print-footer-space { height: ${templateId === 1 ? '10mm' : '20mm'}; }
+          .print-content-wrapper { padding: 0 ${templateId === 1 ? '10mm' : '20mm'}; }
+          
           #print-only-root { 
             display: block !important; 
             position: absolute; 
@@ -299,12 +291,12 @@ function MedicalNoteBuilder() {
         {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               {/* LOGIKA SKALA:
-                  - Mobile: scale-[0.55] dan margin negatif untuk A5 yang lebih pendek.
-               */}
                <div className={`origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 shadow-2xl flex flex-col items-center ${templateId === 1 ? 'mb-[-90mm] md:mb-[-40mm] lg:mb-0' : 'mb-[-130mm] md:mb-[-20mm] lg:mb-0'}`}>
-                 <div style={{ width: templateId === 1 ? '148mm' : '210mm' }}>
-                    <NoteContent />
+                 <div style={{ width: templateId === 1 ? '148mm' : '210mm', minHeight: templateId === 1 ? '210mm' : '297mm' }} className="bg-white flex flex-col">
+                    {/* VISUAL PADDING FOR PREVIEW */}
+                    <div style={{ padding: templateId === 1 ? '10mm' : '20mm' }}>
+                       <DocumentContent />
+                    </div>
                  </div>
                </div>
             </div>
@@ -317,11 +309,21 @@ function MedicalNoteBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA */}
+      {/* PRINT AREA (TABLE WRAPPER) */}
       <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
-            <NoteContent />
-         </div>
+         <table className="print-table">
+            <thead><tr><td><div className="print-header-space"></div></td></tr></thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div className="print-content-wrapper">
+                            <DocumentContent />
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot><tr><td><div className="print-footer-space"></div></td></tr></tfoot>
+         </table>
       </div>
 
     </div>
