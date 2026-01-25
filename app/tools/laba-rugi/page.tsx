@@ -2,14 +2,12 @@
 
 /**
  * FILE: LabaRugiPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: FINAL FIXED (TEMPLATE LOGIC & PREVIEW CLEANUP)
  * DESC: Generator Laporan Laba Rugi UMKM
- * FEATURES:
- * - Dual Template (Standard vs Detailed)
- * - Auto Calculation (Revenue - Expenses = Profit)
- * - Dynamic Item List (Add/Remove Rows)
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIXES: 
+ * - Memisahkan UI Template 1 (List) & Template 2 (Tabel).
+ * - Menghapus efek "kertas bertumpuk" di preview.
+ * - Print layout A4 presisi tanpa header browser.
  */
 
 import { useState, Suspense, useMemo, useEffect } from 'react';
@@ -18,9 +16,6 @@ import {
   Plus, Trash2, PieChart, Landmark, CalendarDays, Wallet, Edit3, Eye, LayoutTemplate, Check, ChevronDown, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 // --- 1. TYPE DEFINITIONS ---
 interface FinancialItem {
@@ -44,7 +39,7 @@ const INITIAL_DATA: ReportData = {
   ownerName: 'BUDI SANTOSO',
   period: 'Januari 2026',
   city: 'JAKARTA',
-  date: '', // Diisi useEffect
+  date: '', 
   
   revenues: [
     { desc: 'Penjualan Produk Utama', amount: 25000000 },
@@ -59,7 +54,6 @@ const INITIAL_DATA: ReportData = {
   ]
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function LabaRugiPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Laporan Keuangan...</div>}>
@@ -69,7 +63,6 @@ export default function LabaRugiPage() {
 }
 
 function ProfitLossBuilder() {
-  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -86,7 +79,6 @@ function ProfitLossBuilder() {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
-  // --- LOGIKA KALKULASI ---
   const totals = useMemo(() => {
     const totalRevenue = data.revenues.reduce((acc, curr) => acc + (curr.amount || 0), 0);
     const totalExpense = data.expenses.reduce((acc, curr) => acc + (curr.amount || 0), 0);
@@ -96,7 +88,6 @@ function ProfitLossBuilder() {
 
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
-  // --- MANIPULASI ITEM ---
   const addItem = (type: 'revenues' | 'expenses') => {
     setData({ ...data, [type]: [...data[type], { desc: '', amount: 0 }] });
   };
@@ -121,16 +112,15 @@ function ProfitLossBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Standar
+            Format Standar (List)
         </button>
         <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Detail
+            Format Detail (Tabel)
         </button>
     </div>
   );
@@ -139,76 +129,135 @@ function ProfitLossBuilder() {
 
   // --- KOMPONEN ISI SURAT ---
   const ReportContent = () => (
-    // FIX: Print Padding
-    <div className="bg-white flex flex-col box-border font-sans text-[10.5pt] leading-normal text-slate-900 p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+    <div className="bg-white flex flex-col box-border font-sans text-[10.5pt] leading-normal text-slate-900 w-[210mm] min-h-[296mm] p-[20mm] print:p-[20mm] shadow-2xl print:shadow-none print:m-0 print:w-full mx-auto">
       
-      {/* HEADER */}
+      {/* HEADER (COMMON) */}
       <div className="text-center border-b-2 border-slate-900 pb-4 mb-8 shrink-0">
         <h1 className="text-xl font-black uppercase tracking-widest">{data.businessName}</h1>
-        <h2 className="text-lg font-bold text-slate-600 uppercase">LAPORAN LABA RUGI SEDERHANA</h2>
+        <h2 className="text-lg font-bold text-slate-600 uppercase">LAPORAN LABA RUGI</h2>
         <p className="text-sm font-medium tracking-tighter">Periode: {data.period}</p>
       </div>
 
-      <div className="space-y-8 flex-grow overflow-hidden">
-        {/* PENDAPATAN */}
-        <section>
-          <div className="bg-slate-900 text-white px-4 py-2 flex justify-between items-center mb-2 print:bg-black print:text-white">
-            <h3 className="text-xs font-black uppercase tracking-widest">A. Pendapatan (Revenue)</h3>
-            <span className="text-xs font-bold">Total Pendapatan</span>
-          </div>
-          <div className="space-y-1">
-              {data.revenues.map((item, idx) => (
-                <div key={idx} className="flex justify-between px-4 py-1 border-b border-slate-100 italic">
-                   <span>{item.desc || 'Tanpa Keterangan'}</span>
-                   <span>{formatRupiah(item.amount)}</span>
-                </div>
-              ))}
-              <div className="flex justify-between px-4 py-2 font-black bg-slate-50 border-t border-slate-900 mt-2 print:bg-transparent print:border-black">
-                <span>TOTAL PENDAPATAN</span>
-                <span className="text-blue-700 print:text-black">{formatRupiah(totals.totalRevenue)}</span>
+      <div className="flex-grow">
+        
+        {/* ---------------- TEMPLATE 1: STANDAR (LIST) ---------------- */}
+        {templateId === 1 && (
+          <div className="space-y-8">
+            {/* PENDAPATAN */}
+            <section>
+              <div className="bg-slate-900 text-white px-4 py-2 flex justify-between items-center mb-2 print:bg-black print:text-white">
+                <h3 className="text-xs font-black uppercase tracking-widest">A. Pendapatan (Revenue)</h3>
               </div>
-          </div>
-        </section>
+              <div className="space-y-1">
+                  {data.revenues.map((item, idx) => (
+                    <div key={idx} className="flex justify-between px-4 py-1 border-b border-slate-100 italic">
+                       <span>{item.desc || 'Tanpa Keterangan'}</span>
+                       <span>{formatRupiah(item.amount)}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between px-4 py-2 font-black bg-slate-50 border-t border-slate-900 mt-2 print:bg-transparent print:border-black">
+                    <span>TOTAL PENDAPATAN</span>
+                    <span className="text-blue-700 print:text-black">{formatRupiah(totals.totalRevenue)}</span>
+                  </div>
+              </div>
+            </section>
 
-        {/* BEBAN */}
-        <section>
-          <div className="bg-slate-900 text-white px-4 py-2 flex justify-between items-center mb-2 print:bg-black print:text-white">
-            <h3 className="text-xs font-black uppercase tracking-widest">B. Beban Operasional (Expenses)</h3>
-            <span className="text-xs font-bold">Total Biaya</span>
-          </div>
-          <div className="space-y-1">
-              {data.expenses.map((item, idx) => (
-                <div key={idx} className="flex justify-between px-4 py-1 border-b border-slate-100 italic">
-                   <span>{item.desc || 'Tanpa Keterangan'}</span>
-                   <span>({formatRupiah(item.amount)})</span>
-                </div>
-              ))}
-              <div className="flex justify-between px-4 py-2 font-black bg-slate-50 border-t border-slate-900 mt-2 print:bg-transparent print:border-black">
-                <span>TOTAL BEBAN</span>
-                <span className="text-red-600 print:text-black">({formatRupiah(totals.totalExpense)})</span>
+            {/* BEBAN */}
+            <section>
+              <div className="bg-slate-900 text-white px-4 py-2 flex justify-between items-center mb-2 print:bg-black print:text-white">
+                <h3 className="text-xs font-black uppercase tracking-widest">B. Beban Operasional (Expenses)</h3>
               </div>
-          </div>
-        </section>
+              <div className="space-y-1">
+                  {data.expenses.map((item, idx) => (
+                    <div key={idx} className="flex justify-between px-4 py-1 border-b border-slate-100 italic">
+                       <span>{item.desc || 'Tanpa Keterangan'}</span>
+                       <span>({formatRupiah(item.amount)})</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between px-4 py-2 font-black bg-slate-50 border-t border-slate-900 mt-2 print:bg-transparent print:border-black">
+                    <span>TOTAL BEBAN</span>
+                    <span className="text-red-600 print:text-black">({formatRupiah(totals.totalExpense)})</span>
+                  </div>
+              </div>
+            </section>
 
-        {/* LABA BERSIH */}
-        <section className={`p-6 rounded-xl border-4 ${totals.netProfit >= 0 ? 'bg-emerald-50 border-emerald-500' : 'bg-red-50 border-red-500'} print:bg-transparent print:border-black`}>
-           <div className="flex justify-between items-center">
-              <div>
-                 <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 print:text-black">Laba / (Rugi) Bersih</h4>
-                 <p className="text-2xl font-black tracking-tighter uppercase">
-                    {totals.netProfit >= 0 ? 'Surplus Bersih' : 'Defisit Bersih'}
-                 </p>
-              </div>
-              <div className="text-right">
-                 <p className={`text-2xl font-black ${totals.netProfit >= 0 ? 'text-emerald-700' : 'text-red-700'} print:text-black`}>
-                    {formatRupiah(totals.netProfit)}
-                 </p>
-              </div>
-           </div>
-        </section>
+            {/* LABA BERSIH */}
+            <section className={`p-6 rounded-xl border-4 ${totals.netProfit >= 0 ? 'bg-emerald-50 border-emerald-500' : 'bg-red-50 border-red-500'} print:bg-transparent print:border-black`}>
+               <div className="flex justify-between items-center">
+                  <div>
+                     <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 print:text-black">Laba / (Rugi) Bersih</h4>
+                     <p className="text-2xl font-black tracking-tighter uppercase">
+                        {totals.netProfit >= 0 ? 'Surplus Bersih' : 'Defisit Bersih'}
+                     </p>
+                  </div>
+                  <div className="text-right">
+                     <p className={`text-2xl font-black ${totals.netProfit >= 0 ? 'text-emerald-700' : 'text-red-700'} print:text-black`}>
+                        {formatRupiah(totals.netProfit)}
+                     </p>
+                  </div>
+               </div>
+            </section>
+          </div>
+        )}
+
+        {/* ---------------- TEMPLATE 2: DETAIL (TABEL) ---------------- */}
+        {templateId === 2 && (
+          <div>
+             <table className="w-full border-collapse border border-black text-sm mb-8">
+                <thead>
+                   <tr className="bg-slate-200 print:bg-slate-200">
+                      <th className="border border-black p-2 text-left w-2/3">KETERANGAN</th>
+                      <th className="border border-black p-2 text-right">JUMLAH (IDR)</th>
+                   </tr>
+                </thead>
+                <tbody>
+                   {/* PENDAPATAN */}
+                   <tr>
+                      <td colSpan={2} className="border border-black p-2 font-bold bg-slate-50">I. PENDAPATAN</td>
+                   </tr>
+                   {data.revenues.map((item, idx) => (
+                      <tr key={`rev-${idx}`}>
+                         <td className="border-x border-black p-2 pl-6">{item.desc}</td>
+                         <td className="border-x border-black p-2 text-right">{formatRupiah(item.amount)}</td>
+                      </tr>
+                   ))}
+                   <tr>
+                      <td className="border border-black p-2 font-bold text-right">Total Pendapatan</td>
+                      <td className="border border-black p-2 text-right font-bold">{formatRupiah(totals.totalRevenue)}</td>
+                   </tr>
+
+                   {/* BEBAN */}
+                   <tr>
+                      <td colSpan={2} className="border border-black p-2 font-bold bg-slate-50">II. BEBAN OPERASIONAL</td>
+                   </tr>
+                   {data.expenses.map((item, idx) => (
+                      <tr key={`exp-${idx}`}>
+                         <td className="border-x border-black p-2 pl-6">{item.desc}</td>
+                         <td className="border-x border-black p-2 text-right">{formatRupiah(item.amount)}</td>
+                      </tr>
+                   ))}
+                   <tr>
+                      <td className="border border-black p-2 font-bold text-right">Total Beban</td>
+                      <td className="border border-black p-2 text-right font-bold">({formatRupiah(totals.totalExpense)})</td>
+                   </tr>
+
+                   {/* LABA BERSIH */}
+                   <tr className="bg-slate-100 print:bg-slate-100">
+                      <td className="border border-black p-4 font-black text-lg text-right uppercase">
+                         {totals.netProfit >= 0 ? 'LABA BERSIH' : 'RUGI BERSIH'}
+                      </td>
+                      <td className="border border-black p-4 font-black text-lg text-right">
+                         {formatRupiah(totals.netProfit)}
+                      </td>
+                   </tr>
+                </tbody>
+             </table>
+          </div>
+        )}
+
       </div>
 
-      {/* FOOTER */}
+      {/* FOOTER (COMMON) */}
       <div className="shrink-0 mt-8 flex justify-between items-end border-t pt-8 print:border-black" style={{ pageBreakInside: 'avoid' }}>
          <div className="text-center w-56 opacity-50">
             <PieChart size={32} className="mx-auto text-slate-300 print:text-black" />
@@ -231,10 +280,14 @@ function ProfitLossBuilder() {
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4 portrait; margin: 0; } 
+          /* FIX: Margin 0mm agar header browser hilang */
+          @page { size: A4 portrait; margin: 0mm !important; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
           
+          /* FORCE COLORS */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
           #print-only-root { 
             display: block !important; 
             position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
@@ -287,6 +340,10 @@ function ProfitLossBuilder() {
                     <input className="w-full p-2 border rounded text-xs" value={data.ownerName} onChange={e => handleDataChange('ownerName', e.target.value)} placeholder="Nama Pemilik" />
                     <input className="w-full p-2 border rounded text-xs" value={data.period} onChange={e => handleDataChange('period', e.target.value)} placeholder="Periode Laporan" />
                  </div>
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs font-bold" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
+                    <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                 </div>
               </div>
 
               {/* EDITOR PENDAPATAN */}
@@ -325,12 +382,9 @@ function ProfitLossBuilder() {
         {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   <div className="print-content-wrapper p-[20mm]">
-                      <ReportContent />
-                   </div>
-                 </div>
+               {/* FIX: Wrapper bersih tanpa shadow/bg agar tidak double */}
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 flex flex-col items-center">
+                  <ReportContent />
                </div>
             </div>
         </div>
