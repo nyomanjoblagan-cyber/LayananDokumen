@@ -2,25 +2,21 @@
 
 /**
  * FILE: KonfirmasiPesananPage.tsx
- * STATUS: FINAL & MOBILE READY
- * DESC: Generator Konfirmasi Pesanan (Order Confirmation)
- * FEATURES:
- * - Dual Template (Standard Business vs Invoice Style)
- * - Auto Item Calculation
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * STATUS: FINAL FIXED (TEMPLATE SWITCHING & PREVIEW)
+ * DESC: Generator Konfirmasi Pesanan
+ * FIXES: 
+ * - Mengaktifkan logic Template 1 vs Template 2.
+ * - Menghapus double-background di preview (masalah kertas tertumpuk).
+ * - Layout Print A4 presisi (margin 0 di @page, padding di dalam div).
  */
 
 import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, CheckCircle2, Building2, UserCircle2, 
-  PackageCheck, CalendarDays, ShoppingBag, Plus, Trash2, Edit3, Eye, LayoutTemplate, Check, ChevronDown, RotateCcw
+  Printer, ArrowLeft, PackageCheck, CalendarDays, ShoppingBag, 
+  Plus, Trash2, Edit3, Eye, LayoutTemplate, Check, ChevronDown, 
+  Building2, UserCircle2, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 // --- 1. TYPE DEFINITIONS ---
 interface OrderItem {
@@ -34,20 +30,12 @@ interface OrderData {
   city: string;
   date: string;
   orderNo: string;
-  
-  // Vendor
   vendorName: string;
   vendorAddress: string;
-
-  // Client
   clientName: string;
   clientContact: string;
   clientAddress: string;
-  
-  // Items
   items: OrderItem[];
-  
-  // Delivery
   estDelivery: string;
   shippingMethod: string;
   notes: string;
@@ -56,37 +44,31 @@ interface OrderData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: OrderData = {
   city: 'JAKARTA',
-  date: '', // Diisi useEffect
+  date: '', 
   orderNo: 'OC/2026/01/0012',
-  
   vendorName: 'PT. KREATIF LOGISTIK NUSANTARA',
   vendorAddress: 'Jl. Ahmad Yani No. 88, Bekasi, Jawa Barat',
-
   clientName: 'PT. MAJU MUNDUR SEJAHTERA',
   clientContact: 'Ibu Sarah (Procurement)',
   clientAddress: 'Sudirman Central Business District (SCBD), Jakarta Selatan',
-  
   items: [
     { name: 'Kertas HVS A4 80gr', qty: 50, unit: 'Rim', price: 55000 },
     { name: 'Tinta Printer Epson 003 Black', qty: 10, unit: 'Botol', price: 95000 },
   ],
-  
-  estDelivery: '', // Diisi useEffect
+  estDelivery: '',
   shippingMethod: 'Kurir Internal Perusahaan',
   notes: 'Harga sudah termasuk PPN 11%. Barang akan dikirim setelah PO resmi kami terima.'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function KonfirmasiPesananPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Pesanan...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor...</div>}>
       <OrderConfirmationBuilder />
     </Suspense>
   );
 }
 
 function OrderConfirmationBuilder() {
-  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -144,12 +126,8 @@ function OrderConfirmationBuilder() {
   };
 
   const subTotal = data.items.reduce((acc, item) => acc + (item.qty * item.price), 0);
-  
-  const formatRupiah = (num: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
-  };
+  const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -167,89 +145,166 @@ function OrderConfirmationBuilder() {
 
   // --- KOMPONEN ISI SURAT ---
   const OCContent = () => (
-    // FIX: Print Padding
-    <div className="bg-white flex flex-col box-border font-sans text-[10.5pt] leading-normal text-slate-900 p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+    <div className="bg-white flex flex-col box-border font-sans text-[10pt] leading-normal text-slate-900 p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 print:p-[20mm] mx-auto">
       
-      {/* HEADER */}
-      <div className="flex justify-between items-start border-b-4 border-slate-900 pb-4 mb-8 shrink-0">
-        <div className="flex items-center gap-3">
-           <div className="p-2 bg-slate-900 text-white rounded print:text-black print:bg-transparent print:border print:border-black">
-              <PackageCheck size={28} />
-           </div>
-           <div>
-              <h1 className="text-lg font-black uppercase tracking-tighter leading-none">{data.vendorName}</h1>
-              <p className="text-[8pt] text-slate-500 mt-1 print:text-black">{data.vendorAddress}</p>
-           </div>
-        </div>
-        <div className="text-right">
-           <div className="bg-blue-600 text-white px-3 py-1 rounded text-[9pt] font-black uppercase inline-block print:text-black print:bg-transparent print:border print:border-black">Order Confirmation</div>
-           <p className="text-[9pt] mt-1 font-mono font-bold">Ref: {data.orderNo}</p>
-        </div>
-      </div>
+      {/* ---------------- TEMPLATE 1: STANDAR BISNIS ---------------- */}
+      {templateId === 1 && (
+        <>
+          <div className="flex justify-between items-start border-b-4 border-slate-800 pb-4 mb-8 shrink-0">
+            <div className="flex items-center gap-3">
+               <div className="p-2 bg-slate-800 text-white rounded print:text-black print:border print:border-black print:bg-transparent">
+                  <PackageCheck size={32} />
+               </div>
+               <div>
+                  <h1 className="text-xl font-black uppercase tracking-tighter leading-none">{data.vendorName}</h1>
+                  <p className="text-[9pt] text-slate-500 mt-1 print:text-black">{data.vendorAddress}</p>
+               </div>
+            </div>
+            <div className="text-right">
+               <div className="text-lg font-black text-blue-700 uppercase tracking-wide print:text-black">Order Confirmation</div>
+               <p className="text-[10pt] mt-1 font-mono font-bold text-slate-600 print:text-black">#{data.orderNo}</p>
+            </div>
+          </div>
 
-      <div className="space-y-6 flex-grow overflow-hidden">
-        <div className="grid grid-cols-2 gap-8">
-           <div className="space-y-1">
-              <h4 className="text-[9pt] font-black text-slate-400 uppercase tracking-widest border-b print:text-black print:border-black">Pelanggan:</h4>
-              <p className="font-bold text-sm uppercase">{data.clientName}</p>
-              <p className="text-xs">{data.clientContact}</p>
-              <p className="text-[9pt] text-slate-500 print:text-black">{data.clientAddress}</p>
-           </div>
-           <div className="space-y-1 text-right">
-              <h4 className="text-[9pt] font-black text-slate-400 uppercase tracking-widest border-b print:text-black print:border-black">Info Pesanan:</h4>
-              <p className="text-xs">Tanggal: <b>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</b></p>
-              <p className="text-xs">Est. Pengiriman: <b>{isClient && data.estDelivery ? new Date(data.estDelivery).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</b></p>
-              <p className="text-xs text-blue-600 font-bold uppercase print:text-black">{data.shippingMethod}</p>
-           </div>
-        </div>
+          <div className="flex-grow">
+            <div className="grid grid-cols-2 gap-12 mb-8">
+               <div>
+                  <h4 className="text-[9pt] font-bold text-slate-400 uppercase tracking-widest mb-2 print:text-black border-b border-slate-200 pb-1">Kepada (Klien):</h4>
+                  <p className="font-bold text-[11pt] uppercase">{data.clientName}</p>
+                  <p className="text-[10pt]">{data.clientContact}</p>
+                  <p className="text-[10pt] text-slate-600 print:text-black mt-1 leading-snug">{data.clientAddress}</p>
+               </div>
+               <div className="text-right">
+                  <h4 className="text-[9pt] font-bold text-slate-400 uppercase tracking-widest mb-2 print:text-black border-b border-slate-200 pb-1">Detail Order:</h4>
+                  <p className="text-[10pt]">Tanggal: <b>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</b></p>
+                  <p className="text-[10pt]">Est. Kirim: <b>{isClient && data.estDelivery ? new Date(data.estDelivery).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</b></p>
+                  <p className="text-[10pt] text-blue-700 font-bold uppercase mt-1 print:text-black">{data.shippingMethod}</p>
+               </div>
+            </div>
 
-        <div>
-           <table className="w-full border-collapse text-sm">
-              <thead>
-                 <tr className="bg-slate-100 border-y border-slate-900 print:bg-transparent print:border-black">
-                    <th className="p-2 text-left text-[9pt] uppercase">Deskripsi Produk</th>
-                    <th className="p-2 text-center text-[9pt] uppercase w-20">Qty</th>
-                    <th className="p-2 text-right text-[9pt] uppercase w-32">Harga</th>
-                    <th className="p-2 text-right text-[9pt] uppercase w-32">Subtotal</th>
-                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 print:divide-slate-300">
-                 {data.items.map((item, idx) => (
-                    <tr key={idx}>
-                       <td className="p-2 text-sm font-medium">{item.name}</td>
-                       <td className="p-2 text-center text-sm">{item.qty} {item.unit}</td>
-                       <td className="p-2 text-right text-sm">{formatRupiah(item.price)}</td>
-                       <td className="p-2 text-right text-sm font-bold">{formatRupiah(item.qty * item.price)}</td>
+            <table className="w-full border-collapse text-[10pt] mb-8">
+               <thead>
+                  <tr className="bg-slate-100 border-y-2 border-slate-800 print:bg-transparent print:border-black">
+                     <th className="p-2 text-left uppercase text-[9pt] font-bold">Deskripsi Barang</th>
+                     <th className="p-2 text-center uppercase text-[9pt] font-bold w-20">Qty</th>
+                     <th className="p-2 text-right uppercase text-[9pt] font-bold w-32">Harga</th>
+                     <th className="p-2 text-right uppercase text-[9pt] font-bold w-36">Total</th>
+                  </tr>
+               </thead>
+               <tbody className="divide-y divide-slate-200 print:divide-slate-400">
+                  {data.items.map((item, idx) => (
+                     <tr key={idx}>
+                        <td className="p-2 font-medium">{item.name}</td>
+                        <td className="p-2 text-center">{item.qty} {item.unit}</td>
+                        <td className="p-2 text-right">{formatRupiah(item.price)}</td>
+                        <td className="p-2 text-right font-bold">{formatRupiah(item.qty * item.price)}</td>
+                     </tr>
+                  ))}
+               </tbody>
+               <tfoot>
+                  <tr className="bg-slate-50 border-t-2 border-slate-800 print:bg-transparent print:border-black">
+                     <td colSpan={3} className="p-3 text-right font-bold uppercase text-[9pt]">Total Estimasi</td>
+                     <td className="p-3 text-right font-black text-[12pt]">{formatRupiah(subTotal)}</td>
+                  </tr>
+               </tfoot>
+            </table>
+
+            <div className="p-4 bg-slate-50 border-l-4 border-slate-400 rounded text-[10pt] italic print:bg-transparent print:border-black">
+               <span className="font-bold not-italic text-[9pt] uppercase block mb-1">Catatan:</span>
+               "{data.notes}"
+            </div>
+          </div>
+
+          <div className="shrink-0 mt-8 flex justify-between items-end border-t pt-8 print:border-black" style={{ pageBreakInside: 'avoid' }}>
+             <div className="text-center w-48">
+                <p className="mb-16 text-[9pt] uppercase font-bold text-slate-500 print:text-black">Diterima Oleh,</p>
+                <p className="text-[10pt] font-bold border-b border-slate-300 pb-1 print:border-black uppercase">{data.clientName}</p>
+             </div>
+             <div className="text-center w-48">
+                <p className="mb-16 text-[9pt] uppercase font-bold text-slate-500 print:text-black">Hormat Kami,</p>
+                <p className="text-[10pt] font-bold border-b border-slate-300 pb-1 print:border-black uppercase">{data.vendorName}</p>
+             </div>
+          </div>
+        </>
+      )}
+
+      {/* ---------------- TEMPLATE 2: INVOICE STYLE ---------------- */}
+      {templateId === 2 && (
+        <div className="flex flex-col h-full border-4 double border-slate-800 p-6 print:border-black">
+           <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-slate-800 border-dashed print:border-black">
+              <div>
+                 <h1 className="text-3xl font-black uppercase tracking-tighter">{data.vendorName}</h1>
+                 <p className="text-[10pt] mt-1 font-medium">{data.vendorAddress}</p>
+              </div>
+              <div className="text-right">
+                 <h2 className="text-2xl font-black text-slate-300 uppercase print:text-black">ORDER CONFIRMATION</h2>
+                 <p className="font-mono font-bold text-lg mt-1">{data.orderNo}</p>
+                 <p className="text-[10pt]">{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</p>
+              </div>
+           </div>
+
+           <div className="flex-grow">
+              <div className="bg-slate-100 p-4 mb-6 border border-slate-300 print:bg-transparent print:border-black">
+                 <div className="grid grid-cols-[100px_10px_1fr] gap-1 text-[10pt]">
+                    <div className="font-bold">KEPADA</div><div>:</div><div className="font-bold uppercase">{data.clientName}</div>
+                    <div className="font-bold">UP</div><div>:</div><div>{data.clientContact}</div>
+                    <div className="font-bold align-top">ALAMAT</div><div className="align-top">:</div><div className="align-top">{data.clientAddress}</div>
+                 </div>
+              </div>
+
+              <table className="w-full border border-slate-800 mb-6 print:border-black text-[10pt]">
+                 <thead>
+                    <tr className="bg-slate-800 text-white print:bg-transparent print:text-black">
+                       <th className="p-2 border border-slate-800 print:border-black text-left">ITEM</th>
+                       <th className="p-2 border border-slate-800 print:border-black text-center w-16">QTY</th>
+                       <th className="p-2 border border-slate-800 print:border-black text-right w-32">HARGA</th>
+                       <th className="p-2 border border-slate-800 print:border-black text-right w-36">SUBTOTAL</th>
                     </tr>
-                 ))}
-                 <tr className="bg-slate-50 border-t-2 border-slate-900 print:bg-transparent print:border-black">
-                    <td colSpan={3} className="p-3 text-right font-black uppercase text-xs">Total Estimasi Pesanan</td>
-                    <td className="p-3 text-right font-black text-base">{formatRupiah(subTotal)}</td>
-                 </tr>
-              </tbody>
-           </table>
-        </div>
+                 </thead>
+                 <tbody>
+                    {data.items.map((item, idx) => (
+                       <tr key={idx}>
+                          <td className="p-2 border border-slate-800 print:border-black">{item.name}</td>
+                          <td className="p-2 border border-slate-800 print:border-black text-center">{item.qty} {item.unit}</td>
+                          <td className="p-2 border border-slate-800 print:border-black text-right">{formatRupiah(item.price)}</td>
+                          <td className="p-2 border border-slate-800 print:border-black text-right font-bold">{formatRupiah(item.qty * item.price)}</td>
+                       </tr>
+                    ))}
+                 </tbody>
+              </table>
 
-        <div className="space-y-2 pt-4">
-           <h4 className="text-[9pt] font-black text-slate-400 uppercase tracking-widest print:text-black">Catatan Penting:</h4>
-           <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded text-xs text-blue-900 leading-relaxed italic print:bg-transparent print:text-black print:border-black">
-              {data.notes}
+              <div className="flex justify-end mb-8">
+                 <div className="w-64 border border-slate-800 print:border-black p-2">
+                    <div className="flex justify-between items-center">
+                       <span className="font-bold">TOTAL IDR</span>
+                       <span className="font-black text-lg">{formatRupiah(subTotal)}</span>
+                    </div>
+                 </div>
+              </div>
+
+              <div className="mb-4">
+                 <p className="font-bold text-[10pt] border-b border-black inline-block mb-1">PENGIRIMAN:</p>
+                 <p className="text-[10pt]">Estimasi: {isClient && data.estDelivery ? new Date(data.estDelivery).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</p>
+                 <p className="text-[10pt]">Metode: {data.shippingMethod}</p>
+              </div>
+
+              <div className="text-[10pt] italic">
+                 Note: {data.notes}
+              </div>
+           </div>
+
+           <div className="mt-auto pt-10 flex justify-between text-center shrink-0" style={{ pageBreakInside: 'avoid' }}>
+              <div className="w-40">
+                 <p className="mb-16 font-bold">Disetujui,</p>
+                 <p className="border-t border-black pt-1 font-bold">{data.clientName}</p>
+              </div>
+              <div className="w-40">
+                 <p className="mb-16 font-bold">Hormat Kami,</p>
+                 <p className="border-t border-black pt-1 font-bold">{data.vendorName}</p>
+              </div>
            </div>
         </div>
-      </div>
-
-      <div className="shrink-0 mt-8 flex justify-between items-end border-t pt-8 print:border-black" style={{ pageBreakInside: 'avoid' }}>
-         <div className="text-center w-56">
-            <p className="mb-14 text-[9pt] uppercase font-bold text-slate-400 print:text-black">Penerima Pesanan</p>
-            <div className="w-40 border-b border-slate-300 mx-auto print:border-black"></div>
-            <p className="text-[9pt] mt-1 font-bold">Marketing / Sales</p>
-         </div>
-         <div className="text-center w-56">
-            <p className="text-xs mb-14 uppercase text-slate-500 font-bold tracking-tighter print:text-black">Disetujui Pelanggan</p>
-            <div className="w-40 border-b border-slate-300 mx-auto print:border-black"></div>
-            <p className="text-[9pt] mt-1 uppercase font-bold">{data.clientName}</p>
-         </div>
-      </div>
+      )}
     </div>
   );
 
@@ -261,6 +316,7 @@ function OrderConfirmationBuilder() {
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
+          /* ATUR MARGIN 0 SUPAYA HEADER BROWSER HILANG */
           @page { size: A4 portrait; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
@@ -358,13 +414,10 @@ function OrderConfirmationBuilder() {
         {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               {/* FIX: Menghapus wrapper background ganda */}
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   {/* VISUAL PADDING FOR PREVIEW */}
-                   <div style={{ padding: '20mm' }}>
-                      <OCContent />
-                   </div>
-                 </div>
+                 {/* OCContent sudah punya BG putih dan shadow */}
+                 <OCContent />
                </div>
             </div>
         </div>
@@ -376,21 +429,11 @@ function OrderConfirmationBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA (TABLE WRAPPER) */}
+      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
-         <table className="print-table">
-            <thead><tr><td><div className="print-header-space"></div></td></tr></thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div className="print-content-wrapper">
-                            <OCContent />
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot><tr><td><div className="print-footer-space"></div></td></tr></tfoot>
-         </table>
+         <div className="flex flex-col">
+            <OCContent />
+         </div>
       </div>
 
     </div>
