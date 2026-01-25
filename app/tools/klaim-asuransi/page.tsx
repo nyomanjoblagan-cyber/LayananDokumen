@@ -2,11 +2,13 @@
 
 /**
  * FILE: KlaimAsuransiPage.tsx
- * STATUS: FINAL FIXED (BLANK PAGE REMOVED)
+ * STATUS: FINAL COMPACT (FIT 1 PAGE)
  * DESC: Generator Surat Klaim Asuransi Logistik
  * FIXES: 
- * - Menambahkan 'print:min-h-0' dan 'print:h-auto' agar tidak memaksa tinggi A4 saat print (mencegah halaman 2 kosong).
- * - Tetap menggunakan Table Wrapper agar margin halaman 2 aman.
+ * - Menghapus Table Wrapper agar hemat tempat vertikal.
+ * - Menggunakan @page margin 20mm standar.
+ * - Memadatkan spasi (leading-snug, text-10pt) agar muat 1 halaman.
+ * - print:p-0 untuk menghindari margin ganda.
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -120,77 +122,77 @@ function InsuranceClaimBuilder() {
 
   // --- KOMPONEN ISI SURAT ---
   const ClaimContent = () => (
-    // FIX: Removed fixed padding/height for print mode to avoid blank 2nd page
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[10.5pt] w-[210mm] min-h-[296mm] shadow-2xl p-[20mm] print:shadow-none print:m-0 print:p-0 print:w-full print:min-h-0 print:h-auto mx-auto">
+    // FIX: print:p-0 agar tidak ada padding ganda dengan @page margin
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-snug text-[10pt] w-[210mm] min-h-[296mm] p-[20mm] print:p-0 print:w-full print:min-h-0 print:shadow-none shadow-2xl mx-auto">
       
       {/* JUDUL */}
-      <div className="text-center mb-8 shrink-0">
-        <h1 className="text-xl font-black underline uppercase decoration-2 underline-offset-8">SURAT PERNYATAAN KLAIM ASURANSI</h1>
-        <p className="text-[10pt] font-sans mt-3 italic uppercase tracking-widest text-slate-500 print:text-black">Logistik & Pengiriman Barang</p>
-        <p className="text-[9pt] font-sans font-bold mt-1">Nomor Pengajuan: {data.docNo}</p>
+      <div className="text-center mb-6 shrink-0">
+        <h1 className="text-lg font-black underline uppercase decoration-2 underline-offset-4">SURAT PERNYATAAN KLAIM ASURANSI</h1>
+        <p className="text-[9pt] font-sans mt-2 italic uppercase tracking-widest text-slate-500 print:text-black">Logistik & Pengiriman Barang</p>
+        <p className="text-[9pt] font-sans font-bold mt-1">Nomor: {data.docNo}</p>
       </div>
 
       {/* ISI SURAT */}
       <div className="flex-grow">
-        <div className="mb-6">
+        <div className="mb-4">
            <p>Kepada Yth,</p>
            <p><b>Bagian Klaim {data.insuranceName}</b></p>
            <p>Di Tempat</p>
         </div>
         
-        <p className="mb-4">Dengan hormat,</p>
-        <p className="mb-4">Saya yang bertanda tangan di bawah ini mengajukan permohonan klaim atas kerusakan/kehilangan barang pengiriman dengan rincian data sebagai berikut:</p>
+        <p className="mb-3">Dengan hormat,</p>
+        <p className="mb-3 text-justify">Saya yang bertanda tangan di bawah ini mengajukan permohonan klaim atas kerusakan/kehilangan barang pengiriman dengan rincian data sebagai berikut:</p>
         
         {/* DATA PEMOHON */}
-        <div className="ml-4 mb-6 space-y-1.5 font-sans text-[10pt] border-l-4 border-red-200 pl-6 italic">
-            <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama Pemohon</span><span>:</span><span className="font-bold uppercase">{data.claimantName}</span></div>
-            <div className="grid grid-cols-[140px_10px_1fr]"><span>No. Resi (AWB)</span><span>:</span><span className="font-bold">{data.awbNumber}</span></div>
-            <div className="grid grid-cols-[140px_10px_1fr]"><span>Ekspedisi</span><span>:</span><span>{data.courierName}</span></div>
-            <div className="grid grid-cols-[140px_10px_1fr]"><span>Tanggal Kejadian</span><span>:</span><span>{isClient && data.incidentDate ? new Date(data.incidentDate).toLocaleDateString('id-ID', {dateStyle: 'long'}) : '...'}</span></div>
+        <div className="ml-4 mb-4 space-y-1 font-sans text-[10pt] border-l-4 border-red-200 pl-4 italic">
+            <div className="grid grid-cols-[130px_10px_1fr]"><span>Nama Pemohon</span><span>:</span><span className="font-bold uppercase">{data.claimantName}</span></div>
+            <div className="grid grid-cols-[130px_10px_1fr]"><span>No. Resi (AWB)</span><span>:</span><span className="font-bold">{data.awbNumber}</span></div>
+            <div className="grid grid-cols-[130px_10px_1fr]"><span>Ekspedisi</span><span>:</span><span>{data.courierName}</span></div>
+            <div className="grid grid-cols-[130px_10px_1fr]"><span>Tgl Kejadian</span><span>:</span><span>{isClient && data.incidentDate ? new Date(data.incidentDate).toLocaleDateString('id-ID', {dateStyle: 'long'}) : '...'}</span></div>
         </div>
 
         {/* DETAIL OBJEK */}
-        <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 font-sans text-[10pt] mb-6 print:bg-transparent print:border-black">
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 font-sans text-[10pt] mb-4 print:bg-transparent print:border-black">
             <p className="font-black text-red-600 uppercase text-[9pt] mb-2 tracking-widest print:text-black border-b border-slate-300 pb-1 print:border-black">Detail Objek Klaim</p>
             <div className="space-y-1">
-               <div className="grid grid-cols-[140px_10px_1fr]"><span>Jenis Kerugian</span><span>:</span><span className="font-bold">{data.incidentType}</span></div>
-               <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama Barang</span><span>:</span><span>{data.itemDescription}</span></div>
-               <div className="grid grid-cols-[140px_10px_1fr] text-blue-700 print:text-black"><span>Nilai Klaim</span><span>:</span><span className="font-black text-[11pt]">{data.claimAmount}</span></div>
+               <div className="grid grid-cols-[130px_10px_1fr]"><span>Jenis Kerugian</span><span>:</span><span className="font-bold">{data.incidentType}</span></div>
+               <div className="grid grid-cols-[130px_10px_1fr]"><span>Nama Barang</span><span>:</span><span>{data.itemDescription}</span></div>
+               <div className="grid grid-cols-[130px_10px_1fr] text-blue-700 print:text-black"><span>Nilai Klaim</span><span>:</span><span className="font-black text-[11pt]">{data.claimAmount}</span></div>
             </div>
         </div>
 
-        <div className="mb-6">
-            <p className="font-bold underline mb-2">Kronologi Kejadian:</p>
-            <p className="text-slate-800 bg-white p-2 italic leading-relaxed">"{data.chronology}"</p>
+        <div className="mb-4">
+            <p className="font-bold underline mb-1 text-[10pt]">Kronologi Kejadian:</p>
+            <p className="text-slate-800 bg-white p-1 italic leading-relaxed text-justify">"{data.chronology}"</p>
         </div>
 
-        <p className="text-justify mb-4">Bersama ini saya lampirkan bukti foto kerusakan, faktur pembelian barang, dan dokumen pendukung lainnya. Demikian permohonan ini saya buat dengan sebenar-benarnya untuk diproses lebih lanjut.</p>
+        <p className="text-justify mb-2">Bersama ini saya lampirkan bukti foto kerusakan, faktur pembelian barang, dan dokumen pendukung lainnya. Demikian permohonan ini saya buat dengan sebenar-benarnya untuk diproses lebih lanjut.</p>
       </div>
 
       {/* TANDA TANGAN SIMETRIS */}
-      <div className="shrink-0 mt-6" style={{ pageBreakInside: 'avoid' }}>
+      <div className="shrink-0 mt-4" style={{ pageBreakInside: 'avoid' }}>
         <table className="w-full table-fixed border-none">
           <tbody>
             <tr>
               <td className="w-1/2"></td>
-              <td className="text-center font-bold text-[10.5pt] pb-8">
+              <td className="text-center font-bold text-[10pt] pb-6">
                 {data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '...'}
               </td>
             </tr>
             <tr className="text-[9pt] font-black text-slate-500 uppercase tracking-widest text-center print:text-black">
-              <td className="pb-4">Saksi / Petugas Lapangan,</td>
+              <td className="pb-4">Saksi / Petugas,</td>
               <td className="pb-4">Pemohon Klaim,</td>
             </tr>
             <tr>
               <td className="text-center align-bottom">
-                <div className="h-24 flex flex-col justify-end items-center">
+                <div className="h-20 flex flex-col justify-end items-center">
                    <p className="font-bold underline uppercase">({data.witnessName})</p>
                 </div>
               </td>
               <td className="text-center align-bottom">
-                <div className="h-24 flex flex-col justify-end items-center">
-                   <div className="border border-slate-300 w-24 h-12 flex items-center justify-center text-[7pt] text-slate-400 italic mb-2 print:border-black print:text-black">MATERAI 10.000</div>
-                   <p className="font-bold underline uppercase text-[10.5pt]">{data.claimantName}</p>
+                <div className="h-20 flex flex-col justify-end items-center">
+                   <div className="border border-slate-300 w-20 h-10 flex items-center justify-center text-[7pt] text-slate-400 italic mb-2 print:border-black print:text-black">MATERAI</div>
+                   <p className="font-bold underline uppercase text-[10pt]">{data.claimantName}</p>
                 </div>
               </td>
             </tr>
@@ -205,18 +207,13 @@ function InsuranceClaimBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 print:bg-white print:m-0">
       
-      {/* GLOBAL CSS PRINT (TABLE WRAPPER) */}
+      {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4 portrait; margin: 0mm !important; } 
+          /* ATUR MARGIN DI SINI: 20mm */
+          @page { size: A4 portrait; margin: 20mm; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
-          
-          /* Table Wrapper Spacing */
-          .print-table { width: 100%; border-collapse: collapse; }
-          .print-header-space { height: 20mm; } 
-          .print-footer-space { height: 20mm; } 
-          .print-content-wrapper { padding: 0 20mm; }
           
           #print-only-root { 
             display: block !important; 
@@ -300,7 +297,6 @@ function InsuranceClaimBuilder() {
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
                  <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   {/* VISUAL PADDING FOR PREVIEW ONLY */}
                    <div style={{ padding: '20mm' }}>
                       <ClaimContent />
                    </div>
@@ -316,21 +312,11 @@ function InsuranceClaimBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA (TABLE WRAPPER) */}
+      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
-         <table className="print-table">
-            <thead><tr><td><div className="print-header-space"></div></td></tr></thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div className="print-content-wrapper">
-                            <ClaimContent />
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot><tr><td><div className="print-footer-space"></div></td></tr></tfoot>
-         </table>
+         <div className="flex flex-col w-full h-auto">
+            <ClaimContent />
+         </div>
       </div>
 
     </div>
