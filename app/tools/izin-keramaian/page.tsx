@@ -2,14 +2,9 @@
 
 /**
  * FILE: IzinKeramaianPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: FINAL & MOBILE READY & PRINT FIXED
  * DESC: Generator Surat Izin Keramaian (Polisi / Lingkungan)
- * FEATURES:
- * - Dual Template (Police Permit vs Neighbor Consent)
- * - Smart Presets (Wedding, Concert, Sports)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIX: Added 'print:p-[25mm]' to DocumentContent
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -20,64 +15,48 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
-
 // --- 1. TYPE DEFINITIONS ---
 interface PermitData {
   city: string;
   date: string;
-  
-  // Tujuan Surat
   policeStation: string;
   policeAddress: string;
-  
-  // Data Pemohon
   name: string;
   umur: string;
   job: string;
   address: string;
   phone: string;
   nik: string;
-
-  // Data Acara
   eventName: string;
   eventDate: string;
   eventTime: string;
   eventPlace: string;
   eventEnt: string;
   audience: string;
-  
-  // Penutup
   closing: string;
 }
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: PermitData = {
   city: 'DEPOK',
-  date: '', // Diisi useEffect
-  
+  date: '', 
   policeStation: 'KAPOLSEK CILODONG',
   policeAddress: 'Jl. Raya Jakarta-Bogor No. KM 39',
-  
   name: 'BUDI SANTOSO',
   umur: '45',
   job: 'Wiraswasta',
   address: 'Jl. H. Dimun Raya RT 01/04, Cilodong',
   phone: '0812-3456-7890',
   nik: '3276010101800001',
-
   eventName: 'RESEPSI PERNIKAHAN (PUTRI KAMI)',
-  eventDate: '', // Diisi useEffect
+  eventDate: '', 
   eventTime: '08.00 s/d 17.00 WIB',
   eventPlace: 'Halaman Rumah (Alamat sda)',
   eventEnt: 'Musik Organ Tunggal & Sound System',
   audience: '+/- 200 Tamu Undangan',
-  
   closing: 'Besar harapan kami agar Bapak dapat memberikan izin keramaian demi kelancaran acara tersebut. Kami siap menjaga ketertiban dan keamanan selama acara berlangsung.'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function IzinKeramaianPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Perizinan...</div>}>
@@ -87,7 +66,6 @@ export default function IzinKeramaianPage() {
 }
 
 function CrowdPermitBuilder() {
-  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -154,7 +132,6 @@ function CrowdPermitBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -168,12 +145,15 @@ function CrowdPermitBuilder() {
     </div>
   );
 
-  // --- KOMPONEN ISI SURAT ---
+  const activeTemplateName = templateId === 1 ? 'Surat Permohonan' : 'Izin Lingkungan';
+
+  // --- CONTENT ---
   const DocumentContent = () => (
-    <div className="w-full h-full text-slate-900 font-serif text-[11pt]">
+    // FIX: Added 'print:p-[25mm]'
+    <div className="bg-white mx-auto flex flex-col box-border font-serif text-slate-900 leading-snug text-[11pt] p-[25mm] print:p-[25mm]" 
+         style={{ width: '210mm', minHeight: '296mm' }}>
       
       {templateId === 1 ? (
-          // TEMPLATE 1: SURAT KE POLISI (DIPADATKAN)
           <div className="flex flex-col h-full">
               <div className="text-right mb-4">
                   {data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}
@@ -243,7 +223,6 @@ function CrowdPermitBuilder() {
               </div>
           </div>
       ) : (
-          // TEMPLATE 2: IZIN LINGKUNGAN (DIPADATKAN)
           <div className="flex flex-col h-full">
               <div className="text-center mb-6 border-b-2 border-black pb-2">
                   <h2 className="text-xl font-bold uppercase underline tracking-widest">SURAT IZIN LINGKUNGAN</h2>
@@ -271,7 +250,7 @@ function CrowdPermitBuilder() {
               <div className="mb-6 flex-grow">
                   <table className="w-full border-collapse border border-black text-sm">
                       <thead>
-                          <tr className="bg-slate-100">
+                          <tr className="bg-slate-100 print:bg-transparent">
                               <th className="border border-black py-1 w-10">No</th>
                               <th className="border border-black py-1">Nama Tetangga</th>
                               <th className="border border-black py-1 w-32">Tanda Tangan</th>
@@ -304,25 +283,20 @@ function CrowdPermitBuilder() {
     </div>
   );
 
-  const activeTemplateName = templateId === 1 ? 'Surat Permohonan' : 'Izin Lingkungan';
-
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4 portrait; margin: 0; }
+          @page { size: A4; margin: 0; } 
+          body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
-          body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
-          .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-          .print-table thead { height: 15mm; display: table-header-group; } 
-          .print-table tfoot { height: 15mm; display: table-footer-group; } 
-          .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-          tr, .break-inside-avoid { page-break-inside: avoid !important; }
+          #print-only-root { 
+            display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+          }
         }
       `}</style>
 
@@ -355,7 +329,7 @@ function CrowdPermitBuilder() {
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         
-        {/* SIDEBAR INPUT (SLIDING ANIMATION) */}
+        {/* SIDEBAR INPUT */}
         <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
                 <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Perizinan</h2>
@@ -433,14 +407,12 @@ function CrowdPermitBuilder() {
            </div>
         </div>
 
-        {/* --- PREVIEW AREA (ALWAYS RENDERED BEHIND SIDEBAR) --- */}
+        {/* --- PREVIEW AREA --- */}
         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 shadow-2xl flex flex-col items-center">
                  <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   <div className="print-content-wrapper p-[20mm]">
-                      <DocumentContent />
-                   </div>
+                   <DocumentContent />
                  </div>
                </div>
             </div>
@@ -453,12 +425,10 @@ function CrowdPermitBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT PORTAL */}
+      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
          <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-            <div className="print-content-wrapper p-[20mm]">
-               <DocumentContent />
-            </div>
+            <DocumentContent />
          </div>
       </div>
 
