@@ -4,17 +4,13 @@
  * FILE: SuratHibahPage.tsx
  * STATUS: FINAL & MOBILE READY
  * DESC: Generator Surat Keterangan / Pernyataan Hibah
- * FEATURES:
- * - Dual Template (Formal Legal vs Simple Statement)
- * - Auto Date Format
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIX: Added missing 'ArrowLeftCircle' import
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Gift, Building2, UserCircle2, 
-  MapPin, LayoutTemplate, ChevronDown, X, PenTool, ShieldCheck, PlusCircle, Trash2, Edit3, Eye, Briefcase, Check, RotateCcw
+  MapPin, LayoutTemplate, ChevronDown, X, PenTool, ShieldCheck, PlusCircle, Trash2, Edit3, Eye, Briefcase, Check, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
