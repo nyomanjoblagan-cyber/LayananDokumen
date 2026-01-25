@@ -2,14 +2,12 @@
 
 /**
  * FILE: JualBeliKendaraanPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: FIXED PRINT LAYOUT
  * DESC: Generator Surat Jual Beli Kendaraan (Mobil/Motor)
  * FEATURES:
- * - Dual Template (Formal Legal vs Receipt Style)
- * - Quick Preset (Car / Motorcycle)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * - Print-safe Container (Absolute Positioning)
+ * - Dual Template (Legal Formal & Kwitansi)
+ * - Auto Date & Presets
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -18,9 +16,6 @@ import {
   Bike, Users, FileCheck, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 // --- 1. TYPE DEFINITIONS ---
 interface SaleData {
@@ -63,7 +58,7 @@ interface SaleData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: SaleData = {
   day: 'Senin',
-  date: '', // Diisi useEffect
+  date: '', 
   city: 'JAKARTA SELATAN',
   
   p1Name: 'AGUS SETIAWAN',
@@ -93,7 +88,6 @@ const INITIAL_DATA: SaleData = {
   witness2: 'Santi (Istri Pembeli)'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function JualBeliKendaraanPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Sistem Transaksi...</div>}>
@@ -103,7 +97,7 @@ export default function JualBeliKendaraanPage() {
 }
 
 function VehicleSaleBuilder() {
-  // --- STATE SYSTEM ---
+  // --- STATE ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -157,7 +151,6 @@ function VehicleSaleBuilder() {
     }
   }
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -175,46 +168,46 @@ function VehicleSaleBuilder() {
 
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
-    // FIX: Added 'print:p-[15mm]' (sedikit lebih kecil agar muat 1 halaman)
-    <div className="bg-white mx-auto flex flex-col box-border font-serif text-slate-900 leading-tight text-[10pt] p-[15mm] print:p-[15mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0">
+    // FIX: Print Padding & Dimensions
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-tight text-[10pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
         
         {/* TEMPLATE 1: LEGAL FORMAL */}
         {templateId === 1 && (
             <>
-                <div className="text-center mb-4 border-b-2 border-black pb-2 shrink-0">
+                <div className="text-center mb-6 border-b-2 border-black pb-2 shrink-0">
                    <h1 className="font-black text-lg uppercase underline tracking-wide text-black">SURAT PERJANJIAN JUAL BELI KENDARAAN</h1>
                 </div>
 
                 <div className="flex-grow">
-                    <p className="mb-2 text-justify text-black">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
+                    <p className="mb-4 text-justify text-black leading-relaxed">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
 
-                    <div className="ml-2 mb-2">
-                       <div className="font-bold underline text-xs uppercase mb-0.5 text-black">I. PIHAK PERTAMA (PENJUAL)</div>
-                       <table className="w-full leading-none">
+                    <div className="ml-2 mb-4">
+                       <div className="font-bold underline text-xs uppercase mb-1 text-black">I. PIHAK PERTAMA (PENJUAL)</div>
+                       <table className="w-full leading-snug">
                           <tbody>
-                             <tr><td className="w-20 py-0.5 text-black">Nama</td><td className="w-3 text-black">:</td><td className="font-bold uppercase text-black">{data.p1Name}</td></tr>
-                             <tr><td className="py-0.5 text-black">NIK</td><td className="text-black">:</td><td className="text-black">{data.p1Nik}</td></tr>
-                             <tr><td className="py-0.5 text-black">Pekerjaan</td><td className="text-black">:</td><td className="text-black">{data.p1Job}</td></tr>
-                             <tr><td className="py-0.5 align-top text-black">Alamat</td><td className="align-top text-black">:</td><td className="align-top text-black">{data.p1Address}</td></tr>
+                             <tr><td className="w-24 font-bold text-black align-top">Nama</td><td className="w-3 text-black align-top">:</td><td className="font-bold uppercase text-black align-top">{data.p1Name}</td></tr>
+                             <tr><td className="text-black align-top">NIK</td><td className="text-black align-top">:</td><td className="text-black align-top">{data.p1Nik}</td></tr>
+                             <tr><td className="text-black align-top">Pekerjaan</td><td className="text-black align-top">:</td><td className="text-black align-top">{data.p1Job}</td></tr>
+                             <tr><td className="text-black align-top">Alamat</td><td className="text-black align-top">:</td><td className="align-top text-black">{data.p1Address}</td></tr>
                           </tbody>
                        </table>
                     </div>
 
-                    <div className="ml-2 mb-3">
-                       <div className="font-bold underline text-xs uppercase mb-0.5 text-black">II. PIHAK KEDUA (PEMBELI)</div>
-                       <table className="w-full leading-none">
+                    <div className="ml-2 mb-6">
+                       <div className="font-bold underline text-xs uppercase mb-1 text-black">II. PIHAK KEDUA (PEMBELI)</div>
+                       <table className="w-full leading-snug">
                           <tbody>
-                             <tr><td className="w-20 py-0.5 text-black">Nama</td><td className="w-3 text-black">:</td><td className="font-bold uppercase text-black">{data.p2Name}</td></tr>
-                             <tr><td className="py-0.5 text-black">NIK</td><td className="text-black">:</td><td className="text-black">{data.p2Nik}</td></tr>
-                             <tr><td className="py-0.5 text-black">Pekerjaan</td><td className="text-black">:</td><td className="text-black">{data.p2Job}</td></tr>
-                             <tr><td className="py-0.5 align-top text-black">Alamat</td><td className="align-top text-black">:</td><td className="align-top text-black">{data.p2Address}</td></tr>
+                             <tr><td className="w-24 font-bold text-black align-top">Nama</td><td className="w-3 text-black align-top">:</td><td className="font-bold uppercase text-black align-top">{data.p2Name}</td></tr>
+                             <tr><td className="text-black align-top">NIK</td><td className="text-black align-top">:</td><td className="text-black align-top">{data.p2Nik}</td></tr>
+                             <tr><td className="text-black align-top">Pekerjaan</td><td className="text-black align-top">:</td><td className="text-black align-top">{data.p2Job}</td></tr>
+                             <tr><td className="text-black align-top">Alamat</td><td className="text-black align-top">:</td><td className="align-top text-black">{data.p2Address}</td></tr>
                           </tbody>
                        </table>
                     </div>
 
-                    <p className="mb-2 text-black">Sepakat melakukan transaksi jual beli kendaraan dengan data sebagai berikut:</p>
+                    <p className="mb-4 text-black text-justify">Kedua belah pihak sepakat melakukan transaksi jual beli kendaraan dengan spesifikasi sebagai berikut:</p>
 
-                    <div className="mb-3 border border-black p-2 bg-slate-50 print:bg-transparent">
+                    <div className="mb-6 border border-black p-3 bg-slate-50 print:bg-transparent">
                        <table className="w-full leading-snug">
                           <tbody>
                              <tr><td className="w-24 font-bold text-black">Merk / Type</td><td className="w-3 text-black">:</td><td className="text-black">{data.brand} / {data.type}</td><td className="w-20 font-bold text-black pl-2">No. Polisi</td><td className="w-3 text-black">:</td><td className="font-bold text-black">{data.nopol}</td></tr>
@@ -224,47 +217,47 @@ function VehicleSaleBuilder() {
                        </table>
                     </div>
 
-                    <div className="space-y-2 text-justify">
+                    <div className="space-y-4 text-justify">
                        <div>
-                          <div className="font-bold underline mb-0.5 text-black">PASAL 1: HARGA & PEMBAYARAN</div>
-                          <p className="text-black">Disepakati harga kendaraan tersebut sebesar <strong>{formatRupiah(data.price)}</strong> (<em>{data.priceText}</em>) yang dibayarkan tunai/transfer oleh Pihak Kedua kepada Pihak Pertama secara <strong>{data.paymentMethod}</strong>.</p>
+                          <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 1: HARGA & PEMBAYARAN</div>
+                          <p className="text-black leading-relaxed">Disepakati harga kendaraan tersebut sebesar <strong>{formatRupiah(data.price)}</strong> (<em>{data.priceText}</em>) yang dibayarkan tunai/transfer oleh Pihak Kedua kepada Pihak Pertama secara <strong>{data.paymentMethod}</strong>.</p>
                        </div>
                        <div>
-                          <div className="font-bold underline mb-0.5 text-black">PASAL 2: PENYERAHAN & JAMINAN</div>
-                          <p className="text-black">Kendaraan diserahkan dalam kondisi "as is" (apa adanya). Pihak Pertama menjamin bahwa kendaraan tersebut adalah milik sah, tidak dalam sengketa, dan bebas dari sitaan pihak manapun.</p>
+                          <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 2: PENYERAHAN & JAMINAN</div>
+                          <p className="text-black leading-relaxed">Kendaraan diserahkan dalam kondisi "as is" (apa adanya). Pihak Pertama menjamin bahwa kendaraan tersebut adalah milik sah, tidak dalam sengketa, dan bebas dari sitaan pihak manapun.</p>
                        </div>
                        <div>
-                          <div className="font-bold underline mb-0.5 text-black">PASAL 3: BALIK NAMA & PAJAK</div>
-                          <p className="text-black">Segala biaya balik nama menjadi tanggung jawab Pihak Kedua. Pajak/E-Tilang yang terjadi <strong>SEBELUM</strong> tanggal transaksi ini adalah tanggung jawab Pihak Pertama.</p>
+                          <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 3: BALIK NAMA & PAJAK</div>
+                          <p className="text-black leading-relaxed">Segala biaya balik nama menjadi tanggung jawab Pihak Kedua. Pajak/E-Tilang yang terjadi <strong>SEBELUM</strong> tanggal transaksi ini adalah tanggung jawab Pihak Pertama.</p>
                        </div>
                     </div>
 
-                    <p className="mt-3 text-center text-[9pt] italic text-black">Surat ini dibuat rangkap dua bermaterai cukup dan memiliki kekuatan hukum sama.</p>
+                    <p className="mt-6 text-justify text-[10pt] italic text-black">Demikian surat perjanjian ini dibuat rangkap dua bermaterai cukup dan memiliki kekuatan hukum yang sama.</p>
                 </div>
 
-                <div className="shrink-0 mt-4" style={{ pageBreakInside: 'avoid' }}>
-                    <div className="flex justify-between text-center mb-6">
+                <div className="shrink-0 mt-8" style={{ pageBreakInside: 'avoid' }}>
+                    <div className="flex justify-between text-center mb-8">
                        <div className="w-48">
-                          <p className="mb-16 font-bold text-black">PIHAK KEDUA (Pembeli)</p>
+                          <p className="mb-20 font-bold text-black text-xs uppercase tracking-widest">PIHAK KEDUA (Pembeli)</p>
                           <p className="font-bold underline uppercase text-black">{data.p2Name}</p>
                        </div>
                        <div className="w-48">
-                          <p className="mb-2 font-bold text-black">PIHAK PERTAMA (Penjual)</p>
-                          <div className="border border-black w-20 h-12 mx-auto mb-1 flex items-center justify-center text-[8px] text-black">MATERAI 10.000</div>
+                          <p className="mb-4 font-bold text-black text-xs uppercase tracking-widest">PIHAK PERTAMA (Penjual)</p>
+                          <div className="border border-black w-24 h-16 mx-auto mb-2 flex items-center justify-center text-[8px] text-black bg-slate-50 print:bg-transparent">MATERAI 10.000</div>
                           <p className="font-bold underline uppercase text-black">{data.p1Name}</p>
                        </div>
                     </div>
 
                     <div className="text-center text-xs">
-                       <p className="mb-1 font-bold underline text-black">SAKSI-SAKSI</p>
+                       <p className="mb-4 font-bold underline text-black">SAKSI-SAKSI</p>
                        <div className="flex justify-center gap-16">
                           <div className="text-center w-40">
-                             <div className="text-[9pt] mb-8 font-bold text-black">Saksi I</div>
-                             <div className="border-b border-black text-black">{data.witness1}</div>
+                             <div className="border-b border-black text-black pb-1 mb-1">{data.witness1}</div>
+                             <div className="text-[8pt] text-black">( Saksi Pihak I )</div>
                           </div>
                           <div className="text-center w-40">
-                             <div className="text-[9pt] mb-8 font-bold text-black">Saksi II</div>
-                             <div className="border-b border-black text-black">{data.witness2}</div>
+                             <div className="border-b border-black text-black pb-1 mb-1">{data.witness2}</div>
+                             <div className="text-[8pt] text-black">( Saksi Pihak II )</div>
                           </div>
                        </div>
                     </div>
@@ -296,7 +289,7 @@ function VehicleSaleBuilder() {
                     </div>
 
                     <div className="bg-slate-50 print:bg-transparent p-6 rounded-xl mb-6 border border-black">
-                        <h3 className="font-bold text-xs mb-3 border-b border-black pb-2 text-black">DATA KENDARAAN</h3>
+                        <h3 className="font-bold text-xs mb-3 border-b border-black pb-2 text-black uppercase tracking-widest">DATA KENDARAAN</h3>
                         <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                             <div className="flex justify-between"><span className="text-black">Merk/Type</span><span className="text-black">:</span></div><div className="font-bold text-black">{data.brand} {data.type}</div>
                             <div className="flex justify-between"><span className="text-black">Thn/Warna</span><span className="text-black">:</span></div><div className="font-bold text-black">{data.year} / {data.color}</div>
@@ -337,21 +330,30 @@ function VehicleSaleBuilder() {
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4 portrait; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
+          
+          /* KUNCI PERBAIKAN: Padding Absolut saat Print */
           #print-only-root { 
-            display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+            display: block !important; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            z-index: 9999; 
+            background: white; 
           }
         }
       `}</style>
 
       {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-bold uppercase tracking-widest text-xs">
-              <ArrowLeft size={18} /> Dashboard
+        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+               <ArrowLeft size={18} /> Dashboard
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
@@ -376,7 +378,7 @@ function VehicleSaleBuilder() {
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         
         {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
                 <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Barang</h2>
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
@@ -478,14 +480,12 @@ function VehicleSaleBuilder() {
            </div>
         </div>
 
-        {/* PREVIEW AREA (ALWAYS RENDERED BEHIND SIDEBAR) */}
+        {/* PREVIEW AREA */}
         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 shadow-2xl flex flex-col items-center">
                  <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   <div className="print-content-wrapper p-[15mm]">
-                      <DocumentContent />
-                   </div>
+                   <DocumentContent />
                  </div>
                </div>
             </div>
@@ -498,12 +498,10 @@ function VehicleSaleBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA */}
+      {/* PRINT AREA (HIDDEN) */}
       <div id="print-only-root" className="hidden">
-         <div style={{ width: '210mm', minHeight: 'auto' }} className="bg-white flex flex-col">
-            <div className="print-content-wrapper p-[15mm]">
-               <DocumentContent />
-            </div>
+         <div style={{ width: '210mm', minHeight: 'auto' }} className="flex flex-col">
+            <DocumentContent />
          </div>
       </div>
 
