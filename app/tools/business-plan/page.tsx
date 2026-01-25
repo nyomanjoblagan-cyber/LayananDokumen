@@ -1,60 +1,126 @@
 'use client';
 
-import { useState, useRef, Suspense } from 'react';
+/**
+ * FILE: BusinessPlanPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Business Plan / Proposal Usaha
+ * FEATURES:
+ * - Dual Template (Canvas vs Text Proposal)
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
+import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Lightbulb, Building2, TrendingUp, 
   X, PenTool, PieChart, Users, Banknote, Rocket, Target, BarChart3,
-  LayoutTemplate, ChevronDown, Check, ArrowLeftCircle, Edit3, Eye, FileText
+  LayoutTemplate, ChevronDown, Check, ArrowLeftCircle, Edit3, Eye, FileText, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface BusinessData {
+  city: string;
+  date: string;
+  
+  // Info Bisnis
+  companyName: string;
+  tagline: string;
+  owner: string;
+  industry: string;
+
+  // Executive Summary
+  problem: string;
+  solution: string;
+  
+  // Market Analysis
+  targetMarket: string;
+  marketSize: string;
+  competitors: string;
+
+  // Revenue Model
+  revenueStream: string;
+  fundingNeed: string;
+
+  // Tim
+  team: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: BusinessData = {
+  city: 'DENPASAR',
+  date: '', // Diisi useEffect
+  
+  companyName: 'BALI TECH LOGISTICS (BTL)',
+  tagline: 'Smart Solutions for Island Distribution',
+  owner: 'BAGUS RAMADHAN',
+  industry: 'Logistik & Teknologi (SaaS)',
+
+  problem: 'Mahalnya biaya distribusi antar wilayah di Bali akibat sistem logistik tradisional yang tidak terintegrasi.',
+  solution: 'Platform agregator logistik berbasis AI yang mengoptimalkan rute dan muatan kendaraan secara real-time.',
+  
+  targetMarket: 'UMKM Lokal Bali, Distributor Ritel, dan Sektor Pariwisata.',
+  marketSize: 'Estimasi 50.000 UMKM di Bali dengan kebutuhan logistik harian.',
+  competitors: 'Jasa logistik konvensional dan kurir instan yang belum memiliki optimasi rute cerdas.',
+
+  revenueStream: 'Komisi 10% per transaksi dan Paket Langganan Premium (SaaS) untuk korporasi.',
+  fundingNeed: 'Rp 500.000.000,- (Untuk Pengembangan App & Marketing)',
+
+  team: 'CEO (Bagus Ramadhan), CTO (Expert Software Engineer), Head of Operations (Logistics Specialist).'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function BusinessPlanPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Business Plan Builder...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Business Plan Builder...</div>}>
       <PlanBuilder />
     </Suspense>
   );
 }
 
 function PlanBuilder() {
-  // --- STATE SYSTEM ---
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [data, setData] = useState<BusinessData>(INITIAL_DATA);
 
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Denpasar',
-    date: new Date().toISOString().split('T')[0],
-    
-    // INFO BISNIS
-    companyName: 'BALI TECH LOGISTICS (BTL)',
-    tagline: 'Smart Solutions for Island Distribution',
-    owner: 'BAGUS RAMADHAN',
-    industry: 'Logistik & Teknologi (SaaS)',
+  // Set Tanggal Hari Ini saat Mount
+  useEffect(() => {
+    setData(prev => ({ 
+        ...prev, 
+        date: new Date().toISOString().split('T')[0] 
+    }));
+  }, []);
 
-    // EXECUTIVE SUMMARY
-    problem: 'Mahalnya biaya distribusi antar wilayah di Bali akibat sistem logistik tradisional yang tidak terintegrasi.',
-    solution: 'Platform agregator logistik berbasis AI yang mengoptimalkan rute dan muatan kendaraan secara real-time.',
-    
-    // MARKET ANALYSIS
-    targetMarket: 'UMKM Lokal Bali, Distributor Ritel, dan Sektor Pariwisata.',
-    marketSize: 'Estimasi 50.000 UMKM di Bali dengan kebutuhan logistik harian.',
-    competitors: 'Jasa logistik konvensional dan kurir instan yang belum memiliki optimasi rute cerdas.',
+  // --- HANDLERS ---
+  const handleDataChange = (field: keyof BusinessData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-    // REVENUE MODEL
-    revenueStream: 'Komisi 10% per transaksi dan Paket Langganan Premium (SaaS) untuk korporasi.',
-    fundingNeed: 'Rp 500.000.000,- (Untuk Pengembangan App & Marketing)',
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
+    }
+  };
 
-    // TIM KUNCI
-    team: 'CEO (Bagus Ramadhan), CTO (Expert Software Engineer), Head of Operations (Logistics Specialist).'
-  });
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Canvas (Modern One-Page)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Proposal (Formal Text)
+        </button>
+    </div>
+  );
 
-  // HANDLERS
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
-
-  // --- KOMPONEN ISI SURAT ---
+  // --- KONTEN SURAT ---
   const ContentInside = () => {
     if (templateId === 1) {
       // --- TEMPLATE 1: MODERN CANVAS (One Page) ---
@@ -171,20 +237,18 @@ function PlanBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* --- JURUS TABLE WRAPPER (Print Fix) --- */}
+      {/* CSS PRINT FIXED */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; }
-          .no-print { display: none !important; }
-          body { background: white; margin: 0; padding: 0; display: block !important; }
-          #print-only-root { display: block !important; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 9999; background: white; }
-          
-          .print-table { width: 100%; border-collapse: collapse; }
-          .print-table thead { height: 20mm; } 
-          .print-table tfoot { height: 20mm; } 
-          .print-content-wrapper { padding: 0 20mm; }
-          
-          tr, .keep-together { page-break-inside: avoid !important; }
+            @page { size: A4 portrait; margin: 0; }
+            .no-print { display: none !important; }
+            body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
+            .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+            .print-table thead { height: 15mm; display: table-header-group; } 
+            .print-table tfoot { height: 15mm; display: table-footer-group; } 
+            .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
+            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
         }
       `}</style>
 
@@ -199,72 +263,80 @@ function PlanBuilder() {
                <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Business Plan <span className="text-emerald-400">Builder</span></h1></div>
             </div>
+            
             <div className="flex items-center gap-3">
+               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Canvas (Modern)' : 'Proposal (Formal)'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
-                  {showTemplateMenu && (
-                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
-                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> Canvas (Modern)</button>
-                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Proposal (Formal)</button>
-                     </div>
-                  )}
+                  {showTemplateMenu && <TemplateMenu />}
                </div>
-               <div className="relative md:hidden"><button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">Tampilan <ChevronDown size={14}/></button></div>
+
+               {/* MOBILE MENU TRIGGER */}
+               <div className="relative md:hidden">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
+                    Template <ChevronDown size={14}/>
+                  </button>
+                  {showTemplateMenu && <TemplateMenu />}
+               </div>
+
                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         {/* EDITOR */}
+         {/* EDITOR SIDEBAR */}
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Rencana Bisnis</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
-               {/* INFO BISNIS */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
+               {/* 1. INFO BISNIS */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Info Perusahaan</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Bisnis</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} /></div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tagline / Slogan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs italic" value={data.tagline} onChange={e => handleDataChange('tagline', e.target.value)} /></div>
-                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pemilik (CEO)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.owner} onChange={e => handleDataChange('owner', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Industri</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.industry} onChange={e => handleDataChange('industry', e.target.value)} /></div>
-                     </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Bisnis</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tagline / Slogan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs italic focus:ring-2 focus:ring-emerald-500 outline-none" value={data.tagline} onChange={e => handleDataChange('tagline', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pemilik (CEO)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.owner} onChange={e => handleDataChange('owner', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Industri</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.industry} onChange={e => handleDataChange('industry', e.target.value)} /></div>
+                      </div>
                   </div>
                </div>
 
-               {/* KONSEP */}
+               {/* 2. KONSEP */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Lightbulb size={12}/> Konsep Bisnis</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Masalah (Problem)</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none" value={data.problem} onChange={e => handleDataChange('problem', e.target.value)} /></div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Solusi (Solution)</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none" value={data.solution} onChange={e => handleDataChange('solution', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Masalah (Problem)</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.problem} onChange={e => handleDataChange('problem', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Solusi (Solution)</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.solution} onChange={e => handleDataChange('solution', e.target.value)} /></div>
                   </div>
                </div>
 
-               {/* PASAR & UANG */}
+               {/* 3. PASAR & UANG */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><TrendingUp size={12}/> Pasar & Finansial</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Target Pasar</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.targetMarket} onChange={e => handleDataChange('targetMarket', e.target.value)} /></div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ukuran Pasar (Market Size)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.marketSize} onChange={e => handleDataChange('marketSize', e.target.value)} /></div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Sumber Pendapatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.revenueStream} onChange={e => handleDataChange('revenueStream', e.target.value)} /></div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kebutuhan Dana</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-emerald-600" value={data.fundingNeed} onChange={e => handleDataChange('fundingNeed', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Target Pasar</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.targetMarket} onChange={e => handleDataChange('targetMarket', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ukuran Pasar (Market Size)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.marketSize} onChange={e => handleDataChange('marketSize', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Sumber Pendapatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.revenueStream} onChange={e => handleDataChange('revenueStream', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kebutuhan Dana</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-emerald-600 focus:ring-2 focus:ring-emerald-500 outline-none" value={data.fundingNeed} onChange={e => handleDataChange('fundingNeed', e.target.value)} /></div>
                   </div>
                </div>
 
-               {/* TIM */}
+               {/* 4. TIM */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Users size={12}/> Tim & Lokasi</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tim Inti</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none" value={data.team} onChange={e => handleDataChange('team', e.target.value)} /></div>
-                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kota</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.city} onChange={e => handleDataChange('city', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
-                     </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tim Inti</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.team} onChange={e => handleDataChange('team', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kota</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
+                      </div>
                   </div>
                </div>
                <div className="h-20 md:hidden"></div>
@@ -289,7 +361,7 @@ function PlanBuilder() {
          <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* --- PRINT PORTAL (FIX: TABLE WRAPPER) --- */}
+      {/* --- PRINT PORTAL --- */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
             <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
