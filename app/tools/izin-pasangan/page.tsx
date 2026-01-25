@@ -2,13 +2,9 @@
 
 /**
  * FILE: IzinPasanganPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: FINAL & MOBILE READY & PRINT FIXED
  * DESC: Generator Surat Izin Pasangan (Suami/Istri)
- * FEATURES:
- * - Dual Template (Formal Legal vs Simple)
- * - Auto Scaling Preview for Mobile
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIX: Added 'print:p-[25mm]' to DocumentContent
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -18,47 +14,34 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
-
 // --- 1. TYPE DEFINITIONS ---
 interface PartnerData {
   city: string;
   date: string;
-  
-  // Data Pasangan
   partnerName: string;
   partnerNik: string;
   partnerJob: string;
   partnerAddress: string;
-  partnerRelation: 'ISTRI' | 'SUAMI'; // Strict type
-
-  // Data User
+  partnerRelation: 'ISTRI' | 'SUAMI'; 
   userName: string;
   userNik: string;
-  
-  // Tujuan
   purpose: string;
 }
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: PartnerData = {
   city: 'SLEMAN',
-  date: '', // Diisi useEffect
-  
+  date: '',
   partnerName: 'SITI AMINAH',
   partnerNik: '3404014506920002',
   partnerJob: 'Ibu Rumah Tangga',
   partnerAddress: 'Jl. Kaliurang KM 10, Gayam, Sleman',
   partnerRelation: 'ISTRI',
-
   userName: 'ANDI PRASETYO',
   userNik: '3404011203900005',
-  
   purpose: 'Melamar Pekerjaan sebagai Operator Produksi di PT. Maju Bersama Jaya dan bersedia ditempatkan di luar kota.',
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function IzinPasanganPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat...</div>}>
@@ -68,7 +51,6 @@ export default function IzinPasanganPage() {
 }
 
 function PartnerConsentBuilder() {
-  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -92,7 +74,6 @@ function PartnerConsentBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -106,11 +87,13 @@ function PartnerConsentBuilder() {
     </div>
   );
 
-  // --- KOMPONEN ISI SURAT ---
+  const activeTemplateName = templateId === 1 ? 'Formal (Materai)' : 'Sederhana';
+
+  // --- CONTENT ---
   const DocumentContent = () => (
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0">
+    // FIX: Added 'print:p-[25mm]'
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[25mm] print:p-[25mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0">
         
-        {/* JUDUL */}
         <div className="text-center mb-8 pb-4 border-b-2 border-black shrink-0">
           <h1 className="font-black text-xl uppercase tracking-tighter underline underline-offset-4 leading-none">SURAT IZIN {data.partnerRelation}</h1>
         </div>
@@ -144,7 +127,6 @@ function PartnerConsentBuilder() {
           </div>
         </div>
 
-        {/* TANDA TANGAN */}
         <div className="shrink-0 mt-8" style={{ pageBreakInside: 'avoid' }}>
           <p className="text-right mb-8">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</p>
           
@@ -168,8 +150,6 @@ function PartnerConsentBuilder() {
     </div>
   );
 
-  const activeTemplateName = templateId === 1 ? 'Formal (Materai)' : 'Sederhana';
-
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
@@ -178,24 +158,21 @@ function PartnerConsentBuilder() {
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4 portrait; margin: 0; }
+          @page { size: A4; margin: 0; } 
+          body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
-          body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
-          .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-          .print-table thead { height: 15mm; display: table-header-group; } 
-          .print-table tfoot { height: 15mm; display: table-footer-group; } 
-          .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-          tr, .break-inside-avoid { page-break-inside: avoid !important; }
+          #print-only-root { 
+            display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+          }
         }
       `}</style>
 
       {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-bold uppercase tracking-widest text-xs">
-              <ArrowLeft size={18} /> Dashboard
+        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+               <ArrowLeft size={18} /> Dashboard
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
@@ -219,8 +196,8 @@ function PartnerConsentBuilder() {
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         
-        {/* SIDEBAR INPUT (SLIDING ANIMATION) */}
-        <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        {/* SIDEBAR INPUT */}
+        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
                 <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Surat</h2>
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
@@ -228,7 +205,6 @@ function PartnerConsentBuilder() {
 
            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
               
-              {/* Data Pemberi Izin */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-pink-600 tracking-widest"><Heart size={14}/> Data Pemberi Izin</h3>
                  <div className="grid grid-cols-2 gap-2">
@@ -243,14 +219,12 @@ function PartnerConsentBuilder() {
                  <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" placeholder="Alamat Pasangan" value={data.partnerAddress} onChange={e => handleDataChange('partnerAddress', e.target.value)} />
               </div>
 
-              {/* Data User */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-blue-600 tracking-widest"><UserCircle2 size={14}/> Yang Diberi Izin</h3>
                  <input className="w-full p-2 border rounded text-xs font-bold uppercase" placeholder="Nama Anda" value={data.userName} onChange={e => handleDataChange('userName', e.target.value)} />
                  <input className="w-full p-2 border rounded text-xs" placeholder="NIK Anda" value={data.userNik} onChange={e => handleDataChange('userNik', e.target.value)} />
               </div>
 
-              {/* Keperluan */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-slate-400 tracking-widest"><FileText size={14}/> Keperluan Izin</h3>
                  <textarea className="w-full p-2 border rounded text-xs h-24 resize-none" placeholder="Contoh: Bekerja di Luar Negeri" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} />
@@ -263,14 +237,12 @@ function PartnerConsentBuilder() {
            </div>
         </div>
 
-        {/* PREVIEW AREA (ALWAYS RENDERED BEHIND SIDEBAR) */}
+        {/* PREVIEW AREA */}
         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 shadow-2xl flex flex-col items-center">
                  <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   <div className="print-content-wrapper p-[20mm]">
-                      <DocumentContent />
-                   </div>
+                   <DocumentContent />
                  </div>
                </div>
             </div>
