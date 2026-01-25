@@ -1,17 +1,105 @@
 'use client';
 
-import { useState, useRef, Suspense } from 'react';
+/**
+ * FILE: CVMakerPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator CV (Curriculum Vitae)
+ * FEATURES:
+ * - Dual Template (ATS vs Visual Sidebar)
+ * - Dynamic Experience & Education List
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
+import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Upload, X, LayoutTemplate, Plus, Trash2,
   User, Briefcase, GraduationCap, Mail, Phone, MapPin, Linkedin, Globe, Sparkles, ChevronDown, Check,
-  ArrowLeftCircle, Edit3, Eye
+  ArrowLeftCircle, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface Experience {
+  id: number;
+  role: string;
+  company: string;
+  date: string;
+  desc: string;
+}
+
+interface Education {
+  id: number;
+  degree: string;
+  school: string;
+  date: string;
+  note: string;
+}
+
+interface CVData {
+  fullName: string;
+  jobTitle: string;
+  summary: string;
+  email: string;
+  phone: string;
+  location: string;
+  linkedin: string;
+  website: string;
+  experience: Experience[];
+  education: Education[];
+  skills: string[];
+  languages: string[];
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: CVData = {
+  fullName: 'ANDI PRATAMA, S.Kom',
+  jobTitle: 'Senior Digital Marketer',
+  summary: 'Profesional pemasaran digital dengan pengalaman 5 tahun dalam mengelola kampanye iklan, SEO, dan media sosial. Memiliki rekam jejak terbukti dalam meningkatkan konversi penjualan hingga 150%. Terbiasa bekerja dengan data dan tools analitik.',
+  email: 'andi.pratama@email.com',
+  phone: '0812-3456-7890',
+  location: 'Jakarta Selatan, Indonesia',
+  linkedin: 'linkedin.com/in/andipratama',
+  website: 'andipratama.com',
+
+  experience: [
+    {
+      id: 1,
+      role: 'Digital Marketing Manager',
+      company: 'PT. Teknologi Nusantara',
+      date: 'Jan 2023 - Sekarang',
+      desc: '• Memimpin tim pemasaran beranggotakan 5 orang.\n• Mengelola budget iklan Rp 500jt/bulan dengan ROI positif.\n• Meningkatkan traffic website organik sebesar 200% dalam 1 tahun.'
+    },
+    {
+      id: 2,
+      role: 'SEO Specialist',
+      company: 'Startup Maju Jalan',
+      date: 'Jun 2020 - Des 2022',
+      desc: '• Melakukan audit SEO teknis dan optimasi konten.\n• Berhasil menempatkan 50+ keyword di halaman 1 Google.\n• Bekerjasama dengan tim developer untuk optimasi kecepatan web.'
+    }
+  ],
+
+  education: [
+    {
+      id: 1,
+      degree: 'S1 Sistem Informasi',
+      school: 'Universitas Indonesia',
+      date: '2016 - 2020',
+      note: 'IPK: 3.85 / 4.00 (Cum Laude)'
+    }
+  ],
+
+  skills: ['SEO / SEM', 'Google Analytics', 'Copywriting', 'Facebook Ads', 'Team Leadership', 'Data Analysis'],
+  languages: ['Bahasa Indonesia (Native)', 'English (Professional)']
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function CVMakerPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Studio CV...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Studio CV...</div>}>
       <CVToolBuilder />
     </Suspense>
   );
@@ -25,54 +113,7 @@ function CVToolBuilder() {
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    // PERSONAL
-    fullName: 'ANDI PRATAMA, S.Kom',
-    jobTitle: 'Senior Digital Marketer',
-    summary: 'Profesional pemasaran digital dengan pengalaman 5 tahun dalam mengelola kampanye iklan, SEO, dan media sosial. Memiliki rekam jejak terbukti dalam meningkatkan konversi penjualan hingga 150%. Terbiasa bekerja dengan data dan tools analitik.',
-    email: 'andi.pratama@email.com',
-    phone: '0812-3456-7890',
-    location: 'Jakarta Selatan, Indonesia',
-    linkedin: 'linkedin.com/in/andipratama',
-    website: 'andipratama.com',
-
-    // EXPERIENCE
-    experience: [
-      {
-        id: 1,
-        role: 'Digital Marketing Manager',
-        company: 'PT. Teknologi Nusantara',
-        date: 'Jan 2023 - Sekarang',
-        desc: '• Memimpin tim pemasaran beranggotakan 5 orang.\n• Mengelola budget iklan Rp 500jt/bulan dengan ROI positif.\n• Meningkatkan traffic website organik sebesar 200% dalam 1 tahun.'
-      },
-      {
-        id: 2,
-        role: 'SEO Specialist',
-        company: 'Startup Maju Jalan',
-        date: 'Jun 2020 - Des 2022',
-        desc: '• Melakukan audit SEO teknis dan optimasi konten.\n• Berhasil menempatkan 50+ keyword di halaman 1 Google.\n• Bekerjasama dengan tim developer untuk optimasi kecepatan web.'
-      }
-    ],
-
-    // EDUCATION
-    education: [
-      {
-        id: 1,
-        degree: 'S1 Sistem Informasi',
-        school: 'Universitas Indonesia',
-        date: '2016 - 2020',
-        note: 'IPK: 3.85 / 4.00 (Cum Laude)'
-      }
-    ],
-
-    // SKILLS
-    skills: ['SEO / SEM', 'Google Analytics', 'Copywriting', 'Facebook Ads', 'Team Leadership', 'Data Analysis'],
-    
-    // LANGUAGES
-    languages: ['Bahasa Indonesia (Native)', 'English (Professional)']
-  });
+  const [data, setData] = useState<CVData>(INITIAL_DATA);
 
   // --- HANDLERS ---
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,16 +121,17 @@ function CVToolBuilder() {
     if (file) setPhoto(URL.createObjectURL(file));
   };
 
-  const handlePersonalChange = (field: string, val: string) => {
-    setData({ ...data, [field]: val });
+  const handlePersonalChange = (field: keyof CVData, val: string) => {
+    // @ts-ignore
+    setData(prev => ({ ...prev, [field]: val }));
   };
 
   const addItem = (section: 'experience' | 'education') => {
     const newId = Date.now();
     if (section === 'experience') {
-      setData({ ...data, experience: [...data.experience, { id: newId, role: '', company: '', date: '', desc: '' }] });
+      setData(prev => ({ ...prev, experience: [...prev.experience, { id: newId, role: '', company: '', date: '', desc: '' }] }));
     } else {
-      setData({ ...data, education: [...data.education, { id: newId, degree: '', school: '', date: '', note: '' }] });
+      setData(prev => ({ ...prev, education: [...prev.education, { id: newId, degree: '', school: '', date: '', note: '' }] }));
     }
   };
 
@@ -97,40 +139,57 @@ function CVToolBuilder() {
     if (section === 'experience') {
         const newItems = [...data.experience];
         newItems.splice(idx, 1);
-        setData({ ...data, experience: newItems });
+        setData(prev => ({ ...prev, experience: newItems }));
     } else {
         const newItems = [...data.education];
         newItems.splice(idx, 1);
-        setData({ ...data, education: newItems });
+        setData(prev => ({ ...prev, education: newItems }));
     }
   };
 
   const updateItem = (section: 'experience' | 'education', idx: number, field: string, val: string) => {
     if (section === 'experience') {
         const newItems = [...data.experience];
-        (newItems[idx] as any)[field] = val;
-        setData({ ...data, experience: newItems });
+        // @ts-ignore
+        newItems[idx][field] = val;
+        setData(prev => ({ ...prev, experience: newItems }));
     } else {
         const newItems = [...data.education];
-        (newItems[idx] as any)[field] = val;
-        setData({ ...data, education: newItems });
+        // @ts-ignore
+        newItems[idx][field] = val;
+        setData(prev => ({ ...prev, education: newItems }));
     }
   };
 
   const handleSkillsChange = (val: string) => {
-    setData({ ...data, skills: val.split(',').map(s => s.trim()) });
+    setData(prev => ({ ...prev, skills: val.split(',').map(s => s.trim()) }));
   };
   const handleLangsChange = (val: string) => {
-    setData({ ...data, languages: val.split(',').map(s => s.trim()) });
+    setData(prev => ({ ...prev, languages: val.split(',').map(s => s.trim()) }));
   };
 
-  const TEMPLATES = [
-    { id: 1, name: "ATS Friendly (Clean)", desc: "Minimalis, mudah dibaca sistem HRD" },
-    { id: 2, name: "Modern Sidebar (Visual)", desc: "Tampilan kreatif dengan foto & aksen" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const handleReset = () => {
+    if(confirm('Reset CV ke awal?')) {
+        setData(INITIAL_DATA);
+        setPhoto(null);
+    }
+  };
 
-  // --- KOMPONEN ISI SURAT ---
+  // --- TEMPLATE MENU ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            ATS Friendly (Clean)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Modern Sidebar (Visual)
+        </button>
+    </div>
+  );
+
+  // --- KONTEN SURAT ---
   const ContentInside = () => {
     if (templateId === 1) {
       // --- TEMPLATE 1: ATS FRIENDLY ---
@@ -199,10 +258,10 @@ function CVToolBuilder() {
         </div>
       );
     } else {
-      // --- TEMPLATE 2: MODERN SIDEBAR (FIX: Flex Stretch) ---
+      // --- TEMPLATE 2: MODERN SIDEBAR ---
       return (
         <div className="font-sans text-slate-800 leading-snug flex flex-row items-stretch min-h-[297mm]">
-           {/* Sidebar Kiri - Wajib items-stretch di parent agar ini full height */}
+           {/* Sidebar Kiri */}
            <div className="w-[35%] bg-slate-900 print:bg-slate-900 text-white p-6 print:p-6 flex flex-col gap-6 shrink-0">
               <div className="flex flex-col items-center text-center">
                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-slate-700 mb-4 bg-slate-800 print:bg-slate-800 shrink-0">
@@ -295,21 +354,18 @@ function CVToolBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* --- JURUS TABLE WRAPPER (Print Fix) --- */}
+      {/* CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; }
-          .no-print { display: none !important; }
-          body { background: white; margin: 0; padding: 0; display: block !important; }
-          #print-only-root { display: block !important; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 9999; background: white; }
-          
-          /* Table Wrapper Logic */
-          .print-table { width: 100%; border-collapse: collapse; }
-          .print-table thead { height: 0mm; } /* CV biasanya tidak butuh margin atas besar */
-          .print-table tfoot { height: 0mm; } 
-          .print-content-wrapper { padding: 0; } /* Padding dikendalikan internal */
-          
-          tr, .keep-together { page-break-inside: avoid !important; }
+            @page { size: A4 portrait; margin: 0; }
+            .no-print { display: none !important; }
+            body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
+            .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+            .print-table thead { height: 0mm; } 
+            .print-table tfoot { height: 0mm; } 
+            .print-content-wrapper { padding: 0; width: 100%; box-sizing: border-box; }
+            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
         }
       `}</style>
 
@@ -325,113 +381,121 @@ function CVToolBuilder() {
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">CV Maker <span className="text-emerald-400">Builder</span></h1></div>
             </div>
             <div className="flex items-center gap-3">
+               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'ATS Friendly' : 'Modern Sidebar'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
-                  {showTemplateMenu && (
-                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
-                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> ATS Friendly</button>
-                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Modern Sidebar</button>
-                     </div>
-                  )}
+                  {showTemplateMenu && <TemplateMenu />}
                </div>
-               <div className="relative md:hidden"><button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">Tampilan <ChevronDown size={14}/></button></div>
+
+               {/* MOBILE MENU TRIGGER */}
+               <div className="relative md:hidden">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
+                    Template <ChevronDown size={14}/>
+                  </button>
+                  {showTemplateMenu && <TemplateMenu />}
+               </div>
+
                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         {/* EDITOR */}
+         {/* EDITOR SIDEBAR */}
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi CV Anda</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
-               {/* PROFILE */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
+               
+               {/* 1. PROFILE */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><User size={12}/> Profil Diri</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                     <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all overflow-hidden relative group" onClick={() => fileInputRef.current?.click()}>
-                           {photo ? <img src={photo} className="w-full h-full object-cover" /> : <Upload size={20} className="text-slate-300" />}
-                           {photo && <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X size={16} className="text-white" onClick={(e) => { e.stopPropagation(); setPhoto(null); }} /></div>}
-                        </div>
-                        <div className="flex-1">
-                           <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
-                           <button onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-blue-600 hover:underline">Upload Foto</button>
-                           <div className="text-[10px] text-slate-400 mt-1">Disarankan rasio 1:1</div>
-                        </div>
-                     </div>
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label>
-                        <input className="w-full p-2 border border-slate-300 rounded text-sm font-bold" value={data.fullName} onChange={e => handlePersonalChange('fullName', e.target.value)} />
-                     </div>
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-500">Job Title</label>
-                        <input className="w-full p-2 border border-slate-300 rounded text-sm" value={data.jobTitle} onChange={e => handlePersonalChange('jobTitle', e.target.value)} />
-                     </div>
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-500">Ringkasan</label>
-                        <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-24 resize-none" value={data.summary} onChange={e => handlePersonalChange('summary', e.target.value)} />
-                     </div>
+                      <div className="flex items-center gap-4">
+                         <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all overflow-hidden relative group" onClick={() => fileInputRef.current?.click()}>
+                            {photo ? <img src={photo} className="w-full h-full object-cover" /> : <Upload size={20} className="text-slate-300" />}
+                            {photo && <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X size={16} className="text-white" onClick={(e) => { e.stopPropagation(); setPhoto(null); }} /></div>}
+                         </div>
+                         <div className="flex-1">
+                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+                            <button onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-blue-600 hover:underline">Upload Foto</button>
+                            <div className="text-[10px] text-slate-400 mt-1">Disarankan rasio 1:1</div>
+                         </div>
+                      </div>
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label>
+                         <input className="w-full p-2 border border-slate-300 rounded text-sm font-bold" value={data.fullName} onChange={e => handlePersonalChange('fullName', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-bold text-slate-500">Job Title</label>
+                         <input className="w-full p-2 border border-slate-300 rounded text-sm" value={data.jobTitle} onChange={e => handlePersonalChange('jobTitle', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-bold text-slate-500">Ringkasan</label>
+                         <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-24 resize-none" value={data.summary} onChange={e => handlePersonalChange('summary', e.target.value)} />
+                      </div>
                   </div>
                </div>
 
-               {/* KONTAK */}
+               {/* 2. KONTAK */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Phone size={12}/> Kontak</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-2 gap-3">
-                     <div><label className="text-[10px] font-bold text-slate-500">Email</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.email} onChange={e => handlePersonalChange('email', e.target.value)} /></div>
-                     <div><label className="text-[10px] font-bold text-slate-500">No. HP</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.phone} onChange={e => handlePersonalChange('phone', e.target.value)} /></div>
-                     <div className="col-span-2"><label className="text-[10px] font-bold text-slate-500">Lokasi</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.location} onChange={e => handlePersonalChange('location', e.target.value)} /></div>
-                     <div><label className="text-[10px] font-bold text-slate-500">LinkedIn</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.linkedin} onChange={e => handlePersonalChange('linkedin', e.target.value)} /></div>
-                     <div><label className="text-[10px] font-bold text-slate-500">Website</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.website} onChange={e => handlePersonalChange('website', e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold text-slate-500">Email</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.email} onChange={e => handlePersonalChange('email', e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold text-slate-500">No. HP</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.phone} onChange={e => handlePersonalChange('phone', e.target.value)} /></div>
+                      <div className="col-span-2"><label className="text-[10px] font-bold text-slate-500">Lokasi</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.location} onChange={e => handlePersonalChange('location', e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold text-slate-500">LinkedIn</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.linkedin} onChange={e => handlePersonalChange('linkedin', e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold text-slate-500">Website</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.website} onChange={e => handlePersonalChange('website', e.target.value)} /></div>
                   </div>
                </div>
 
-               {/* PENGALAMAN */}
+               {/* 3. PENGALAMAN */}
                <div className="space-y-3">
                   <div className="flex justify-between items-center px-1"><h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><Briefcase size={12}/> Pengalaman</h3><button onClick={() => addItem('experience')} className="text-[10px] bg-blue-600 text-white px-2 py-1 rounded flex items-center gap-1"><Plus size={10}/> Tambah</button></div>
                   <div className="space-y-3">
-                     {data.experience.map((exp, idx) => (
-                        <div key={exp.id} className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative group">
-                           <div className="grid grid-cols-2 gap-2 mb-2">
-                              <input className="w-full p-1.5 border border-slate-300 rounded text-xs font-bold" placeholder="Posisi" value={exp.role} onChange={e => updateItem('experience', idx, 'role', e.target.value)} />
-                              <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Perusahaan" value={exp.company} onChange={e => updateItem('experience', idx, 'company', e.target.value)} />
-                              <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Durasi" value={exp.date} onChange={e => updateItem('experience', idx, 'date', e.target.value)} />
-                           </div>
-                           <textarea className="w-full p-1.5 border border-slate-300 rounded text-xs h-20 resize-none" placeholder="Deskripsi" value={exp.desc} onChange={e => updateItem('experience', idx, 'desc', e.target.value)} />
-                           <button onClick={() => removeItem('experience', idx)} className="absolute top-2 right-2 text-slate-300 hover:text-red-500"><Trash2 size={12}/></button>
-                        </div>
-                     ))}
+                      {data.experience.map((exp, idx) => (
+                         <div key={exp.id} className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative group">
+                            <div className="grid grid-cols-2 gap-2 mb-2">
+                               <input className="w-full p-1.5 border border-slate-300 rounded text-xs font-bold" placeholder="Posisi" value={exp.role} onChange={e => updateItem('experience', idx, 'role', e.target.value)} />
+                               <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Perusahaan" value={exp.company} onChange={e => updateItem('experience', idx, 'company', e.target.value)} />
+                               <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Durasi" value={exp.date} onChange={e => updateItem('experience', idx, 'date', e.target.value)} />
+                            </div>
+                            <textarea className="w-full p-1.5 border border-slate-300 rounded text-xs h-20 resize-none" placeholder="Deskripsi" value={exp.desc} onChange={e => updateItem('experience', idx, 'desc', e.target.value)} />
+                            <button onClick={() => removeItem('experience', idx)} className="absolute top-2 right-2 text-slate-300 hover:text-red-500"><Trash2 size={12}/></button>
+                         </div>
+                      ))}
                   </div>
                </div>
 
-               {/* PENDIDIKAN */}
+               {/* 4. PENDIDIKAN */}
                <div className="space-y-3">
                   <div className="flex justify-between items-center px-1"><h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><GraduationCap size={12}/> Pendidikan</h3><button onClick={() => addItem('education')} className="text-[10px] bg-blue-600 text-white px-2 py-1 rounded flex items-center gap-1"><Plus size={10}/> Tambah</button></div>
                   <div className="space-y-3">
-                     {data.education.map((edu, idx) => (
-                        <div key={edu.id} className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative group">
-                           <div className="grid grid-cols-2 gap-2 mb-2">
-                              <input className="w-full p-1.5 border border-slate-300 rounded text-xs font-bold" placeholder="Gelar" value={edu.degree} onChange={e => updateItem('education', idx, 'degree', e.target.value)} />
-                              <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Sekolah" value={edu.school} onChange={e => updateItem('education', idx, 'school', e.target.value)} />
-                              <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Tahun" value={edu.date} onChange={e => updateItem('education', idx, 'date', e.target.value)} />
-                              <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Nilai" value={edu.note} onChange={e => updateItem('education', idx, 'note', e.target.value)} />
-                           </div>
-                           <button onClick={() => removeItem('education', idx)} className="absolute top-2 right-2 text-slate-300 hover:text-red-500"><Trash2 size={12}/></button>
-                        </div>
-                     ))}
+                      {data.education.map((edu, idx) => (
+                         <div key={edu.id} className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative group">
+                            <div className="grid grid-cols-2 gap-2 mb-2">
+                               <input className="w-full p-1.5 border border-slate-300 rounded text-xs font-bold" placeholder="Gelar" value={edu.degree} onChange={e => updateItem('education', idx, 'degree', e.target.value)} />
+                               <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Sekolah" value={edu.school} onChange={e => updateItem('education', idx, 'school', e.target.value)} />
+                               <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Tahun" value={edu.date} onChange={e => updateItem('education', idx, 'date', e.target.value)} />
+                               <input className="w-full p-1.5 border border-slate-300 rounded text-xs" placeholder="Nilai" value={edu.note} onChange={e => updateItem('education', idx, 'note', e.target.value)} />
+                            </div>
+                            <button onClick={() => removeItem('education', idx)} className="absolute top-2 right-2 text-slate-300 hover:text-red-500"><Trash2 size={12}/></button>
+                         </div>
+                      ))}
                   </div>
                </div>
 
-               {/* SKILL */}
+               {/* 5. SKILL */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Sparkles size={12}/> Skill & Bahasa</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                     <div><label className="text-[10px] font-bold text-slate-500">Skills (Pisahkan Koma)</label><textarea className="w-full p-2 border border-slate-300 rounded text-xs h-16 resize-none" value={data.skills.join(', ')} onChange={e => handleSkillsChange(e.target.value)} /></div>
-                     <div><label className="text-[10px] font-bold text-slate-500">Bahasa</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.languages.join(', ')} onChange={e => handleLangsChange(e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold text-slate-500">Skills (Pisahkan Koma)</label><textarea className="w-full p-2 border border-slate-300 rounded text-xs h-16 resize-none" value={data.skills.join(', ')} onChange={e => handleSkillsChange(e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold text-slate-500">Bahasa</label><input className="w-full p-2 border border-slate-300 rounded text-xs" value={data.languages.join(', ')} onChange={e => handleLangsChange(e.target.value)} /></div>
                   </div>
                </div>
                <div className="h-20 md:hidden"></div>
@@ -456,7 +520,7 @@ function CVToolBuilder() {
          <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* --- PRINT PORTAL (FIX: TABLE WRAPPER) --- */}
+      {/* --- PRINT PORTAL --- */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
             <thead><tr><td><div style={{ height: '0mm' }}>&nbsp;</div></td></tr></thead>
