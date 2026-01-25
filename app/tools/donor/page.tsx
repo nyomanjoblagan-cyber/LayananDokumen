@@ -1,17 +1,82 @@
 'use client';
 
-import { useState, useRef, Suspense } from 'react';
+/**
+ * FILE: DonorPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Keterangan Donor Darah
+ * FEATURES:
+ * - Dual Template (PMI Standard vs Hospital Report)
+ * - Auto Date Format
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
+import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Heart, Droplets, Building2, UserCircle2, 
   X, PenTool, ShieldCheck, Activity, CalendarDays, ClipboardCheck,
-  LayoutTemplate, ChevronDown, Check, ArrowLeftCircle, Edit3, Eye
+  LayoutTemplate, ChevronDown, Check, ArrowLeftCircle, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface DonorData {
+  city: string;
+  date: string;
+  docNo: string;
+  
+  // Instansi
+  institutionName: string;
+  institutionAddress: string;
+  
+  // Data Donor
+  donorName: string;
+  donorNik: string;
+  bloodType: string;
+  
+  // Detail Kegiatan
+  donorType: string;
+  donorTime: string;
+  location: string;
+  
+  // Pernyataan
+  statement: string;
+
+  // Petugas
+  officerName: string;
+  officerId: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: DonorData = {
+  city: 'DENPASAR',
+  date: '', // Diisi useEffect
+  docNo: 'DONOR/PMI-DPS/2026/01/442',
+  
+  institutionName: 'PALANG MERAH INDONESIA (PMI) KOTA DENPASAR',
+  institutionAddress: 'Jl. Imam Bonjol No. 182, Denpasar, Bali',
+  
+  donorName: 'BAGUS RAMADHAN',
+  donorNik: '5171010101990001',
+  bloodType: 'O (Positif)',
+  
+  donorType: 'Donor Darah Sukarela',
+  donorTime: '09:00 WITA',
+  location: 'Unit Transfusi Darah (UTD) PMI Denpasar',
+  
+  statement: 'Telah mendonorkan darahnya secara sukarela untuk kepentingan kemanusiaan. Yang bersangkutan disarankan untuk beristirahat dari aktivitas fisik berat selama 24 jam ke depan.',
+
+  officerName: 'dr. I MADE WIRA',
+  officerId: 'NIP. 19850101 201001 1 004'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function DonorPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat Donor...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat Donor...</div>}>
       <DonorBuilder />
     </Suspense>
   );
@@ -22,46 +87,50 @@ function DonorBuilder() {
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [data, setData] = useState<DonorData>(INITIAL_DATA);
 
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Denpasar',
-    date: new Date().toISOString().split('T')[0],
-    docNo: 'DONOR/PMI-DPS/2026/01/442',
-    
-    // INSTANSI (PMI / RS)
-    institutionName: 'PALANG MERAH INDONESIA (PMI) KOTA DENPASAR',
-    institutionAddress: 'Jl. Imam Bonjol No. 182, Denpasar, Bali',
-    
-    // DATA DONOR
-    donorName: 'BAGUS RAMADHAN',
-    donorNik: '5171010101990001',
-    bloodType: 'O (Positif)',
-    
-    // DETAIL KEGIATAN
-    donorType: 'Donor Darah Sukarela', // atau 'Donor Organ Pasca-Mangkat'
-    donorTime: '09:00 WITA',
-    location: 'Unit Transfusi Darah (UTD) PMI Denpasar',
-    
-    // PERNYATAAN / KETERANGAN
-    statement: 'Telah mendonorkan darahnya secara sukarela untuk kepentingan kemanusiaan. Yang bersangkutan disarankan untuk beristirahat dari aktivitas fisik berat selama 24 jam ke depan.',
+  // Set Tanggal Hari Ini saat Mount
+  useEffect(() => {
+    setData(prev => ({ 
+        ...prev, 
+        date: new Date().toISOString().split('T')[0] 
+    }));
+  }, []);
 
-    // PETUGAS / DOKTER
-    officerName: 'dr. I MADE WIRA',
-    officerId: 'NIP. 19850101 201001 1 004'
-  });
+  // --- HANDLERS ---
+  const handleDataChange = (field: keyof DonorData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  // HANDLERS
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
+    }
+  };
 
-  const TEMPLATES = [
-    { id: 1, name: "Format PMI (Resmi)", desc: "Standar Unit Transfusi Darah" },
-    { id: 2, name: "Format RS (Medis)", desc: "Laporan medis rumah sakit" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format PMI (Resmi)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format RS (Medis)
+        </button>
+    </div>
+  );
 
-  // --- KOMPONEN ISI SURAT ---
+  // --- KONTEN SURAT ---
   const ContentInside = () => {
+    const formatDate = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+        } catch { return dateString; }
+    };
+
     if (templateId === 1) {
       // --- TEMPLATE 1: PMI STANDARD ---
       return (
@@ -89,7 +158,7 @@ function DonorBuilder() {
            </div>
 
            {/* BODY */}
-           <div className="space-y-6 flex-grow">
+           <div className="space-y-6 flex-grow text-justify px-1">
               <p>Pihak <b>{data.institutionName}</b> menerangkan dengan sebenarnya bahwa:</p>
               
               <div className="ml-8 space-y-1.5 font-sans text-[10.5pt] border-l-4 border-red-100 pl-6 italic">
@@ -117,7 +186,7 @@ function DonorBuilder() {
                  <p className="text-[7pt] text-slate-300 font-sans uppercase">Stempel<br/>Resmi Instansi</p>
               </div>
               <div className="text-center w-72">
-                 <p className="text-[10pt] mb-1">{data.city}, {new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+                 <p className="text-[10pt] mb-1">{data.city}, {formatDate(data.date)}</p>
                  <p className="uppercase text-[8pt] font-black text-slate-400 tracking-widest mb-20 uppercase">Petugas Unit Transfusi,</p>
                  <p className="font-bold underline uppercase text-[11pt] tracking-tight">{data.officerName}</p>
                  <p className="text-[8pt] font-sans mt-1">{data.officerId}</p>
@@ -141,7 +210,7 @@ function DonorBuilder() {
               </div>
               <div className="text-right text-[9pt]">
                  <p className="font-mono">{data.docNo}</p>
-                 <p>{data.date}</p>
+                 <p>{formatDate(data.date)}</p>
               </div>
            </div>
 
@@ -192,20 +261,18 @@ function DonorBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* --- JURUS TABLE WRAPPER (Print Fix) --- */}
+      {/* CSS PRINT FIXED */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; }
-          .no-print { display: none !important; }
-          body { background: white; margin: 0; padding: 0; display: block !important; }
-          #print-only-root { display: block !important; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 9999; background: white; }
-          
-          .print-table { width: 100%; border-collapse: collapse; }
-          .print-table thead { height: 20mm; } 
-          .print-table tfoot { height: 20mm; } 
-          .print-content-wrapper { padding: 0 20mm; }
-          
-          tr, .keep-together { page-break-inside: avoid !important; }
+            @page { size: A4 portrait; margin: 0; }
+            .no-print { display: none !important; }
+            body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
+            .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+            .print-table thead { height: 15mm; display: table-header-group; } 
+            .print-table tfoot { height: 15mm; display: table-footer-group; } 
+            .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
+            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
         }
       `}</style>
 
@@ -221,72 +288,79 @@ function DonorBuilder() {
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Surat Donor <span className="text-emerald-400">Builder</span></h1></div>
             </div>
             <div className="flex items-center gap-3">
+               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Format PMI' : 'Format RS'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
-                  {showTemplateMenu && (
-                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
-                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> Format PMI</button>
-                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Format RS</button>
-                     </div>
-                  )}
+                  {showTemplateMenu && <TemplateMenu />}
                </div>
-               <div className="relative md:hidden"><button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">Tampilan <ChevronDown size={14}/></button></div>
+
+               {/* MOBILE MENU TRIGGER */}
+               <div className="relative md:hidden">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
+                    Template <ChevronDown size={14}/>
+                  </button>
+                  {showTemplateMenu && <TemplateMenu />}
+               </div>
+
                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         {/* EDITOR */}
+         {/* EDITOR SIDEBAR */}
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Surat</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
-               {/* INSTANSI */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
+               {/* 1. INSTANSI */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Unit Transfusi / RS</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Unit/RS</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase" value={data.institutionName} onChange={e => handleDataChange('institutionName', e.target.value)} /></div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat Lengkap</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none" value={data.institutionAddress} onChange={e => handleDataChange('institutionAddress', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Unit/RS</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase" value={data.institutionName} onChange={e => handleDataChange('institutionName', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat Lengkap</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none" value={data.institutionAddress} onChange={e => handleDataChange('institutionAddress', e.target.value)} /></div>
                   </div>
                </div>
 
-               {/* DONOR */}
+               {/* 2. DONOR */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><UserCircle2 size={12}/> Data Pendonor</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase" value={data.donorName} onChange={e => handleDataChange('donorName', e.target.value)} /></div>
-                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.donorNik} onChange={e => handleDataChange('donorNik', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Golongan Darah</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-black text-red-600" value={data.bloodType} onChange={e => handleDataChange('bloodType', e.target.value)} /></div>
-                     </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase" value={data.donorName} onChange={e => handleDataChange('donorName', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.donorNik} onChange={e => handleDataChange('donorNik', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Golongan Darah</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-black text-red-600" value={data.bloodType} onChange={e => handleDataChange('bloodType', e.target.value)} /></div>
+                      </div>
                   </div>
                </div>
 
-               {/* KEGIATAN */}
+               {/* 3. KEGIATAN */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Heart size={12}/> Detail Donor</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jenis Donor</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.donorType} onChange={e => handleDataChange('donorType', e.target.value)} /></div>
-                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Waktu</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.donorTime} onChange={e => handleDataChange('donorTime', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
-                     </div>
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Lokasi</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.location} onChange={e => handleDataChange('location', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jenis Donor</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.donorType} onChange={e => handleDataChange('donorType', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Waktu</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.donorTime} onChange={e => handleDataChange('donorTime', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
+                      </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Lokasi</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.location} onChange={e => handleDataChange('location', e.target.value)} /></div>
                   </div>
                </div>
 
-               {/* KETERANGAN */}
+               {/* 4. KETERANGAN */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><ClipboardCheck size={12}/> Keterangan & Petugas</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Catatan Medis</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-20 resize-none" value={data.statement} onChange={e => handleDataChange('statement', e.target.value)} /></div>
-                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Petugas</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold" value={data.officerName} onChange={e => handleDataChange('officerName', e.target.value)} /></div>
-                        <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP/ID</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.officerId} onChange={e => handleDataChange('officerId', e.target.value)} /></div>
-                     </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Catatan Medis</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-20 resize-none" value={data.statement} onChange={e => handleDataChange('statement', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Petugas</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold" value={data.officerName} onChange={e => handleDataChange('officerName', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP/ID</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.officerId} onChange={e => handleDataChange('officerId', e.target.value)} /></div>
+                      </div>
                   </div>
                </div>
                <div className="h-20 md:hidden"></div>
@@ -311,7 +385,7 @@ function DonorBuilder() {
          <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* --- PRINT PORTAL (FIX: TABLE WRAPPER) --- */}
+      {/* --- PRINT PORTAL --- */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
             <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
