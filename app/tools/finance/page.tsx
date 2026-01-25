@@ -1,16 +1,81 @@
 'use client';
 
+/**
+ * FILE: FinancePage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Invoice, Nota, & Kuitansi (3-in-1 Tool)
+ * FEATURES:
+ * - Triple Document Type (Invoice A4, Nota A6, Kuitansi 1/3 A4)
+ * - Auto Terbilang (Number to Words)
+ * - Dynamic Paper Size for Print
+ * - Mobile Menu Fixed
+ */
+
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { 
   Printer, ArrowLeft, Upload, LayoutTemplate, Plus, Trash2,
-  User, CreditCard, ChevronDown, Check, Edit3, Eye
+  User, CreditCard, ChevronDown, Check, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
 
+// --- 1. HELPER: TERBILANG (Angka ke Kata) ---
+const terbilang = (angka: number): string => {
+  const bil = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+  if (angka < 12) return " " + bil[angka];
+  if (angka < 20) return terbilang(angka - 10) + " Belas";
+  if (angka < 100) return terbilang(Math.floor(angka / 10)) + " Puluh" + terbilang(angka % 10);
+  if (angka < 200) return " Seratus" + terbilang(angka - 100);
+  if (angka < 1000) return terbilang(Math.floor(angka / 100)) + " Ratus" + terbilang(angka % 100);
+  if (angka < 1000000) return terbilang(Math.floor(angka / 1000)) + " Ribu" + terbilang(angka % 1000);
+  if (angka < 1000000000) return terbilang(Math.floor(angka / 1000000)) + " Juta" + terbilang(angka % 1000000);
+  return "";
+};
+
+// --- 2. TYPE DEFINITIONS ---
+interface Item {
+  id: number;
+  name: string;
+  qty: number;
+  price: number;
+}
+
+interface FinanceData {
+  no: string;
+  date: string;
+  senderName: string;
+  senderInfo: string;
+  receiverName: string;
+  receiverInfo: string;
+  items: Item[];
+  notes: string;
+  city: string;
+  signer: string;
+  footerNote: string;
+}
+
+// --- 3. DATA DEFAULT ---
+const INITIAL_DATA: FinanceData = {
+  no: 'INV/2026/001',
+  date: '', // Diisi useEffect
+  senderName: 'BORCELLE FOOD',
+  senderInfo: 'Jl. Raya Merdeka No. 45, Jakarta Selatan\nWhatsApp: 0812-3456-7890',
+  receiverName: 'PT. Teknologi Maju',
+  receiverInfo: 'Gedung Menara 1, Lt. 5\nJl. Sudirman, Jakarta',
+  items: [
+    { id: 1, name: 'Jasa Katering (Paket Premium)', qty: 50, price: 50000 },
+    { id: 2, name: 'Biaya Layanan & Pengiriman', qty: 1, price: 150000 },
+  ],
+  notes: 'Mohon transfer ke BCA 123-456-789 a.n Borcelle Food.',
+  city: 'JAKARTA',
+  signer: 'Manager Keuangan',
+  footerNote: 'Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.'
+};
+
+// --- 4. KOMPONEN UTAMA ---
 export default function FinancePage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Studio Dokumen...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Studio Dokumen...</div>}>
       <FinanceToolBuilder />
     </Suspense>
   );
@@ -29,24 +94,7 @@ function FinanceToolBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    no: 'INV/2026/001',
-    date: '',
-    senderName: 'BORCELLE FOOD',
-    senderInfo: 'Jl. Raya Merdeka No. 45, Jakarta Selatan\nWhatsApp: 0812-3456-7890',
-    receiverName: 'PT. Teknologi Maju',
-    receiverInfo: 'Gedung Menara 1, Lt. 5\nJl. Sudirman, Jakarta',
-    items: [
-      { id: 1, name: 'Jasa Katering (Paket Premium)', qty: 50, price: 50000 },
-      { id: 2, name: 'Biaya Layanan & Pengiriman', qty: 1, price: 150000 },
-    ],
-    notes: 'Mohon transfer ke BCA 123-456-789 a.n Borcelle Food.',
-    city: 'Jakarta',
-    signer: 'Manager Keuangan',
-    footerNote: 'Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.'
-  });
+  const [data, setData] = useState<FinanceData>(INITIAL_DATA);
 
   // INITIALIZATION
   useEffect(() => {
@@ -63,18 +111,6 @@ function FinanceToolBuilder() {
 
   const subtotal = data.items.reduce((acc, item) => acc + (item.qty * item.price), 0);
   const total = subtotal; 
-
-  const terbilang = (angka: number): string => {
-    const bil = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
-    if (angka < 12) return " " + bil[angka];
-    if (angka < 20) return terbilang(angka - 10) + " Belas";
-    if (angka < 100) return terbilang(Math.floor(angka / 10)) + " Puluh" + terbilang(angka % 10);
-    if (angka < 200) return " Seratus" + terbilang(angka - 100);
-    if (angka < 1000) return terbilang(Math.floor(angka / 100)) + " Ratus" + terbilang(angka % 100);
-    if (angka < 1000000) return terbilang(Math.floor(angka / 1000)) + " Ribu" + terbilang(angka % 1000);
-    if (angka < 1000000000) return terbilang(Math.floor(angka / 1000000)) + " Juta" + terbilang(angka % 1000000);
-    return "";
-  };
   const terbilangText = total > 0 ? `${terbilang(total)} Rupiah` : 'Nol Rupiah';
 
   // HANDLERS
@@ -82,17 +118,27 @@ function FinanceToolBuilder() {
     const file = e.target.files?.[0];
     if (file) setLogo(URL.createObjectURL(file));
   };
-  const handleItemChange = (idx: number, field: string, val: any) => {
+  
+  const handleItemChange = (idx: number, field: keyof Item, val: any) => {
     const newItems = [...data.items];
     // @ts-ignore
     newItems[idx][field] = val;
     setData({ ...data, items: newItems });
   };
+  
   const addItem = () => setData({ ...data, items: [...data.items, { id: Date.now(), name: '', qty: 1, price: 0 }] });
+  
   const removeItem = (idx: number) => {
     const newItems = [...data.items];
     newItems.splice(idx, 1);
     setData({ ...data, items: newItems });
+  };
+
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
+        setLogo(null);
+    }
   };
 
   const TEMPLATES = {
@@ -100,19 +146,20 @@ function FinanceToolBuilder() {
     nota: [ { id: 1, name: "Nota Toko (Ritel)", desc: "Grid garis klasik penuh" }, { id: 2, name: "Nota Jasa (Service)", desc: "Tampilan ringkas tanpa grid" } ],
     kuitansi: [ { id: 1, name: "Kuitansi Modern", desc: "Format vertikal elegan" }, { id: 2, name: "Kuitansi Dinas", desc: "Format buku cek klasik" } ]
   };
+
   // @ts-ignore
   const currentTemplates = TEMPLATES[activeDocType] || TEMPLATES['invoice'];
   const activeTemplateName = currentTemplates.find((t: any) => t.id === templateId)?.name;
 
   // --- UKURAN KERTAS & LOGIKA CSS ---
   const getPaperDimensions = () => {
-    if (activeDocType === 'nota') return { w: '105mm', h: '148mm' };
-    if (activeDocType === 'kuitansi') return { w: '210mm', h: '99mm' };
+    if (activeDocType === 'nota') return { w: '105mm', h: '148mm' }; // A6
+    if (activeDocType === 'kuitansi') return { w: '210mm', h: '99mm' }; // 1/3 A4
     return { w: '210mm', h: '297mm' }; // A4
   };
   const dims = getPaperDimensions();
 
-  // --- ISI DOKUMEN (KOMPONEN TERPISAH AGAR BISA DI-RENDER ULANG DI PRINT PORTAL) ---
+  // --- ISI DOKUMEN (KOMPONEN TERPISAH) ---
   const DocumentContent = () => (
     <div className="bg-white shadow-2xl mx-auto overflow-hidden relative border border-slate-200" style={{ width: dims.w, minHeight: dims.h }}>
       
@@ -428,20 +475,20 @@ function FinanceToolBuilder() {
       {/* CSS PRINT (TABLE WRAPPER PATTERN FROM DONOR FILE) */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; }
-          .no-print, header, nav, aside, .sidebar-input { display: none !important; }
-          body { background: white; margin: 0; padding: 0; display: block !important; }
-          
-          /* FORCE DISPLAY BLOCK FOR PRINT PORTAL */
-          #print-only-root { display: block !important; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 9999; background: white; }
-          
-          .print-table { width: 100%; border-collapse: collapse; }
-          .print-table thead { height: 10mm; } 
-          .print-table tfoot { height: 10mm; } 
-          .print-content-wrapper { padding: 0 15mm; }
-          
-          tr, .keep-together { page-break-inside: avoid !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            @page { size: A4; margin: 0; }
+            .no-print, header, nav, aside, .sidebar-input { display: none !important; }
+            body { background: white; margin: 0; padding: 0; display: block !important; }
+            
+            /* FORCE DISPLAY BLOCK FOR PRINT PORTAL */
+            #print-only-root { display: block !important; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 9999; background: white; }
+            
+            .print-table { width: 100%; border-collapse: collapse; }
+            .print-table thead { height: 10mm; } 
+            .print-table tfoot { height: 10mm; } 
+            .print-content-wrapper { padding: 0 15mm; }
+            
+            tr, .keep-together { page-break-inside: avoid !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
       `}</style>
 
@@ -539,7 +586,7 @@ function FinanceToolBuilder() {
                 </div>
                 <div className="space-y-2">
                   {data.items.map((item, idx) => (
-                     <div key={item.id} className="bg-slate-50 p-2 rounded border border-slate-200 relative">
+                      <div key={item.id} className="bg-slate-50 p-2 rounded border border-slate-200 relative">
                         <div className="mb-2">
                            <input type="text" className="w-full bg-transparent border-b border-slate-300 text-xs font-medium focus:border-blue-500 outline-none pb-1" placeholder="Nama Item..." value={item.name} onChange={e => handleItemChange(idx, 'name', e.target.value)} />
                         </div>
@@ -552,7 +599,7 @@ function FinanceToolBuilder() {
                            </div>
                         </div>
                         <button onClick={() => removeItem(idx)} className="absolute top-2 right-2 text-slate-400 hover:text-red-500"><Trash2 size={12} /></button>
-                     </div>
+                      </div>
                   ))}
                 </div>
                 <div className="bg-slate-100 px-3 py-2 rounded flex justify-between items-center text-xs font-bold">
@@ -586,7 +633,7 @@ function FinanceToolBuilder() {
         {/* --- RIGHT PREVIEW (MENIRU DONOR PAGE TAPI DENGAN ORIGIN-TOP-LEFT KHUSUS MOBILE) --- */}
         <div className="no-print flex-1 h-full bg-slate-200/50 rounded-xl flex justify-center p-4 md:p-8 overflow-y-auto overflow-x-hidden relative">
           <div className="origin-top-left md:origin-top transition-transform duration-300 transform scale-[0.4] sm:scale-[0.55] md:scale-100 mb-[-120%] sm:mb-[-130mm] md:mb-10 mt-2 md:mt-0">
-             <DocumentContent />
+              <DocumentContent />
           </div>
         </div>
 
