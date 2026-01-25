@@ -2,12 +2,11 @@
 
 /**
  * FILE: JualBeliKendaraanPage.tsx
- * STATUS: FIXED PRINT MARGIN & PREVIEW OVERFLOW
+ * STATUS: FINAL FIX (TABLE WRAPPER TECHNIQUE)
  * DESC: Generator Surat Jual Beli Kendaraan
  * FIXES: 
- * - Menggunakan @page margin untuk handling halaman 2 (agar tidak mepet atas).
- * - Perbaikan scaling preview agar tidak meluber.
- * - Compacting layout agar lebih rapi.
+ * - @page margin 0 -> Menghilangkan tulisan URL/Header browser.
+ * - Table Structure -> Membuat margin atas (spacer) berulang otomatis di halaman 2, 3, dst.
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -22,70 +21,23 @@ interface SaleData {
   day: string;
   date: string;
   city: string;
-  
-  // Penjual
-  p1Name: string;
-  p1Nik: string;
-  p1Job: string;
-  p1Address: string;
-
-  // Pembeli
-  p2Name: string;
-  p2Nik: string;
-  p2Job: string;
-  p2Address: string;
-
-  // Kendaraan
-  brand: string;
-  type: string;
-  year: string;
-  color: string;
-  nopol: string;
-  frameNo: string;
-  engineNo: string;
-  bpkbNo: string;
-  
-  // Transaksi
-  price: number;
-  priceText: string;
-  paymentMethod: string;
-  
-  // Saksi
-  witness1: string;
-  witness2: string;
+  p1Name: string; p1Nik: string; p1Job: string; p1Address: string;
+  p2Name: string; p2Nik: string; p2Job: string; p2Address: string;
+  brand: string; type: string; year: string; color: string; nopol: string;
+  frameNo: string; engineNo: string; bpkbNo: string;
+  price: number; priceText: string; paymentMethod: string;
+  witness1: string; witness2: string;
 }
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: SaleData = {
-  day: 'Senin',
-  date: '', 
-  city: 'JAKARTA SELATAN',
-  
-  p1Name: 'AGUS SETIAWAN',
-  p1Nik: '3174010101850001',
-  p1Job: 'Karyawan Swasta',
-  p1Address: 'Jl. Fatmawati No. 10, Cilandak, Jakarta Selatan',
-  
-  p2Name: 'DONI PRATAMA',
-  p2Nik: '3674010101900002',
-  p2Job: 'Wiraswasta',
-  p2Address: 'Jl. Bintaro Utama Sektor 5, Tangerang Selatan',
-  
-  brand: 'Toyota',
-  type: 'Avanza Veloz 1.5 AT',
-  year: '2019',
-  color: 'Putih Metalik',
-  nopol: 'B 1234 XXX',
-  frameNo: 'MHF1234567890',
-  engineNo: '1NR-FE-123456',
-  bpkbNo: 'N-12345678',
-  
-  price: 185000000,
-  priceText: 'Seratus Delapan Puluh Lima Juta Rupiah',
-  paymentMethod: 'Transfer BCA a.n Agus Setiawan',
-  
-  witness1: 'Iwan (Teman Penjual)',
-  witness2: 'Santi (Istri Pembeli)'
+  day: 'Senin', date: '', city: 'JAKARTA SELATAN',
+  p1Name: 'AGUS SETIAWAN', p1Nik: '3174010101850001', p1Job: 'Karyawan Swasta', p1Address: 'Jl. Fatmawati No. 10, Cilandak, Jakarta Selatan',
+  p2Name: 'DONI PRATAMA', p2Nik: '3674010101900002', p2Job: 'Wiraswasta', p2Address: 'Jl. Bintaro Utama Sektor 5, Tangerang Selatan',
+  brand: 'Toyota', type: 'Avanza Veloz 1.5 AT', year: '2019', color: 'Putih Metalik', nopol: 'B 1234 XXX',
+  frameNo: 'MHF1234567890', engineNo: '1NR-FE-123456', bpkbNo: 'N-12345678',
+  price: 185000000, priceText: 'Seratus Delapan Puluh Lima Juta Rupiah', paymentMethod: 'Transfer BCA a.n Agus Setiawan',
+  witness1: 'Iwan (Teman Penjual)', witness2: 'Santi (Istri Pembeli)'
 };
 
 export default function JualBeliKendaraanPage() {
@@ -97,7 +49,6 @@ export default function JualBeliKendaraanPage() {
 }
 
 function VehicleSaleBuilder() {
-  // --- STATE ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -110,13 +61,8 @@ function VehicleSaleBuilder() {
     setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  const formatRupiah = (num: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
-  };
-
-  const handleDataChange = (field: keyof SaleData, val: any) => {
-    setData(prev => ({ ...prev, [field]: val }));
-  };
+  const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+  const handleDataChange = (field: keyof SaleData, val: any) => setData(prev => ({ ...prev, [field]: val }));
   
   const handleReset = () => {
     if(confirm('Reset formulir ke awal?')) {
@@ -127,61 +73,40 @@ function VehicleSaleBuilder() {
 
   const applyPreset = (type: 'motor' | 'mobil') => {
     if (type === 'motor') {
-      setData(prev => ({
-        ...prev,
-        brand: 'Honda',
-        type: 'Vario 150 CBS ISS',
-        year: '2021',
-        color: 'Hitam Doff',
-        nopol: 'B 4567 TZY',
-        price: 18500000,
-        priceText: 'Delapan Belas Juta Lima Ratus Ribu Rupiah'
-      }));
+      setData(prev => ({ ...prev, brand: 'Honda', type: 'Vario 150 CBS ISS', year: '2021', color: 'Hitam Doff', nopol: 'B 4567 TZY', price: 18500000, priceText: 'Delapan Belas Juta Lima Ratus Ribu Rupiah' }));
     } else if (type === 'mobil') {
-      setData(prev => ({
-        ...prev,
-        brand: 'Honda',
-        type: 'Brio Satya E CVT',
-        year: '2020',
-        color: 'Kuning (Carnival Yellow)',
-        nopol: 'D 1888 AA',
-        price: 145000000,
-        priceText: 'Seratus Empat Puluh Lima Juta Rupiah'
-      }));
+      setData(prev => ({ ...prev, brand: 'Honda', type: 'Brio Satya E CVT', year: '2020', color: 'Kuning (Carnival Yellow)', nopol: 'D 1888 AA', price: 145000000, priceText: 'Seratus Empat Puluh Lima Juta Rupiah' }));
     }
   }
 
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Legal Formal (1 Halaman)
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> Legal Formal (1 Halaman)
         </button>
         <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Kwitansi Besar
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> Kwitansi Besar
         </button>
     </div>
   );
   
   const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Kwitansi Besar';
 
-  // --- KOMPONEN ISI SURAT ---
+  // --- CONTENT ---
   const DocumentContent = () => (
-    // WRAPPER UTAMA: Padding diatur oleh @page saat print, tapi ada padding visual saat preview
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-tight text-[10pt] w-full max-w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:w-full print:h-auto print:min-h-0 print:p-0 p-[20mm]">
+    <div className="font-serif text-slate-900 leading-tight text-[10pt] text-justify">
         
         {/* TEMPLATE 1: LEGAL FORMAL */}
         {templateId === 1 && (
-            <>
+            <div className="flex flex-col h-full">
                 <div className="text-center mb-6 border-b-2 border-black pb-2 shrink-0">
                    <h1 className="font-black text-lg uppercase underline tracking-wide text-black">SURAT PERJANJIAN JUAL BELI KENDARAAN</h1>
                 </div>
 
                 <div className="flex-grow">
-                    <p className="mb-4 text-justify text-black leading-relaxed">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
+                    <p className="mb-4 text-black leading-relaxed">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
 
-                    <div className="ml-2 mb-4">
+                    <div className="ml-2 mb-4 break-inside-avoid">
                        <div className="font-bold underline text-xs uppercase mb-1 text-black">I. PIHAK PERTAMA (PENJUAL)</div>
                        <table className="w-full leading-snug">
                           <tbody>
@@ -193,7 +118,7 @@ function VehicleSaleBuilder() {
                        </table>
                     </div>
 
-                    <div className="ml-2 mb-6">
+                    <div className="ml-2 mb-6 break-inside-avoid">
                        <div className="font-bold underline text-xs uppercase mb-1 text-black">II. PIHAK KEDUA (PEMBELI)</div>
                        <table className="w-full leading-snug">
                           <tbody>
@@ -205,7 +130,7 @@ function VehicleSaleBuilder() {
                        </table>
                     </div>
 
-                    <p className="mb-4 text-black text-justify">Kedua belah pihak sepakat melakukan transaksi jual beli kendaraan dengan spesifikasi sebagai berikut:</p>
+                    <p className="mb-4 text-black">Kedua belah pihak sepakat melakukan transaksi jual beli kendaraan dengan spesifikasi sebagai berikut:</p>
 
                     <div className="mb-6 border border-black p-3 bg-slate-50 print:bg-transparent break-inside-avoid">
                        <table className="w-full leading-snug">
@@ -217,7 +142,7 @@ function VehicleSaleBuilder() {
                        </table>
                     </div>
 
-                    <div className="space-y-4 text-justify">
+                    <div className="space-y-4">
                        <div className="break-inside-avoid">
                           <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 1: HARGA & PEMBAYARAN</div>
                           <p className="text-black leading-relaxed">Disepakati harga kendaraan tersebut sebesar <strong>{formatRupiah(data.price)}</strong> (<em>{data.priceText}</em>) yang dibayarkan tunai/transfer oleh Pihak Kedua kepada Pihak Pertama secara <strong>{data.paymentMethod}</strong>.</p>
@@ -232,7 +157,7 @@ function VehicleSaleBuilder() {
                        </div>
                     </div>
 
-                    <p className="mt-6 text-justify text-[10pt] italic text-black">Demikian surat perjanjian ini dibuat rangkap dua bermaterai cukup dan memiliki kekuatan hukum yang sama.</p>
+                    <p className="mt-6 text-[10pt] italic text-black text-center">Demikian surat perjanjian ini dibuat rangkap dua bermaterai cukup dan memiliki kekuatan hukum yang sama.</p>
                 </div>
 
                 <div className="shrink-0 mt-12 break-inside-avoid">
@@ -262,7 +187,7 @@ function VehicleSaleBuilder() {
                        </div>
                     </div>
                 </div>
-            </>
+            </div>
         )}
 
         {/* TEMPLATE 2: KWITANSI BESAR */}
@@ -327,31 +252,23 @@ function VehicleSaleBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 print:bg-white print:m-0">
       
-      {/* CRITICAL FIX FOR PRINTING:
-        1. @page margin: 20mm -> Memberi margin fisik ke kertas printer (atas, bawah, kiri, kanan).
-        2. #print-only-root -> Memaksa konten tampil absolut di pojok kiri atas.
-        3. padding: 0 -> Menghilangkan padding div internal saat print agar tidak double margin.
-      */}
+      {/* GLOBAL CSS PRINT (TABLE WRAPPER TECHNIQUE) */}
       <style jsx global>{`
         @media print {
-          @page { size: A4 portrait; margin: 20mm; } 
+          @page { size: A4 portrait; margin: 0mm; } /* HILANGKAN MARGIN BROWSER & URL */
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
           
+          /* KUNCI: TABLE HEADER/FOOTER SPACER */
+          .print-table { width: 100%; border-collapse: collapse; }
+          .print-header-space { height: 20mm; } /* Jarak Atas Halaman 1, 2, dst */
+          .print-footer-space { height: 20mm; } /* Jarak Bawah Halaman 1, 2, dst */
+          .print-content-wrapper { padding: 0 20mm; } /* Padding Kiri Kanan */
+          
           #print-only-root { 
             display: block !important; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: auto;
-            z-index: 9999; 
-            background: white;
-            padding: 0 !important; /* Hapus padding internal div */
+            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
           }
-          
-          /* Mencegah pemotongan elemen di tengah */
-          .break-inside-avoid { page-break-inside: avoid; }
         }
       `}</style>
 
@@ -487,13 +404,15 @@ function VehicleSaleBuilder() {
            </div>
         </div>
 
-        {/* PREVIEW AREA (RESPONSIVE TOGGLE) */}
-        {/* FIX: Auto scaling wrapper untuk preview agar tidak meluber */}
+        {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.50] sm:scale-[0.6] md:scale-[0.8] lg:scale-[0.85] xl:scale-100 mb-[-150mm] md:mb-[-50mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }}>
-                    <DocumentContent />
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+                   {/* PREVIEW ONLY WRAPPER (Visual Padding) */}
+                   <div className="p-[20mm]">
+                      <DocumentContent />
+                   </div>
                  </div>
                </div>
             </div>
@@ -507,11 +426,20 @@ function VehicleSaleBuilder() {
       </div>
 
       {/* PRINT AREA (HIDDEN) */}
-      {/* FIX: Container Absolut untuk memastikan print rapi */}
       <div id="print-only-root" className="hidden">
-         <div style={{ width: '100%', height: 'auto' }}>
-            <DocumentContent />
-         </div>
+         <table className="print-table">
+            <thead><tr><td><div className="print-header-space"></div></td></tr></thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div className="print-content-wrapper">
+                            <DocumentContent />
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot><tr><td><div className="print-footer-space"></div></td></tr></tfoot>
+         </table>
       </div>
 
     </div>
