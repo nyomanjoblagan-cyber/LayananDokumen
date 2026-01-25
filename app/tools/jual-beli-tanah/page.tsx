@@ -1,13 +1,74 @@
 'use client';
 
+/**
+ * FILE: JualBeliTanahPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Perjanjian Jual Beli Tanah
+ * FEATURES:
+ * - Dual Template (Formal 2 Pages vs Compact 1 Page)
+ * - Auto Date Logic
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, Map, 
-  BadgeDollarSign, Users, GripHorizontal, CreditCard, CalendarDays, FileText, Edit3, Eye
+  BadgeDollarSign, Users, GripHorizontal, CreditCard, CalendarDays, FileText, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface LandSaleData {
+  day: string;
+  date: string;
+  city: string;
+  
+  // Pihak 1 (Penjual)
+  p1Name: string; p1Age: string; p1Job: string; p1Address: string; p1Nik: string; 
+  p1Spouse: string; 
+
+  // Pihak 2 (Pembeli)
+  p2Name: string; p2Age: string; p2Job: string; p2Address: string; p2Nik: string;
+  
+  // Detail Tanah
+  landCertType: string; landCertNo: string; landArea: string; landAddress: string;
+  bNorth: string; bSouth: string; bEast: string; bWest: string;
+  
+  // Transaksi
+  price: number; priceText: string; dp: number; paymentMethod: string;
+  
+  // Saksi & Tambahan
+  witness1: string; 
+  witness2: string;
+  additionalClause: string; 
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: LandSaleData = {
+  day: 'Senin',
+  date: '', // Diisi useEffect
+  city: 'SLEMAN',
+  
+  p1Name: 'BAMBANG SUDARSO', p1Age: '52', p1Job: 'Pensiunan PNS', p1Address: 'Jl. Kaliurang KM 10, Sleman, Yogyakarta', p1Nik: '3404010101740001', 
+  p1Spouse: 'Siti Aminah', 
+  
+  p2Name: 'ANDI PRATAMA', p2Age: '30', p2Job: 'Wiraswasta', p2Address: 'Jl. Gejayan No. 15, Depok, Sleman', p2Nik: '3471010101960002',
+  
+  landCertType: 'SHM', landCertNo: '01234/Sardonoharjo', landArea: '500', landAddress: 'Desa Sardonoharjo, Kec. Ngaglik, Kab. Sleman',
+  bNorth: 'Tanah Bapak Joko', bSouth: 'Jalan Desa (Aspal)', bEast: 'Selokan Mataram', bWest: 'Rumah Ibu Ani',
+  
+  price: 1500000000, priceText: 'Satu Milyar Lima Ratus Juta Rupiah', dp: 500000000, paymentMethod: 'Transfer Bank BCA',
+  
+  witness1: 'Ketua RT 05 (Pak Rahmat)', 
+  witness2: 'Adik Kandung Penjual',
+  additionalClause: '' 
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function JualBeliTanahPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Legal Editor...</div>}>
@@ -22,22 +83,7 @@ function LandSaleBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    day: 'Senin',
-    date: '',
-    city: 'Sleman',
-    p1Name: 'BAMBANG SUDARSO', p1Age: '52', p1Job: 'Pensiunan PNS', p1Address: 'Jl. Kaliurang KM 10, Sleman, Yogyakarta', p1Nik: '3404010101740001', 
-    p1Spouse: 'Siti Aminah', 
-    p2Name: 'ANDI PRATAMA', p2Age: '30', p2Job: 'Wiraswasta', p2Address: 'Jl. Gejayan No. 15, Depok, Sleman', p2Nik: '3471010101960002',
-    landCertType: 'SHM', landCertNo: '01234/Sardonoharjo', landArea: '500', landAddress: 'Desa Sardonoharjo, Kec. Ngaglik, Kab. Sleman',
-    bNorth: 'Tanah Bapak Joko', bSouth: 'Jalan Desa (Aspal)', bEast: 'Selokan Mataram', bWest: 'Rumah Ibu Ani',
-    price: 1500000000, priceText: 'Satu Milyar Lima Ratus Juta Rupiah', dp: 500000000, paymentMethod: 'Transfer Bank BCA',
-    witness1: 'Ketua RT 05 (Pak Rahmat)', 
-    witness2: 'Adik Kandung Penjual',
-    additionalClause: '' 
-  });
+  const [data, setData] = useState<LandSaleData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
@@ -46,19 +92,39 @@ function LandSaleBuilder() {
   }, []);
 
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  
+  const handleDataChange = (field: keyof LandSaleData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  const TEMPLATES = [
-    { id: 1, name: "Legal Formal (2 Halaman)", desc: "Pasal lengkap, layout lega" },
-    { id: 2, name: "Compact Rapi (1 Halaman)", desc: "Layout tabel presisi" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date().toISOString().split('T')[0];
+        setData({ ...INITIAL_DATA, date: today });
+    }
+  };
+
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Legal Formal (2 Halaman)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Compact Rapi (1 Halaman)
+        </button>
+    </div>
+  );
+
+  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
 
   // --- KOMPONEN KERTAS ---
   const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
     <div className={`
       bg-white shadow-2xl print:shadow-none mx-auto
-      p-[20mm] 
+      p-[20mm] print:p-[20mm] 
       text-slate-900 font-serif leading-relaxed text-[11pt]
       relative box-border mb-8 print:mb-0 print:m-0
       w-[210mm] min-h-[296mm] h-auto
@@ -262,7 +328,7 @@ function LandSaleBuilder() {
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
@@ -271,8 +337,7 @@ function LandSaleBuilder() {
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
           #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+            display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
           }
         }
       `}</style>
@@ -295,17 +360,7 @@ function LandSaleBuilder() {
                 <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
                 <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
-                  {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
-                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
-                      {templateId === t.id && <Check size={14} className="text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showTemplateMenu && <TemplateMenu />}
             </div>
             <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
@@ -318,10 +373,13 @@ function LandSaleBuilder() {
         
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-             
-              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Kontrak</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
               {/* 1. WAKTU & TEMPAT */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <div className="flex items-center gap-2 border-b pb-2">
@@ -397,14 +455,11 @@ function LandSaleBuilder() {
 
               {/* 4. HARGA & BAYAR */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <div className="flex items-center gap-2 border-b pb-2"><BadgeDollarSign size={14}/><h3 className="text-xs font-bold uppercase">Harga Total</h3></div>
+                 <div className="flex items-center gap-2 border-b pb-2"><BadgeDollarSign size={14}/><h3 className="text-xs font-bold uppercase">Harga & Pembayaran</h3></div>
                  <input type="number" className="w-full p-2 border rounded text-sm font-bold" value={data.price} onChange={e => handleDataChange('price', parseInt(e.target.value))} />
                  <div className="text-[10px] font-bold text-emerald-600 text-right">{formatRupiah(data.price)}</div>
                  <textarea className="w-full p-2 border rounded text-xs h-12" value={data.priceText} onChange={e => handleDataChange('priceText', e.target.value)} placeholder="Terbilang" />
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <div className="flex items-center gap-2 border-b pb-2"><CreditCard size={14}/><h3 className="text-xs font-bold uppercase">Pembayaran</h3></div>
+                 
                  <div className="space-y-3">
                      <div>
                         <label className="text-[10px] text-slate-500 font-bold block mb-1">Uang Muka (DP)</label>
@@ -483,7 +538,7 @@ function LandSaleBuilder() {
 
       {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
+         <div style={{ width: '210mm', minHeight: 'auto' }} className="flex flex-col">
             <DocumentContent />
          </div>
       </div>
