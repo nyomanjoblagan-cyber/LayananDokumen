@@ -1,13 +1,82 @@
 'use client';
 
+/**
+ * FILE: KonfirmasiPesananPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Konfirmasi Pesanan (Order Confirmation)
+ * FEATURES:
+ * - Dual Template (Standard Business vs Invoice Style)
+ * - Auto Item Calculation
+ * - Auto Date Logic
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, CheckCircle2, Building2, UserCircle2, 
-  PackageCheck, CalendarDays, ShoppingBag, Plus, Trash2, Edit3, Eye, LayoutTemplate, Check, ChevronDown
+  PackageCheck, CalendarDays, ShoppingBag, Plus, Trash2, Edit3, Eye, LayoutTemplate, Check, ChevronDown, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface OrderItem {
+  name: string;
+  qty: number;
+  unit: string;
+  price: number;
+}
+
+interface OrderData {
+  city: string;
+  date: string;
+  orderNo: string;
+  
+  // Vendor
+  vendorName: string;
+  vendorAddress: string;
+
+  // Client
+  clientName: string;
+  clientContact: string;
+  clientAddress: string;
+  
+  // Items
+  items: OrderItem[];
+  
+  // Delivery
+  estDelivery: string;
+  shippingMethod: string;
+  notes: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: OrderData = {
+  city: 'JAKARTA',
+  date: '', // Diisi useEffect
+  orderNo: 'OC/2026/01/0012',
+  
+  vendorName: 'PT. KREATIF LOGISTIK NUSANTARA',
+  vendorAddress: 'Jl. Ahmad Yani No. 88, Bekasi, Jawa Barat',
+
+  clientName: 'PT. MAJU MUNDUR SEJAHTERA',
+  clientContact: 'Ibu Sarah (Procurement)',
+  clientAddress: 'Sudirman Central Business District (SCBD), Jakarta Selatan',
+  
+  items: [
+    { name: 'Kertas HVS A4 80gr', qty: 50, unit: 'Rim', price: 55000 },
+    { name: 'Tinta Printer Epson 003 Black', qty: 10, unit: 'Botol', price: 95000 },
+  ],
+  
+  estDelivery: '', // Diisi useEffect
+  shippingMethod: 'Kurir Internal Perusahaan',
+  notes: 'Harga sudah termasuk PPN 11%. Barang akan dikirim setelah PO resmi kami terima.'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function KonfirmasiPesananPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Pesanan...</div>}>
@@ -22,33 +91,7 @@ function OrderConfirmationBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Jakarta',
-    date: '',
-    orderNo: 'OC/2026/01/0012',
-    
-    // PENERBIT (VENDOR)
-    vendorName: 'PT. KREATIF LOGISTIK NUSANTARA',
-    vendorAddress: 'Jl. Ahmad Yani No. 88, Bekasi, Jawa Barat',
-
-    // PELANGGAN
-    clientName: 'PT. MAJU MUNDUR SEJAHTERA',
-    clientContact: 'Ibu Sarah (Procurement)',
-    clientAddress: 'Sudirman Central Business District (SCBD), Jakarta Selatan',
-    
-    // ITEM PESANAN
-    items: [
-      { name: 'Kertas HVS A4 80gr', qty: 50, unit: 'Rim', price: 55000 },
-      { name: 'Tinta Printer Epson 003 Black', qty: 10, unit: 'Botol', price: 95000 },
-    ],
-    
-    // KETERANGAN PENGIRIMAN
-    estDelivery: '',
-    shippingMethod: 'Kurir Internal Perusahaan',
-    notes: 'Harga sudah termasuk PPN 11%. Barang akan dikirim setelah PO resmi kami terima.'
-  });
+  const [data, setData] = useState<OrderData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
@@ -63,35 +106,69 @@ function OrderConfirmationBuilder() {
     }));
   }, []);
 
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof OrderData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  const addItem = () => setData({ ...data, items: [...data.items, { name: '', qty: 1, unit: 'Unit', price: 0 }] });
+  const addItem = () => {
+    setData(prev => ({
+      ...prev,
+      items: [...prev.items, { name: '', qty: 1, unit: 'Unit', price: 0 }]
+    }));
+  };
   
   const removeItem = (idx: number) => {
     const newItems = [...data.items];
     newItems.splice(idx, 1);
-    setData({ ...data, items: newItems });
+    setData(prev => ({ ...prev, items: newItems }));
   };
 
-  const handleItemChange = (idx: number, field: string, val: any) => {
+  const handleItemChange = (idx: number, field: keyof OrderItem, val: any) => {
     const newItems = [...data.items];
     // @ts-ignore
     newItems[idx][field] = val;
-    setData({ ...data, items: newItems });
+    setData(prev => ({ ...prev, items: newItems }));
+  };
+
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date();
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+        setData({ 
+            ...INITIAL_DATA, 
+            date: today.toISOString().split('T')[0], 
+            estDelivery: nextWeek.toISOString().split('T')[0] 
+        });
+    }
   };
 
   const subTotal = data.items.reduce((acc, item) => acc + (item.qty * item.price), 0);
-  const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+  
+  const formatRupiah = (num: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+  };
 
-  const TEMPLATES = [
-    { id: 1, name: "Format Standar Bisnis", desc: "Tampilan profesional & bersih" },
-    { id: 2, name: "Format Invoice Style", desc: "Lebih mirip tagihan resmi" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format Standar Bisnis
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format Invoice Style
+        </button>
+    </div>
+  );
+
+  const activeTemplateName = templateId === 1 ? 'Standar Bisnis' : 'Invoice Style';
 
   // --- KOMPONEN ISI SURAT ---
   const OCContent = () => (
-    <div className="bg-white flex flex-col box-border font-sans text-[10.5pt] leading-normal text-slate-900 p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0">
+    // FIX: Print Padding
+    <div className="bg-white flex flex-col box-border font-sans text-[10.5pt] leading-normal text-slate-900 p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
       
       {/* HEADER */}
       <div className="flex justify-between items-start border-b-4 border-slate-900 pb-4 mb-8 shrink-0">
@@ -179,14 +256,15 @@ function OrderConfirmationBuilder() {
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 print:bg-white print:m-0">
       
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4 portrait; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
+          
           #print-only-root { 
             display: block !important; 
             position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
@@ -212,17 +290,7 @@ function OrderConfirmationBuilder() {
                 <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
                 <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
-                  {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
-                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
-                      {templateId === t.id && <Check size={14} className="text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showTemplateMenu && <TemplateMenu />}
             </div>
             <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
@@ -235,10 +303,13 @@ function OrderConfirmationBuilder() {
         
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-             
-              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Pesanan</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Vendor (Penerbit)</h3>
                  <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.vendorName} onChange={e => handleDataChange('vendorName', e.target.value)} />
@@ -260,13 +331,13 @@ function OrderConfirmationBuilder() {
                  </div>
                  {data.items.map((item, idx) => (
                     <div key={idx} className="p-2 bg-slate-50 rounded border relative group">
-                        <button onClick={() => removeItem(idx)} className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12}/></button>
-                        <input className="w-full p-1 bg-transparent border-b mb-1 text-xs font-bold" placeholder="Nama Produk" value={item.name} onChange={e => handleItemChange(idx, 'name', e.target.value)} />
-                        <div className="grid grid-cols-3 gap-1">
-                            <input type="number" className="p-1 border rounded text-[10px]" placeholder="Qty" value={item.qty} onChange={e => handleItemChange(idx, 'qty', parseInt(e.target.value))} />
-                            <input className="p-1 border rounded text-[10px]" placeholder="Satuan" value={item.unit} onChange={e => handleItemChange(idx, 'unit', e.target.value)} />
-                            <input type="number" className="p-1 border rounded text-[10px]" placeholder="Harga" value={item.price} onChange={e => handleItemChange(idx, 'price', parseInt(e.target.value))} />
-                        </div>
+                       <button onClick={() => removeItem(idx)} className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12}/></button>
+                       <input className="w-full p-1 bg-transparent border-b mb-1 text-xs font-bold" placeholder="Nama Produk" value={item.name} onChange={e => handleItemChange(idx, 'name', e.target.value)} />
+                       <div className="grid grid-cols-3 gap-1">
+                          <input type="number" className="p-1 border rounded text-[10px]" placeholder="Qty" value={item.qty} onChange={e => handleItemChange(idx, 'qty', parseInt(e.target.value))} />
+                          <input className="p-1 border rounded text-[10px]" placeholder="Satuan" value={item.unit} onChange={e => handleItemChange(idx, 'unit', e.target.value)} />
+                          <input type="number" className="p-1 border rounded text-[10px]" placeholder="Harga" value={item.price} onChange={e => handleItemChange(idx, 'price', parseInt(e.target.value))} />
+                       </div>
                     </div>
                  ))}
               </div>
@@ -288,8 +359,11 @@ function OrderConfirmationBuilder() {
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm' }}>
-                    <OCContent />
+                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+                   {/* VISUAL PADDING FOR PREVIEW */}
+                   <div style={{ padding: '20mm' }}>
+                      <OCContent />
+                   </div>
                  </div>
                </div>
             </div>
@@ -302,11 +376,21 @@ function OrderConfirmationBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA */}
+      {/* PRINT AREA (TABLE WRAPPER) */}
       <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
-            <OCContent />
-         </div>
+         <table className="print-table">
+            <thead><tr><td><div className="print-header-space"></div></td></tr></thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div className="print-content-wrapper">
+                            <OCContent />
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot><tr><td><div className="print-footer-space"></div></td></tr></tfoot>
+         </table>
       </div>
 
     </div>
