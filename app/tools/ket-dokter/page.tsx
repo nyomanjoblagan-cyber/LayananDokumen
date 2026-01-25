@@ -1,13 +1,63 @@
 'use client';
 
+/**
+ * FILE: KetDokterSederhanaPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Keterangan Sakit (Dokter)
+ * FEATURES:
+ * - Dual Template Size (A5 for Clinic, A4 for Hospital)
+ * - Auto Date Logic
+ * - Mobile Menu Fixed
+ * - Strict Print Layout
+ */
+
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Stethoscope, Building2, UserCircle2, 
-  CalendarDays, Check, ChevronDown, LayoutTemplate, Edit3, Eye
+  CalendarDays, Check, ChevronDown, LayoutTemplate, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface MedicalData {
+  city: string;
+  date: string;
+  clinicName: string;
+  clinicAddress: string;
+  patientName: string;
+  patientJob: string;
+  patientAge: string;
+  restingDays: string;
+  startDate: string;
+  endDate: string;
+  diagnosis: string;
+  vitalSigns: string;
+  doctorName: string;
+  sipNumber: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: MedicalData = {
+  city: 'DENPASAR',
+  date: '', // Diisi useEffect
+  clinicName: 'KLINIK PRATAMA SEHAT BERSAMA',
+  clinicAddress: 'Jl. Ahmad Yani No. 100, Denpasar Utara',
+  patientName: 'BAGUS RAMADHAN',
+  patientJob: 'Karyawan Swasta',
+  patientAge: '27 Tahun',
+  restingDays: '3 (Tiga)',
+  startDate: '', // Diisi useEffect
+  endDate: '', // Diisi useEffect
+  diagnosis: 'Common Cold / Febris (Demam)',
+  vitalSigns: 'TD: 110/80 mmHg | Temp: 38.2°C',
+  doctorName: 'dr. I MADE WIRA, S.Ked',
+  sipNumber: 'SIP. 445/088/DINKES/2024'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function KetDokterSederhanaPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat...</div>}>
@@ -22,24 +72,7 @@ function MedicalNoteBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Denpasar',
-    date: '',
-    clinicName: 'KLINIK PRATAMA SEHAT BERSAMA',
-    clinicAddress: 'Jl. Ahmad Yani No. 100, Denpasar Utara',
-    patientName: 'BAGUS RAMADHAN',
-    patientJob: 'Karyawan Swasta',
-    patientAge: '27 Tahun',
-    restingDays: '3 (Tiga)',
-    startDate: '',
-    endDate: '',
-    diagnosis: 'Common Cold / Febris (Demam)',
-    vitalSigns: 'TD: 110/80 mmHg | Temp: 38.2°C',
-    doctorName: 'dr. I MADE WIRA, S.Ked',
-    sipNumber: 'SIP. 445/088/DINKES/2024'
-  });
+  const [data, setData] = useState<MedicalData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
@@ -55,25 +88,55 @@ function MedicalNoteBuilder() {
     }));
   }, []);
 
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof MedicalData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  const TEMPLATES = [
-    { id: 1, name: "Format Klinik (A5)", desc: "Ukuran kecil (14.8cm x 21cm)" },
-    { id: 2, name: "Format RS (A4)", desc: "Ukuran standar (21cm x 29.7cm)" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date();
+        const threeDaysLater = new Date(today);
+        threeDaysLater.setDate(today.getDate() + 2);
+        setData({ 
+            ...INITIAL_DATA, 
+            date: today.toISOString().split('T')[0], 
+            startDate: today.toISOString().split('T')[0], 
+            endDate: threeDaysLater.toISOString().split('T')[0] 
+        });
+    }
+  };
+
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format Klinik (A5)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format RS (A4)
+        </button>
+    </div>
+  );
+
+  const activeTemplateName = templateId === 1 ? 'Format Klinik (A5)' : 'Format RS (A4)';
 
   // --- KOMPONEN ISI SURAT ---
   const NoteContent = () => {
     // TENTUKAN UKURAN BERDASARKAN TEMPLATE
     // Template 1 (A5): Width 148mm, Height 210mm
     // Template 2 (A4): Width 210mm, Height 297mm
-    const paperClass = templateId === 1 
-        ? "w-[148mm] min-h-[210mm] p-[10mm] text-[10pt]" // A5 lebih compact
-        : "w-[210mm] min-h-[297mm] p-[20mm] text-[11pt]"; // A4 standar
+    const paperStyle = templateId === 1 
+        ? { width: '148mm', minHeight: '210mm', padding: '10mm', fontSize: '10pt' }
+        : { width: '210mm', minHeight: '297mm', padding: '20mm', fontSize: '11pt' };
+
+    // Padding print class (tailwindcss tidak bisa dynamic value di class arbitrary, jadi kita pakai style inline atau logic class)
+    const printPaddingClass = templateId === 1 ? 'print:p-[10mm]' : 'print:p-[20mm]';
 
     return (
-      <div className={`bg-white mx-auto flex flex-col box-border font-serif text-slate-900 leading-snug shadow-2xl print:shadow-none print:m-0 ${paperClass}`}>
+      <div className={`bg-white mx-auto flex flex-col box-border font-serif text-slate-900 leading-snug shadow-2xl print:shadow-none print:m-0 ${printPaddingClass}`}
+           style={paperStyle}>
         
         {/* KOP KLINIK */}
         <div className="flex items-center border-b-2 border-slate-900 pb-2 mb-4 shrink-0">
@@ -81,21 +144,21 @@ function MedicalNoteBuilder() {
             <Stethoscope size={20} />
           </div>
           <div className="flex-grow">
-            <h1 className="text-[11pt] font-black uppercase tracking-tight leading-none mb-1">{data.clinicName}</h1>
-            <p className="text-[8pt] font-sans italic text-slate-600 print:text-black leading-none">{data.clinicAddress}</p>
+            <h1 className="text-[1.1em] font-black uppercase tracking-tight leading-none mb-1">{data.clinicName}</h1>
+            <p className="text-[0.8em] font-sans italic text-slate-600 print:text-black leading-none">{data.clinicAddress}</p>
           </div>
         </div>
 
         {/* JUDUL */}
         <div className="text-center mb-4 shrink-0">
-          <h2 className="text-[12pt] font-black underline uppercase tracking-widest leading-none">SURAT KETERANGAN SAKIT</h2>
+          <h2 className="text-[1.2em] font-black underline uppercase tracking-widest leading-none">SURAT KETERANGAN SAKIT</h2>
         </div>
 
         {/* BODY SURAT */}
         <div className="flex-grow">
           <p className="mb-2">Yang bertanda tangan di bawah ini menerangkan dengan sebenarnya bahwa:</p>
           
-          <div className="ml-2 mb-3 space-y-0.5 font-sans text-[9pt] italic border-l-2 border-slate-200 pl-3 py-1">
+          <div className="ml-2 mb-3 space-y-0.5 font-sans italic border-l-2 border-slate-200 pl-3 py-1 text-[0.9em]">
               <div className="grid grid-cols-[80px_5px_1fr]"><span>Nama</span><span>:</span><span className="font-bold uppercase">{data.patientName}</span></div>
               <div className="grid grid-cols-[80px_5px_1fr]"><span>Umur</span><span>:</span><span>{data.patientAge}</span></div>
               <div className="grid grid-cols-[80px_5px_1fr]"><span>Pekerjaan</span><span>:</span><span>{data.patientJob}</span></div>
@@ -105,15 +168,15 @@ function MedicalNoteBuilder() {
           <p className="mb-3 text-justify">Berdasarkan hasil pemeriksaan medis, pasien tersebut dalam kondisi <b>kurang sehat (Sakit)</b> sehingga memerlukan istirahat selama:</p>
 
           <div className="text-center py-2 mb-3 bg-slate-50 border border-slate-300 rounded print:bg-transparent print:border-black">
-             <p className="text-[12pt] font-black">
+             <p className="text-[1.2em] font-black">
                {data.restingDays} Hari
              </p>
-             <p className="text-[9pt] font-sans">
+             <p className="text-[0.9em] font-sans">
                {isClient && data.startDate ? new Date(data.startDate).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : '...'} s/d {isClient && data.endDate ? new Date(data.endDate).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : '...'}
              </p>
           </div>
 
-          <p className="italic text-[9pt] mb-2">
+          <p className="italic text-[0.9em] mb-2">
             Diagnosis: <b>{data.diagnosis}</b>
           </p>
 
@@ -123,10 +186,10 @@ function MedicalNoteBuilder() {
         {/* TANDA TANGAN */}
         <div className="mt-6 flex justify-end shrink-0" style={{ pageBreakInside: 'avoid' }}>
           <div className="text-center w-40">
-            <p className="text-[9pt] mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '...'}</p>
-            <p className="text-[8pt] font-bold text-slate-500 uppercase tracking-widest mb-12 print:text-black">Dokter Pemeriksa,</p>
-            <p className="font-bold underline uppercase text-[10pt] leading-none">{data.doctorName}</p>
-            <p className="text-[7pt] font-sans mt-0.5 font-bold">SIP. {data.sipNumber}</p>
+            <p className="text-[0.9em] mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '...'}</p>
+            <p className="text-[0.8em] font-bold text-slate-500 uppercase tracking-widest mb-12 print:text-black">Dokter Pemeriksa,</p>
+            <p className="font-bold underline uppercase text-[1em] leading-none">{data.doctorName}</p>
+            <p className="text-[0.7em] font-sans mt-0.5 font-bold">SIP. {data.sipNumber}</p>
           </div>
         </div>
       </div>
@@ -181,17 +244,7 @@ function MedicalNoteBuilder() {
                 <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
                 <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
-                  {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
-                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
-                      {templateId === t.id && <Check size={14} className="text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showTemplateMenu && <TemplateMenu />}
             </div>
             <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
@@ -204,10 +257,13 @@ function MedicalNoteBuilder() {
         
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-             
-              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Medis</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-2 tracking-widest flex items-center gap-2"><Building2 size={12}/> Klinik</h3>
                  <input className="w-full p-2 border rounded text-xs font-bold" value={data.clinicName} onChange={e => handleDataChange('clinicName', e.target.value)} />
