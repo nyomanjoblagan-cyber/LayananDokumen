@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * FILE: IzinSekolahPage.tsx
- * STATUS: FINAL & MOBILE READY
- * DESC: Generator Surat Izin Sekolah (Sakit/Acara/Duka)
- * FEATURES:
- * - Dual Template (Official Letter vs Doctor Note)
- * - Copy to WhatsApp Feature
- * - Auto Scaling Preview for Mobile
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
- */
-
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, LayoutTemplate, 
@@ -19,10 +7,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
-
-// --- 1. TYPE DEFINITIONS ---
 interface SchoolData {
   city: string;
   date: string;
@@ -40,10 +24,9 @@ interface SchoolData {
   parentPhone: string;
 }
 
-// --- 2. DATA DEFAULT ---
 const INITIAL_DATA: SchoolData = {
   city: 'JAKARTA',
-  date: '', // Diisi useEffect
+  date: '', 
   schoolName: 'SMP NEGERI 1 JAKARTA',
   teacherName: 'Bapak/Ibu Wali Kelas 7A',
   studentName: 'MUHAMMAD RIZKY',
@@ -51,14 +34,13 @@ const INITIAL_DATA: SchoolData = {
   studentNis: '12345',
   reasonType: 'Sakit',
   reasonDetail: 'sedang sakit demam tinggi dan flu',
-  startDate: '', // Diisi useEffect
-  endDate: '', // Diisi useEffect
+  startDate: '', 
+  endDate: '', 
   duration: '1',
   parentName: 'BUDI SANTOSO',
   parentPhone: '0812-3456-7890'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function IzinSekolahPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Sistem Sekolah...</div>}>
@@ -68,7 +50,6 @@ export default function IzinSekolahPage() {
 }
 
 function SchoolPermitBuilder() {
-  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -87,7 +68,6 @@ function SchoolPermitBuilder() {
     }));
   }, []);
 
-  // HELPER DATE
   const formatDateIndo = (dateStr: string) => {
     if (!dateStr) return '...';
     try {
@@ -106,7 +86,6 @@ function SchoolPermitBuilder() {
     }
   };
 
-  // PRESETS
   const applyPreset = (type: 'sakit' | 'acara' | 'duka') => {
     if (type === 'sakit') {
       setData(prev => ({
@@ -129,7 +108,6 @@ function SchoolPermitBuilder() {
     }
   };
 
-  // COPY WA FUNCTION
   const copyToWhatsApp = () => {
     const text = `Assalamu’alaikum Wr. Wb.
 
@@ -155,7 +133,6 @@ ${data.parentName}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -171,11 +148,12 @@ ${data.parentName}`;
 
   const activeTemplateName = templateId === 1 ? 'Format Surat Resmi' : 'Format Surat Dokter';
 
-  // --- KOMPONEN ISI SURAT ---
+  // --- CONTENT ---
   const DocumentContent = () => (
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[25mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0">
+    // FIX: Added 'print:p-[25mm]' here too
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[25mm] print:p-[25mm]" 
+         style={{ width: '210mm', minHeight: '296mm' }}>
         
-        {/* TEMPLATE 1: SURAT RESMI */}
         {templateId === 1 && (
             <>
                 <div className="text-right mb-8 shrink-0">
@@ -223,7 +201,6 @@ ${data.parentName}`;
             </>
         )}
 
-        {/* TEMPLATE 2: DENGAN SURAT DOKTER */}
         {templateId === 2 && (
             <>
                 <div className="text-right mb-8 shrink-0">
@@ -285,10 +262,8 @@ ${data.parentName}`;
           @page { size: A4; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
-          
           #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+            display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
           }
         }
       `}</style>
@@ -335,7 +310,6 @@ ${data.parentName}`;
 
            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
               
-              {/* Quick Preset */}
               <div className="bg-emerald-50 rounded-xl shadow-sm border border-emerald-100 overflow-hidden">
                  <div className="px-4 py-3 border-b border-emerald-200 flex items-center gap-2">
                     <Stethoscope size={14} className="text-emerald-600" />
@@ -354,7 +328,6 @@ ${data.parentName}`;
                  </div>
               </div>
 
-              {/* Data Surat */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                  <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
                     <LayoutTemplate size={14} className="text-blue-600" />
@@ -382,7 +355,6 @@ ${data.parentName}`;
                  </div>
               </div>
 
-              {/* Siswa & Alasan */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                  <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
                     <User size={14} className="text-blue-600" />
@@ -426,7 +398,6 @@ ${data.parentName}`;
                  </div>
               </div>
 
-              {/* Orang Tua */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                  <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
                     <User size={14} className="text-blue-600" />
@@ -448,7 +419,7 @@ ${data.parentName}`;
            </div>
         </div>
 
-        {/* PREVIEW AREA (RESPONSIVE TOGGLE) */}
+        {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
