@@ -2,8 +2,13 @@
 
 /**
  * FILE: AhliWarisPage.tsx
- * STATUS: STABILIZED & CRASH PROOF
- * DESC: Generator Surat Pernyataan Ahli Waris dengan Safety Check
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Pernyataan Ahli Waris
+ * FEATURES:
+ * - Dynamic Asset List (Safe Render)
+ * - Pyramid Signature Layout
+ * - Strict A4 Print Layout
+ * - Mobile Menu Fixed
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -50,7 +55,7 @@ interface HeirData {
   officialNip: string;
 }
 
-// --- 2. DATA DEFAULT (Fresh State) ---
+// --- 2. DATA DEFAULT ---
 const INITIAL_DATA: HeirData = {
   city: 'JAKARTA SELATAN',
   date: '', 
@@ -100,16 +105,15 @@ function AhliWarisToolBuilder() {
   // Menggunakan Initial Data yang aman
   const [data, setData] = useState<HeirData>(INITIAL_DATA);
 
-  // SELF-HEALING EFFECT: Memastikan struktur data lengkap saat dimuat
+  // SELF-HEALING EFFECT
   useEffect(() => {
     setData(prev => ({
-      ...INITIAL_DATA, // Base structure
-      ...prev, // Merge existing data
-      // Pastikan array tidak undefined
+      ...INITIAL_DATA,
+      ...prev,
       assets: prev?.assets || INITIAL_DATA.assets,
       heirs: prev?.heirs || INITIAL_DATA.heirs,
       witnesses: prev?.witnesses || INITIAL_DATA.witnesses,
-      date: new Date().toISOString().split('T')[0] // Update tanggal
+      date: new Date().toISOString().split('T')[0]
     }));
   }, []);
 
@@ -119,7 +123,7 @@ function AhliWarisToolBuilder() {
   };
 
   const updateHeir = (idx: number, field: keyof Heir, val: string) => {
-    const newHeirs = [...(data.heirs || [])]; // Safety check
+    const newHeirs = [...(data.heirs || [])];
     newHeirs[idx] = { ...newHeirs[idx], [field]: val };
     setData(prev => ({ ...prev, heirs: newHeirs }));
   };
@@ -154,6 +158,20 @@ function AhliWarisToolBuilder() {
     }
   };
 
+  // --- TEMPLATE MENU (FIX MOBILE) ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Formal Legal
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Modern Clean
+        </button>
+    </div>
+  );
+
   // --- KONTEN SURAT ---
   const ContentInside = () => {
     const formatDate = (dateString: string) => {
@@ -163,7 +181,7 @@ function AhliWarisToolBuilder() {
         } catch { return dateString; }
     };
 
-    // SAFETY VARS: Mencegah crash jika data.assets/heirs undefined
+    // SAFETY VARS
     const safeAssets = data.assets || [];
     const safeHeirs = data.heirs || [];
     const safeWitnesses = data.witnesses || [];
@@ -216,7 +234,7 @@ function AhliWarisToolBuilder() {
 
               <p className="mb-2">Bahwa Almarhum/Almarhumah meninggalkan harta warisan (Tirkah) berupa:</p>
               
-              {/* RENDERING LIST ASET (SAFETY) */}
+              {/* RENDERING LIST ASET */}
               <div className="mb-6 ml-4">
                  {safeAssets.length === 0 ? (
                     <p className="italic text-slate-400 text-sm">[Belum ada aset yang ditambahkan]</p>
@@ -379,18 +397,24 @@ function AhliWarisToolBuilder() {
                <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Ahli Waris <span className="text-emerald-400">Generator</span></h1></div>
             </div>
+            
             <div className="flex items-center gap-3">
+               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Formal Legal' : 'Modern Clean'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
-                  {showTemplateMenu && (
-                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
-                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> Formal Legal</button>
-                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Modern Clean</button>
-                     </div>
-                  )}
+                  {showTemplateMenu && <TemplateMenu />}
                </div>
+
+               {/* MOBILE MENU TRIGGER */}
+               <div className="relative md:hidden">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
+                    Template <ChevronDown size={14}/>
+                  </button>
+                  {showTemplateMenu && <TemplateMenu />}
+               </div>
+
                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
