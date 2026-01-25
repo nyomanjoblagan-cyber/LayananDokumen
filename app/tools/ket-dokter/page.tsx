@@ -2,12 +2,12 @@
 
 /**
  * FILE: KetDokterSederhanaPage.tsx
- * STATUS: FINAL FIXED (NAME WRAPPING ISSUE)
+ * STATUS: FINAL FIXED (A5 PRINT CLEAN)
  * DESC: Generator Surat Keterangan Sakit
  * FIXES: 
- * - Memperlebar container tanda tangan (w-64).
- * - Mengecilkan font nama dokter (9pt) agar tidak turun baris.
- * - Tetap menggunakan Table Wrapper untuk print yang rapi.
+ * - @page margin 0mm !important -> Hapus tulisan header/footer browser.
+ * - Hapus padding internal saat print agar tidak double margin.
+ * - Dynamic Page Size (A5/A4).
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -120,7 +120,8 @@ function MedicalNoteBuilder() {
     const baseFontSize = templateId === 1 ? 'text-[10pt]' : 'text-[11pt]';
 
     return (
-      <div className={`bg-white font-serif text-slate-900 leading-snug w-full h-full ${baseFontSize}`}>
+      // FIX: print:p-0 (Menghapus padding internal saat print, karena sudah dihandle Table Wrapper)
+      <div className={`bg-white font-serif text-slate-900 leading-snug w-full h-full ${baseFontSize} print:p-0`}>
         
         {/* KOP KLINIK */}
         <div className="flex items-center border-b-2 border-slate-900 pb-2 mb-4 shrink-0">
@@ -169,11 +170,9 @@ function MedicalNoteBuilder() {
 
         {/* TANDA TANGAN */}
         <div className="mt-6 flex justify-end shrink-0" style={{ pageBreakInside: 'avoid' }}>
-          {/* PERBAIKAN: Lebar w-64 agar nama panjang muat */}
           <div className="text-center w-64">
             <p className="text-[0.9em] mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '...'}</p>
             <p className="text-[0.8em] font-bold text-slate-500 uppercase tracking-widest mb-16 print:text-black">Dokter Pemeriksa,</p>
-            {/* PERBAIKAN: Font size 9pt dan leading tight */}
             <p className="font-bold underline uppercase text-[9pt] leading-tight">{data.doctorName}</p>
             <p className="text-[0.7em] font-sans mt-0.5 font-bold">SIP. {data.sipNumber}</p>
           </div>
@@ -190,9 +189,10 @@ function MedicalNoteBuilder() {
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
+          /* FIX: Force Margin 0mm untuk menghilangkan Header/Footer Browser */
           @page { 
             size: ${templateId === 1 ? 'A5' : 'A4'}; 
-            margin: 0; 
+            margin: 0mm !important; 
           }
           html, body { 
             margin: 0 !important; 
@@ -201,9 +201,14 @@ function MedicalNoteBuilder() {
           }
           .no-print { display: none !important; }
           
+          /* TABLE WRAPPER STRATEGY */
           .print-table { width: 100%; border-collapse: collapse; }
+          
+          /* Margin Atas & Bawah dibuat via Spacer Table */
           .print-header-space { height: ${templateId === 1 ? '10mm' : '20mm'}; }
           .print-footer-space { height: ${templateId === 1 ? '10mm' : '20mm'}; }
+          
+          /* Margin Kiri & Kanan via Padding Content Wrapper */
           .print-content-wrapper { padding: 0 ${templateId === 1 ? '10mm' : '20mm'}; }
           
           #print-only-root { 
@@ -291,9 +296,12 @@ function MedicalNoteBuilder() {
         {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               {/* LOGIKA SKALA:
+                  - Preview diberi scale lebih kecil agar muat di layar
+               */}
                <div className={`origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 shadow-2xl flex flex-col items-center ${templateId === 1 ? 'mb-[-90mm] md:mb-[-40mm] lg:mb-0' : 'mb-[-130mm] md:mb-[-20mm] lg:mb-0'}`}>
                  <div style={{ width: templateId === 1 ? '148mm' : '210mm', minHeight: templateId === 1 ? '210mm' : '297mm' }} className="bg-white flex flex-col">
-                    {/* VISUAL PADDING FOR PREVIEW */}
+                    {/* VISUAL PADDING FOR PREVIEW (Hanya tampil di preview, karena di print pakai Table Wrapper) */}
                     <div style={{ padding: templateId === 1 ? '10mm' : '20mm' }}>
                        <DocumentContent />
                     </div>
