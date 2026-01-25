@@ -2,13 +2,9 @@
 
 /**
  * FILE: KematianPage.tsx
- * STATUS: FINAL & MOBILE READY
- * DESC: Generator Surat Keterangan Kematian (Desa / Rumah Sakit)
- * FEATURES:
- * - Dual Template (Village/Government vs Hospital)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * STATUS: FINAL & FIXED
+ * DESC: Generator Surat Keterangan Kematian
+ * FIX: Renamed component to 'DocumentContent' to match usage
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -17,9 +13,6 @@ import {
   LayoutTemplate, X, ShieldCheck, Clock, Edit3, Eye, Check, ChevronDown, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 // --- 1. TYPE DEFINITIONS ---
 interface DeathData {
@@ -49,7 +42,7 @@ interface DeathData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: DeathData = {
   city: 'DENPASAR',
-  date: '', // Diisi useEffect
+  date: '', 
   docNo: 'SKM/RT02/I/2026',
   
   issuerOffice: 'PEMERINTAH KOTA DENPASAR\nKECAMATAN DENPASAR BARAT\nKELURAHAN DAUH PURI',
@@ -62,7 +55,7 @@ const INITIAL_DATA: DeathData = {
   deceasedGender: 'Laki-laki',
   deceasedAddress: 'Jl. Diponegoro No. 45, Denpasar, Bali',
   
-  deathDate: '', // Diisi useEffect
+  deathDate: '', 
   deathTime: '04:30 WITA',
   deathPlace: 'RSUP Prof. Dr. I.G.N.G. Ngoerah',
   deathReason: 'Sakit (Henti Jantung)'
@@ -119,7 +112,7 @@ function DeathNoticeBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
+  // --- TEMPLATE MENU ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -135,10 +128,9 @@ function DeathNoticeBuilder() {
 
   const activeTemplateName = templateId === 1 ? 'Format Kelurahan' : 'Format Rumah Sakit';
 
-  // --- KOMPONEN ISI SURAT ---
-  const DeathContent = () => (
-    // FIX: Added 'print:p-[20mm]'
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0">
+  // --- KOMPONEN ISI SURAT (RENAMED FROM DeathContent) ---
+  const DocumentContent = () => (
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
       
       {/* KOP SURAT */}
       <div className="flex flex-col items-center border-b-4 border-double border-slate-900 pb-4 mb-8 shrink-0">
@@ -218,16 +210,24 @@ function DeathNoticeBuilder() {
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 print:bg-white print:m-0">
       
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4 portrait; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
+          
+          /* FIX PRINT LAYOUT */
           #print-only-root { 
-            display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+            display: block !important; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            z-index: 9999; 
+            background: white; 
           }
         }
       `}</style>
@@ -270,9 +270,9 @@ function DeathNoticeBuilder() {
 
            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
               
+              {/* Instansi */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Instansi Penerbit</h3>
-                 
                  <div className="flex items-center gap-4">
                     {logo ? (
                        <div className="relative w-16 h-16 border rounded overflow-hidden group">
@@ -284,10 +284,10 @@ function DeathNoticeBuilder() {
                     )}
                     <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
                  </div>
-
                  <textarea className="w-full p-2 border rounded text-xs h-24 resize-none leading-relaxed font-bold uppercase" value={data.issuerOffice} onChange={e => handleDataChange('issuerOffice', e.target.value)} />
               </div>
 
+              {/* Data Jenazah */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Data Jenazah</h3>
                  <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.deceasedName} onChange={e => handleDataChange('deceasedName', e.target.value)} placeholder="Nama Almarhum" />
@@ -298,6 +298,7 @@ function DeathNoticeBuilder() {
                  <input className="w-full p-2 border rounded text-xs" value={data.deceasedAddress} onChange={e => handleDataChange('deceasedAddress', e.target.value)} placeholder="Alamat" />
               </div>
 
+              {/* Detail Kejadian */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><Clock size={12}/> Detail Kejadian</h3>
                  <div className="grid grid-cols-2 gap-2">
@@ -334,9 +335,7 @@ function DeathNoticeBuilder() {
       {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
          <div style={{ width: '210mm', minHeight: 'auto' }} className="bg-white flex flex-col">
-             <div className="print-content-wrapper p-[20mm]">
-                <DocumentContent />
-             </div>
+            <DocumentContent />
          </div>
       </div>
 
