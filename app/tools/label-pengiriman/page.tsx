@@ -1,13 +1,78 @@
 'use client';
 
+/**
+ * FILE: LabelPengirimanPage.tsx
+ * STATUS: FINAL & MOBILE READY (A6 SIZE)
+ * DESC: Generator Label Pengiriman / Resi
+ * FEATURES:
+ * - A6 Paper Size (Standard Thermal Printer)
+ * - Dual Template (Marketplace vs Fragile Alert)
+ * - Auto Date & Presets
+ * - Mobile Menu Fixed
+ * - Color Print Enabled
+ */
+
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, LayoutTemplate, 
-  Package, Truck, AlertTriangle, Video, MapPin, ChevronDown, Check, Edit3, Eye
+  Package, Truck, AlertTriangle, Video, MapPin, ChevronDown, Check, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface LabelData {
+  courier: string;
+  service: string;
+  resi: string;
+  weight: string;
+  date: string;
+  
+  senderName: string;
+  senderPhone: string;
+  senderAddress: string;
+  
+  receiverName: string;
+  receiverPhone: string;
+  receiverAddress: string;
+  
+  content: string;
+  note: string;
+  
+  isCod: boolean;
+  codAmount: number;
+  isFragile: boolean;
+  isUnboxing: boolean;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: LabelData = {
+  courier: 'JNE', 
+  service: 'REG (Reguler)',
+  resi: 'JP1234567890',
+  weight: '1 Kg',
+  date: '', // Diisi useEffect
+  
+  senderName: 'Tokoku Gadget Official',
+  senderPhone: '0812-3456-7890',
+  senderAddress: 'Mangga Dua Mall Lt. 3 No. 45, Jakarta Pusat',
+  
+  receiverName: 'BUDI SANTOSO',
+  receiverPhone: '0813-9999-8888',
+  receiverAddress: 'Jl. Merdeka No. 10, RT 01 RW 02, Kec. Sukmajaya, Kota Depok, Jawa Barat, 16412',
+  
+  content: '1x HP Android, 1x Casing, 1x Charger',
+  note: 'Warna Hitam, Jangan dibanting!',
+  
+  isCod: false,
+  codAmount: 150000,
+  isFragile: false,
+  isUnboxing: true
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function LabelPengirimanPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Sistem Logistik...</div>}>
@@ -22,36 +87,7 @@ function ShippingLabelBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    // EKSPEDISI
-    courier: 'JNE', 
-    service: 'REG (Reguler)',
-    resi: 'JP1234567890',
-    weight: '1 Kg',
-    date: '',
-    
-    // PENGIRIM
-    senderName: 'Tokoku Gadget Official',
-    senderPhone: '0812-3456-7890',
-    senderAddress: 'Mangga Dua Mall Lt. 3 No. 45, Jakarta Pusat',
-    
-    // PENERIMA
-    receiverName: 'Budi Santoso',
-    receiverPhone: '0813-9999-8888',
-    receiverAddress: 'Jl. Merdeka No. 10, RT 01 RW 02, Kec. Sukmajaya, Kota Depok, Jawa Barat, 16412',
-    
-    // ISI PAKET
-    content: '1x HP Android, 1x Casing, 1x Charger',
-    note: 'Warna Hitam, Jangan dibanting!',
-    
-    // OPSI
-    isCod: false,
-    codAmount: 150000,
-    isFragile: false,
-    isUnboxing: true
-  });
+  const [data, setData] = useState<LabelData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
@@ -59,17 +95,21 @@ function ShippingLabelBuilder() {
     setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  // HELPER CURRENCY
   const formatRupiah = (num: number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   };
 
-  // HANDLERS
-  const handleDataChange = (field: string, val: any) => {
-    setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof LabelData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
   };
 
-  // PRESETS
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date().toISOString().split('T')[0];
+        setData({ ...INITIAL_DATA, date: today });
+    }
+  };
+
   const applyPreset = (type: 'olshop' | 'pribadi' | 'dokumen') => {
     if (type === 'olshop') {
       setData(prev => ({
@@ -100,11 +140,21 @@ function ShippingLabelBuilder() {
     }
   };
 
-  const TEMPLATES = [
-    { id: 1, name: "Standard Marketplace", desc: "Mirip label Shopee/Tokped, layout bersih" },
-    { id: 2, name: "Warning / Fragile", desc: "Fokus pada peringatan barang pecah belah" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  // --- TEMPLATE MENU ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Standard Marketplace
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Warning / Fragile
+        </button>
+    </div>
+  );
+
+  const activeTemplateName = templateId === 1 ? 'Standard Marketplace' : 'Warning / Fragile';
 
   // --- KOMPONEN ISI LABEL ---
   const LabelContent = () => (
@@ -258,9 +308,14 @@ function ShippingLabelBuilder() {
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: 105mm 148mm; margin: 0; } /* Ukuran A6 Pas */
+          /* SET UKURAN KERTAS A6 & FORCE COLOR */
+          @page { size: 105mm 148mm; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
+          
+          /* FORCE BACKGROUND COLOR TO PRINT */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          
           #print-only-root { 
             display: block !important; 
             position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
@@ -286,17 +341,7 @@ function ShippingLabelBuilder() {
                 <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
                 <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
-                  {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
-                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
-                      {templateId === t.id && <Check size={14} className="text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showTemplateMenu && <TemplateMenu />}
             </div>
             <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
@@ -309,10 +354,13 @@ function ShippingLabelBuilder() {
         
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-             
-              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Pengiriman</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
               {/* Quick Preset */}
               <div className="bg-emerald-50 rounded-xl shadow-sm border border-emerald-100 overflow-hidden">
                  <div className="px-4 py-3 border-b border-emerald-200 flex items-center gap-2">
@@ -444,10 +492,8 @@ function ShippingLabelBuilder() {
         {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               {/* LOGIKA SKALA:
-                  - Mobile: scale-[0.55] untuk preview A6 yang lebih kecil
-               */}
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+               {/* FIX: Removed shadow from wrapper to avoid stacked look. Shadow is only on LabelContent */}
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 flex flex-col items-center">
                  <LabelContent />
                </div>
             </div>
