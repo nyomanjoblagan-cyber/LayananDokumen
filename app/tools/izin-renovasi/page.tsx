@@ -1,13 +1,59 @@
 'use client';
 
+/**
+ * FILE: IzinRenovasiPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Izin Renovasi Rumah
+ * FEATURES:
+ * - Dual Template (Formal RT/RW vs Neighbor Consent)
+ * - Auto Date Logic
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  Hammer, UserCircle2, MapPin, Info, Edit3, Eye
+  Hammer, UserCircle2, MapPin, Info, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface RenovasiData {
+  city: string;
+  date: string;
+  ownerName: string;
+  phone: string;
+  address: string;
+  renovationType: string;
+  startDate: string;
+  endDate: string;
+  workerCount: string;
+  rt: string;
+  rw: string;
+  ketuaRt: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: RenovasiData = {
+  city: 'SLEMAN',
+  date: '', 
+  ownerName: 'BUDI SANTOSO',
+  phone: '0812-3456-7890',
+  address: 'Perumahan Griya Indah, Blok C No. 12, Sleman',
+  renovationType: 'Perbaikan Atap dan Penambahan Dapur',
+  startDate: '',
+  endDate: '', 
+  workerCount: '3',
+  rt: '04',
+  rw: '12',
+  ketuaRt: 'Bapak Mulyono'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function IzinRenovasiPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat...</div>}>
@@ -17,121 +63,205 @@ export default function IzinRenovasiPage() {
 }
 
 function RenovasiBuilder() {
-  // --- STATE SYSTEM (SAMA PERSIS DENGAN REFERENSI) ---
+  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Sleman',
-    date: '', 
-    ownerName: 'BUDI SANTOSO',
-    phone: '0812-3456-7890',
-    address: 'Perumahan Griya Indah, Blok C No. 12, Sleman',
-    renovationType: 'Perbaikan Atap dan Penambahan Dapur',
-    startDate: '',
-    endDate: '', 
-    workerCount: '3',
-    rt: '04',
-    rw: '12',
-    ketuaRt: 'Bapak Mulyono'
-  });
+  const [data, setData] = useState<RenovasiData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
     
     setData(prev => ({ 
         ...prev, 
-        date: today,
-        startDate: today,
+        date: today.toISOString().split('T')[0],
+        startDate: today.toISOString().split('T')[0],
         endDate: nextWeek.toISOString().split('T')[0]
     }));
   }, []);
 
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof RenovasiData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  const TEMPLATES = [
-    { id: 1, name: "Formal (RT/RW)", desc: "Standar untuk lingkungan perumahan" },
-    { id: 2, name: "Izin Tetangga", desc: "Fokus pada permohonan maaf atas kebisingan" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date();
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        setData({ 
+            ...INITIAL_DATA, 
+            date: today.toISOString().split('T')[0], 
+            startDate: today.toISOString().split('T')[0], 
+            endDate: nextWeek.toISOString().split('T')[0] 
+        });
+    }
+  };
 
-  // --- KOMPONEN ISI SURAT (DIPISAH AGAR BISA DIPANGGIL DI PREVIEW & PRINT) ---
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Formal (RT/RW)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Izin Tetangga
+        </button>
+    </div>
+  );
+
+  // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
     <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0">
         
-        {/* HEADER KANAN */}
-        <div className="text-right text-sm mb-8 shrink-0">
-            <p>{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</p>
-        </div>
-
-        {/* HEADER PERIHAL */}
-        <div className="mb-6 shrink-0">
-            <p>Hal : <strong>Permohonan Izin Renovasi Rumah</strong></p>
-            <p>Lamp : -</p>
-        </div>
-
-        {/* TUJUAN */}
-        <div className="mb-10 shrink-0">
-            <p>Kepada Yth,</p>
-            <p><strong>Ketua RT {data.rt} / RW {data.rw}</strong></p>
-            <p>Di Tempat</p>
-        </div>
-
-        {/* ISI SURAT */}
-        <div className="space-y-4 flex-grow">
-            <p>Dengan hormat,</p>
-            <p>Saya yang bertanda tangan di bawah ini:</p>
-            
-            <div className="ml-6 space-y-1 text-[11pt]">
-                <div className="grid grid-cols-[150px_10px_1fr]"><span>Nama Pemilik</span><span>:</span><span className="font-bold uppercase">{data.ownerName}</span></div>
-                <div className="grid grid-cols-[150px_10px_1fr] align-top"><span>Alamat</span><span>:</span><span>{data.address}</span></div>
-                <div className="grid grid-cols-[150px_10px_1fr]"><span>No. Telepon/HP</span><span>:</span><span>{data.phone}</span></div>
-            </div>
-
-            <p className="text-justify leading-relaxed mt-4">
-                Melalui surat ini, saya bermaksud untuk memohon izin kepada Bapak Ketua RT/RW dan warga sekitar guna melakukan pekerjaan <strong>{data.renovationType}</strong> pada bangunan rumah saya tersebut di atas.
-            </p>
-
-            <p className="text-justify leading-relaxed">
-                Adapun pekerjaan renovasi ini direncanakan akan berlangsung mulai tanggal <strong>{isClient && data.startDate ? new Date(data.startDate).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</strong> sampai dengan <strong>{isClient && data.endDate ? new Date(data.endDate).toLocaleDateString('id-ID', {dateStyle:'long'}) : 'selesai'}</strong>, dengan estimasi pekerja sebanyak {data.workerCount} orang.
-            </p>
-
-            <p className="text-justify leading-relaxed">
-                Selama pengerjaan renovasi berlangsung, saya akan berusaha semaksimal mungkin untuk menjaga kebersihan lingkungan serta meminimalisir gangguan suara maupun debu material. Saya juga memohon maaf yang sebesar-besarnya kepada Bapak dan warga sekitar atas ketidaknyamanan yang mungkin timbul selama proses pengerjaan ini.
-            </p>
-
-            <p className="mt-4">Demikian surat permohonan ini saya sampaikan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.</p>
-        </div>
-
-        {/* TANDA TANGAN */}
-        <div className="shrink-0 mt-8 mb-4" style={{ pageBreakInside: 'avoid' }}>
-            <div className="flex justify-between items-end text-[11pt]">
-                <div className="text-center w-60">
-                    <p className="mb-20 font-bold uppercase text-xs">Mengetahui,<br/>Ketua RT {data.rt}</p>
-                    <p className="font-bold underline uppercase">{data.ketuaRt}</p>
+        {templateId === 1 ? (
+            // TEMPLATE 1: FORMAL RT/RW
+            <>
+                {/* HEADER KANAN */}
+                <div className="text-right text-sm mb-8 shrink-0">
+                    <p>{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</p>
                 </div>
-                
-                <div className="text-center w-60">
-                    <p className="mb-20 font-bold uppercase text-xs">Hormat Saya,</p>
+
+                {/* HEADER PERIHAL */}
+                <div className="mb-6 shrink-0">
+                    <p>Hal : <strong>Permohonan Izin Renovasi Rumah</strong></p>
+                    <p>Lamp : -</p>
+                </div>
+
+                {/* TUJUAN */}
+                <div className="mb-10 shrink-0">
+                    <p>Kepada Yth,</p>
+                    <p><strong>Ketua RT {data.rt} / RW {data.rw}</strong></p>
+                    <p>Di Tempat</p>
+                </div>
+
+                {/* ISI SURAT */}
+                <div className="space-y-4 flex-grow text-justify">
+                    <p>Dengan hormat,</p>
+                    <p>Saya yang bertanda tangan di bawah ini:</p>
+                    
+                    <div className="ml-6 space-y-1 text-[11pt]">
+                        <div className="grid grid-cols-[150px_10px_1fr]"><span>Nama Pemilik</span><span>:</span><span className="font-bold uppercase">{data.ownerName}</span></div>
+                        <div className="grid grid-cols-[150px_10px_1fr] align-top"><span>Alamat</span><span>:</span><span>{data.address}</span></div>
+                        <div className="grid grid-cols-[150px_10px_1fr]"><span>No. Telepon/HP</span><span>:</span><span>{data.phone}</span></div>
+                    </div>
+
+                    <p className="mt-4">
+                        Melalui surat ini, saya bermaksud untuk memohon izin kepada Bapak Ketua RT/RW dan warga sekitar guna melakukan pekerjaan <strong>{data.renovationType}</strong> pada bangunan rumah saya tersebut di atas.
+                    </p>
+
+                    <p>
+                        Adapun pekerjaan renovasi ini direncanakan akan berlangsung mulai tanggal <strong>{isClient && data.startDate ? new Date(data.startDate).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</strong> sampai dengan <strong>{isClient && data.endDate ? new Date(data.endDate).toLocaleDateString('id-ID', {dateStyle:'long'}) : 'selesai'}</strong>, dengan estimasi pekerja sebanyak {data.workerCount} orang.
+                    </p>
+
+                    <p>
+                        Selama pengerjaan renovasi berlangsung, saya akan berusaha semaksimal mungkin untuk menjaga kebersihan lingkungan serta meminimalisir gangguan suara maupun debu material. Saya juga memohon maaf yang sebesar-besarnya kepada Bapak dan warga sekitar atas ketidaknyamanan yang mungkin timbul selama proses pengerjaan ini.
+                    </p>
+
+                    <p className="mt-4">Demikian surat permohonan ini saya sampaikan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.</p>
+                </div>
+
+                {/* TANDA TANGAN */}
+                <div className="shrink-0 mt-8 mb-4" style={{ pageBreakInside: 'avoid' }}>
+                    <div className="flex justify-between items-end text-[11pt]">
+                        <div className="text-center w-60">
+                            <p className="mb-20 font-bold uppercase text-xs">Mengetahui,<br/>Ketua RT {data.rt}</p>
+                            <p className="font-bold underline uppercase">{data.ketuaRt}</p>
+                        </div>
+                        
+                        <div className="text-center w-60">
+                            <p className="mb-20 font-bold uppercase text-xs">Hormat Saya,</p>
+                            <p className="font-bold underline uppercase">{data.ownerName}</p>
+                        </div>
+                    </div>
+                </div>
+            </>
+        ) : (
+            // TEMPLATE 2: IZIN TETANGGA
+            <>
+                <div className="text-center mb-8 border-b-2 border-black pb-4">
+                    <h1 className="text-xl font-black uppercase underline tracking-widest">SURAT IZIN TETANGGA</h1>
+                </div>
+
+                <p className="mb-4 text-justify">
+                    Kami yang bertanda tangan di bawah ini adalah warga tetangga (sebelah kanan, kiri, depan, dan belakang) dari lokasi bangunan:
+                </p>
+
+                <div className="bg-slate-50 border border-slate-300 p-4 mb-6 text-sm rounded">
+                    <div className="grid grid-cols-[140px_10px_1fr] gap-1">
+                        <span>Pemilik Bangunan</span><span>:</span><span className="font-bold uppercase">{data.ownerName}</span>
+                        <span>Alamat Lokasi</span><span>:</span><span>{data.address}</span>
+                        <span>Jenis Pekerjaan</span><span>:</span><span>{data.renovationType}</span>
+                    </div>
+                </div>
+
+                <p className="mb-4 text-justify">
+                    Dengan ini menyatakan <strong>TIDAK KEBERATAN</strong> atas rencana renovasi/pembangunan yang akan dilakukan oleh Bapak/Ibu {data.ownerName}, selama pengerjaan tersebut tidak membahayakan keselamatan warga dan menjaga kebersihan lingkungan.
+                </p>
+
+                <div className="mb-6 flex-grow">
+                    <table className="w-full border-collapse border border-black text-sm">
+                        <thead>
+                            <tr className="bg-slate-100">
+                                <th className="border border-black py-2 w-10">No</th>
+                                <th className="border border-black py-2">Nama Tetangga</th>
+                                <th className="border border-black py-2 w-32">Posisi Rumah</th>
+                                <th className="border border-black py-2 w-32">Tanda Tangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="h-10">
+                                <td className="border border-black text-center">1.</td>
+                                <td className="border border-black px-2"></td>
+                                <td className="border border-black px-2 text-center text-xs text-slate-500">(Kanan)</td>
+                                <td className="border border-black px-2"></td>
+                            </tr>
+                            <tr className="h-10">
+                                <td className="border border-black text-center">2.</td>
+                                <td className="border border-black px-2"></td>
+                                <td className="border border-black px-2 text-center text-xs text-slate-500">(Kiri)</td>
+                                <td className="border border-black px-2"></td>
+                            </tr>
+                            <tr className="h-10">
+                                <td className="border border-black text-center">3.</td>
+                                <td className="border border-black px-2"></td>
+                                <td className="border border-black px-2 text-center text-xs text-slate-500">(Depan)</td>
+                                <td className="border border-black px-2"></td>
+                            </tr>
+                            <tr className="h-10">
+                                <td className="border border-black text-center">4.</td>
+                                <td className="border border-black px-2"></td>
+                                <td className="border border-black px-2 text-center text-xs text-slate-500">(Belakang)</td>
+                                <td className="border border-black px-2"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="text-right mt-auto">
+                    <p className="mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</p>
+                    <p className="mb-20 font-bold uppercase text-xs">Pemilik Bangunan,</p>
                     <p className="font-bold underline uppercase">{data.ownerName}</p>
                 </div>
-            </div>
-        </div>
+            </>
+        )}
     </div>
   );
+
+  const activeTemplateName = templateId === 1 ? 'Formal (RT/RW)' : 'Izin Tetangga';
 
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
       
-      {/* GLOBAL CSS PRINT (SAMA PERSIS) */}
+      {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
           @page { size: A4; margin: 0; } 
@@ -184,12 +314,15 @@ function RenovasiBuilder() {
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         
         {/* SIDEBAR INPUT */}
-        {/* LOGIC: Jika Mobile & Preview aktif, Sidebar HIDDEN total. */}
         <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-             
-              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Renovasi</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
+              {/* Identitas */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-amber-600 tracking-widest"><UserCircle2 size={14}/> Identitas Pemilik</h3>
                  <input className="w-full p-2 border rounded text-xs font-bold" placeholder="Nama Pemilik" value={data.ownerName} onChange={e => handleDataChange('ownerName', e.target.value)} />
@@ -197,6 +330,7 @@ function RenovasiBuilder() {
                  <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" placeholder="Alamat Rumah" value={data.address} onChange={e => handleDataChange('address', e.target.value)} />
               </div>
 
+              {/* Detail Renovasi */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-blue-600 tracking-widest"><Info size={14}/> Detail Renovasi</h3>
                  <input className="w-full p-2 border rounded text-xs" placeholder="Jenis Pekerjaan (Misal: Cat Ulang)" value={data.renovationType} onChange={e => handleDataChange('renovationType', e.target.value)} />
@@ -216,6 +350,7 @@ function RenovasiBuilder() {
                  </div>
               </div>
 
+              {/* Wilayah */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-slate-400 tracking-widest"><MapPin size={14}/> Wilayah RT/RW</h3>
                  <div className="grid grid-cols-2 gap-3">
@@ -228,16 +363,9 @@ function RenovasiBuilder() {
            </div>
         </div>
 
-        {/* PREVIEW AREA (RESPONSIVE TOGGLE) */}
-        {/* LOGIC: Jika Mobile & Editor aktif, Preview HIDDEN total. */}
+        {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               
-               {/* LOGIKA SKALA (SAMA PERSIS DENGAN FILE IzinPasanganPage):
-                  - Mobile: scale-[0.55] dan margin bawah negatif besar (-130mm) agar pas.
-                  - Tablet: scale-[0.85].
-                  - PC: scale-100.
-               */}
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
                  <div style={{ width: '210mm' }}>
                     <DocumentContent />
