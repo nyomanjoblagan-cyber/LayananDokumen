@@ -4,16 +4,13 @@
  * FILE: FranchisePage.tsx
  * STATUS: FINAL & MOBILE READY
  * DESC: Generator Perjanjian Waralaba / Franchise Agreement
- * FEATURES:
- * - Dual Template (Classic Legal vs Modern Corporate)
- * - Strict A4 Print Layout
- * - Mobile Menu Fixed
+ * FIX: Added missing 'ArrowLeftCircle' import to prevent build error
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Store, ShieldCheck, User, 
-  FileText, BadgeCheck, Coins, LayoutTemplate, ChevronDown, Check, Edit3, Eye, RotateCcw
+  FileText, BadgeCheck, Coins, LayoutTemplate, ChevronDown, Check, Edit3, Eye, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -332,7 +329,7 @@ function FranchiseBuilder() {
         @media print {
             @page { size: A4 portrait; margin: 0; }
             .no-print { display: none !important; }
-            body { background: white; margin: 0; padding: 0; display: block !important; }
+            body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
             .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
             .print-table thead { height: 25mm; display: table-header-group; } 
