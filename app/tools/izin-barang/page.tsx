@@ -1,16 +1,5 @@
 'use client';
 
-/**
- * FILE: IzinBarangPage.tsx
- * STATUS: FINAL & MOBILE READY
- * DESC: Generator Surat Izin Keluar/Masuk Barang (Gate Pass)
- * FEATURES:
- * - Dual Template (Formal Gate Pass vs Simple Delivery Note)
- * - Dynamic Item List
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
- */
-
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
@@ -18,9 +7,6 @@ import {
   Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 // --- 1. TYPE DEFINITIONS ---
 interface Item {
@@ -33,21 +19,13 @@ interface Item {
 interface GatePassData {
   city: string;
   date: string;
-  
-  // Detail Izin
   type: string; // KELUAR atau MASUK
   noSurat: string;
-  
-  // Pembawa
   carrierName: string;
   carrierPhone: string;
   vehicleNo: string;
   companyOrigin: string;
-  
-  // Barang
   items: Item[];
-  
-  // Lokasi & Otorisasi
   destination: string;
   authorizedBy: string;
   authorizedJob: string;
@@ -57,26 +35,21 @@ interface GatePassData {
 const INITIAL_DATA: GatePassData = {
   city: 'JAKARTA',
   date: '', 
-  
   type: 'KELUAR',
   noSurat: 'SKMB/001/I/2026',
-  
   carrierName: 'BUDI SETIADI',
   carrierPhone: '0812-7788-9900',
   vehicleNo: 'B 1234 ABC',
   companyOrigin: 'PT. LOGISTIK JAYA',
-  
   items: [
     { name: 'Laptop MacBook Pro 14"', qty: '2', unit: 'Unit', note: 'Perbaikan' },
     { name: 'Monitor LG 24"', qty: '5', unit: 'Unit', note: 'Mutasi Kantor' },
   ],
-  
   destination: 'Gudang Cabang Bekasi',
   authorizedBy: 'SURYONO M.S.',
   authorizedJob: 'Head of Security / Ops'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function IzinBarangPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat...</div>}>
@@ -86,7 +59,6 @@ export default function IzinBarangPage() {
 }
 
 function IzinBarangBuilder() {
-  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -127,7 +99,6 @@ function IzinBarangBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -141,11 +112,12 @@ function IzinBarangBuilder() {
     </div>
   );
 
-  // --- KOMPONEN ISI SURAT ---
+  // --- CONTENT ---
   const DocumentContent = () => (
-    <div className="w-full h-full text-slate-900 font-sans text-[11pt]">
+    // FIX: Added 'print:p-[25mm]' to enforce padding during print
+    <div className="bg-white mx-auto flex flex-col box-border font-sans text-slate-900 p-[20mm] print:p-[25mm]" 
+         style={{ width: '210mm', minHeight: '296mm' }}>
       
-      {/* TEMPLATE 1: FORMAL GATE PASS */}
       {templateId === 1 && (
         <div className="flex flex-col h-full">
             {/* KOP SURAT */}
@@ -155,7 +127,7 @@ function IzinBarangBuilder() {
                     <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Logistics & Gate Pass Division</p>
                 </div>
                 <div className="text-right">
-                    <div className={`px-4 py-1 rounded text-white font-black text-sm mb-1 ${data.type === 'KELUAR' ? 'bg-red-600' : 'bg-emerald-600'}`}>
+                    <div className={`px-4 py-1 rounded text-white font-black text-sm mb-1 ${data.type === 'KELUAR' ? 'bg-red-600 print:text-black print:border print:border-black' : 'bg-emerald-600 print:text-black print:border print:border-black'}`}>
                         IZIN {data.type} BARANG
                     </div>
                     <p className="text-[10pt] font-mono font-bold">No: {data.noSurat}</p>
@@ -184,7 +156,7 @@ function IzinBarangBuilder() {
                     <h4 className="text-[10px] font-black text-slate-400 uppercase mb-2">Daftar Rincian Barang:</h4>
                     <table className="w-full border-collapse text-[10pt]">
                         <thead>
-                            <tr className="bg-slate-100 border-y-2 border-slate-900">
+                            <tr className="bg-slate-100 print:bg-transparent border-y-2 border-slate-900">
                                 <th className="p-2 text-center text-xs w-12 font-black">NO</th>
                                 <th className="p-2 text-left text-xs font-black">NAMA BARANG</th>
                                 <th className="p-2 text-center text-xs w-20 font-black">QTY</th>
@@ -202,9 +174,9 @@ function IzinBarangBuilder() {
                                     <td className="p-2 italic text-slate-600 text-sm">{item.note}</td>
                                 </tr>
                             ))}
-                            {/* Empty Rows Filler */}
+                            {/* Filler Rows for Print Consistency */}
                             {Array.from({ length: Math.max(0, 5 - data.items.length) }).map((_, i) => (
-                                <tr key={`empty-${i}`} className="border-b border-slate-100 text-transparent select-none">
+                                <tr key={`empty-${i}`} className="border-b border-slate-100 text-transparent select-none print:hidden">
                                     <td className="p-2">-</td><td className="p-2">-</td><td className="p-2">-</td><td className="p-2">-</td><td className="p-2">-</td>
                                 </tr>
                             ))}
@@ -212,7 +184,7 @@ function IzinBarangBuilder() {
                     </table>
                 </div>
 
-                <div className="mt-6 bg-slate-50 p-4 border border-dashed border-slate-300 rounded text-xs text-slate-500 italic text-justify">
+                <div className="mt-6 bg-slate-50 print:bg-transparent p-4 border border-dashed border-slate-300 rounded text-xs text-slate-500 italic text-justify">
                     "Dengan ini menyatakan bahwa barang-barang tersebut di atas telah diperiksa dan diizinkan untuk {data.type === 'KELUAR' ? 'dikeluarkan dari' : 'masuk ke'} area perusahaan/instansi. Petugas keamanan berhak melakukan pemeriksaan fisik ulang."
                 </div>
             </div>
@@ -240,7 +212,6 @@ function IzinBarangBuilder() {
         </div>
       )}
 
-      {/* TEMPLATE 2: SIMPLE SURAT JALAN */}
       {templateId === 2 && (
         <div className="flex flex-col h-full font-serif text-black">
             <div className="text-center border-b-4 border-double border-black pb-4 mb-6">
@@ -263,7 +234,7 @@ function IzinBarangBuilder() {
 
             <table className="w-full border-collapse border border-black text-sm mb-6">
                <thead>
-                  <tr className="bg-slate-200">
+                  <tr className="bg-slate-200 print:bg-transparent">
                      <th className="border border-black p-2 text-center w-10">No</th>
                      <th className="border border-black p-2 text-left">Nama Barang</th>
                      <th className="border border-black p-2 text-center w-20">Banyaknya</th>
@@ -277,12 +248,6 @@ function IzinBarangBuilder() {
                         <td className="border border-black p-2 font-bold uppercase">{item.name}</td>
                         <td className="border border-black p-2 text-center">{item.qty} {item.unit}</td>
                         <td className="border border-black p-2">{item.note}</td>
-                     </tr>
-                  ))}
-                  {/* Minimum Rows to look good */}
-                  {Array.from({ length: Math.max(0, 8 - data.items.length) }).map((_, i) => (
-                     <tr key={`fill-${i}`}>
-                        <td className="border border-black p-2 h-8"></td><td className="border border-black p-2"></td><td className="border border-black p-2"></td><td className="border border-black p-2"></td>
                      </tr>
                   ))}
                </tbody>
@@ -312,19 +277,14 @@ function IzinBarangBuilder() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
-      {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4 portrait; margin: 0; }
+          @page { size: A4; margin: 0; } 
+          body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
-          body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
-          .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-          .print-table thead { height: 15mm; display: table-header-group; } 
-          .print-table tfoot { height: 15mm; display: table-footer-group; } 
-          .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-          tr, .break-inside-avoid { page-break-inside: avoid !important; }
+          #print-only-root { 
+            display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+          }
         }
       `}</style>
 
@@ -357,7 +317,7 @@ function IzinBarangBuilder() {
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         
-        {/* SIDEBAR INPUT (SLIDING ANIMATION) */}
+        {/* SIDEBAR INPUT */}
         <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
                 <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Barang</h2>
@@ -366,7 +326,6 @@ function IzinBarangBuilder() {
 
            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
               
-              {/* SECTION JENIS IZIN */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-emerald-600 tracking-widest"><Truck size={14}/> Jenis Izin</h3>
                  <div className="grid grid-cols-2 gap-2">
@@ -379,7 +338,6 @@ function IzinBarangBuilder() {
                  </div>
               </div>
 
-              {/* SECTION PEMBAWA */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-blue-600 tracking-widest"><UserCircle2 size={14}/> Identitas Pembawa</h3>
                  <div className="space-y-2">
@@ -391,7 +349,6 @@ function IzinBarangBuilder() {
                  </div>
               </div>
 
-              {/* SECTION BARANG */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <div className="flex justify-between items-center border-b pb-2">
                     <h3 className="text-[10px] font-black uppercase flex items-center gap-2 text-amber-600 tracking-widest"><Package size={14}/> Daftar Barang</h3>
@@ -412,7 +369,6 @@ function IzinBarangBuilder() {
                  </div>
               </div>
 
-              {/* SECTION OTORISASI */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-purple-600 tracking-widest"><ClipboardList size={14}/> Otorisasi</h3>
                  <div className="space-y-2">
@@ -429,14 +385,12 @@ function IzinBarangBuilder() {
            </div>
         </div>
 
-        {/* --- PREVIEW AREA (ALWAYS RENDERED BEHIND SIDEBAR) --- */}
+        {/* PREVIEW AREA */}
         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 shadow-2xl flex flex-col items-center">
                  <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   <div className="print-content-wrapper p-[20mm]">
-                      <DocumentContent />
-                   </div>
+                   <DocumentContent />
                  </div>
                </div>
             </div>
@@ -452,9 +406,7 @@ function IzinBarangBuilder() {
       {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
          <div style={{ width: '210mm', minHeight: 'auto' }} className="bg-white flex flex-col">
-             <div className="print-content-wrapper p-[20mm]">
-                <DocumentContent />
-             </div>
+            <DocumentContent />
          </div>
       </div>
 
