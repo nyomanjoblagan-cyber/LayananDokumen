@@ -2,13 +2,11 @@
 
 /**
  * FILE: KlaimAsuransiPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: FINAL FIXED (BLANK PAGE REMOVED)
  * DESC: Generator Surat Klaim Asuransi Logistik
- * FEATURES:
- * - Dual Template (Logistics Standard vs General Property)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIXES: 
+ * - Menambahkan 'print:min-h-0' dan 'print:h-auto' agar tidak memaksa tinggi A4 saat print (mencegah halaman 2 kosong).
+ * - Tetap menggunakan Table Wrapper agar margin halaman 2 aman.
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -17,9 +15,6 @@ import {
   LayoutTemplate, X, ShieldCheck, ClipboardList, PackageX, Coins, AlertCircle, Edit3, Eye, Check, ChevronDown, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
 
 // --- 1. TYPE DEFINITIONS ---
 interface ClaimData {
@@ -43,7 +38,7 @@ interface ClaimData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: ClaimData = {
   city: 'JAKARTA',
-  date: '', // Diisi useEffect
+  date: '', 
   docNo: 'CLAIMS/EXP-001/I/2026',
   
   insuranceName: 'PT. ASURANSI JIWA BERSAMA',
@@ -54,7 +49,7 @@ const INITIAL_DATA: ClaimData = {
   claimantPhone: '0812-3456-7890',
   claimantAddress: 'Jl. Melati No. 45, Jakarta Selatan',
   
-  incidentDate: '', // Diisi useEffect
+  incidentDate: '', 
   incidentType: 'Barang Rusak Total (Total Loss)',
   itemDescription: '1 Unit Laptop MacBook Pro M3 14 Inch',
   claimAmount: 'Rp 28.500.000,-',
@@ -63,7 +58,6 @@ const INITIAL_DATA: ClaimData = {
   witnessName: 'ANDRI (Kurir/Staff Cargo)'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function KlaimAsuransiPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Klaim Asuransi...</div>}>
@@ -73,7 +67,6 @@ export default function KlaimAsuransiPage() {
 }
 
 function InsuranceClaimBuilder() {
-  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
@@ -110,7 +103,6 @@ function InsuranceClaimBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -128,13 +120,13 @@ function InsuranceClaimBuilder() {
 
   // --- KOMPONEN ISI SURAT ---
   const ClaimContent = () => (
-    // FIX: Print Padding
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[10.5pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+    // FIX: Removed fixed padding/height for print mode to avoid blank 2nd page
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[10.5pt] w-[210mm] min-h-[296mm] shadow-2xl p-[20mm] print:shadow-none print:m-0 print:p-0 print:w-full print:min-h-0 print:h-auto mx-auto">
       
       {/* JUDUL */}
       <div className="text-center mb-8 shrink-0">
         <h1 className="text-xl font-black underline uppercase decoration-2 underline-offset-8">SURAT PERNYATAAN KLAIM ASURANSI</h1>
-        <p className="text-[10pt] font-sans mt-3 italic uppercase tracking-widest text-slate-500">Logistik & Pengiriman Barang</p>
+        <p className="text-[10pt] font-sans mt-3 italic uppercase tracking-widest text-slate-500 print:text-black">Logistik & Pengiriman Barang</p>
         <p className="text-[9pt] font-sans font-bold mt-1">Nomor Pengajuan: {data.docNo}</p>
       </div>
 
@@ -211,16 +203,24 @@ function InsuranceClaimBuilder() {
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 print:bg-white print:m-0">
       
-      {/* GLOBAL CSS PRINT */}
+      {/* GLOBAL CSS PRINT (TABLE WRAPPER) */}
       <style jsx global>{`
         @media print {
-          @page { size: A4 portrait; margin: 0; } 
+          @page { size: A4 portrait; margin: 0mm !important; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
+          
+          /* Table Wrapper Spacing */
+          .print-table { width: 100%; border-collapse: collapse; }
+          .print-header-space { height: 20mm; } 
+          .print-footer-space { height: 20mm; } 
+          .print-content-wrapper { padding: 0 20mm; }
+          
           #print-only-root { 
-            display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+            display: block !important; 
+            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
           }
         }
       `}</style>
@@ -300,7 +300,8 @@ function InsuranceClaimBuilder() {
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
                  <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   <div className="print-content-wrapper p-[20mm]">
+                   {/* VISUAL PADDING FOR PREVIEW ONLY */}
+                   <div style={{ padding: '20mm' }}>
                       <ClaimContent />
                    </div>
                  </div>
