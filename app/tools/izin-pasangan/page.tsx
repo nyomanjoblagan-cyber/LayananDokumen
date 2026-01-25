@@ -1,13 +1,64 @@
 'use client';
 
+/**
+ * FILE: IzinPasanganPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Izin Pasangan (Suami/Istri)
+ * FEATURES:
+ * - Dual Template (Formal Legal vs Simple)
+ * - Auto Scaling Preview for Mobile
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  Heart, UserCircle2, FileText, Edit3, Eye
+  Heart, UserCircle2, FileText, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface PartnerData {
+  city: string;
+  date: string;
+  
+  // Data Pasangan
+  partnerName: string;
+  partnerNik: string;
+  partnerJob: string;
+  partnerAddress: string;
+  partnerRelation: 'ISTRI' | 'SUAMI'; // Strict type
+
+  // Data User
+  userName: string;
+  userNik: string;
+  
+  // Tujuan
+  purpose: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: PartnerData = {
+  city: 'SLEMAN',
+  date: '', // Diisi useEffect
+  
+  partnerName: 'SITI AMINAH',
+  partnerNik: '3404014506920002',
+  partnerJob: 'Ibu Rumah Tangga',
+  partnerAddress: 'Jl. Kaliurang KM 10, Gayam, Sleman',
+  partnerRelation: 'ISTRI',
+
+  userName: 'ANDI PRASETYO',
+  userNik: '3404011203900005',
+  
+  purpose: 'Melamar Pekerjaan sebagai Operator Produksi di PT. Maju Bersama Jaya dan bersedia ditempatkan di luar kota.',
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function IzinPasanganPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat...</div>}>
@@ -22,26 +73,7 @@ function PartnerConsentBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Sleman',
-    date: '', 
-    
-    // DATA PASANGAN (YANG MEMBERI IZIN)
-    partnerName: 'SITI AMINAH',
-    partnerNik: '3404014506920002',
-    partnerJob: 'Ibu Rumah Tangga',
-    partnerAddress: 'Jl. Kaliurang KM 10, Gayam, Sleman',
-    partnerRelation: 'ISTRI', // ISTRI atau SUAMI
-
-    // DATA YANG DIIZINKAN (USER)
-    userName: 'ANDI PRASETYO',
-    userNik: '3404011203900005',
-    
-    // TUJUAN IZIN
-    purpose: 'Melamar Pekerjaan sebagai Operator Produksi di PT. Maju Bersama Jaya dan bersedia ditempatkan di luar kota.',
-  });
+  const [data, setData] = useState<PartnerData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
@@ -49,13 +81,30 @@ function PartnerConsentBuilder() {
     setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof PartnerData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  const TEMPLATES = [
-    { id: 1, name: "Formal (Materai)", desc: "Standar untuk dunia kerja & bank" },
-    { id: 2, name: "Sederhana", desc: "Layout simpel untuk urusan umum" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date().toISOString().split('T')[0];
+        setData({ ...INITIAL_DATA, date: today });
+    }
+  };
+
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Formal (Materai)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Sederhana
+        </button>
+    </div>
+  );
 
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
@@ -119,30 +168,34 @@ function PartnerConsentBuilder() {
     </div>
   );
 
+  const activeTemplateName = templateId === 1 ? 'Formal (Materai)' : 'Sederhana';
+
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          @page { size: A4 portrait; margin: 0; }
           .no-print { display: none !important; }
-          #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
-          }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
+          .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+          .print-table thead { height: 15mm; display: table-header-group; } 
+          .print-table tfoot { height: 15mm; display: table-footer-group; } 
+          .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
+          tr, .break-inside-avoid { page-break-inside: avoid !important; }
         }
       `}</style>
 
       {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-               <ArrowLeft size={18} /> Dashboard
+        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-bold uppercase tracking-widest text-xs">
+              <ArrowLeft size={18} /> Dashboard
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
@@ -155,17 +208,7 @@ function PartnerConsentBuilder() {
                 <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
                 <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
-                  {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
-                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
-                      {templateId === t.id && <Check size={14} className="text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showTemplateMenu && <TemplateMenu />}
             </div>
             <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
@@ -176,57 +219,58 @@ function PartnerConsentBuilder() {
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         
-        {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
+        {/* SIDEBAR INPUT (SLIDING ANIMATION) */}
+        <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Surat</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
+
            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
               
-               <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+              {/* Data Pemberi Izin */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-pink-600 tracking-widest"><Heart size={14}/> Data Pemberi Izin</h3>
+                 <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => handleDataChange('partnerRelation', 'ISTRI')} className={`py-2 rounded-lg text-xs font-bold transition-all ${data.partnerRelation === 'ISTRI' ? 'bg-pink-600 text-white ring-2 ring-pink-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>ISTRI</button>
+                    <button onClick={() => handleDataChange('partnerRelation', 'SUAMI')} className={`py-2 rounded-lg text-xs font-bold transition-all ${data.partnerRelation === 'SUAMI' ? 'bg-blue-600 text-white ring-2 ring-blue-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>SUAMI</button>
+                 </div>
+                 <input className="w-full p-2 border rounded text-xs font-bold" placeholder="Nama Pasangan" value={data.partnerName} onChange={e => handleDataChange('partnerName', e.target.value)} />
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs" placeholder="NIK Pasangan" value={data.partnerNik} onChange={e => handleDataChange('partnerNik', e.target.value)} />
+                    <input className="w-full p-2 border rounded text-xs" placeholder="Pekerjaan" value={data.partnerJob} onChange={e => handleDataChange('partnerJob', e.target.value)} />
+                 </div>
+                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" placeholder="Alamat Pasangan" value={data.partnerAddress} onChange={e => handleDataChange('partnerAddress', e.target.value)} />
+              </div>
 
-               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-pink-600 tracking-widest"><Heart size={14}/> Data Pemberi Izin</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                     <button onClick={() => handleDataChange('partnerRelation', 'ISTRI')} className={`py-2 rounded-lg text-xs font-bold transition-all ${data.partnerRelation === 'ISTRI' ? 'bg-pink-600 text-white ring-2 ring-pink-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>ISTRI</button>
-                     <button onClick={() => handleDataChange('partnerRelation', 'SUAMI')} className={`py-2 rounded-lg text-xs font-bold transition-all ${data.partnerRelation === 'SUAMI' ? 'bg-blue-600 text-white ring-2 ring-blue-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>SUAMI</button>
-                  </div>
-                  <input className="w-full p-2 border rounded text-xs font-bold" placeholder="Nama Pasangan" value={data.partnerName} onChange={e => handleDataChange('partnerName', e.target.value)} />
-                  <div className="grid grid-cols-2 gap-2">
-                     <input className="w-full p-2 border rounded text-xs" placeholder="NIK Pasangan" value={data.partnerNik} onChange={e => handleDataChange('partnerNik', e.target.value)} />
-                     <input className="w-full p-2 border rounded text-xs" placeholder="Pekerjaan" value={data.partnerJob} onChange={e => handleDataChange('partnerJob', e.target.value)} />
-                  </div>
-                  <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" placeholder="Alamat Pasangan" value={data.partnerAddress} onChange={e => handleDataChange('partnerAddress', e.target.value)} />
-               </div>
+              {/* Data User */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
+                 <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-blue-600 tracking-widest"><UserCircle2 size={14}/> Yang Diberi Izin</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase" placeholder="Nama Anda" value={data.userName} onChange={e => handleDataChange('userName', e.target.value)} />
+                 <input className="w-full p-2 border rounded text-xs" placeholder="NIK Anda" value={data.userNik} onChange={e => handleDataChange('userNik', e.target.value)} />
+              </div>
 
-               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-blue-600 tracking-widest"><UserCircle2 size={14}/> Yang Diberi Izin</h3>
-                  <input className="w-full p-2 border rounded text-xs font-bold uppercase" placeholder="Nama Anda" value={data.userName} onChange={e => handleDataChange('userName', e.target.value)} />
-                  <input className="w-full p-2 border rounded text-xs" placeholder="NIK Anda" value={data.userNik} onChange={e => handleDataChange('userNik', e.target.value)} />
-               </div>
-
-               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-slate-400 tracking-widest"><FileText size={14}/> Keperluan Izin</h3>
-                  <textarea className="w-full p-2 border rounded text-xs h-24 resize-none" placeholder="Contoh: Bekerja di Luar Negeri" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} />
-                  <div className="grid grid-cols-2 gap-2">
-                     <input className="w-full p-2 border rounded text-xs" placeholder="Kota" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
-                     <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                  </div>
-               </div>
-               <div className="h-20 md:hidden"></div>
+              {/* Keperluan */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-slate-400 tracking-widest"><FileText size={14}/> Keperluan Izin</h3>
+                 <textarea className="w-full p-2 border rounded text-xs h-24 resize-none" placeholder="Contoh: Bekerja di Luar Negeri" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} />
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs" placeholder="Kota" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
+                    <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                 </div>
+              </div>
+              <div className="h-20 md:hidden"></div>
            </div>
         </div>
 
-        {/* PREVIEW AREA */}
+        {/* PREVIEW AREA (ALWAYS RENDERED BEHIND SIDEBAR) */}
         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               
-               {/* LOGIKA SKALA:
-                  - Mobile: scale-[0.5] dan margin bawah negatif besar (-140mm) agar pas.
-                  - Tablet (MD): scale-[0.7] margin sedikit (-50mm).
-                  - Laptop (LG): scale-[0.85] margin 0.
-                  - Desktop (XL): scale-100 margin 0.
-               */}
-               <div className="origin-top transition-transform duration-300 transform scale-[0.5] md:scale-[0.7] lg:scale-[0.85] xl:scale-100 mb-[-140mm] md:mb-[-50mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm' }}>
-                    <DocumentContent />
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 shadow-2xl flex flex-col items-center">
+                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+                   <div className="print-content-wrapper p-[20mm]">
+                      <DocumentContent />
+                   </div>
                  </div>
                </div>
             </div>
@@ -241,8 +285,10 @@ function PartnerConsentBuilder() {
 
       {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
-            <DocumentContent />
+         <div style={{ width: '210mm', minHeight: 'auto' }} className="bg-white flex flex-col">
+             <div className="print-content-wrapper p-[20mm]">
+                <DocumentContent />
+             </div>
          </div>
       </div>
 
