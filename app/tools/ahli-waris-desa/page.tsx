@@ -2,13 +2,13 @@
 
 /**
  * FILE: AhliWarisDesaPage.tsx
- * STATUS: PRODUCTION READY
- * DESC: Generator Surat Keterangan Waris dengan standar Tata Naskah Dinas (TND).
- * FITUR: 
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Keterangan Waris (Versi Desa/Kelurahan)
+ * FEATURES: 
  * - Layout Tanda Tangan Hierarki (Saksi -> Kades -> Camat)
  * - Dynamic Form (Add/Remove Ahli Waris)
- * - Print Scaling Fix (A4 Locked)
- * - Type Safety (TypeScript)
+ * - Strict A4 Print Layout
+ * - Mobile Template Menu Fixed
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -19,10 +19,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika komponen iklan sudah ada, uncomment baris di bawah:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
-
-// --- 1. TYPE DEFINITIONS (Agar sistem stabil & tidak error saat build) ---
+// --- 1. TYPE DEFINITIONS ---
 interface Heir {
   name: string;
   age: string;
@@ -56,13 +53,13 @@ interface VillageData {
   subDistrictHeadNip: string;
 }
 
-// --- 2. DATA DEFAULT (Placeholder Awal) ---
+// --- 2. DATA DEFAULT ---
 const INITIAL_DATA: VillageData = {
   district: 'KECAMATAN MENTENG',
   village: 'KELURAHAN MENTENG',
   city: 'JAKARTA PUSAT',
   villageAddress: 'Jl. Pegangsaan Barat No. 12, Jakarta Pusat, 10310',
-  date: '', // Akan diisi otomatis oleh useEffect
+  date: '', 
   
   // Nomor Surat
   docNo: '470 / 125 / 41.10.2 / 2026',
@@ -114,10 +111,10 @@ function VillageHeirBuilder() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logo, setLogo] = useState<string | null>(null);
 
-  // Data State dengan Type Safety
+  // Data State
   const [data, setData] = useState<VillageData>(INITIAL_DATA);
 
-  // Effect: Set tanggal hari ini saat halaman dibuka (Client Side Only)
+  // Effect: Set tanggal hari ini
   useEffect(() => {
     setData(prev => ({
       ...prev,
@@ -125,46 +122,38 @@ function VillageHeirBuilder() {
     }));
   }, []);
 
-  // --- HANDLERS (LOGIKA APLIKASI) ---
-  
-  // Upload Logo
+  // --- HANDLERS ---
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setLogo(URL.createObjectURL(file));
   };
 
-  // Update Data Teks Biasa
   const handleDataChange = (field: keyof VillageData, val: any) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
-  // Update Data Array (Ahli Waris)
   const updateHeir = (idx: number, field: keyof Heir, val: string) => {
     const newHeirs = [...data.heirs];
     newHeirs[idx] = { ...newHeirs[idx], [field]: val };
     setData(prev => ({ ...prev, heirs: newHeirs }));
   };
 
-  // Tambah Baris Ahli Waris
   const addHeir = () => {
     setData(prev => ({ ...prev, heirs: [...prev.heirs, { name: '', age: '', relation: '' }] }));
   };
   
-  // Hapus Baris Ahli Waris
   const removeHeir = (idx: number) => {
     const arr = [...data.heirs]; 
     arr.splice(idx, 1); 
     setData(prev => ({ ...prev, heirs: arr }));
   };
 
-  // Update Saksi
   const updateWitness = (idx: number, field: keyof Witness, val: string) => {
     const newWits = [...data.witnesses];
     newWits[idx] = { ...newWits[idx], [field]: val };
     setData(prev => ({ ...prev, witnesses: newWits }));
   };
 
-  // Reset Form
   const handleReset = () => {
     if(confirm('Apakah Anda yakin ingin mereset semua data ke awal? Data yang sudah diketik akan hilang.')) {
         setData({
@@ -175,29 +164,34 @@ function VillageHeirBuilder() {
     }
   };
 
-  // --- KONTEN SURAT (INTERNAL COMPONENT) ---
-  // Bagian ini dirender ulang saat preview & print
+  // --- TEMPLATE MENU (REUSABLE FOR MOBILE & DESKTOP) ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format Dinas (Resmi)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format Modern (Simpel)
+        </button>
+    </div>
+  );
+
+  // --- KONTEN SURAT ---
   const ContentInside = () => {
-    // Helper Format Tanggal Indonesia
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            return new Date(dateString).toLocaleDateString('id-ID', { 
-                day: 'numeric', month: 'long', year: 'numeric' 
-            });
-        } catch (e) {
-            return dateString;
-        }
+            return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        } catch (e) { return dateString; }
     };
 
     if (templateId === 1) {
-      // ============================================
-      // TEMPLATE 1: DINAS RESMI (STANDAR PEMERINTAH)
-      // ============================================
+      // === TEMPLATE 1: DINAS RESMI ===
       return (
         <div className="font-serif text-[11pt] text-black leading-[1.5]">
-           
-           {/* 1. KOP SURAT */}
+           {/* KOP SURAT */}
            <div className="flex items-center border-b-[3px] border-double border-black pb-4 mb-6 text-center relative">
               {logo ? <img src={logo} className="w-24 h-24 object-contain absolute left-0 top-0 grayscale" alt="Logo" /> : null}
               <div className="flex-grow px-12">
@@ -208,17 +202,14 @@ function VillageHeirBuilder() {
               </div>
            </div>
 
-           {/* 2. JUDUL SURAT */}
            <div className="text-center mb-8">
               <h2 className="text-[13pt] font-bold underline uppercase">SURAT KETERANGAN AHLI WARIS</h2>
               <p className="text-[11pt]">Nomor: {data.docNo}</p>
            </div>
 
-           {/* 3. ISI SURAT (BODY) */}
            <div className="text-justify px-1">
               <p className="mb-4 indent-12">Yang bertanda tangan di bawah ini Lurah/Kepala Desa <strong>{data.village}</strong>, Kecamatan {data.district}, {data.city}, dengan ini menerangkan bahwa pada tanggal <strong>{formatDate(data.deceasedDeathDate)}</strong> telah meninggal dunia:</p>
               
-              {/* Data Almarhum */}
               <div className="ml-8 mb-6 font-sans text-[11pt]">
                  <table className="w-full">
                     <tbody>
@@ -232,7 +223,6 @@ function VillageHeirBuilder() {
 
               <p className="mb-4 indent-12">Berdasarkan Surat Keterangan Kematian dan data kependudukan yang ada, Almarhum/ah meninggalkan Ahli Waris yang sah sebagai berikut:</p>
 
-              {/* Tabel Ahli Waris (Dengan Page Break Avoid) */}
               <table className="w-full border-collapse border border-black mb-6 font-sans text-[10pt]">
                  <thead className="bg-slate-100 uppercase font-bold text-center">
                     <tr>
@@ -263,14 +253,9 @@ function VillageHeirBuilder() {
               <p className="indent-12 mb-4">Demikian Surat Keterangan Waris ini dibuat dengan sebenarnya dan apabila dikemudian hari keterangan ini tidak benar, maka kami para ahli waris dan saksi bersedia dituntut sesuai hukum yang berlaku.</p>
            </div>
 
-           {/* 4. TANDA TANGAN (LAYOUT PIRAMIDA / SEGITIGA) */}
-           {/* Ini Layout Paling Benar secara Administrasi: Kiri Saksi, Kanan Kades, Bawah Camat */}
+           {/* TANDA TANGAN (LAYOUT PIRAMIDA) */}
            <div className="mt-8" style={{ pageBreakInside: 'avoid' }}>
-              
-              {/* BARIS ATAS: SAKSI (KIRI) & LURAH (KANAN) */}
               <div className="flex justify-between items-start mb-8">
-                 
-                 {/* KIRI: SAKSI-SAKSI */}
                  <div className="w-[45%] text-center">
                     <p className="font-bold underline mb-4 text-[10pt]">SAKSI - SAKSI :</p>
                     <div className="space-y-8 text-left pl-8">
@@ -286,7 +271,6 @@ function VillageHeirBuilder() {
                     </div>
                  </div>
 
-                 {/* KANAN: LURAH / KADES */}
                  <div className="w-[45%] text-center">
                     <p className="mb-2">{data.city.split(' ').pop()}, {formatDate(data.date)}</p>
                     <p className="font-bold uppercase mb-20">LURAH / KEPALA DESA</p>
@@ -295,15 +279,12 @@ function VillageHeirBuilder() {
                  </div>
               </div>
 
-              {/* BARIS BAWAH: CAMAT (MENGETAHUI - TENGAH) */}
               <div className="flex justify-center mt-4">
                   <div className="text-center w-[50%] relative">
                       <p className="mb-1">Mengetahui,</p>
                       <p className="font-bold uppercase mb-20">CAMAT {data.district}</p>
                       <p className="font-bold underline uppercase text-[11pt]">{data.subDistrictHead}</p>
                       <p className="text-[10pt]">NIP. {data.subDistrictHeadNip}</p>
-                      
-                      {/* Nomor Register Camat (Penting untuk legalitas) */}
                       <div className="mt-2 text-[9pt] italic text-slate-600">
                           No. Reg Kecamatan: <strong>{data.regKecamatan}</strong>
                       </div>
@@ -313,12 +294,9 @@ function VillageHeirBuilder() {
         </div>
       );
     } else {
-      // ============================================
-      // TEMPLATE 2: MODERN CLEAN (OPSIONAL)
-      // ============================================
+      // === TEMPLATE 2: MODERN CLEAN ===
       return (
         <div className="font-sans text-[11pt] text-slate-800 leading-relaxed">
-           {/* Header Modern */}
            <div className="border-b-2 border-emerald-600 pb-4 mb-8 flex justify-between items-end">
               <div>
                  <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">SURAT KETERANGAN WARIS</h1>
@@ -327,7 +305,6 @@ function VillageHeirBuilder() {
               <div className="text-right"><p className="text-xs font-mono bg-slate-100 px-2 py-1 rounded">No: {data.docNo}</p></div>
            </div>
            
-           {/* Body Modern */}
            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-6" style={{ pageBreakInside: 'avoid' }}>
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 border-b pb-1">Data Almarhum</h3>
               <div className="grid grid-cols-[120px_1fr] gap-1.5">
@@ -352,7 +329,6 @@ function VillageHeirBuilder() {
               </div>
            </div>
            
-           {/* Footer Modern */}
            <div className="mt-12 pt-8 border-t border-slate-200" style={{ pageBreakInside: 'avoid' }}>
                <div className="grid grid-cols-3 gap-4 text-center items-end">
                    <div>
@@ -381,77 +357,22 @@ function VillageHeirBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* === CSS KHUSUS PRINT (JURUS RAHASIA) ===
-        Ini mengunci ukuran kertas ke A4 dan mencegah browser mengecilkan konten.
-      */}
+      {/* === CSS PRINT FIXED === */}
       <style jsx global>{`
         @media print {
-            @page { 
-                size: A4 portrait; 
-                margin: 0; 
-            }
-            
-            /* Sembunyikan elemen UI (tombol, sidebar) */
+            @page { size: A4 portrait; margin: 0; }
             .no-print { display: none !important; }
-            
-            /* Reset Body */
-            body { 
-                background: white; 
-                margin: 0; 
-                padding: 0; 
-                min-width: 210mm; /* KUNCI LEBAR AGAR TIDAK MENGECIL */
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            /* Container Print Utama (Root) */
-            #print-only-root {
-                display: block !important;
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 210mm; /* HARUS 210mm FIX */
-                min-height: 297mm;
-                z-index: 9999;
-                background: white;
-                font-size: 12pt;
-            }
-
-            /* Table Wrapper (Header Berulang di Halaman Berikutnya) */
-            .print-table { 
-                width: 100%; 
-                border-collapse: collapse; 
-                table-layout: fixed;
-            }
-            
-            /* Margin Atas Halaman (Header Space) */
-            .print-table thead { 
-                height: 15mm; 
-                display: table-header-group;
-            } 
-            
-            /* Margin Bawah Halaman (Footer Space) */
-            .print-table tfoot { 
-                height: 15mm; 
-                display: table-footer-group;
-            } 
-            
-            /* Margin Kiri-Kanan Konten */
-            .print-content-wrapper { 
-                padding: 0 20mm; /* Standar Margin Surat 2cm */
-                width: 100%;
-                box-sizing: border-box;
-            }
-            
-            /* Mencegah pemotongan baris tabel/paragraf di tengah */
-            tr, .keep-together { 
-                page-break-inside: avoid !important; 
-                break-inside: avoid;
-            }
+            body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
+            .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+            .print-table thead { height: 15mm; display: table-header-group; } 
+            .print-table tfoot { height: 15mm; display: table-footer-group; } 
+            .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
+            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
         }
       `}</style>
 
-      {/* HEADER NAVY (UI ATAS) */}
+      {/* HEADER */}
       <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
          <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -462,37 +383,38 @@ function VillageHeirBuilder() {
                <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Surat Desa <span className="text-emerald-400">Generator</span></h1></div>
             </div>
+            
             <div className="flex items-center gap-3">
+               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Format Dinas' : 'Format Modern'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
-                  {showTemplateMenu && (
-                     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-50">
-                        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-800"></div> Format Dinas (Resmi)</button>
-                        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className="w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Format Modern (Simpel)</button>
-                     </div>
-                  )}
+                  {showTemplateMenu && <TemplateMenu />}
                </div>
-               {/* TOMBOL CETAK */}
+
+               {/* MOBILE MENU TRIGGER */}
+               <div className="relative md:hidden">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
+                    Template <ChevronDown size={14}/>
+                  </button>
+                  {showTemplateMenu && <TemplateMenu />}
+               </div>
+
                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak / PDF</span></button>
             </div>
          </div>
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         
-         {/* SIDEBAR EDITOR (KIRI) */}
+         {/* SIDEBAR EDITOR */}
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            
-            {/* Toolbar Sidebar */}
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
                 <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Surat</h2>
                 <button onClick={handleReset} title="Reset Data" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               
                {/* 1. KOP SURAT */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Landmark size={12}/> Kop Pemerintah Desa</h3>
@@ -547,29 +469,23 @@ function VillageHeirBuilder() {
                   </div>
                </div>
 
-               {/* 4. LEGALITAS (PEJABAT) */}
+               {/* 4. LEGALITAS */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><LayoutTemplate size={12}/> Legalitas & Pejabat</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                      {/* Nomor Surat */}
                       <div className="grid grid-cols-2 gap-3">
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">No. Surat Desa</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} /></div>
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Reg. Kecamatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.regKecamatan} onChange={e => handleDataChange('regKecamatan', e.target.value)} /></div>
                       </div>
-                      
-                      {/* Lurah */}
                       <div className="pt-2 border-t border-dashed border-slate-200 space-y-3">
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lurah/Kades</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.villageHead} onChange={e => handleDataChange('villageHead', e.target.value)} /></div>
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP Lurah</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.villageHeadNip} onChange={e => handleDataChange('villageHeadNip', e.target.value)} /></div>
                       </div>
-
-                      {/* Camat */}
                       <div className="pt-2 border-t border-dashed border-slate-200 space-y-3">
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Camat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.subDistrictHead} onChange={e => handleDataChange('subDistrictHead', e.target.value)} /></div>
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP Camat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.subDistrictHeadNip} onChange={e => handleDataChange('subDistrictHeadNip', e.target.value)} /></div>
                       </div>
                       
-                      {/* Saksi */}
                       <div className="pt-2 border-t border-dashed border-slate-200 space-y-2">
                          <label className="text-[10px] font-bold text-slate-500">Saksi (RT/RW)</label>
                          {data.witnesses.map((w, idx) => (
@@ -582,15 +498,14 @@ function VillageHeirBuilder() {
                   </div>
                </div>
                
-               {/* Spacer Bawah untuk Mobile */}
+               {/* Spacer Bawah */}
                <div className="h-20 md:hidden"></div>
             </div>
          </div>
 
-         {/* AREA PREVIEW (KANAN) */}
+         {/* PREVIEW */}
          <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
              <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-                {/* Scale Transform untuk Preview (Bukan untuk Print) */}
                 <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0">
                    <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                       <ContentInside />
@@ -600,16 +515,13 @@ function VillageHeirBuilder() {
          </div>
       </main>
       
-      {/* TOMBOL NAVIGASI MOBILE */}
+      {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
          <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900' : 'text-slate-400'}`}><Edit3 size={16}/> Editor</button>
          <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white' : 'text-slate-400'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* === PRINT PORTAL ===
-         Ini adalah elemen yang AKAN DICETAK.
-         Elemen ini tersembunyi di layar biasa (hidden), tapi muncul saat Print karena CSS @media print.
-      */}
+      {/* PRINT PORTAL */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
             <thead><tr><td><div style={{ height: '15mm' }}>&nbsp;</div></td></tr></thead>
