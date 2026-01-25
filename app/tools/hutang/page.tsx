@@ -4,12 +4,7 @@
  * FILE: HutangPiutangPage.tsx
  * STATUS: FINAL & MOBILE READY
  * DESC: Generator Surat Perjanjian Hutang Piutang
- * FEATURES:
- * - Dual Template (Formal Legal vs Simple)
- * - Auto Date Logic
- * - Quick Preset Data
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIX: Added 'activeTemplateName' definition
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -169,19 +164,12 @@ function DebtAgreementBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Legal Formal (Lengkap)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Sederhana (Ringkas)
-        </button>
-    </div>
-  );
+  // --- TEMPLATE DEFINITIONS (FIXED HERE) ---
+  const TEMPLATES = [
+    { id: 1, name: "Legal Formal", desc: "Lengkap (2 Halaman)" },
+    { id: 2, name: "Sederhana", desc: "Ringkas (1 Halaman)" }
+  ];
+  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
 
   // --- ISI DOKUMEN ---
   const DocumentContent = () => (
