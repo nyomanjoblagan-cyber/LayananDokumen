@@ -2,12 +2,12 @@
 
 /**
  * FILE: JualBeliKendaraanPage.tsx
- * STATUS: FIXED PRINT LAYOUT
- * DESC: Generator Surat Jual Beli Kendaraan (Mobil/Motor)
- * FEATURES:
- * - Print-safe Container (Absolute Positioning)
- * - Dual Template (Legal Formal & Kwitansi)
- * - Auto Date & Presets
+ * STATUS: FIXED PRINT MARGIN & PREVIEW OVERFLOW
+ * DESC: Generator Surat Jual Beli Kendaraan
+ * FIXES: 
+ * - Menggunakan @page margin untuk handling halaman 2 (agar tidak mepet atas).
+ * - Perbaikan scaling preview agar tidak meluber.
+ * - Compacting layout agar lebih rapi.
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -168,8 +168,8 @@ function VehicleSaleBuilder() {
 
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
-    // FIX: Print Padding & Dimensions
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-tight text-[10pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+    // WRAPPER UTAMA: Padding diatur oleh @page saat print, tapi ada padding visual saat preview
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-tight text-[10pt] w-full max-w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:w-full print:h-auto print:min-h-0 print:p-0 p-[20mm]">
         
         {/* TEMPLATE 1: LEGAL FORMAL */}
         {templateId === 1 && (
@@ -185,7 +185,7 @@ function VehicleSaleBuilder() {
                        <div className="font-bold underline text-xs uppercase mb-1 text-black">I. PIHAK PERTAMA (PENJUAL)</div>
                        <table className="w-full leading-snug">
                           <tbody>
-                             <tr><td className="w-24 font-bold text-black align-top">Nama</td><td className="w-3 text-black align-top">:</td><td className="font-bold uppercase text-black align-top">{data.p1Name}</td></tr>
+                             <tr><td className="w-20 py-0.5 text-black align-top">Nama</td><td className="w-3 text-black align-top">:</td><td className="font-bold uppercase text-black align-top">{data.p1Name}</td></tr>
                              <tr><td className="text-black align-top">NIK</td><td className="text-black align-top">:</td><td className="text-black align-top">{data.p1Nik}</td></tr>
                              <tr><td className="text-black align-top">Pekerjaan</td><td className="text-black align-top">:</td><td className="text-black align-top">{data.p1Job}</td></tr>
                              <tr><td className="text-black align-top">Alamat</td><td className="text-black align-top">:</td><td className="align-top text-black">{data.p1Address}</td></tr>
@@ -197,7 +197,7 @@ function VehicleSaleBuilder() {
                        <div className="font-bold underline text-xs uppercase mb-1 text-black">II. PIHAK KEDUA (PEMBELI)</div>
                        <table className="w-full leading-snug">
                           <tbody>
-                             <tr><td className="w-24 font-bold text-black align-top">Nama</td><td className="w-3 text-black align-top">:</td><td className="font-bold uppercase text-black align-top">{data.p2Name}</td></tr>
+                             <tr><td className="w-20 font-bold text-black align-top">Nama</td><td className="w-3 text-black align-top">:</td><td className="font-bold uppercase text-black align-top">{data.p2Name}</td></tr>
                              <tr><td className="text-black align-top">NIK</td><td className="text-black align-top">:</td><td className="text-black align-top">{data.p2Nik}</td></tr>
                              <tr><td className="text-black align-top">Pekerjaan</td><td className="text-black align-top">:</td><td className="text-black align-top">{data.p2Job}</td></tr>
                              <tr><td className="text-black align-top">Alamat</td><td className="text-black align-top">:</td><td className="align-top text-black">{data.p2Address}</td></tr>
@@ -207,7 +207,7 @@ function VehicleSaleBuilder() {
 
                     <p className="mb-4 text-black text-justify">Kedua belah pihak sepakat melakukan transaksi jual beli kendaraan dengan spesifikasi sebagai berikut:</p>
 
-                    <div className="mb-6 border border-black p-3 bg-slate-50 print:bg-transparent">
+                    <div className="mb-6 border border-black p-3 bg-slate-50 print:bg-transparent break-inside-avoid">
                        <table className="w-full leading-snug">
                           <tbody>
                              <tr><td className="w-24 font-bold text-black">Merk / Type</td><td className="w-3 text-black">:</td><td className="text-black">{data.brand} / {data.type}</td><td className="w-20 font-bold text-black pl-2">No. Polisi</td><td className="w-3 text-black">:</td><td className="font-bold text-black">{data.nopol}</td></tr>
@@ -218,15 +218,15 @@ function VehicleSaleBuilder() {
                     </div>
 
                     <div className="space-y-4 text-justify">
-                       <div>
+                       <div className="break-inside-avoid">
                           <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 1: HARGA & PEMBAYARAN</div>
                           <p className="text-black leading-relaxed">Disepakati harga kendaraan tersebut sebesar <strong>{formatRupiah(data.price)}</strong> (<em>{data.priceText}</em>) yang dibayarkan tunai/transfer oleh Pihak Kedua kepada Pihak Pertama secara <strong>{data.paymentMethod}</strong>.</p>
                        </div>
-                       <div>
+                       <div className="break-inside-avoid">
                           <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 2: PENYERAHAN & JAMINAN</div>
                           <p className="text-black leading-relaxed">Kendaraan diserahkan dalam kondisi "as is" (apa adanya). Pihak Pertama menjamin bahwa kendaraan tersebut adalah milik sah, tidak dalam sengketa, dan bebas dari sitaan pihak manapun.</p>
                        </div>
-                       <div>
+                       <div className="break-inside-avoid">
                           <div className="font-bold underline mb-1 text-black text-xs uppercase">PASAL 3: BALIK NAMA & PAJAK</div>
                           <p className="text-black leading-relaxed">Segala biaya balik nama menjadi tanggung jawab Pihak Kedua. Pajak/E-Tilang yang terjadi <strong>SEBELUM</strong> tanggal transaksi ini adalah tanggung jawab Pihak Pertama.</p>
                        </div>
@@ -235,7 +235,7 @@ function VehicleSaleBuilder() {
                     <p className="mt-6 text-justify text-[10pt] italic text-black">Demikian surat perjanjian ini dibuat rangkap dua bermaterai cukup dan memiliki kekuatan hukum yang sama.</p>
                 </div>
 
-                <div className="shrink-0 mt-8" style={{ pageBreakInside: 'avoid' }}>
+                <div className="shrink-0 mt-12 break-inside-avoid">
                     <div className="flex justify-between text-center mb-8">
                        <div className="w-48">
                           <p className="mb-20 font-bold text-black text-xs uppercase tracking-widest">PIHAK KEDUA (Pembeli)</p>
@@ -288,7 +288,7 @@ function VehicleSaleBuilder() {
                         <div className="text-black">Alamat</div><div className="text-black">:</div><div className="text-xs text-black">{data.p2Address}</div>
                     </div>
 
-                    <div className="bg-slate-50 print:bg-transparent p-6 rounded-xl mb-6 border border-black">
+                    <div className="bg-slate-50 print:bg-transparent p-6 rounded-xl mb-6 border border-black break-inside-avoid">
                         <h3 className="font-bold text-xs mb-3 border-b border-black pb-2 text-black uppercase tracking-widest">DATA KENDARAAN</h3>
                         <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                             <div className="flex justify-between"><span className="text-black">Merk/Type</span><span className="text-black">:</span></div><div className="font-bold text-black">{data.brand} {data.type}</div>
@@ -299,14 +299,14 @@ function VehicleSaleBuilder() {
                         </div>
                     </div>
 
-                    <div className="mb-6">
+                    <div className="mb-6 break-inside-avoid">
                         <div className="text-xs font-bold text-black uppercase tracking-widest mb-1">TOTAL HARGA</div>
                         <div className="text-3xl font-black text-black mb-2">{formatRupiah(data.price)}</div>
                         <div className="text-sm italic text-black bg-slate-50 print:bg-transparent p-2 border-l-4 border-black">"{data.priceText}"</div>
                     </div>
                 </div>
 
-                <div className="flex justify-between mt-auto pt-8 border-t-2 border-dashed border-black">
+                <div className="flex justify-between mt-auto pt-8 border-t-2 border-dashed border-black break-inside-avoid">
                     <div className="text-center w-40">
                         <div className="mb-24 text-xs font-bold uppercase tracking-wider text-black">Pembeli</div>
                         <div className="font-bold uppercase border-b border-black text-sm text-black">{data.p2Name}</div>
@@ -325,26 +325,33 @@ function VehicleSaleBuilder() {
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 print:bg-white print:m-0">
       
-      {/* GLOBAL CSS PRINT */}
+      {/* CRITICAL FIX FOR PRINTING:
+        1. @page margin: 20mm -> Memberi margin fisik ke kertas printer (atas, bawah, kiri, kanan).
+        2. #print-only-root -> Memaksa konten tampil absolut di pojok kiri atas.
+        3. padding: 0 -> Menghilangkan padding div internal saat print agar tidak double margin.
+      */}
       <style jsx global>{`
         @media print {
-          @page { size: A4 portrait; margin: 0; } 
+          @page { size: A4 portrait; margin: 20mm; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
           
-          /* KUNCI PERBAIKAN: Padding Absolut saat Print */
           #print-only-root { 
             display: block !important; 
             position: absolute; 
             top: 0; 
             left: 0; 
             width: 100%; 
-            height: 100%;
+            height: auto;
             z-index: 9999; 
-            background: white; 
+            background: white;
+            padding: 0 !important; /* Hapus padding internal div */
           }
+          
+          /* Mencegah pemotongan elemen di tengah */
+          .break-inside-avoid { page-break-inside: avoid; }
         }
       `}</style>
 
@@ -480,12 +487,13 @@ function VehicleSaleBuilder() {
            </div>
         </div>
 
-        {/* PREVIEW AREA */}
-        <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
+        {/* PREVIEW AREA (RESPONSIVE TOGGLE) */}
+        {/* FIX: Auto scaling wrapper untuk preview agar tidak meluber */}
+        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   <DocumentContent />
+               <div className="origin-top transition-transform duration-300 transform scale-[0.50] sm:scale-[0.6] md:scale-[0.8] lg:scale-[0.85] xl:scale-100 mb-[-150mm] md:mb-[-50mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                 <div style={{ width: '210mm', minHeight: '297mm' }}>
+                    <DocumentContent />
                  </div>
                </div>
             </div>
@@ -499,8 +507,9 @@ function VehicleSaleBuilder() {
       </div>
 
       {/* PRINT AREA (HIDDEN) */}
+      {/* FIX: Container Absolut untuk memastikan print rapi */}
       <div id="print-only-root" className="hidden">
-         <div style={{ width: '210mm', minHeight: 'auto' }} className="flex flex-col">
+         <div style={{ width: '100%', height: 'auto' }}>
             <DocumentContent />
          </div>
       </div>
