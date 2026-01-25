@@ -2,13 +2,12 @@
 
 /**
  * FILE: KlaimAsuransiPage.tsx
- * STATUS: FINAL COMPACT (FIT 1 PAGE)
+ * STATUS: FINAL CLEAN (NO URL HEADER)
  * DESC: Generator Surat Klaim Asuransi Logistik
  * FIXES: 
- * - Menghapus Table Wrapper agar hemat tempat vertikal.
- * - Menggunakan @page margin 20mm standar.
- * - Memadatkan spasi (leading-snug, text-10pt) agar muat 1 halaman.
- * - print:p-0 untuk menghindari margin ganda.
+ * - @page margin: 0mm !important -> Menghilangkan tulisan URL/Date browser.
+ * - print:p-[20mm] -> Menambahkan margin manual di dalam konten agar teks tidak mepet pinggir kertas.
+ * - Layout tetap compact agar muat 1 halaman.
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -122,14 +121,14 @@ function InsuranceClaimBuilder() {
 
   // --- KOMPONEN ISI SURAT ---
   const ClaimContent = () => (
-    // FIX: print:p-0 agar tidak ada padding ganda dengan @page margin
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-snug text-[10pt] w-[210mm] min-h-[296mm] p-[20mm] print:p-0 print:w-full print:min-h-0 print:shadow-none shadow-2xl mx-auto">
+    // FIX: p-[20mm] berlaku untuk print dan preview (margin dalam)
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-snug text-[10pt] w-[210mm] min-h-[296mm] p-[20mm] print:p-[20mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
       
       {/* JUDUL */}
       <div className="text-center mb-6 shrink-0">
-        <h1 className="text-lg font-black underline uppercase decoration-2 underline-offset-4">SURAT PERNYATAAN KLAIM ASURANSI</h1>
-        <p className="text-[9pt] font-sans mt-2 italic uppercase tracking-widest text-slate-500 print:text-black">Logistik & Pengiriman Barang</p>
-        <p className="text-[9pt] font-sans font-bold mt-1">Nomor: {data.docNo}</p>
+        <h1 className="text-xl font-black underline uppercase decoration-2 underline-offset-8">SURAT PERNYATAAN KLAIM ASURANSI</h1>
+        <p className="text-[10pt] font-sans mt-3 italic uppercase tracking-widest text-slate-500 print:text-black">Logistik & Pengiriman Barang</p>
+        <p className="text-[9pt] font-sans font-bold mt-1">Nomor Pengajuan: {data.docNo}</p>
       </div>
 
       {/* ISI SURAT */}
@@ -175,7 +174,7 @@ function InsuranceClaimBuilder() {
           <tbody>
             <tr>
               <td className="w-1/2"></td>
-              <td className="text-center font-bold text-[10pt] pb-6">
+              <td className="text-center font-bold text-[10.5pt] pb-6">
                 {data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '...'}
               </td>
             </tr>
@@ -185,14 +184,14 @@ function InsuranceClaimBuilder() {
             </tr>
             <tr>
               <td className="text-center align-bottom">
-                <div className="h-20 flex flex-col justify-end items-center">
+                <div className="h-24 flex flex-col justify-end items-center">
                    <p className="font-bold underline uppercase">({data.witnessName})</p>
                 </div>
               </td>
               <td className="text-center align-bottom">
-                <div className="h-20 flex flex-col justify-end items-center">
-                   <div className="border border-slate-300 w-20 h-10 flex items-center justify-center text-[7pt] text-slate-400 italic mb-2 print:border-black print:text-black">MATERAI</div>
-                   <p className="font-bold underline uppercase text-[10pt]">{data.claimantName}</p>
+                <div className="h-24 flex flex-col justify-end items-center">
+                   <div className="border border-slate-300 w-24 h-12 flex items-center justify-center text-[7pt] text-slate-400 italic mb-2 print:border-black print:text-black">MATERAI 10.000</div>
+                   <p className="font-bold underline uppercase text-[10.5pt]">{data.claimantName}</p>
                 </div>
               </td>
             </tr>
@@ -210,8 +209,8 @@ function InsuranceClaimBuilder() {
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          /* ATUR MARGIN DI SINI: 20mm */
-          @page { size: A4 portrait; margin: 20mm; } 
+          /* FIX: Margin 0mm menghilangkan header browser */
+          @page { size: A4 portrait; margin: 0mm !important; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
           
@@ -297,7 +296,7 @@ function InsuranceClaimBuilder() {
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
                  <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   <div style={{ padding: '20mm' }}>
+                   <div style={{ width: '100%', height: '100%' }}>
                       <ClaimContent />
                    </div>
                  </div>
