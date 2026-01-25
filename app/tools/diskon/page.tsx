@@ -1,18 +1,42 @@
 'use client';
 
+/**
+ * FILE: DiskonPage.tsx
+ * STATUS: FINAL & PRODUCTION READY
+ * DESC: Kalkulator Diskon Bertingkat & Promo Buy X Get Y
+ * FEATURES:
+ * - Double Discount Logic (50% + 20%)
+ * - Promo Logic (Buy 2 Get 1)
+ * - Tax Calculation (PPN)
+ * - Quick Preset Buttons
+ */
+
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Percent, ShoppingBag, 
   Calculator, Tag, Receipt, RefreshCcw, 
-  AlertCircle, TicketPercent
+  AlertCircle, TicketPercent, CheckCircle2
 } from 'lucide-react';
 import Link from 'next/link';
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface CalculationResult {
+  finalPrice: number;
+  totalSave: number;
+  effectiveDisc: number;
+  taxAmount: number;
+  itemCount: number;
+}
+
+// --- 2. KOMPONEN UTAMA ---
 export default function DiskonPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
       
-      {/* --- HEADER NAVIGASI --- */}
+      {/* HEADER NAVIGASI */}
       <div className="bg-slate-900 text-white shadow-md sticky top-0 z-50 border-b border-slate-700 h-16">
         <div className="max-w-6xl mx-auto px-4 h-full flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -20,23 +44,26 @@ export default function DiskonPage() {
               <div className="bg-slate-800 p-1.5 rounded-full group-hover:bg-slate-700 transition-colors">
                  <ArrowLeft size={16} /> 
               </div>
-              <span className="text-sm font-medium">Kembali ke Dashboard</span>
+              <span className="text-sm font-medium hidden sm:block">Dashboard</span>
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <h1 className="text-sm font-bold tracking-wide text-emerald-400 uppercase hidden md:flex items-center gap-2">
+            <h1 className="text-sm font-bold tracking-wide text-emerald-400 uppercase flex items-center gap-2">
               <Calculator size={16}/> Kalkulator Diskon
             </h1>
           </div>
           <div className="text-[10px] md:text-xs text-slate-500 font-medium">
-            Hitung hematnya, belanja cerdas.
+            Smart Shopping Tool
           </div>
         </div>
       </div>
 
-      {/* --- MAIN CONTENT --- */}
-      <div className="max-w-6xl mx-auto p-4 md:p-8">
+      {/* MAIN CONTENT */}
+      <main className="max-w-6xl mx-auto p-4 md:p-8">
+         {/* IKLAN (Opsional) */}
+         {/* <div className="mb-6 flex justify-center"><AdsterraBanner adKey="YOUR_KEY" width={728} height={90} /></div> */}
+         
          <DiscountCalculator />
-      </div>
+      </main>
     </div>
   );
 }
@@ -56,15 +83,15 @@ function DiscountCalculator() {
   const [getQty, setGetQty] = useState<number>(1);
 
   // Output
-  const [result, setResult] = useState({
+  const [result, setResult] = useState<CalculationResult>({
     finalPrice: 0,
     totalSave: 0,
     effectiveDisc: 0,
-    taxAmount: 0, // Di mode promo, ini dipakai untuk "Harga Per Item"
-    itemCount: 0  // Total barang didapat
+    taxAmount: 0,
+    itemCount: 0 
   });
 
-  // HELPER FORMAT RUPIAH
+  // HELPER FORMAT
   const formatRupiah = (num: number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
   };
@@ -83,8 +110,8 @@ function DiscountCalculator() {
       const effDisc = price > 0 ? ((price - priceAfterD2) / price) * 100 : 0;
 
       setResult({
-        finalPrice: final,
-        totalSave: save,
+        finalPrice: Math.max(0, final),
+        totalSave: Math.max(0, save),
         effectiveDisc: effDisc,
         taxAmount: taxAmt,
         itemCount: 1
@@ -109,7 +136,7 @@ function DiscountCalculator() {
         finalPrice: totalPricePaid,
         totalSave: save,
         effectiveDisc: effectiveDisc,
-        taxAmount: finalPerItem, // HACK: field taxAmount dipakai untuk harga satuan
+        taxAmount: finalPerItem, // HACK: field taxAmount dipakai untuk harga satuan di mode promo
         itemCount: totalItems
       });
     }
@@ -143,14 +170,13 @@ function DiscountCalculator() {
            <div>
              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">Harga Awal / Satuan</label>
              <div className="relative group">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-xl font-bold group-focus-within:text-emerald-500 transition-colors">Rp</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl font-bold group-focus-within:text-emerald-500 transition-colors">Rp</span>
                 <input 
                   type="number" 
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-2xl font-black text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-slate-200"
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-2xl font-black text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-slate-300"
                   placeholder="0"
                   value={price || ''}
                   onChange={(e) => setPrice(Number(e.target.value))}
-                  autoFocus
                 />
              </div>
            </div>
@@ -158,7 +184,7 @@ function DiscountCalculator() {
            {/* KONTEN BERDASARKAN MODE */}
            {mode === 'percent' ? (
              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
                       <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Diskon Utama</label>
                       <div className="relative">
@@ -171,10 +197,16 @@ function DiscountCalculator() {
                          />
                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
                       </div>
+                      {/* Quick Buttons */}
+                      <div className="flex gap-2 mt-2">
+                         {[10, 20, 50, 70].map(d => (
+                            <button key={d} onClick={() => setDisc1(d)} className="text-[10px] bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 px-2 py-1 rounded-md font-bold transition-colors">{d}%</button>
+                         ))}
+                      </div>
                    </div>
                    <div>
                       <label className="text-xs font-bold text-slate-400 uppercase mb-2 block flex items-center gap-1">
-                         + Diskon Ke-2 <span className="bg-orange-100 text-orange-600 text-[9px] px-1 rounded">Bertingkat</span>
+                         + Diskon Ke-2 <span className="bg-orange-100 text-orange-600 text-[9px] px-1.5 py-0.5 rounded-full font-black">Bertingkat</span>
                       </label>
                       <div className="relative">
                          <input 
@@ -191,10 +223,10 @@ function DiscountCalculator() {
 
                 {/* PPN Selection */}
                 <div>
-                   <label className="text-xs font-bold text-slate-400 uppercase mb-3 block">Pajak Pertambahan Nilai (PPN)</label>
-                   <div className="flex gap-3">
+                   <label className="text-xs font-bold text-slate-400 uppercase mb-3 block">Pajak (Setelah Diskon)</label>
+                   <div className="flex gap-2">
                       <button onClick={() => setTax(0)} className={`flex-1 py-2.5 rounded-lg text-xs font-bold border-2 transition-all ${tax === 0 ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>
-                         Tanpa Pajak (0%)
+                         0%
                       </button>
                       <button onClick={() => setTax(11)} className={`flex-1 py-2.5 rounded-lg text-xs font-bold border-2 transition-all ${tax === 11 ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>
                          PPN 11%
@@ -207,7 +239,7 @@ function DiscountCalculator() {
              </div>
            ) : (
              /* MODE PROMO BUY X GET Y */
-             <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-2xl border border-orange-200">
+             <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 p-6 rounded-2xl border border-orange-200">
                 <h3 className="text-sm font-bold text-orange-800 uppercase mb-4 flex items-center gap-2">
                    <TicketPercent size={18}/> Atur Skema Promo
                 </h3>
@@ -223,17 +255,18 @@ function DiscountCalculator() {
                    </div>
                 </div>
                 <div className="mt-4 text-center">
-                   <p className="text-xs font-medium text-orange-700 bg-white/50 inline-block px-3 py-1 rounded-full">
-                      Anda Pulang Bawa: <strong>{buyQty + getQty} Barang</strong>
+                   <p className="text-xs font-bold text-orange-700 bg-white/60 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-orange-200">
+                      <ShoppingBag size={12}/> Pulang Bawa: {buyQty + getQty} Barang
                    </p>
                 </div>
              </div>
            )}
 
-           <div className="pt-4 flex justify-end">
+           <div className="pt-4 flex justify-between items-center border-t border-slate-100 mt-4">
              <button onClick={() => {setPrice(0); setDisc1(0); setDisc2(0);}} className="text-xs text-slate-400 hover:text-red-500 flex items-center gap-1 font-medium transition-colors">
-                <RefreshCcw size={12}/> Reset Form
+                <RefreshCcw size={12}/> Reset
              </button>
+             <p className="text-[10px] text-slate-300 italic">Hasil otomatis dihitung</p>
            </div>
         </div>
       </div>
@@ -241,55 +274,58 @@ function DiscountCalculator() {
       {/* --- KOLOM KANAN: HASIL / STRUK --- */}
       <div className="relative">
          
-         <div className="bg-slate-900 rounded-2xl text-white shadow-2xl p-6 md:p-10 relative overflow-hidden min-h-[400px] flex flex-col justify-between">
+         <div className="bg-slate-900 rounded-2xl text-white shadow-2xl p-6 md:p-10 relative overflow-hidden min-h-[400px] flex flex-col justify-between border-t-8 border-emerald-500">
             {/* Background Decor */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[80px] opacity-20 -mr-10 -mt-10"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full blur-[80px] opacity-20 -ml-10 -mb-10"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[100px] opacity-10 -mr-10 -mt-10 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full blur-[100px] opacity-10 -ml-10 -mb-10 pointer-events-none"></div>
             
             <div className="relative z-10">
-               <h2 className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-6 border-b border-slate-700 pb-4">Rincian Perhitungan</h2>
+               <div className="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
+                   <h2 className="text-slate-400 font-bold text-xs uppercase tracking-widest">Total Estimasi</h2>
+                   <Receipt size={16} className="text-slate-500"/>
+               </div>
                
-               <div className="space-y-6">
+               <div className="space-y-8">
                   {/* Final Price Big */}
                   <div>
                      <p className="text-sm text-slate-400 mb-1">Total yang harus dibayar</p>
-                     <p className="text-4xl md:text-5xl font-black tracking-tight text-white">
+                     <p className="text-4xl md:text-5xl font-black tracking-tight text-white tabular-nums">
                         {formatRupiah(result.finalPrice)}
                      </p>
                   </div>
 
                   {/* Hemat */}
                   {(result.totalSave > 0 || result.effectiveDisc > 0) && (
-                     <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                     <div className="bg-emerald-500/10 backdrop-blur-md rounded-xl p-4 border border-emerald-500/20 flex items-center gap-4 animate-pulse-slow">
                         <div className="bg-emerald-500 text-white p-2 rounded-lg shadow-lg shadow-emerald-500/20 hidden sm:block">
                            <Tag size={24} />
                         </div>
                         <div>
-                           <p className="text-xs text-emerald-300 font-bold uppercase">Anda Hemat (Profit)</p>
-                           <p className="text-xl font-bold text-white">{formatRupiah(result.totalSave)}</p>
-                           <p className="text-xs text-slate-300 mt-0.5">Diskon Efektif: <strong className="text-white">{result.effectiveDisc.toFixed(1)}%</strong></p>
+                           <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-0.5">Anda Hemat (Profit)</p>
+                           <p className="text-xl font-black text-white tabular-nums">{formatRupiah(result.totalSave)}</p>
+                           {mode === 'percent' && <p className="text-[10px] text-emerald-200/70 mt-1">Diskon Efektif: {result.effectiveDisc.toFixed(1)}%</p>}
                         </div>
                      </div>
                   )}
 
                   {/* Detail List */}
-                  <div className="space-y-3 text-sm pt-4">
+                  <div className="space-y-3 text-sm pt-2">
                      <div className="flex justify-between text-slate-400">
                         <span>Harga Normal (Awal)</span>
-                        <span className="line-through">{formatRupiah(mode === 'percent' ? price : price * (buyQty + getQty))}</span>
+                        <span className="line-through decoration-red-500 decoration-2 tabular-nums">{formatRupiah(mode === 'percent' ? price : price * (buyQty + getQty))}</span>
                      </div>
                      
                      {mode === 'percent' && tax > 0 && (
                         <div className="flex justify-between text-slate-300">
-                           <span>+ Pajak PPN ({tax}%)</span>
-                           <span>{formatRupiah(result.taxAmount)}</span>
+                           <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-red-400"></div> Pajak PPN ({tax}%)</span>
+                           <span className="tabular-nums font-medium text-red-300">+{formatRupiah(result.taxAmount)}</span>
                         </div>
                      )}
 
                      {mode === 'promo' && (
-                        <div className="flex justify-between text-emerald-300 bg-emerald-900/30 p-2 rounded">
-                           <span>Harga Jatuhnya / Pcs</span>
-                           <span className="font-bold">{formatRupiah(result.taxAmount)}</span>
+                        <div className="flex justify-between text-emerald-300 bg-emerald-900/30 p-2.5 rounded-lg border border-emerald-500/10 mt-4">
+                           <span className="text-xs font-bold uppercase flex items-center gap-2"><CheckCircle2 size={12}/> Harga Satuan Jatuhnya</span>
+                           <span className="font-bold tabular-nums text-lg">{formatRupiah(result.taxAmount)}</span>
                         </div>
                      )}
                   </div>
@@ -297,10 +333,10 @@ function DiscountCalculator() {
             </div>
 
             {/* Footer Struk */}
-            <div className="relative z-10 mt-8 pt-6 border-t border-slate-700 border-dashed">
-               <div className="flex items-center gap-2 text-slate-500 text-[10px] uppercase font-bold tracking-wider">
-                  <Receipt size={14}/>
-                  <span>Simulasi Struk Belanja</span>
+            <div className="relative z-10 mt-8 pt-4 border-t-2 border-dashed border-slate-700">
+               <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium">
+                  <span>SIMULASI HARGA</span>
+                  <span>{new Date().toLocaleDateString('id-ID')}</span>
                </div>
             </div>
          </div>
@@ -309,7 +345,7 @@ function DiscountCalculator() {
          <div className="mt-6 bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
             <AlertCircle size={20} className="text-blue-600 shrink-0 mt-0.5" />
             <div className="text-xs text-blue-800 leading-relaxed">
-               <strong>Tips Belanja:</strong> {mode === 'percent' ? 'Diskon bertingkat (contoh 50% + 20%) tidak sama dengan diskon 70%. Kenyataannya itu setara diskon 60%. Selalu cek harga akhir!' : `Promo "Buy ${buyQty} Get ${getQty}" setara dengan diskon ${result.effectiveDisc.toFixed(0)}%.`}
+               <strong>Info Cerdas:</strong> {mode === 'percent' ? 'Diskon bertingkat (contoh 50% + 20%) tidak sama dengan diskon 70%. Kenyataannya itu setara diskon 60%. Selalu cek harga akhir!' : `Promo "Buy ${buyQty} Get ${getQty}" setara dengan diskon ${result.effectiveDisc.toFixed(0)}%.`}
             </div>
          </div>
 
