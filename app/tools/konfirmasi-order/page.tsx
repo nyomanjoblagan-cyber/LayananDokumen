@@ -2,12 +2,12 @@
 
 /**
  * FILE: KonfirmasiPesananPage.tsx
- * STATUS: FINAL FIXED (TEMPLATE SWITCHING & PREVIEW)
+ * STATUS: FINAL FIXED (COLOR PRINT & CLEAN PREVIEW)
  * DESC: Generator Konfirmasi Pesanan
  * FIXES: 
- * - Mengaktifkan logic Template 1 vs Template 2.
- * - Menghapus double-background di preview (masalah kertas tertumpuk).
- * - Layout Print A4 presisi (margin 0 di @page, padding di dalam div).
+ * - Mengaktifkan 'print-color-adjust: exact' agar warna background/teks tercetak.
+ * - Menghapus class 'print:text-black' pada elemen berwarna agar tetap berwarna.
+ * - Membersihkan wrapper preview agar tidak terlihat seperti 2 kertas tertumpuk.
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -145,53 +145,57 @@ function OrderConfirmationBuilder() {
 
   // --- KOMPONEN ISI SURAT ---
   const OCContent = () => (
-    <div className="bg-white flex flex-col box-border font-sans text-[10pt] leading-normal text-slate-900 p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 print:p-[20mm] mx-auto">
+    // FIX: Menggunakan p-[20mm] yang konsisten untuk Print & Preview.
+    // Menghapus wrapper ganda di parent.
+    <div className="bg-white flex flex-col box-border font-sans text-[10pt] leading-normal text-slate-900 w-[210mm] min-h-[296mm] p-[20mm] shadow-2xl print:shadow-none print:m-0 print:w-full print:h-auto mx-auto">
       
       {/* ---------------- TEMPLATE 1: STANDAR BISNIS ---------------- */}
       {templateId === 1 && (
         <>
           <div className="flex justify-between items-start border-b-4 border-slate-800 pb-4 mb-8 shrink-0">
             <div className="flex items-center gap-3">
-               <div className="p-2 bg-slate-800 text-white rounded print:text-black print:border print:border-black print:bg-transparent">
+               <div className="p-2 bg-slate-800 text-white rounded">
                   <PackageCheck size={32} />
                </div>
                <div>
                   <h1 className="text-xl font-black uppercase tracking-tighter leading-none">{data.vendorName}</h1>
-                  <p className="text-[9pt] text-slate-500 mt-1 print:text-black">{data.vendorAddress}</p>
+                  <p className="text-[9pt] text-slate-500 mt-1">{data.vendorAddress}</p>
                </div>
             </div>
             <div className="text-right">
-               <div className="text-lg font-black text-blue-700 uppercase tracking-wide print:text-black">Order Confirmation</div>
-               <p className="text-[10pt] mt-1 font-mono font-bold text-slate-600 print:text-black">#{data.orderNo}</p>
+               {/* WARNA BIRU DIPERTAHANKAN SAAT PRINT */}
+               <div className="bg-blue-600 text-white px-3 py-1 rounded text-[9pt] font-black uppercase inline-block">Order Confirmation</div>
+               <p className="text-[10pt] mt-1 font-mono font-bold text-slate-600">#{data.orderNo}</p>
             </div>
           </div>
 
           <div className="flex-grow">
             <div className="grid grid-cols-2 gap-12 mb-8">
                <div>
-                  <h4 className="text-[9pt] font-bold text-slate-400 uppercase tracking-widest mb-2 print:text-black border-b border-slate-200 pb-1">Kepada (Klien):</h4>
+                  <h4 className="text-[9pt] font-bold text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-200 pb-1">Kepada (Klien):</h4>
                   <p className="font-bold text-[11pt] uppercase">{data.clientName}</p>
                   <p className="text-[10pt]">{data.clientContact}</p>
-                  <p className="text-[10pt] text-slate-600 print:text-black mt-1 leading-snug">{data.clientAddress}</p>
+                  <p className="text-[10pt] text-slate-600 mt-1 leading-snug">{data.clientAddress}</p>
                </div>
                <div className="text-right">
-                  <h4 className="text-[9pt] font-bold text-slate-400 uppercase tracking-widest mb-2 print:text-black border-b border-slate-200 pb-1">Detail Order:</h4>
+                  <h4 className="text-[9pt] font-bold text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-200 pb-1">Detail Order:</h4>
                   <p className="text-[10pt]">Tanggal: <b>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</b></p>
                   <p className="text-[10pt]">Est. Kirim: <b>{isClient && data.estDelivery ? new Date(data.estDelivery).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</b></p>
-                  <p className="text-[10pt] text-blue-700 font-bold uppercase mt-1 print:text-black">{data.shippingMethod}</p>
+                  <p className="text-[10pt] text-blue-700 font-bold uppercase mt-1">{data.shippingMethod}</p>
                </div>
             </div>
 
             <table className="w-full border-collapse text-[10pt] mb-8">
                <thead>
-                  <tr className="bg-slate-100 border-y-2 border-slate-800 print:bg-transparent print:border-black">
+                  {/* WARNA BACKGROUND TABLE HEADER DIPERTAHANKAN */}
+                  <tr className="bg-slate-100 border-y-2 border-slate-800">
                      <th className="p-2 text-left uppercase text-[9pt] font-bold">Deskripsi Barang</th>
                      <th className="p-2 text-center uppercase text-[9pt] font-bold w-20">Qty</th>
                      <th className="p-2 text-right uppercase text-[9pt] font-bold w-32">Harga</th>
                      <th className="p-2 text-right uppercase text-[9pt] font-bold w-36">Total</th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-slate-200 print:divide-slate-400">
+               <tbody className="divide-y divide-slate-200">
                   {data.items.map((item, idx) => (
                      <tr key={idx}>
                         <td className="p-2 font-medium">{item.name}</td>
@@ -202,27 +206,28 @@ function OrderConfirmationBuilder() {
                   ))}
                </tbody>
                <tfoot>
-                  <tr className="bg-slate-50 border-t-2 border-slate-800 print:bg-transparent print:border-black">
+                  <tr className="bg-slate-50 border-t-2 border-slate-800">
                      <td colSpan={3} className="p-3 text-right font-bold uppercase text-[9pt]">Total Estimasi</td>
                      <td className="p-3 text-right font-black text-[12pt]">{formatRupiah(subTotal)}</td>
                   </tr>
                </tfoot>
             </table>
 
-            <div className="p-4 bg-slate-50 border-l-4 border-slate-400 rounded text-[10pt] italic print:bg-transparent print:border-black">
+            {/* WARNA BACKGROUND NOTES DIPERTAHANKAN */}
+            <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded text-[10pt] italic text-blue-900 leading-relaxed">
                <span className="font-bold not-italic text-[9pt] uppercase block mb-1">Catatan:</span>
                "{data.notes}"
             </div>
           </div>
 
-          <div className="shrink-0 mt-8 flex justify-between items-end border-t pt-8 print:border-black" style={{ pageBreakInside: 'avoid' }}>
+          <div className="shrink-0 mt-8 flex justify-between items-end border-t pt-8 border-slate-800" style={{ pageBreakInside: 'avoid' }}>
              <div className="text-center w-48">
-                <p className="mb-16 text-[9pt] uppercase font-bold text-slate-500 print:text-black">Diterima Oleh,</p>
-                <p className="text-[10pt] font-bold border-b border-slate-300 pb-1 print:border-black uppercase">{data.clientName}</p>
+                <p className="mb-16 text-[9pt] uppercase font-bold text-slate-500">Diterima Oleh,</p>
+                <p className="text-[10pt] font-bold border-b border-slate-300 pb-1 uppercase">{data.clientName}</p>
              </div>
              <div className="text-center w-48">
-                <p className="mb-16 text-[9pt] uppercase font-bold text-slate-500 print:text-black">Hormat Kami,</p>
-                <p className="text-[10pt] font-bold border-b border-slate-300 pb-1 print:border-black uppercase">{data.vendorName}</p>
+                <p className="mb-16 text-[9pt] uppercase font-bold text-slate-500">Hormat Kami,</p>
+                <p className="text-[10pt] font-bold border-b border-slate-300 pb-1 uppercase">{data.vendorName}</p>
              </div>
           </div>
         </>
@@ -230,21 +235,21 @@ function OrderConfirmationBuilder() {
 
       {/* ---------------- TEMPLATE 2: INVOICE STYLE ---------------- */}
       {templateId === 2 && (
-        <div className="flex flex-col h-full border-4 double border-slate-800 p-6 print:border-black">
-           <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-slate-800 border-dashed print:border-black">
+        <div className="flex flex-col h-full border-4 double border-slate-800 p-6">
+           <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-slate-800 border-dashed">
               <div>
                  <h1 className="text-3xl font-black uppercase tracking-tighter">{data.vendorName}</h1>
                  <p className="text-[10pt] mt-1 font-medium">{data.vendorAddress}</p>
               </div>
               <div className="text-right">
-                 <h2 className="text-2xl font-black text-slate-300 uppercase print:text-black">ORDER CONFIRMATION</h2>
+                 <h2 className="text-2xl font-black text-slate-300 uppercase">ORDER CONFIRMATION</h2>
                  <p className="font-mono font-bold text-lg mt-1">{data.orderNo}</p>
                  <p className="text-[10pt]">{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {dateStyle:'long'}) : '...'}</p>
               </div>
            </div>
 
            <div className="flex-grow">
-              <div className="bg-slate-100 p-4 mb-6 border border-slate-300 print:bg-transparent print:border-black">
+              <div className="bg-slate-100 p-4 mb-6 border border-slate-300">
                  <div className="grid grid-cols-[100px_10px_1fr] gap-1 text-[10pt]">
                     <div className="font-bold">KEPADA</div><div>:</div><div className="font-bold uppercase">{data.clientName}</div>
                     <div className="font-bold">UP</div><div>:</div><div>{data.clientContact}</div>
@@ -252,29 +257,29 @@ function OrderConfirmationBuilder() {
                  </div>
               </div>
 
-              <table className="w-full border border-slate-800 mb-6 print:border-black text-[10pt]">
+              <table className="w-full border-2 border-slate-800 mb-6 text-[10pt]">
                  <thead>
-                    <tr className="bg-slate-800 text-white print:bg-transparent print:text-black">
-                       <th className="p-2 border border-slate-800 print:border-black text-left">ITEM</th>
-                       <th className="p-2 border border-slate-800 print:border-black text-center w-16">QTY</th>
-                       <th className="p-2 border border-slate-800 print:border-black text-right w-32">HARGA</th>
-                       <th className="p-2 border border-slate-800 print:border-black text-right w-36">SUBTOTAL</th>
+                    <tr className="bg-slate-800 text-white">
+                       <th className="p-2 border border-slate-800 text-left">ITEM</th>
+                       <th className="p-2 border border-slate-800 text-center w-16">QTY</th>
+                       <th className="p-2 border border-slate-800 text-right w-32">HARGA</th>
+                       <th className="p-2 border border-slate-800 text-right w-36">SUBTOTAL</th>
                     </tr>
                  </thead>
                  <tbody>
                     {data.items.map((item, idx) => (
                        <tr key={idx}>
-                          <td className="p-2 border border-slate-800 print:border-black">{item.name}</td>
-                          <td className="p-2 border border-slate-800 print:border-black text-center">{item.qty} {item.unit}</td>
-                          <td className="p-2 border border-slate-800 print:border-black text-right">{formatRupiah(item.price)}</td>
-                          <td className="p-2 border border-slate-800 print:border-black text-right font-bold">{formatRupiah(item.qty * item.price)}</td>
+                          <td className="p-2 border border-slate-800">{item.name}</td>
+                          <td className="p-2 border border-slate-800 text-center">{item.qty} {item.unit}</td>
+                          <td className="p-2 border border-slate-800 text-right">{formatRupiah(item.price)}</td>
+                          <td className="p-2 border border-slate-800 text-right font-bold">{formatRupiah(item.qty * item.price)}</td>
                        </tr>
                     ))}
                  </tbody>
               </table>
 
               <div className="flex justify-end mb-8">
-                 <div className="w-64 border border-slate-800 print:border-black p-2">
+                 <div className="w-64 border-2 border-slate-800 p-2">
                     <div className="flex justify-between items-center">
                        <span className="font-bold">TOTAL IDR</span>
                        <span className="font-black text-lg">{formatRupiah(subTotal)}</span>
@@ -316,10 +321,12 @@ function OrderConfirmationBuilder() {
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          /* ATUR MARGIN 0 SUPAYA HEADER BROWSER HILANG */
           @page { size: A4 portrait; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
+          
+          /* MEMAKSA WARNA TERCETAK */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           
           #print-only-root { 
             display: block !important; 
@@ -414,10 +421,10 @@ function OrderConfirmationBuilder() {
         {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               {/* FIX: Menghapus wrapper background ganda */}
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 {/* OCContent sudah punya BG putih dan shadow */}
-                 <OCContent />
+                 <div style={{ width: '210mm', minHeight: '297mm' }}>
+                    <OCContent />
+                 </div>
                </div>
             </div>
         </div>
