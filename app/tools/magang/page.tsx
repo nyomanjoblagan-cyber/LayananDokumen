@@ -1,14 +1,85 @@
 'use client';
 
+/**
+ * FILE: MagangPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Permohonan Magang/PKL
+ * FEATURES:
+ * - Dual Template (Formal Academic vs Professional)
+ * - Auto Date & Duration Logic
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, 
   LayoutTemplate, GraduationCap, Building2, 
-  Briefcase, User, Eye, Edit3
+  Briefcase, User, Eye, Edit3, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface InternshipData {
+  city: string;
+  date: string;
+  
+  // Tujuan
+  hrdName: string;
+  companyName: string;
+  companyAddress: string;
+  
+  // Pelamar
+  name: string;
+  idNumber: string; // NIM/NIS
+  institution: string;
+  major: string;
+  semester: string;
+  phone: string;
+  email: string;
+  address: string;
+  
+  // Detail Magang
+  subject: string;
+  position: string;
+  startDate: string;
+  endDate: string;
+  duration: string;
+  skills: string;
+  reason: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: InternshipData = {
+  city: 'JAKARTA',
+  date: '', // Diisi useEffect
+  
+  hrdName: 'HRD Manager',
+  companyName: 'PT. TEKNOLOGI MASA DEPAN',
+  companyAddress: 'Jl. Sudirman Kav. 50, Jakarta Selatan',
+  
+  name: 'RIAN PRATAMA',
+  idNumber: '2110114005', 
+  institution: 'Universitas Indonesia',
+  major: 'Teknik Informatika',
+  semester: '6 (Enam)',
+  phone: '0812-3456-7890',
+  email: 'rian.pratama@email.com',
+  address: 'Jl. Margonda Raya No. 100, Depok',
+  
+  subject: 'Permohonan Kerja Praktik (KP)',
+  position: 'IT Support / Web Developer',
+  startDate: '', // Diisi useEffect
+  endDate: '', // Diisi useEffect
+  duration: '3 (Tiga) Bulan',
+  skills: 'HTML, CSS, JavaScript (React.js), dan Basic SQL Database.',
+  reason: 'Saya ingin menerapkan ilmu yang telah saya pelajari di bangku kuliah ke dalam dunia kerja nyata.'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function MagangPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor...</div>}>
@@ -18,34 +89,12 @@ export default function MagangPage() {
 }
 
 function InternshipBuilder() {
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // --- STATE DATA ---
-  const [data, setData] = useState({
-    city: 'Jakarta',
-    date: '',
-    hrdName: 'HRD Manager',
-    companyName: 'PT. Teknologi Masa Depan',
-    companyAddress: 'Jl. Sudirman Kav. 50, Jakarta Selatan',
-    name: 'Rian Pratama',
-    idNumber: '2110114005', 
-    institution: 'Universitas Indonesia',
-    major: 'Teknik Informatika',
-    semester: '6 (Enam)',
-    phone: '0812-3456-7890',
-    email: 'rian.pratama@email.com',
-    address: 'Jl. Margonda Raya No. 100, Depok',
-    subject: 'Permohonan Kerja Praktik (KP)',
-    position: 'IT Support / Web Developer',
-    startDate: '',
-    endDate: '',
-    duration: '3 (Tiga) Bulan',
-    skills: 'HTML, CSS, JavaScript (React.js), dan Basic SQL Database.',
-    reason: 'Saya ingin menerapkan ilmu yang telah saya pelajari di bangku kuliah ke dalam dunia kerja nyata.'
-  });
+  const [data, setData] = useState<InternshipData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
@@ -67,10 +116,28 @@ function InternshipBuilder() {
     return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
-  const handleDataChange = (field: string, val: string) => {
-    setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof InternshipData, val: string) => {
+    setData(prev => ({ ...prev, [field]: val }));
   };
 
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date();
+        const nextMonth = new Date(today);
+        nextMonth.setMonth(today.getMonth() + 1);
+        const threeMonthsLater = new Date(nextMonth);
+        threeMonthsLater.setMonth(nextMonth.getMonth() + 3);
+        
+        setData({ 
+            ...INITIAL_DATA, 
+            date: today.toISOString().split('T')[0], 
+            startDate: nextMonth.toISOString().split('T')[0], 
+            endDate: threeMonthsLater.toISOString().split('T')[0] 
+        });
+    }
+  };
+
+  // --- PRESETS ---
   const applyPreset = (type: 'kuliah' | 'smk' | 'fresh') => {
     if (type === 'kuliah') {
       setData(prev => ({
@@ -87,15 +154,29 @@ function InternshipBuilder() {
     }
   };
 
-  const TEMPLATES = [
-    { id: 1, name: "Formal (Kampus/SMK)", desc: "Format standar KP/PKL" },
-    { id: 2, name: "Profesional (Fresh)", desc: "Menonjolkan skill" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Formal (Kampus/SMK)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Profesional (Fresh)
+        </button>
+    </div>
+  );
+
+  const activeTemplateName = templateId === 1 ? 'Formal (Kampus)' : 'Profesional';
 
   // --- KOMPONEN ISI SURAT ---
   const LetterContent = () => (
-    <div className="bg-white flex flex-col box-border font-serif text-black text-[11pt] leading-normal p-[25mm] w-[210mm] min-h-[296mm] shadow-xl print:shadow-none print:m-0 print:p-[20mm]">
+    // FIX: Print Padding
+    <div className="bg-white flex flex-col box-border font-serif text-black text-[11pt] leading-normal p-[25mm] print:p-[25mm] w-[210mm] min-h-[296mm] shadow-xl print:shadow-none print:m-0 mx-auto">
+      
+      {/* TEMPLATE 1: FORMAL */}
+      {templateId === 1 && (
         <div className="text-[10.5pt] leading-snug flex flex-col h-full">
             <div className="flex justify-between items-start mb-6 shrink-0">
                 <div>
@@ -107,7 +188,7 @@ function InternshipBuilder() {
 
             <div className="mb-6 shrink-0">
                 <div>Yth. {data.hrdName}</div>
-                <div className="font-bold">{data.companyName}</div>
+                <div className="font-bold uppercase">{data.companyName}</div>
                 <div className="w-64 leading-tight">{data.companyAddress}</div>
             </div>
 
@@ -152,20 +233,74 @@ function InternshipBuilder() {
                 <p className="text-xs">{data.idNumber !== '-' ? `NIM/NIS. ${data.idNumber}` : ''}</p>
             </div>
         </div>
+      )}
+
+      {/* TEMPLATE 2: PROFESIONAL */}
+      {templateId === 2 && (
+        <div className="font-sans text-[10.5pt] leading-normal flex flex-col h-full">
+            {/* Header */}
+            <div className="border-b-4 border-black pb-4 mb-8 flex justify-between items-end shrink-0">
+                <div>
+                    <h1 className="text-2xl font-black uppercase tracking-wide mb-1">{data.name}</h1>
+                    <div className="text-sm font-bold uppercase tracking-widest text-slate-600">{data.major} Student</div>
+                </div>
+                <div className="text-right text-xs space-y-1">
+                    <div>{data.phone}</div>
+                    <div>{data.email}</div>
+                    <div>{data.address}</div>
+                </div>
+            </div>
+
+            <div className="mb-8 shrink-0">
+                <div className="text-xs text-slate-500 uppercase tracking-widest mb-1">{isClient && data.date ? formatDateIndo(data.date) : '...'}</div>
+                <div className="font-bold text-lg">{data.hrdName}</div>
+                <div className="font-bold">{data.companyName}</div>
+                <div className="text-sm w-2/3">{data.companyAddress}</div>
+            </div>
+
+            <div className="space-y-4 text-justify flex-grow">
+                <div className="font-bold">Perihal: Lamaran Magang {data.position}</div>
+                <p>Dengan hormat,</p>
+                <p>
+                    Saya menulis surat ini untuk mengekspresikan ketertarikan saya pada posisi <strong>{data.position}</strong> di <strong>{data.companyName}</strong>. 
+                    Sebagai mahasiswa <strong>{data.major}</strong> di <strong>{data.institution}</strong>, saya telah mengikuti perkembangan perusahaan Anda dan sangat mengagumi inovasi yang dilakukan.
+                </p>
+                <p>
+                    Selama masa perkuliahan, saya telah mengembangkan keahlian dalam <strong>{data.skills}</strong>. 
+                    Saya juga aktif dalam berbagai proyek dan organisasi yang melatih kemampuan komunikasi dan kerja tim saya. 
+                    {data.reason}
+                </p>
+                <p>
+                    Saya bersedia mengikuti program magang selama <strong>{data.duration}</strong> mulai {isClient && data.startDate ? formatDateIndo(data.startDate) : '...'}. 
+                    Saya yakin etos kerja dan semangat belajar saya akan membawa dampak positif bagi tim Anda.
+                </p>
+                <p>
+                    Terlampir adalah CV dan portofolio saya untuk Anda tinjau. Saya sangat berharap dapat mendiskusikan kualifikasi saya lebih lanjut dalam sesi wawancara.
+                </p>
+                <p>Terima kasih atas waktu dan pertimbangan Anda.</p>
+            </div>
+
+            <div className="mt-12 shrink-0" style={{ pageBreakInside: 'avoid' }}>
+                <div className="font-serif italic text-xl mb-2">Hormat Saya,</div>
+                <div className="font-bold text-lg uppercase">{data.name}</div>
+            </div>
+        </div>
+      )}
     </div>
   );
 
   if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 print:bg-white print:m-0">
       
       {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4 portrait; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
+          
           #print-only-root { 
             display: block !important; 
             position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
@@ -191,17 +326,7 @@ function InternshipBuilder() {
                 <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
                 <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50 text-slate-900">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Template</div>
-                  {TEMPLATES.map((t) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
-                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
-                      {templateId === t.id && <Check size={14} className="text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showTemplateMenu && <TemplateMenu />}
             </div>
             <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
@@ -214,10 +339,13 @@ function InternshipBuilder() {
         
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-             
-              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Magang</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
               {/* Quick Generator */}
               <div className="bg-emerald-50 rounded-xl shadow-sm border border-emerald-100 overflow-hidden">
                  <div className="px-4 py-3 border-b border-emerald-200 flex items-center gap-2">
@@ -279,9 +407,8 @@ function InternshipBuilder() {
         {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               {/* LOGIKA SKALA */}
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm' }}>
+                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
                     <LetterContent />
                  </div>
                </div>
@@ -297,7 +424,7 @@ function InternshipBuilder() {
 
       {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
+         <div style={{ width: '210mm', minHeight: 'auto' }} className="bg-white flex flex-col">
             <LetterContent />
          </div>
       </div>
