@@ -2,7 +2,7 @@
 
 /**
  * FILE: SuratTugasPage.tsx
- * STATUS: FINAL & FIXED (Build Error TEMPLATES Resolved)
+ * STATUS: FIXED GLOBAL CONSTANT (Build Error TEMPLATES Resolved)
  * DESC: Generator Surat Perintah Tugas (Multi-Personel)
  */
 
@@ -38,7 +38,7 @@ interface TaskData {
   cc: string;
 }
 
-// --- 2. TEMPLATE DEFINITIONS (Ditaruh di luar agar bisa diakses global oleh semua komponen) ---
+// --- 2. TEMPLATE DEFINITIONS (Ditaruh di paling atas agar terbaca secara Global) ---
 const TEMPLATES = [
   { id: 1, name: "Format Corporate", desc: "Layout formal dengan tabel" },
   { id: 2, name: "Format Modern", desc: "Desain blok kontemporer" }
@@ -52,7 +52,7 @@ const INITIAL_DATA: TaskData = {
   date: '', 
   no: '045/HRD-ST/I/2026',
   taskTitle: 'Audit Tahunan Kantor Cabang',
-  location: 'Cabang Surabaya & Malang',
+  location: 'Surabaya & Malang',
   startDate: '2026-01-15',
   endDate: '2026-01-18',
   staffs: [
@@ -148,7 +148,7 @@ function SuratTugasBuilder() {
       </div>
 
       {/* BODY SURAT */}
-      <div className="space-y-4 overflow-visible text-left">
+      <div className="space-y-4 overflow-visible text-left flex-grow">
         <p>Direksi <b>{data.compName}</b> dengan ini memberikan perintah penugasan kepada karyawan berikut:</p>
         
         <table className="w-full border-collapse border border-slate-900 text-[9.5pt]">
@@ -189,8 +189,8 @@ function SuratTugasBuilder() {
         <p className="text-justify leading-relaxed">Demikian surat tugas ini diterbitkan untuk dilaksanakan dengan penuh tanggung jawab dan dipergunakan sebagaimana mestinya.</p>
       </div>
 
-      {/* FOOTER & TANDA TANGAN */}
-      <div className="mt-auto pt-6 border-t border-slate-100 print:border-black">
+      {/* TANDA TANGAN */}
+      <div className="shrink-0 mt-6 pt-6 border-t border-slate-100 print:border-black" style={{ pageBreakInside: 'avoid' }}>
          <div className="flex justify-end text-center">
             <div className="w-80 flex flex-col h-40">
                <p className="text-[10pt] mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : ''}</p>
@@ -213,7 +213,7 @@ function SuratTugasBuilder() {
   if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0 text-left">
+    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
       <style jsx global>{`
         @media print {
           @page { size: A4 portrait; margin: 0; } 
@@ -237,14 +237,14 @@ function SuratTugasBuilder() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="relative font-sans text-left">
+            <div className="relative font-sans text-left text-slate-900">
               <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium transition-all">
                 <LayoutTemplate size={14} className="text-blue-400" />
                 <span className="hidden sm:inline">{activeTemplateName}</span>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180' : ''} />
+                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-transform' : ''} />
               </button>
               {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 text-slate-900 overflow-hidden font-sans p-1">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden font-sans p-1">
                   {TEMPLATES.map(t => (
                     <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm rounded-lg hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : ''}`}>
                       <div>{t.name}</div>
@@ -264,7 +264,7 @@ function SuratTugasBuilder() {
       <main className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden relative">
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-white border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10 text-left">
                 <h2 className="font-bold text-slate-700 uppercase text-xs tracking-widest flex items-center gap-2"><Edit3 size={16}/> Editor Surat Tugas</h2>
                 <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors"><RotateCcw size={16}/></button>
             </div>
