@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import AdsterraBanner from '@/components/AdsterraBanner';
+import SaweriaBox from '@/components/SaweriaBox'; // Import komponen donasi
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,10 +34,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         {/* KONTEN UTAMA */}
-        <main className="flex-grow">{children}</main>
+        <main className="flex-grow relative">
+          {children}
+          
+          {/* TOMBOL DONASI FLOATING (GLOBAL) */}
+          <SaweriaBox />
+        </main>
 
-        {/* IKLAN FOOTER GLOBAL (DIKEMBALIKAN) */}
-        {/* Hanya Iklan, Tanpa Menu Link agar tidak dobel dengan Home */}
+        {/* IKLAN FOOTER GLOBAL */}
         <div className="w-full bg-white border-t border-slate-200 py-6 mt-10 no-print">
           <div className="max-w-4xl mx-auto px-4 flex flex-col items-center text-center">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">Sponsored Support</span>
