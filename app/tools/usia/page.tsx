@@ -1,10 +1,17 @@
 'use client';
 
+/**
+ * FILE: AgeCalculatorPage.tsx
+ * STATUS: FINAL & CONSISTENT (No Sinking Content)
+ * DESC: Kalkulator Usia Lengkap dengan Statistik Hidup & Metafisika (Weton, Shio, Zodiak)
+ */
+
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Cake, Star, User, 
-  Hourglass, Fingerprint, Sparkles, Heart, Wind, Orbit, Timer
-} from 'lucide-react';
+  Hourglass, Fingerprint, Sparkles, Heart, Wind, Orbit, Timer, RotateCcw
+} from 'lucide-center';
+import { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AgeCalculatorPage() {
@@ -96,8 +103,8 @@ function AgeCalculator() {
     const hariNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
     const neptuHari = [5, 4, 3, 7, 8, 6, 9], neptuPas = [5, 9, 7, 4, 8];
     const baseDate = new Date(1900, 0, 1);
-    const diffDays = Math.floor((start.getTime() - baseDate.getTime()) / (1000 * 3600 * 24));
-    let pasIdx = (diffDays + 1) % 5; if (pasIdx < 0) pasIdx += 5;
+    const dDays = Math.floor((start.getTime() - baseDate.getTime()) / (1000 * 3600 * 24));
+    let pasIdx = (dDays + 1) % 5; if (pasIdx < 0) pasIdx += 5;
     const hIdx = start.getDay();
     setWeton({
       name: `${hariNames[hIdx]} ${pasaranNames[pasIdx]}`,
@@ -121,38 +128,40 @@ function AgeCalculator() {
     return "Setia & Berhati-hati";
   };
 
+  const handleReset = () => {
+    setBirthDate('');
+    setToday(new Date().toISOString().split('T')[0]);
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 text-left">
         <div className="flex items-center gap-4">
           <Link href="/" className="bg-white p-2.5 rounded-xl border border-slate-200 hover:border-indigo-500 text-slate-600 transition-all shadow-sm">
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Data Usia & Metafisika</h1>
-            <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Life Journey Tracker Pro</p>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Kalkulator Usia Pro</h1>
+            <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Life Journey & Metaphysics Tracker</p>
           </div>
         </div>
-        <div className="flex gap-2">
-            <div className="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-indigo-200 flex items-center gap-2">
-                <Sparkles size={16}/>
-                <span className="text-xs font-black uppercase tracking-tighter">Verified Logic 2026</span>
-            </div>
-        </div>
+        <button onClick={handleReset} className="flex items-center gap-2 bg-slate-200 hover:bg-red-100 hover:text-red-600 text-slate-600 px-4 py-2 rounded-xl transition-all font-bold text-xs uppercase tracking-tighter">
+           <RotateCcw size={16}/> Reset Data
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* LEFT: INPUT & MAIN AGE */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-left">
             <div className="flex items-center gap-2 mb-6">
                 <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
-                <h3 className="font-black text-sm uppercase tracking-wider text-slate-700">Identitas Kelahiran</h3>
+                <h3 className="font-black text-sm uppercase tracking-wider text-slate-700">Input Tanggal</h3>
             </div>
             <div className="space-y-4">
                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Tanggal Lahir Mas/Mbak</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Tanggal Lahir</label>
                   <input type="date" className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-indigo-600 text-xl focus:outline-none focus:border-indigo-500 transition-all" value={birthDate} onChange={(e) => setBirthDate(e.target.value)}/>
                </div>
                <div className="space-y-1.5">
@@ -163,9 +172,9 @@ function AgeCalculator() {
           </div>
 
           {birthDate && (
-            <div className="bg-indigo-900 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
+            <div className="bg-indigo-900 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group text-left">
                <div className="relative z-10">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 mb-4">Ringkasan Usia</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 mb-4">Usia Saat Ini</p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-7xl font-black tracking-tighter">{age.years}</span>
                     <span className="text-xl font-bold text-indigo-300">Tahun</span>
@@ -191,11 +200,11 @@ function AgeCalculator() {
           ) : (
             <>
               {/* LIFE METRICS GRID */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <MetricCard icon={<Hourglass className="text-blue-500"/>} label="Total Hari" value={new Intl.NumberFormat('id-ID').format(stats.totalDays)} />
-                <MetricCard icon={<Timer className="text-emerald-500"/>} label="Total Jam" value={new Intl.NumberFormat('id-ID').format(stats.totalHours)} />
-                <MetricCard icon={<Heart className="text-red-500"/>} label="Detak Jantung*" value={new Intl.NumberFormat('id-ID').format(stats.heartBeats)} />
-                <MetricCard icon={<Orbit className="text-amber-500"/>} label="Orbit Matahari" value={stats.sunOrbits} />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+                <MetricCard icon={<Hourglass size={18} className="text-blue-500"/>} label="Total Hari" value={new Intl.NumberFormat('id-ID').format(stats.totalDays)} />
+                <MetricCard icon={<Timer size={18} className="text-emerald-500"/>} label="Total Jam" value={new Intl.NumberFormat('id-ID').format(stats.totalHours)} />
+                <MetricCard icon={<Heart size={18} className="text-red-500"/>} label="Detak Jantung*" value={new Intl.NumberFormat('id-ID').format(stats.heartBeats)} />
+                <MetricCard icon={<Orbit size={18} className="text-amber-500"/>} label="Orbit Matahari" value={stats.sunOrbits} />
               </div>
 
               {/* CULTURE & METAPHYSICS */}
@@ -216,26 +225,26 @@ function AgeCalculator() {
                 />
                 <InfoCard 
                   title="Shio (China)" 
-                  icon={<div className="text-red-600 font-black text-xs">CN</div>}
+                  icon={<Sparkles size={20} className="text-red-600"/>}
                   value={shio}
                   sub="Tahun Kelahiran"
                   color="bg-red-50"
                 />
               </div>
 
-              {/* NEXT BIRTHDAY BIG CARD */}
-              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+              {/* NEXT BIRTHDAY */}
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-8 relative overflow-hidden text-left">
                 <div className="relative z-10 bg-indigo-50 p-6 rounded-2xl">
                    <Cake size={48} className="text-indigo-600"/>
                 </div>
-                <div className="relative z-10 text-center md:text-left flex-1">
-                  <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Hitung Mundur Ulang Tahun</h4>
+                <div className="relative z-10 flex-1">
+                  <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Countdown Ulang Tahun</h4>
                   <p className="text-2xl font-black text-slate-800">
                     {nextBday.totalDays === 0 ? "SELAMAT ULANG TAHUN! 🥳" : `${nextBday.totalDays} Hari Lagi`}
                   </p>
-                  <p className="text-sm text-slate-500 mt-1">Anda akan merayakan usia ke-{age.years + 1} tahun.</p>
+                  <p className="text-sm text-slate-500 mt-1">Menuju usia ke-{age.years + 1} tahun.</p>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex gap-4 relative z-10">
                     <div className="text-center">
                         <div className="text-2xl font-black text-indigo-600">{nextBday.months}</div>
                         <div className="text-[10px] font-bold text-slate-400 uppercase">Bulan</div>
@@ -248,7 +257,7 @@ function AgeCalculator() {
               </div>
 
               <div className="bg-slate-100 p-4 rounded-2xl text-[10px] text-slate-400 italic text-center">
-                *Statistik kesehatan (detak jantung & napas) adalah angka estimasi berdasarkan rata-rata manusia sehat.
+                *Statistik kesehatan (detak jantung & napas) adalah angka estimasi berdasarkan rata-rata medis.
               </div>
             </>
           )}
@@ -258,19 +267,19 @@ function AgeCalculator() {
   );
 }
 
-function MetricCard({ icon, label, value }: { icon: any, label: string, value: string | number }) {
+function MetricCard({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) {
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-2">
-      <div className="bg-slate-50 w-8 h-8 rounded-lg flex items-center justify-center">{icon}</div>
+      <div className="bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center shadow-inner">{icon}</div>
       <div>
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">{label}</p>
-        <p className="text-lg font-black text-slate-800 tracking-tighter">{value}</p>
+        <p className="text-lg font-black text-slate-800 tracking-tighter leading-tight">{value}</p>
       </div>
     </div>
   );
 }
 
-function InfoCard({ title, icon, value, sub, color }: { title: string, icon: any, value: string, sub: string, color: string }) {
+function InfoCard({ title, icon, value, sub, color }: { title: string, icon: React.ReactNode, value: string, sub: string, color: string }) {
   return (
     <div className={`p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md`}>
       <div className={`${color} w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-inner`}>{icon}</div>
