@@ -226,3 +226,182 @@ function PromotionBuilder() {
             </div>
 
             <div className="flex-grow space-y-8 text-justify">
+               
+               <div className="grid grid-cols-2 gap-8">
+                  <div>
+                     <h3 className="text-[10px] font-black uppercase text-slate-400 mb-2 print:text-black">Candidate</h3>
+                     <p className="text-lg font-bold text-slate-900">{data.employeeName}</p>
+                     <p className="text-sm text-slate-500 print:text-black">{data.currentPosition}</p>
+                  </div>
+                  <div>
+                     <h3 className="text-[10px] font-black uppercase text-emerald-600 mb-2 print:text-black">Recommended For</h3>
+                     <p className="text-xl font-black text-emerald-700 underline print:text-black">{data.newPosition}</p>
+                     <p className="text-sm text-slate-500 print:text-black">{data.department}</p>
+                  </div>
+               </div>
+
+               <div className="bg-emerald-50/50 p-6 rounded-lg border border-emerald-100 print:bg-transparent print:border-black">
+                  <h3 className="text-[10px] font-black uppercase text-emerald-800 mb-3 print:text-black">Performance Review Highlights</h3>
+                  <p className="text-sm leading-relaxed mb-4">"{data.strengths}"</p>
+                  <div className="space-y-2">
+                     <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 size={16} className="text-emerald-600 print:text-black" />
+                        <span>Rating: <strong>{data.performance}</strong></span>
+                     </div>
+                     <div className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 size={16} className="text-emerald-600 mt-0.5 print:text-black" />
+                        <span>Achievement: {data.achievement}</span>
+                     </div>
+                  </div>
+               </div>
+
+               <p className="text-sm">I highly recommend this promotion based on the candidate's consistent performance and readiness for greater responsibilities.</p>
+            </div>
+
+            <div className="mt-16 pt-8 border-t border-slate-200 flex justify-between items-end shrink-0 print:border-black" style={{ pageBreakInside: 'avoid' }}>
+               <div>
+                  <p className="text-xs font-bold uppercase text-slate-400 mb-12 print:text-black">Acknowledged By (HR)</p>
+                  <p className="font-bold uppercase border-b border-black inline-block pb-1">{data.verifierName}</p>
+               </div>
+               <div className="text-right">
+                  <p className="text-xs font-bold uppercase text-slate-400 mb-12 print:text-black">Proposed By</p>
+                  <p className="font-bold uppercase border-b border-black inline-block pb-1">{data.refName}</p>
+                  <p className="text-xs mt-1">{data.refJob}</p>
+               </div>
+            </div>
+        </div>
+      )}
+    </div>
+  );
+
+  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 uppercase tracking-widest text-xs">Initializing...</div>;
+
+  return (
+    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+      
+      {/* GLOBAL CSS PRINT */}
+      <style jsx global>{`
+        @media print {
+          @page { size: A4 portrait; margin: 0; } 
+          body { background: white; margin: 0; padding: 0; }
+          .no-print { display: none !important; }
+          
+          #print-only-root { 
+            display: block !important; 
+            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+          }
+        }
+      `}</style>
+
+      {/* HEADER NAV */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
+        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+               <ArrowLeft size={18} /> Dashboard
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-blue-400 uppercase tracking-tighter italic">
+               <Award size={16} /> <span>Recommendation Builder</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
+                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
+                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
+              </button>
+              {showTemplateMenu && <TemplateMenu />}
+            </div>
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
+              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+        
+        {/* SIDEBAR INPUT */}
+        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Promosi</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
+
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Kop Perusahaan</h3>
+                 <div className="flex items-center gap-4 py-2">
+                    <div onClick={() => fileInputRef.current?.click()} className="w-14 h-14 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 relative overflow-hidden shrink-0">
+                       {logo ? <img src={logo} className="w-full h-full object-contain" /> : <ImagePlus size={16} className="text-slate-300" />}
+                       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                    </div>
+                    {logo && <button onClick={() => setLogo(null)} className="text-[10px] text-red-500 font-bold uppercase underline">Hapus Logo</button>}
+                 </div>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} />
+                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.companyAddress} onChange={e => handleDataChange('companyAddress', e.target.value)} placeholder="Alamat Perusahaan" />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><PenTool size={12}/> Pihak Terkait</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.refName} onChange={e => handleDataChange('refName', e.target.value)} placeholder="Nama Atasan (Pemberi Rekomendasi)" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.refJob} onChange={e => handleDataChange('refJob', e.target.value)} placeholder="Jabatan Atasan" />
+                 <div className="grid grid-cols-2 gap-2 mt-2">
+                    <input className="w-full p-2 border rounded text-xs font-bold" value={data.verifierName} onChange={e => handleDataChange('verifierName', e.target.value)} placeholder="Nama HRD / Verifikator" />
+                    <input className="w-full p-2 border rounded text-xs" value={data.verifierJob} onChange={e => handleDataChange('verifierJob', e.target.value)} placeholder="Jabatan HRD" />
+                 </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Kandidat Promosi</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.employeeName} onChange={e => handleDataChange('employeeName', e.target.value)} placeholder="Nama Karyawan" />
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs" value={data.employeeId} onChange={e => handleDataChange('employeeId', e.target.value)} placeholder="NIP / ID" />
+                    <input className="w-full p-2 border rounded text-xs" value={data.department} onChange={e => handleDataChange('department', e.target.value)} placeholder="Departemen" />
+                 </div>
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs" value={data.currentPosition} onChange={e => handleDataChange('currentPosition', e.target.value)} placeholder="Posisi Lama" />
+                    <input className="w-full p-2 border rounded text-xs font-bold text-blue-600" value={data.newPosition} onChange={e => handleDataChange('newPosition', e.target.value)} placeholder="Posisi Baru (Promosi)" />
+                 </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 flex items-center gap-2"><Award size={12}/> Evaluasi</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.performance} onChange={e => handleDataChange('performance', e.target.value)} placeholder="Predikat Kinerja (A/B/C)" />
+                 <textarea className="w-full p-2 border rounded text-xs h-20 resize-none" value={data.strengths} onChange={e => handleDataChange('strengths', e.target.value)} placeholder="Kekuatan / Kelebihan" />
+                 <textarea className="w-full p-2 border rounded text-xs h-20 resize-none" value={data.achievement} onChange={e => handleDataChange('achievement', e.target.value)} placeholder="Pencapaian Utama" />
+              </div>
+              <div className="h-20 md:hidden"></div>
+           </div>
+        </div>
+
+        {/* PREVIEW AREA */}
+        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
+            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+                    <DocumentContent />
+                 </div>
+               </div>
+            </div>
+        </div>
+      </main>
+
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
+         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      </div>
+
+      {/* PRINT AREA */}
+      <div id="print-only-root" className="hidden">
+         <div className="flex flex-col">
+            <DocumentContent />
+         </div>
+      </div>
+
+    </div>
+  );
+}
