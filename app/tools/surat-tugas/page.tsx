@@ -2,7 +2,7 @@
 
 /**
  * FILE: SuratTugasPage.tsx
- * STATUS: FINAL & FIXED PREVIEW
+ * STATUS: FIXED GLOBAL ORDER (Build Error TEMPLATES Resolved)
  * DESC: Generator Surat Perintah Tugas (Multi-Personel)
  */
 
@@ -38,7 +38,13 @@ interface TaskData {
   cc: string;
 }
 
-// --- 2. DATA DEFAULT ---
+// --- 2. TEMPLATE DEFINITIONS (Diletakkan di sini supaya terbaca global) ---
+const TEMPLATES = [
+  { id: 1, name: "Format Corporate", desc: "Layout formal dengan tabel" },
+  { id: 2, name: "Format Modern", desc: "Desain blok kontemporer" }
+];
+
+// --- 3. DATA DEFAULT ---
 const INITIAL_DATA: TaskData = {
   compName: 'PT. TEKNOLOGI CIPTA MANDIRI',
   compInfo: 'Gedung Cyber Lt. 12, Jl. Kuningan Barat, Jakarta Selatan\nTelp: 021-555-0123 | Email: hrd@tcm.id',
@@ -46,7 +52,7 @@ const INITIAL_DATA: TaskData = {
   date: '', 
   no: '045/HRD-ST/I/2026',
   taskTitle: 'Audit Tahunan Kantor Cabang',
-  location: 'Cabang Surabaya & Malang',
+  location: 'Surabaya & Malang',
   startDate: '2026-01-15',
   endDate: '2026-01-18',
   staffs: [
@@ -114,7 +120,7 @@ function SuratTugasBuilder() {
     }
   };
 
-  const activeTemplateName = templateId === 1 ? "Format Corporate" : "Format Modern";
+  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
 
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
@@ -137,18 +143,18 @@ function SuratTugasBuilder() {
 
       {/* JUDUL */}
       <div className="text-center mb-6 shrink-0 leading-tight">
-        <h2 className="text-lg font-black underline uppercase decoration-1 underline-offset-4 tracking-widest">SURAT PERINTAH TUGAS</h2>
+        <h2 className="text-lg font-black underline uppercase decoration-1 underline-offset-4 tracking-widest print:text-black">SURAT PERINTAH TUGAS</h2>
         <p className="text-[9pt] font-sans mt-1 font-bold print:text-black">Nomor: {data.no}</p>
       </div>
 
       {/* BODY SURAT */}
-      <div className="space-y-4 overflow-visible text-left">
+      <div className="space-y-4 overflow-visible text-left flex-grow">
         <p>Direksi <b>{data.compName}</b> dengan ini memberikan perintah penugasan kepada karyawan berikut:</p>
         
         <table className="w-full border-collapse border border-slate-900 text-[9.5pt]">
             <thead>
                 <tr className="bg-slate-50 text-center font-bold print:bg-transparent">
-                    <th className="border border-slate-900 py-2 w-10">No</th>
+                    <th className="border border-slate-900 py-2 w-10 text-center">No</th>
                     <th className="border border-slate-900 py-2 text-left px-3">Nama Lengkap / NIK</th>
                     <th className="border border-slate-900 py-2 text-left px-3">Jabatan</th>
                 </tr>
@@ -184,9 +190,9 @@ function SuratTugasBuilder() {
       </div>
 
       {/* FOOTER & TANDA TANGAN */}
-      <div className="mt-auto pt-6 border-t border-slate-100 print:border-black" style={{ pageBreakInside: 'avoid' }}>
+      <div className="shrink-0 mt-6 pt-6 border-t border-slate-100 print:border-black" style={{ pageBreakInside: 'avoid' }}>
          <div className="flex justify-end text-center">
-            <div className="w-80 flex flex-col h-40">
+            <div className="w-80 flex flex-col h-40 text-right md:text-center">
                <p className="text-[10pt] mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : ''}</p>
                <p className="uppercase text-[8.5pt] font-black text-slate-400 tracking-widest print:text-black mb-1">{data.signerJob},</p>
                <div className="mt-auto">
@@ -207,17 +213,17 @@ function SuratTugasBuilder() {
   if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0 text-left">
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4 portrait; margin: 0; } 
           body { background: white !important; margin: 0 !important; }
           .no-print, .mobile-nav { display: none !important; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
         }
       `}</style>
 
-      {/* HEADER NAV */}
+      {/* NAVBAR */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
           <div className="flex items-center gap-4">
@@ -235,7 +241,7 @@ function SuratTugasBuilder() {
               <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium transition-all">
                 <LayoutTemplate size={14} className="text-blue-400" />
                 <span className="hidden sm:inline">{activeTemplateName}</span>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-transform' : ''} />
+                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180' : ''} />
               </button>
               {showTemplateMenu && (
                 <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 z-50 text-slate-900 overflow-hidden font-sans p-1">
@@ -248,7 +254,7 @@ function SuratTugasBuilder() {
                 </div>
               )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg transition-all">
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Print Letter</span>
             </button>
           </div>
@@ -258,14 +264,14 @@ function SuratTugasBuilder() {
       <main className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden relative">
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-white border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10 text-left">
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
                 <h2 className="font-bold text-slate-700 uppercase text-xs tracking-widest flex items-center gap-2"><Edit3 size={16}/> Editor Surat Tugas</h2>
                 <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors"><RotateCcw size={16}/></button>
-           </div>
+            </div>
 
            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar text-left font-sans">
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Instansi / Kop</h3>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 text-left">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Kop Perusahaan</h3>
                  <div className="flex items-center gap-4">
                     <div onClick={() => fileInputRef.current?.click()} className="w-14 h-14 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden shrink-0">
                        {logo ? <img src={logo} className="w-full h-full object-contain" /> : <ImagePlus size={20} className="text-slate-300" />}
@@ -305,6 +311,7 @@ function SuratTugasBuilder() {
                     <input className="w-full p-2 border rounded font-bold" value={data.signerName} onChange={e => handleDataChange('signerName', e.target.value)} placeholder="Nama Pejabat" />
                     <input className="w-full p-2 border rounded" value={data.signerJob} onChange={e => handleDataChange('signerJob', e.target.value)} placeholder="Jabatan" />
                  </div>
+                 <input className="w-full p-2 border rounded" value={data.no} onChange={e => handleDataChange('no', e.target.value)} placeholder="Nomor Surat" />
               </div>
               <div className="h-20 md:hidden"></div>
            </div>
@@ -326,7 +333,6 @@ function SuratTugasBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden"><DocumentContent /></div>
     </div>
   );
