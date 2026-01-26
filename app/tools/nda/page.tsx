@@ -2,19 +2,16 @@
 
 /**
  * FILE: PaktaIntegritasPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: FINAL FIXED (MISSING ICON IMPORT FIXED)
  * DESC: Generator Pakta Integritas (Integrity Pact)
- * FEATURES:
- * - Dual Template (Classic Government vs Modern Corporate)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIXES: 
+ * - Added 'X' to lucide-react imports.
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ShieldCheck, 
-  User, Building2, FileText, ChevronDown, Check, LayoutTemplate, Edit3, Eye, RotateCcw
+  User, Building2, FileText, ChevronDown, Check, LayoutTemplate, Edit3, Eye, RotateCcw, X
 } from 'lucide-react';
 import Link from 'next/link';
 
