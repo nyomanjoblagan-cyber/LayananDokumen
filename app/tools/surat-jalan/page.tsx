@@ -2,7 +2,7 @@
 
 /**
  * FILE: DeliveryOrderPage.tsx
- * STATUS: FINAL & FIXED (Error TEMPLATES resolved)
+ * STATUS: FIXED & TESTED (Build Error TEMPLATES Resolved)
  * DESC: Generator Surat Jalan / Delivery Order Logistik
  */
 
@@ -41,7 +41,13 @@ interface DOData {
   signerReceiver: string;
 }
 
-// --- 2. DATA DEFAULT ---
+// --- 2. TEMPLATE DEFINITIONS (Ditempatkan di luar agar bisa diakses global) ---
+const TEMPLATES = [
+  { id: 1, name: "Format Gudang", desc: "Tabel tegas & kotak tanda tangan" },
+  { id: 2, name: "Modern Delivery", desc: "Layout bersih untuk logistik corporate" }
+];
+
+// --- 3. DATA DEFAULT ---
 const INITIAL_DATA: DOData = {
   no: `DO/2026/001`,
   date: '', 
@@ -82,12 +88,6 @@ function DOToolBuilder() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [data, setData] = useState<DOData>(INITIAL_DATA);
-
-  // --- TEMPLATE DEFINITIONS (FIXED ERROR) ---
-  const TEMPLATES = [
-    { id: 1, name: "Format Gudang", desc: "Tabel tegas & kotak tanda tangan" },
-    { id: 2, name: "Modern Delivery", desc: "Layout bersih untuk logistik corporate" }
-  ];
 
   useEffect(() => {
     setIsClient(true);
@@ -298,8 +298,8 @@ function DOToolBuilder() {
               <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.senderInfo} onChange={e => handleDataChange('senderInfo', e.target.value)} placeholder="Alamat & Kontak Pengirim" />
            </div>
 
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans text-left">
-              <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><Package size={12}/> Daftar Barang</h3>
+           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 font-sans text-left">
+              <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2 mb-4"><Package size={12}/> Daftar Barang</h3>
               <div className="space-y-2">
                 {data.items.map((item, idx) => (
                     <div key={item.id} className="flex gap-2 items-center bg-slate-50 p-2 rounded border group">
@@ -309,7 +309,7 @@ function DOToolBuilder() {
                     </div>
                 ))}
               </div>
-              <button onClick={addItem} className="w-full py-2 border-2 border-dashed rounded-lg text-blue-600 font-bold hover:bg-blue-50 text-[10px] uppercase">+ Tambah Barang</button>
+              <button onClick={addItem} className="w-full mt-4 py-2 border-2 border-dashed rounded-lg text-blue-600 font-bold hover:bg-blue-50 text-[10px] uppercase">+ Tambah Barang</button>
            </div>
 
            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans text-left pb-10">
@@ -335,6 +335,7 @@ function DOToolBuilder() {
         </div>
       </main>
 
+      {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}><Edit3 size={16}/> Editor</button>
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> Preview</button>
