@@ -1,14 +1,87 @@
 'use client';
 
+/**
+ * FILE: SewaKendaraanPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Perjanjian Sewa Kendaraan (Rental Agreement)
+ * FEATURES:
+ * - Dual Template (Classic Legal vs Modern Clean)
+ * - Auto Date Logic
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
 import { useState, Suspense, useRef, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Car, Building2, UserCircle2, 
   MapPin, LayoutTemplate, ChevronDown, X, PenTool, ShieldCheck, Key, FileWarning,
-  Edit3, Eye, Check
+  Edit3, Eye, Check, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface RentalData {
+  city: string;
+  date: string;
+  docNo: string;
+  
+  // PIHAK PERTAMA (PEMILIK)
+  ownerName: string;
+  ownerNik: string;
+  ownerAddress: string;
+  
+  // PIHAK KEDUA (PENYEWA)
+  renterName: string;
+  renterNik: string;
+  renterAddress: string;
+  
+  // KENDARAAN
+  vehicleModel: string;
+  plateNumber: string;
+  frameNumber: string;
+  engineNumber: string;
+  
+  // KETENTUAN
+  rentalDuration: string;
+  startDate: string;
+  endDate: string;
+  rentalPrice: string;
+  totalPrice: string;
+  fineRate: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: RentalData = {
+  city: 'DENPASAR',
+  date: '', // Diisi useEffect
+  docNo: 'RENT/2026/01/007',
+  
+  ownerName: 'I MADE WIGUNA',
+  ownerNik: '5171010101880001',
+  ownerAddress: 'Jl. Sunset Road No. 88, Kuta, Bali',
+  
+  renterName: 'JOHN DOE',
+  renterNik: '3172020202950003',
+  renterAddress: 'Villa Seminyak, No. 12A, Badung, Bali',
+  
+  vehicleModel: 'TOYOTA AVANZA VELOZ 2024',
+  plateNumber: 'DK 1234 AB',
+  frameNumber: 'MHFW123456789',
+  engineNumber: '1NR-FE12345',
+  
+  rentalDuration: '3 (Tiga) Hari',
+  startDate: '2026-01-10',
+  endDate: '2026-01-13',
+  
+  rentalPrice: 'Rp 450.000,- / Hari',
+  totalPrice: 'Rp 1.350.000,-',
+  fineRate: 'Rp 50.000,- / Jam (Keterlambatan)'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function SewaKendaraanPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs">Memuat Editor Perjanjian...</div>}>
@@ -18,56 +91,55 @@ export default function SewaKendaraanPage() {
 }
 
 function VehicleRentalBuilder() {
-  // --- STATE SYSTEM (SERAGAM) ---
+  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Denpasar',
-    date: '',
-    docNo: 'RENT/2026/01/007',
-    ownerName: 'I MADE WIGUNA',
-    ownerNik: '5171010101880001',
-    ownerAddress: 'Jl. Sunset Road No. 88, Kuta, Bali',
-    renterName: 'JOHN DOE',
-    renterNik: '3172020202950003',
-    renterAddress: 'Villa Seminyak, No. 12A, Badung, Bali',
-    vehicleModel: 'Toyota Avanza Veloz 2024',
-    plateNumber: 'DK 1234 AB',
-    frameNumber: 'MHFW123456789',
-    engineNumber: '1NR-FE12345',
-    rentalDuration: '3 (Tiga) Hari',
-    startDate: '2026-01-10',
-    endDate: '2026-01-13',
-    rentalPrice: 'Rp 450.000,- / Hari',
-    totalPrice: 'Rp 1.350.000,-',
-    fineRate: 'Rp 50.000,- / Jam (Keterlambatan)'
-  });
+  const [data, setData] = useState<RentalData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
-    setData(prev => ({ ...prev, date: new Date().toISOString().split('T')[0] }));
+    const today = new Date().toISOString().split('T')[0];
+    setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof RentalData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  const TEMPLATES = [
-    { id: 1, name: "Format Klasik", desc: "Bahasa hukum standar Indonesia" },
-    { id: 2, name: "Format Modern", desc: "Layout bersih dengan aksen biru" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date().toISOString().split('T')[0];
+        setData({ ...INITIAL_DATA, date: today });
+    }
+  };
+
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-blue-50 text-blue-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+            Format Klasik
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+            Format Modern
+        </button>
+    </div>
+  );
+
+  const activeTemplateName = templateId === 1 ? 'Format Klasik' : 'Format Modern';
 
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
-    <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 print:h-auto print:min-h-0 print:p-[15mm] ${templateId === 1 ? 'font-serif text-[10pt]' : 'font-sans text-[9.5pt]'}`}>
+    // FIX: Print Padding
+    <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[10pt]' : 'font-sans text-[9.5pt]'}`}>
       
       {/* JUDUL */}
       <div className="text-center mb-6 shrink-0 leading-tight">
         <h2 className="text-lg font-black underline uppercase decoration-1 underline-offset-4 tracking-widest">SURAT PERJANJIAN SEWA KENDARAAN</h2>
-        <p className="text-[9pt] font-sans mt-1 italic uppercase tracking-widest text-slate-500">Nomor: {data.docNo}</p>
+        <p className="text-[9pt] font-sans mt-1 italic uppercase tracking-widest text-slate-500 print:text-black">Nomor: {data.docNo}</p>
       </div>
 
       {/* ISI SURAT */}
@@ -137,120 +209,127 @@ function VehicleRentalBuilder() {
     </div>
   );
 
-  if (!isClient) return null;
+  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 uppercase tracking-widest text-xs">Initializing...</div>;
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+      
+      {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
-          body { background: white !important; margin: 0 !important; }
-          .no-print, .mobile-nav { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          @page { size: A4 portrait; margin: 0; } 
+          body { background: white; margin: 0; padding: 0; }
+          .no-print { display: none !important; }
+          
+          #print-only-root { 
+            display: block !important; 
+            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
+          }
         }
       `}</style>
 
-      {/* HEADER NAV (SERAGAM) */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16">
+      {/* HEADER NAV */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-               <ArrowLeft size={18} /> <span>Dashboard</span>
+               <ArrowLeft size={18} /> Dashboard
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-400 uppercase tracking-tighter italic">
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-blue-400 uppercase tracking-tighter italic">
                <Car size={16} /> <span>Vehicle Rental Builder</span>
             </div>
           </div>
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" />
-                <span className="hidden sm:inline">{activeTemplateName}</span>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-transform' : ''} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
+                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
+                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 z-50 text-slate-900 font-sans overflow-hidden">
-                  {TEMPLATES.map(t => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600' : ''}`}>
-                      <div>{t.name}</div>
-                      <div className="text-[10px] text-slate-400 font-normal">{t.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showTemplateMenu && <TemplateMenu />}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all">
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
             </button>
           </div>
         </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative font-sans text-left">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+        
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-white border-r overflow-y-auto p-4 md:p-6 space-y-6 z-20 h-full ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-              <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Key size={12}/> Pihak I (Pemilik)</h3>
-              <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.ownerName} onChange={e => handleDataChange('ownerName', e.target.value)} placeholder="Nama Pemilik" />
-              <input className="w-full p-2 border rounded text-xs" value={data.ownerNik} onChange={e => handleDataChange('ownerNik', e.target.value)} placeholder="NIK Pemilik" />
-              <textarea className="w-full p-2 border rounded text-xs h-16 resize-none leading-tight" value={data.ownerAddress} onChange={e => handleDataChange('ownerAddress', e.target.value)} placeholder="Alamat Pemilik" />
-           </div>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Sewa</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-              <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Pihak II (Penyewa)</h3>
-              <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.renterName} onChange={e => handleDataChange('renterName', e.target.value)} placeholder="Nama Penyewa" />
-              <input className="w-full p-2 border rounded text-xs" value={data.renterNik} onChange={e => handleDataChange('renterNik', e.target.value)} placeholder="NIK Penyewa" />
-              <textarea className="w-full p-2 border rounded text-xs h-16 resize-none leading-tight" value={data.renterAddress} onChange={e => handleDataChange('renterAddress', e.target.value)} placeholder="Alamat Penyewa" />
-           </div>
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Key size={12}/> Pihak I (Pemilik)</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.ownerName} onChange={e => handleDataChange('ownerName', e.target.value)} placeholder="Nama Pemilik" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.ownerNik} onChange={e => handleDataChange('ownerNik', e.target.value)} placeholder="NIK Pemilik" />
+                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none leading-tight" value={data.ownerAddress} onChange={e => handleDataChange('ownerAddress', e.target.value)} placeholder="Alamat Pemilik" />
+              </div>
 
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-              <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 flex items-center gap-2"><Car size={12}/> Detail Kendaraan</h3>
-              <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.vehicleModel} onChange={e => handleDataChange('vehicleModel', e.target.value)} />
-              <div className="grid grid-cols-2 gap-2">
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.plateNumber} onChange={e => handleDataChange('plateNumber', e.target.value)} placeholder="No. Polisi" />
-                 <input className="w-full p-2 border rounded text-xs" value={data.frameNumber} onChange={e => handleDataChange('frameNumber', e.target.value)} placeholder="No. Rangka" />
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Pihak II (Penyewa)</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.renterName} onChange={e => handleDataChange('renterName', e.target.value)} placeholder="Nama Penyewa" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.renterNik} onChange={e => handleDataChange('renterNik', e.target.value)} placeholder="NIK Penyewa" />
+                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none leading-tight" value={data.renterAddress} onChange={e => handleDataChange('renterAddress', e.target.value)} placeholder="Alamat Penyewa" />
               </div>
-           </div>
 
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans pb-10">
-              <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 flex items-center gap-2"><FileWarning size={12}/> Ketentuan Sewa</h3>
-              <div className="grid grid-cols-2 gap-2">
-                 <input className="w-full p-2 border rounded text-xs" value={data.rentalDuration} onChange={e => handleDataChange('rentalDuration', e.target.value)} placeholder="Durasi" />
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.totalPrice} onChange={e => handleDataChange('totalPrice', e.target.value)} placeholder="Total Biaya" />
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
+                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 flex items-center gap-2"><Car size={12}/> Detail Kendaraan</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.vehicleModel} onChange={e => handleDataChange('vehicleModel', e.target.value)} />
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs font-bold" value={data.plateNumber} onChange={e => handleDataChange('plateNumber', e.target.value)} placeholder="No. Polisi" />
+                    <input className="w-full p-2 border rounded text-xs" value={data.frameNumber} onChange={e => handleDataChange('frameNumber', e.target.value)} placeholder="No. Rangka" />
+                 </div>
               </div>
-              <input className="w-full p-2 border rounded text-xs" value={data.fineRate} onChange={e => handleDataChange('fineRate', e.target.value)} placeholder="Denda Telat" />
-              <div className="grid grid-cols-2 gap-2 border-t pt-4">
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
-                 <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans pb-10">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 flex items-center gap-2"><FileWarning size={12}/> Ketentuan Sewa</h3>
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs" value={data.rentalDuration} onChange={e => handleDataChange('rentalDuration', e.target.value)} placeholder="Durasi" />
+                    <input className="w-full p-2 border rounded text-xs font-bold" value={data.totalPrice} onChange={e => handleDataChange('totalPrice', e.target.value)} placeholder="Total Biaya" />
+                 </div>
+                 <input className="w-full p-2 border rounded text-xs" value={data.fineRate} onChange={e => handleDataChange('fineRate', e.target.value)} placeholder="Denda Telat" />
+                 <div className="grid grid-cols-2 gap-2 border-t pt-4">
+                    <input className="w-full p-2 border rounded text-xs font-bold" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
+                    <input type="date" className="w-full p-2 border rounded text-xs font-bold" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                 </div>
               </div>
+              <div className="h-20 md:hidden"></div>
            </div>
-           <div className="h-20 md:hidden"></div>
         </div>
 
-        {/* PREVIEW AREA (STABILIZED) */}
-        <div className={`flex-1 bg-slate-200/50 relative h-full no-print ${mobileView === 'editor' ? 'hidden lg:block' : 'block'}`}>
-           <div className="absolute inset-0 overflow-y-auto overflow-x-hidden p-4 md:p-12 flex justify-center custom-scrollbar">
-              <div className="origin-top transition-transform duration-300 transform scale-[0.43] sm:scale-[0.55] md:scale-[0.8] lg:scale-100 h-fit mb-12">
-                 <DocumentContent />
-                 <div className="h-24 lg:hidden"></div>
-              </div>
-           </div>
+        {/* PREVIEW AREA */}
+        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
+            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+                    <DocumentContent />
+                 </div>
+               </div>
+            </div>
         </div>
       </main>
 
-      {/* MOBILE NAV (SERAGAM) */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 z-50 mobile-nav">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> Preview</button>
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
+         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
+      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
          <div className="flex flex-col">
             <DocumentContent />
          </div>
       </div>
+
     </div>
   );
 }
