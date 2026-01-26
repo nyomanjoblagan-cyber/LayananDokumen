@@ -1,5 +1,17 @@
 'use client';
 
+/**
+ * FILE: PphPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Kalkulator PPh 21 (Pajak Penghasilan) sesuai UU HPP Terbaru
+ * FEATURES:
+ * - Real-time Calculation
+ * - Progressive Tax Brackets (UU HPP 2022)
+ * - PTKP Settings
+ * - BPJS & NPWP Options
+ * - Mobile Menu Fixed
+ */
+
 import { useState, useEffect, Suspense } from 'react';
 import { 
   ArrowLeft, Calculator, Banknote, 
@@ -8,6 +20,30 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface TaxResult {
+  grossYear: number;
+  biayaJabatan: number;
+  iuranPensiun: number;
+  nettoYear: number;
+  ptkpAmount: number;
+  pkp: number;
+  taxYear: number;
+  taxMonth: number;
+  takeHomePay: number;
+  topBracket: number;
+}
+
+// --- 2. DATA DEFAULT ---
+const PTKP_LIST: Record<string, number> = {
+  'TK/0': 54000000, 'TK/1': 58500000, 'TK/2': 63000000, 'TK/3': 67500000,
+  'K/0': 58500000, 'K/1': 63000000, 'K/2': 67500000, 'K/3': 72000000,
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function PphPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs">Memuat Kalkulator Pajak...</div>}>
@@ -17,7 +53,7 @@ export default function PphPage() {
 }
 
 function PphCalculatorBuilder() {
-  // --- STATE SYSTEM (SERAGAM) ---
+  // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
 
@@ -30,7 +66,7 @@ function PphCalculatorBuilder() {
   const [includeBPJS, setIncludeBPJS] = useState<boolean>(true); 
 
   // --- STATE OUTPUT ---
-  const [result, setResult] = useState({
+  const [result, setResult] = useState<TaxResult>({
     grossYear: 0,
     biayaJabatan: 0,
     iuranPensiun: 0,
@@ -43,66 +79,75 @@ function PphCalculatorBuilder() {
     topBracket: 0 
   });
 
-  const PTKP_LIST: Record<string, number> = {
-    'TK/0': 54000000, 'TK/1': 58500000, 'TK/2': 63000000, 'TK/3': 67500000,
-    'K/0': 58500000, 'K/1': 63000000, 'K/2': 67500000, 'K/3': 72000000,
-  };
-
   useEffect(() => {
     setIsClient(true);
+    
+    // 1. PENGHASILAN BRUTO
     const grossMonth = salary + allowance;
     const grossYear = (grossMonth * 12) + thr;
 
+    // 2. PENGURANG
     let bJabatan = grossYear * 0.05;
-    if (bJabatan > 6000000) bJabatan = 6000000;
+    if (bJabatan > 6000000) bJabatan = 6000000; // Max 6jt/tahun atau 500rb/bulan
 
     let iPensiun = 0;
     if (includeBPJS) {
-       iPensiun = (salary * 0.03) * 12;
+       iPensiun = (salary * 0.03) * 12; // Estimasi JHT (2%) + JP (1%)
     }
 
+    // 3. PENGHASILAN NETTO
     const netto = grossYear - bJabatan - iPensiun;
+    
+    // 4. PTKP & PKP
     const ptkpVal = PTKP_LIST[ptkpStatus] || 54000000;
     let pkpCalc = netto - ptkpVal;
     if (pkpCalc < 0) pkpCalc = 0;
-    pkpCalc = Math.floor(pkpCalc / 1000) * 1000;
+    pkpCalc = Math.floor(pkpCalc / 1000) * 1000; // Pembulatan ke ribuan ke bawah
 
+    // 5. PERHITUNGAN PAJAK PROGRESIF (UU HPP)
     let tax = 0;
     let remainingPKP = pkpCalc;
     let bracket = 0;
 
+    // Tier 1: 0 - 60 Juta (5%)
     if (remainingPKP > 0) {
        const tier1 = Math.min(remainingPKP, 60000000);
        tax += tier1 * 0.05;
        remainingPKP -= tier1;
        bracket = 5;
     }
+    // Tier 2: 60 - 250 Juta (15%)
     if (remainingPKP > 0) {
-       const tier2 = Math.min(remainingPKP, 190000000);
+       const tier2 = Math.min(remainingPKP, 190000000); // 250 - 60 = 190
        tax += tier2 * 0.15;
        remainingPKP -= tier2;
        bracket = 15;
     }
+    // Tier 3: 250 - 500 Juta (25%)
     if (remainingPKP > 0) {
-       const tier3 = Math.min(remainingPKP, 250000000);
+       const tier3 = Math.min(remainingPKP, 250000000); // 500 - 250 = 250
        tax += tier3 * 0.25;
        remainingPKP -= tier3;
        bracket = 25;
     }
+    // Tier 4: 500 Juta - 5 Miliar (30%)
     if (remainingPKP > 0) {
-       const tier4 = Math.min(remainingPKP, 4500000000);
+       const tier4 = Math.min(remainingPKP, 4500000000); // 5M - 500jt
        tax += tier4 * 0.30;
        remainingPKP -= tier4;
        bracket = 30;
     }
+    // Tier 5: > 5 Miliar (35%)
     if (remainingPKP > 0) {
        tax += remainingPKP * 0.35;
        bracket = 35;
     }
 
+    // Denda NPWP (20% lebih tinggi)
     if (!hasNpwp) tax = tax * 1.2;
 
     const monthlyTax = tax / 12;
+    // THP = Gross - Pajak - BPJS (jika ada)
     const thp = grossMonth - monthlyTax - (includeBPJS ? (salary * 0.03) : 0);
 
     setResult({
@@ -144,6 +189,7 @@ function PphCalculatorBuilder() {
         
         {/* SIDEBAR INPUT */}
         <div className={`w-full lg:w-[450px] bg-white border-r overflow-y-auto p-4 md:p-6 space-y-6 z-20 ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
+           
            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-4">
               <h3 className="text-[10px] font-black uppercase text-blue-600 border-b border-blue-200 pb-1 flex items-center gap-2"><DollarSign size={12}/> Pendapatan Bulanan</h3>
               <div className="space-y-3">
@@ -169,9 +215,12 @@ function PphCalculatorBuilder() {
                   <select className="w-full p-2 border rounded-lg text-sm font-bold mt-1 bg-slate-50" value={ptkpStatus} onChange={(e) => setPtkpStatus(e.target.value)}>
                     <option value="TK/0">TK/0 (Lajang)</option>
                     <option value="TK/1">TK/1 (1 Tanggungan)</option>
+                    <option value="TK/2">TK/2 (2 Tanggungan)</option>
+                    <option value="TK/3">TK/3 (3 Tanggungan)</option>
                     <option value="K/0">K/0 (Menikah)</option>
                     <option value="K/1">K/1 (Menikah, 1 Anak)</option>
                     <option value="K/2">K/2 (Menikah, 2 Anak)</option>
+                    <option value="K/3">K/3 (Menikah, 3 Anak)</option>
                   </select>
               </div>
               <div className="flex flex-col gap-3 pt-2">
@@ -188,7 +237,7 @@ function PphCalculatorBuilder() {
            <div className="h-20 md:hidden"></div>
         </div>
 
-        {/* PREVIEW AREA (STABILIZED MOBILE SCALE) */}
+        {/* PREVIEW AREA */}
         <div className={`flex-1 bg-slate-200/50 flex flex-col items-center overflow-hidden h-full ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
            <div className="w-full overflow-y-auto overflow-x-hidden flex flex-col items-center p-4 md:p-8 h-full custom-scrollbar">
               
@@ -260,7 +309,7 @@ function PphCalculatorBuilder() {
         </div>
       </main>
 
-      {/* MOBILE NAV (SERAGAM) */}
+      {/* MOBILE NAV */}
       <div className="md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 z-50">
          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}><Edit3 size={16}/> Input</button>
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> Hasil</button>
