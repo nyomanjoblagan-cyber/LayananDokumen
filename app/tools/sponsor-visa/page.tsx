@@ -2,12 +2,12 @@
 
 /**
  * FILE: SponsorVisaPage.tsx
- * STATUS: FINAL & MOBILE READY
- * DESC: Generator Surat Sponsor Visa (English Standard for Embassy)
+ * STATUS: FINAL & FIXED (Teks tidak tenggelam)
+ * DESC: Generator Surat Sponsor Visa (English Standard)
  * FEATURES:
- * - Dual Template (Formal Personal vs Business Sponsored)
- * - Auto Date Logic
- * - Mobile Menu Fixed
+ * - Fixed: Closing statement visibility
+ * - Fixed: RotateCcw Import
+ * - Dual Template (Personal vs Business)
  * - Strict A4 Print Layout
  */
 
@@ -18,31 +18,20 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
-
 // --- 1. TYPE DEFINITIONS ---
 interface VisaData {
   city: string;
   date: string;
-  
-  // Sponsor
   sponsorName: string;
   sponsorJob: string;
   sponsorAddress: string;
-  relation: string; // Father, Mother, Company, etc.
-  
-  // Applicant
+  relation: string; 
   applicantName: string;
   passportNo: string;
-  
-  // Trip Details
   destinationCountry: string;
   visitPurpose: string;
   duration: string;
   travelDate: string;
-  
-  // Embassy
   embassyName: string;
   embassyAddress: string;
 }
@@ -50,26 +39,21 @@ interface VisaData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: VisaData = {
   city: 'JAKARTA',
-  date: '', // Diisi useEffect
-  
+  date: '', 
   sponsorName: 'HENDRA KUSUMA',
   sponsorJob: 'CEO of PT. Maju Jaya',
   sponsorAddress: 'Jl. Kemang Raya No. 45, Jakarta Selatan',
   relation: 'Father', 
-  
   applicantName: 'RIZKY KUSUMA',
   passportNo: 'X1234567',
-  
   destinationCountry: 'JAPAN',
   visitPurpose: 'Family Holiday',
   duration: '14 Days',
   travelDate: '2026-03-15',
-  
   embassyName: 'EMBASSY OF JAPAN',
   embassyAddress: 'Jakarta, Indonesia'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function SponsorVisaPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs">Memuat Editor Visa...</div>}>
@@ -79,14 +63,12 @@ export default function SponsorVisaPage() {
 }
 
 function VisaSponsorBuilder() {
-  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [data, setData] = useState<VisaData>(INITIAL_DATA);
 
   useEffect(() => {
@@ -116,49 +98,30 @@ function VisaSponsorBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-blue-50 text-blue-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
-            Formal Personal (Family)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
-            Business Sponsored
-        </button>
-    </div>
-  );
-
   const activeTemplateName = templateId === 1 ? 'Formal Personal' : 'Business Sponsored';
 
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
-    // FIX: Print Padding
     <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
       
       {templateId === 1 ? (
-        /* TEMPLATE 1: FORMAL PERSONAL (FAMILY) */
+        /* TEMPLATE 1: FORMAL PERSONAL */
         <div className="flex flex-col h-full">
-            {/* HEADER TANGGAL */}
             <div className="text-right mb-10 font-sans text-[10pt] font-bold uppercase tracking-tight shrink-0">
                {data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : ''}
             </div>
 
-            {/* TUJUAN */}
             <div className="mb-8 space-y-1 text-left shrink-0">
                <p className="font-bold">To: Visa Section</p>
                <p className="font-bold uppercase tracking-tight">{data.embassyName}</p>
                <p className="italic text-slate-600 print:text-black">{data.embassyAddress}</p>
             </div>
 
-            {/* JUDUL */}
             <div className="text-center mb-10 shrink-0 leading-tight">
                <h1 className="text-xl font-black underline uppercase decoration-1 underline-offset-8 tracking-widest">SPONSORSHIP LETTER</h1>
             </div>
 
-            {/* BODY */}
-            <div className="space-y-6 flex-grow overflow-hidden text-left text-justify">
+            <div className="space-y-6 flex-grow text-left text-justify">
                <p>Dear Sir/Madam,</p>
                <p>I, the undersigned below:</p>
                
@@ -183,11 +146,10 @@ function VisaSponsorBuilder() {
                   "I guarantee that I will be fully responsible for all of his/her expenses during the entire trip and stay in your country, and I also guarantee that he/she will return to Indonesia promptly after the visit is over."
                </div>
                
-               <p>Thank you for your kind attention and assistance regarding this visa application.</p>
+               <p className="pt-2">Thank you for your kind attention and assistance regarding this visa application.</p>
             </div>
 
-            {/* TANDA TANGAN */}
-            <div className="shrink-0 mt-10 pt-8 border-t border-slate-100 print:border-black" style={{ pageBreakInside: 'avoid' }}>
+            <div className="shrink-0 mt-8 pt-8 border-t border-slate-100 print:border-black" style={{ pageBreakInside: 'avoid' }}>
                <div className="flex justify-end text-center">
                   <div className="w-64">
                      <p className="mb-2 font-bold uppercase text-[9pt] tracking-widest text-slate-400 print:text-black">Sincerely Yours,</p>
@@ -202,7 +164,6 @@ function VisaSponsorBuilder() {
       ) : (
         /* TEMPLATE 2: BUSINESS SPONSORED */
         <div className="flex flex-col h-full font-sans">
-            {/* KOP PERUSAHAAN (Opsional) */}
             <div className="flex items-center gap-6 border-b-2 border-slate-900 pb-4 mb-8 shrink-0">
                 {logo ? (
                   <img src={logo} alt="Logo" className="w-16 h-16 object-contain shrink-0 block print:block" />
@@ -212,30 +173,24 @@ function VisaSponsorBuilder() {
                   </div>
                 )}
                 <div className="flex-grow">
-                   <h1 className="text-xl font-black uppercase tracking-tighter leading-none mb-1">COMPANY LETTERHEAD</h1>
+                   <h1 className="text-xl font-black uppercase tracking-tighter leading-none mb-1">{logo ? data.sponsorJob.split('of ')[1] : 'COMPANY LETTERHEAD'}</h1>
                    <p className="text-[9pt] text-slate-500 italic print:text-black">{data.sponsorAddress}</p>
                 </div>
             </div>
 
-            {/* TANGGAL */}
-            <div className="text-right mb-8 text-sm font-bold">
+            <div className="text-right mb-8 text-sm font-bold shrink-0">
                {data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : ''}
             </div>
 
-            {/* TUJUAN */}
             <div className="mb-8 space-y-1 text-left shrink-0">
                <p className="font-bold">To: Visa Section</p>
                <p className="font-bold uppercase tracking-tight">{data.embassyName}</p>
                <p className="italic text-slate-600 print:text-black">{data.embassyAddress}</p>
             </div>
 
-            {/* BODY */}
-            <div className="space-y-6 flex-grow overflow-hidden text-left text-justify">
+            <div className="space-y-6 flex-grow text-left text-justify">
                <p>Dear Sir/Madam,</p>
-               
-               <p className="leading-relaxed">
-                  We, the undersigned, hereby certify that:
-               </p>
+               <p>We, the undersigned, hereby certify that:</p>
 
                <div className="ml-8 font-bold border-l-4 border-slate-900 pl-4 py-2">
                   <p className="uppercase">{data.applicantName}</p>
@@ -243,20 +198,19 @@ function VisaSponsorBuilder() {
                </div>
 
                <p className="leading-relaxed">
-                  Is currently employed at our company as an employee. We acknowledge that {data.applicantName} will be traveling to <b>{data.destinationCountry}</b> for <b>{data.visitPurpose}</b> from <b>{isClient && data.travelDate ? new Date(data.travelDate).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : '...'}</b> for a duration of {data.duration}.
+                  Is currently employed at our company. We acknowledge that {data.applicantName} will be traveling to <b>{data.destinationCountry}</b> for <b>{data.visitPurpose}</b> from <b>{isClient && data.travelDate ? new Date(data.travelDate).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : '...'}</b> for a duration of {data.duration}.
                </p>
 
                <p className="leading-relaxed">
-                  All expenses incurred during the trip will be borne by the applicant/company. We guarantee that the applicant will not seek any form of employment or permanent residence in {data.destinationCountry} and will return to Indonesia to resume duties with our company upon completion of the trip.
+                  All expenses incurred during the trip will be borne by the applicant/company. We guarantee that the applicant will return to Indonesia to resume duties with our company upon completion of the trip.
                </p>
 
-               <p>We kindly request that you grant the necessary visa to facilitate this travel.</p>
+               <p>Thank you for your kind attention and assistance regarding this visa application.</p>
             </div>
 
-            {/* TANDA TANGAN */}
             <div className="shrink-0 mt-12 pt-8" style={{ pageBreakInside: 'avoid' }}>
-               <div className="w-64">
-                  <p className="mb-16 font-bold uppercase text-[9pt]">Sincerely,</p>
+               <div className="w-64 text-center">
+                  <p className="mb-16 font-bold uppercase text-[9pt] text-slate-400 print:text-black">Sincerely,</p>
                   <p className="font-bold underline uppercase text-base">{data.sponsorName}</p>
                   <p className="text-sm italic">{data.sponsorJob}</p>
                </div>
@@ -271,13 +225,11 @@ function VisaSponsorBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
       
-      {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
           @page { size: A4 portrait; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
-          
           #print-only-root { 
             display: block !important; 
             position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
@@ -303,9 +255,14 @@ function VisaSponsorBuilder() {
                 <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
                 <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && <TemplateMenu />}
+              {showTemplateMenu && (
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2">
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 rounded-lg text-sm font-medium hover:bg-blue-50 ${templateId === 1 ? 'bg-blue-50 text-blue-700' : 'text-slate-700'}`}>Formal Personal</button>
+                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 rounded-lg text-sm font-medium hover:bg-blue-50 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : 'text-slate-700'}`}>Business Sponsored</button>
+                </div>
+              )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all">
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Print Letter</span>
             </button>
           </div>
@@ -313,16 +270,14 @@ function VisaSponsorBuilder() {
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        
         {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
+        <div className={`no-print w-full lg:w-[450px] bg-white border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Visa Details</h2>
+                <h2 className="font-bold text-slate-700 flex items-center gap-2 text-sm uppercase tracking-tight"><Edit3 size={16} /> Visa Details</h2>
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-              
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans text-left">
                  <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Landmark size={12}/> Embassy Info</h3>
                  <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50 leading-tight" value={data.embassyName} onChange={e => handleDataChange('embassyName', e.target.value)} />
@@ -333,7 +288,6 @@ function VisaSponsorBuilder() {
                        {logo ? <img src={logo} className="w-full h-full object-contain" /> : <ImagePlus size={16} className="text-slate-300" />}
                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
                     </div>
-                    {logo && <button onClick={() => setLogo(null)} className="text-[10px] text-red-500 font-bold uppercase underline">Remove Logo</button>}
                     <span className="text-[10px] text-slate-400">Add Company Logo (Business Template)</span>
                  </div>
               </div>
@@ -373,10 +327,8 @@ function VisaSponsorBuilder() {
         {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                    <DocumentContent />
-                 </div>
+               <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[0.8] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                 <DocumentContent />
                </div>
             </div>
         </div>
@@ -385,14 +337,11 @@ function VisaSponsorBuilder() {
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
-            <DocumentContent />
-         </div>
+         <DocumentContent />
       </div>
 
     </div>
