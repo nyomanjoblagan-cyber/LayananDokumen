@@ -2,7 +2,7 @@
 
 /**
  * FILE: DeliveryOrderPage.tsx
- * STATUS: FINAL & FIXED (Full consistency)
+ * STATUS: FINAL & FIXED (Error TEMPLATES resolved)
  * DESC: Generator Surat Jalan / Delivery Order Logistik
  */
 
@@ -83,6 +83,12 @@ function DOToolBuilder() {
 
   const [data, setData] = useState<DOData>(INITIAL_DATA);
 
+  // --- TEMPLATE DEFINITIONS (FIXED ERROR) ---
+  const TEMPLATES = [
+    { id: 1, name: "Format Gudang", desc: "Tabel tegas & kotak tanda tangan" },
+    { id: 2, name: "Modern Delivery", desc: "Layout bersih untuk logistik corporate" }
+  ];
+
   useEffect(() => {
     setIsClient(true);
     setData(prev => ({ ...prev, date: new Date().toISOString().split('T')[0] }));
@@ -120,7 +126,7 @@ function DOToolBuilder() {
     }
   };
 
-  const activeTemplateName = templateId === 1 ? "Format Gudang" : "Modern Delivery";
+  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
 
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
@@ -187,7 +193,6 @@ function DOToolBuilder() {
                         <td className="border border-black py-2 px-3 italic text-[8.5pt]">{item.remarks}</td>
                     </tr>
                 ))}
-                {/* Filler Rows to Maintain Height */}
                 {[...Array(Math.max(1, 10 - data.items.length))].map((_, i) => (
                     <tr key={i} className="h-8">
                         <td className="border border-black"></td><td className="border border-black"></td>
@@ -199,7 +204,7 @@ function DOToolBuilder() {
         </table>
       </div>
 
-      {/* FOOTER & TANDA TANGAN */}
+      {/* FOOTER */}
       <div className="mt-auto pt-6">
         <div className="border border-black p-2 text-[8.5pt] mb-6 text-left">
             <span className="font-bold underline uppercase">Catatan:</span>
@@ -232,12 +237,12 @@ function DOToolBuilder() {
         @media print {
           @page { size: A4; margin: 0; } 
           body { background: white !important; margin: 0 !important; }
-          .no-print { display: none !important; }
+          .no-print, header, .mobile-nav { display: none !important; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
         }
       `}</style>
 
-      {/* HEADER NAV */}
+      {/* NAVBAR */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
           <div className="flex items-center gap-4">
@@ -275,9 +280,8 @@ function DOToolBuilder() {
       </div>
 
       <main className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden relative">
-        {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-white border-r overflow-y-auto p-4 md:p-6 space-y-6 z-20 h-full ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
-           <div className="flex justify-between items-center border-b pb-2 text-left">
+           <div className="flex justify-between items-center border-b pb-2 text-left font-sans">
                 <h2 className="font-bold text-slate-700 uppercase text-xs tracking-widest flex items-center gap-2"><Edit3 size={16}/> Editor Surat Jalan</h2>
                 <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors"><RotateCcw size={16}/></button>
            </div>
@@ -299,7 +303,7 @@ function DOToolBuilder() {
               <div className="space-y-2">
                 {data.items.map((item, idx) => (
                     <div key={item.id} className="flex gap-2 items-center bg-slate-50 p-2 rounded border group">
-                        <input className="flex-1 p-1 bg-transparent text-xs border-b outline-none" value={item.name} onChange={e => handleItemChange(idx, 'name', e.target.value)} placeholder="Nama Barang" />
+                        <input className="flex-1 p-1 bg-transparent text-xs border-b outline-none font-sans" value={item.name} onChange={e => handleItemChange(idx, 'name', e.target.value)} placeholder="Nama Barang" />
                         <input className="w-10 p-1 bg-white border rounded text-xs text-center" type="number" value={item.qty} onChange={e => handleItemChange(idx, 'qty', e.target.value)} />
                         <button onClick={() => removeItem(idx)} className="text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={14}/></button>
                     </div>
@@ -321,7 +325,7 @@ function DOToolBuilder() {
            <div className="h-20 md:hidden"></div>
         </div>
 
-        {/* PREVIEW AREA */}
+        {/* PREVIEW */}
         <div className={`flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[0.8] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
@@ -331,13 +335,11 @@ function DOToolBuilder() {
         </div>
       </main>
 
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 z-50 font-sans">
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}><Edit3 size={16}/> Editor</button>
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden"><DocumentContent /></div>
     </div>
   );
