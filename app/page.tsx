@@ -115,7 +115,7 @@ export default function HomePage() {
         { name: "Berita Acara (BAST)", href: "/tools/bast" },
         { name: "Surat Dinas Resmi", href: "/tools/surat-dinas" },
         { name: "Label Pengiriman", href: "/tools/label-pengiriman" },
-        { name: "Izin Renovasi", href: "/tools/izin-renovasi" },
+        { name: "Permohonan Izin Renovasi", href: "/tools/izin-renovasi" },
         { name: "Surat Keluar Masuk Barang", href: "/tools/izin-barang" },
         { name: "Surat Tanda Terima Barang", href: "/tools/tanda-terima" },
         { name: "Surat Klaim Asuransi Pengiriman", href: "/tools/klaim-asuransi" },
@@ -159,8 +159,8 @@ export default function HomePage() {
       icon: PartyPopper, color: "text-amber-700", bgHeader: "bg-amber-50", border: "border-amber-100",
       items: [
         { name: "Proposal Sponsorship", href: "/tools/sponsorship" },
-        { name: "Permohonan Donasi", href: "/tools/donasi" },
-        { name: "Pernyataan Penyelenggara", href: "/tools/panitia" },
+        { name: "Surat Permohonan Donasi", href: "/tools/donasi" },
+        { name: "Surat Pernyataan Penyelenggara", href: "/tools/panitia" },
         { name: "Template Business Plan", href: "/tools/business-plan" },
       ]
     },
