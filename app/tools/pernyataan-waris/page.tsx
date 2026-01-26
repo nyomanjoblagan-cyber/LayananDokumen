@@ -1,14 +1,72 @@
 'use client';
 
+/**
+ * FILE: PernyataanWarisPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Pernyataan Ahli Waris
+ * FEATURES:
+ * - Dynamic Heir List (Add/Remove)
+ * - Auto Date Logic
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Users, UserPlus, Trash2, 
   MapPin, CalendarDays, FileText, LayoutTemplate, 
-  ChevronDown, Check, Edit3, Eye, ShieldCheck, PenTool
+  ChevronDown, Check, Edit3, Eye, ShieldCheck, PenTool, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface Heir {
+  name: string;
+  age: string;
+  relation: string;
+}
+
+interface HeirData {
+  city: string;
+  date: string;
+  deceasedName: string;
+  deceasedNik: string;
+  deceasedDeathDate: string;
+  deceasedAddress: string;
+  declarantName: string;
+  declarantNik: string;
+  declarantAddress: string;
+  heirs: Heir[];
+  witness1: string;
+  witness2: string;
+  villageHead: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: HeirData = {
+  city: 'JAKARTA',
+  date: '', // Diisi useEffect
+  deceasedName: 'H. AHMAD JAYADI',
+  deceasedNik: '3171000000000001',
+  deceasedDeathDate: '2025-11-20',
+  deceasedAddress: 'Jl. Merdeka No. 45, RT 001/002, Kel. Menteng, Kec. Menteng, Jakarta Pusat',
+  declarantName: 'BUDI SETIAWAN',
+  declarantNik: '3171000000000002',
+  declarantAddress: 'Jl. Merdeka No. 45, Jakarta Pusat',
+  heirs: [
+    { name: 'SITI AMINAH', age: '55', relation: 'Istri/Janda' },
+    { name: 'BUDI SETIAWAN', age: '32', relation: 'Anak Kandung' },
+    { name: 'ANI MARYANI', age: '28', relation: 'Anak Kandung' }
+  ],
+  witness1: 'Ketua RT 001',
+  witness2: 'Ketua RW 002',
+  villageHead: 'Lurah Menteng'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function PernyataanWarisPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs">Loading Editor...</div>}>
@@ -21,55 +79,49 @@ function HeirStatementBuilder() {
   // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Jakarta',
-    date: '',
-    deceasedName: 'H. AHMAD JAYADI',
-    deceasedNik: '3171000000000001',
-    deceasedDeathDate: '2025-11-20',
-    deceasedAddress: 'Jl. Merdeka No. 45, RT 001/002, Kel. Menteng, Kec. Menteng, Jakarta Pusat',
-    declarantName: 'BUDI SETIAWAN',
-    declarantNik: '3171000000000002',
-    declarantAddress: 'Jl. Merdeka No. 45, Jakarta Pusat',
-    heirs: [
-      { name: 'SITI AMINAH', age: '55', relation: 'Istri/Janda' },
-      { name: 'BUDI SETIAWAN', age: '32', relation: 'Anak Kandung' },
-      { name: 'ANI MARYANI', age: '28', relation: 'Anak Kandung' }
-    ],
-    witness1: 'Ketua RT 001',
-    witness2: 'Ketua RW 002',
-    villageHead: 'Lurah Menteng'
-  });
+  const [data, setData] = useState<HeirData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
-    setData(prev => ({ ...prev, date: new Date().toISOString().split('T')[0] }));
+    const today = new Date().toISOString().split('T')[0];
+    setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof HeirData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
   const addHeir = () => {
-    setData({ ...data, heirs: [...data.heirs, { name: '', age: '', relation: '' }] });
+    setData(prev => ({ 
+        ...prev, 
+        heirs: [...prev.heirs, { name: '', age: '', relation: '' }] 
+    }));
   };
 
   const removeHeir = (index: number) => {
     const newHeirs = [...data.heirs];
     newHeirs.splice(index, 1);
-    setData({ ...data, heirs: newHeirs });
+    setData(prev => ({ ...prev, heirs: newHeirs }));
   };
 
-  const updateHeir = (index: number, field: string, val: string) => {
+  const updateHeir = (index: number, field: keyof Heir, val: string) => {
     const newHeirs = [...data.heirs];
     // @ts-ignore
     newHeirs[index][field] = val;
-    setData({ ...data, heirs: newHeirs });
+    setData(prev => ({ ...prev, heirs: newHeirs }));
   };
 
-  // --- KOMPONEN ISI SURAT (FIX 1 HALAMAN) ---
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date().toISOString().split('T')[0];
+        setData({ ...INITIAL_DATA, date: today });
+    }
+  };
+
+  // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[10.5pt] p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 print:h-auto print:min-h-0 print:p-[15mm]">
+    // FIX: Print Padding
+    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[10.5pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
       
       <div className="text-center mb-8 shrink-0">
         <h1 className="text-xl font-black underline uppercase decoration-2 underline-offset-4 tracking-tighter leading-none mb-2">SURAT PERNYATAAN AHLI WARIS</h1>
@@ -123,11 +175,11 @@ function HeirStatementBuilder() {
                <div className="flex justify-around items-end gap-2">
                   <div className="flex flex-col">
                      <p className="font-bold underline text-[9pt]">({data.witness1})</p>
-                     <p className="text-[8pt] opacity-50">Saksi I</p>
+                     <p className="text-[8pt] opacity-50 print:opacity-100">Saksi I</p>
                   </div>
                   <div className="flex flex-col">
                      <p className="font-bold underline text-[9pt]">({data.witness2})</p>
-                     <p className="text-[8pt] opacity-50">Saksi II</p>
+                     <p className="text-[8pt] opacity-50 print:opacity-100">Saksi II</p>
                   </div>
                </div>
             </div>
@@ -146,15 +198,18 @@ function HeirStatementBuilder() {
     </div>
   );
 
-  if (!isClient) return null;
+  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 uppercase tracking-widest text-xs">Initializing...</div>;
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+      
+      {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4 portrait; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
+          
           #print-only-root { 
             display: block !important; 
             position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
@@ -181,11 +236,16 @@ function HeirStatementBuilder() {
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        {/* SIDEBAR */}
+        
+        {/* SIDEBAR INPUT */}
         <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Ahli Waris</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
               {/* Data Almarhum */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 flex items-center gap-2">Data Almarhum/ah</h3>
@@ -205,12 +265,12 @@ function HeirStatementBuilder() {
                  </div>
                  {data.heirs.map((heir, idx) => (
                     <div key={idx} className="p-3 bg-slate-50 rounded border relative group">
-                        <button onClick={() => removeHeir(idx)} className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12}/></button>
-                        <input className="w-full p-1 bg-transparent border-b mb-2 text-xs font-bold" placeholder="Nama Lengkap" value={heir.name} onChange={e => updateHeir(idx, 'name', e.target.value)} />
-                        <div className="grid grid-cols-2 gap-2">
-                            <input className="w-full p-1 border rounded text-[10px]" placeholder="Umur" value={heir.age} onChange={e => updateHeir(idx, 'age', e.target.value)} />
-                            <input className="w-full p-1 border rounded text-[10px]" placeholder="Hubungan" value={heir.relation} onChange={e => updateHeir(idx, 'relation', e.target.value)} />
-                        </div>
+                       <button onClick={() => removeHeir(idx)} className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12}/></button>
+                       <input className="w-full p-1 bg-transparent border-b mb-2 text-xs font-bold" placeholder="Nama Lengkap" value={heir.name} onChange={e => updateHeir(idx, 'name', e.target.value)} />
+                       <div className="grid grid-cols-2 gap-2">
+                          <input className="w-full p-1 border rounded text-[10px]" placeholder="Umur" value={heir.age} onChange={e => updateHeir(idx, 'age', e.target.value)} />
+                          <input className="w-full p-1 border rounded text-[10px]" placeholder="Hubungan" value={heir.relation} onChange={e => updateHeir(idx, 'relation', e.target.value)} />
+                       </div>
                     </div>
                  ))}
               </div>
@@ -229,11 +289,11 @@ function HeirStatementBuilder() {
            </div>
         </div>
 
-        {/* PREVIEW */}
+        {/* PREVIEW AREA */}
         <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl">
-                 <div style={{ width: '210mm' }}>
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
                     <DocumentContent />
                  </div>
                </div>
@@ -242,16 +302,18 @@ function HeirStatementBuilder() {
       </main>
 
       {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1.5 z-50">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>Preview</button>
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
+         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
+      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
          <div className="flex flex-col">
             <DocumentContent />
          </div>
       </div>
+
     </div>
   );
 }
