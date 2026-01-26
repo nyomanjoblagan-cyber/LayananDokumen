@@ -2,16 +2,16 @@
 
 /**
  * FILE: AgeCalculatorPage.tsx
- * STATUS: FINAL & CONSISTENT (No Sinking Content)
- * DESC: Kalkulator Usia Lengkap dengan Statistik Hidup & Metafisika (Weton, Shio, Zodiak)
+ * STATUS: FIXED IMPORT & CONSISTENT
+ * DESC: Kalkulator Usia Lengkap dengan Statistik Hidup & Metafisika
  */
 
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Cake, Star, User, 
-  Hourglass, Fingerprint, Sparkles, Heart, Wind, Orbit, Timer, RotateCcw
-} from 'lucide-center';
-import { LucideIcon } from 'lucide-react';
+  Hourglass, Fingerprint, Sparkles, Heart, Wind, Orbit, Timer, RotateCcw,
+  Edit3, Eye
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function AgeCalculatorPage() {
@@ -23,8 +23,10 @@ export default function AgeCalculatorPage() {
 }
 
 function AgeCalculator() {
+  // --- STATE SYSTEM ---
   const [birthDate, setBirthDate] = useState<string>('');
   const [today, setToday] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [isClient, setIsClient] = useState(false);
   
   const [age, setAge] = useState({ years: 0, months: 0, days: 0 });
   const [nextBday, setNextBday] = useState({ days: 0, months: 0, totalDays: 0 });
@@ -42,6 +44,10 @@ function AgeCalculator() {
   const [weton, setWeton] = useState({ name: '-', neptu: 0, character: '-' });
   const [shio, setShio] = useState('-');
   const [generation, setGeneration] = useState('-');
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (!birthDate) return;
@@ -133,6 +139,8 @@ function AgeCalculator() {
     setToday(new Date().toISOString().split('T')[0]);
   };
 
+  if (!isClient) return null;
+
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8">
       {/* HEADER */}
@@ -146,22 +154,22 @@ function AgeCalculator() {
             <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Life Journey & Metaphysics Tracker</p>
           </div>
         </div>
-        <button onClick={handleReset} className="flex items-center gap-2 bg-slate-200 hover:bg-red-100 hover:text-red-600 text-slate-600 px-4 py-2 rounded-xl transition-all font-bold text-xs uppercase tracking-tighter">
-           <RotateCcw size={16}/> Reset Data
+        <button onClick={handleReset} className="flex items-center gap-2 bg-white hover:bg-red-50 hover:text-red-600 text-slate-400 px-4 py-2 rounded-xl transition-all font-bold text-xs uppercase border border-slate-200 shadow-sm">
+           <RotateCcw size={16}/> Reset
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* LEFT: INPUT & MAIN AGE */}
+        {/* LEFT PANEL */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-left">
             <div className="flex items-center gap-2 mb-6">
                 <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
-                <h3 className="font-black text-sm uppercase tracking-wider text-slate-700">Input Tanggal</h3>
+                <h3 className="font-black text-sm uppercase tracking-wider text-slate-700">Data Kelahiran</h3>
             </div>
             <div className="space-y-4">
                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Tanggal Lahir</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Pilih Tanggal Lahir</label>
                   <input type="date" className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-indigo-600 text-xl focus:outline-none focus:border-indigo-500 transition-all" value={birthDate} onChange={(e) => setBirthDate(e.target.value)}/>
                </div>
                <div className="space-y-1.5">
@@ -174,7 +182,7 @@ function AgeCalculator() {
           {birthDate && (
             <div className="bg-indigo-900 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group text-left">
                <div className="relative z-10">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 mb-4">Usia Saat Ini</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 mb-4">Usia Anda</p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-7xl font-black tracking-tighter">{age.years}</span>
                     <span className="text-xl font-bold text-indigo-300">Tahun</span>
@@ -190,16 +198,16 @@ function AgeCalculator() {
           )}
         </div>
 
-        {/* RIGHT: DETAILED METRICS */}
+        {/* RIGHT PANEL */}
         <div className="lg:col-span-8 space-y-6">
           {!birthDate ? (
             <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-white rounded-3xl border-2 border-dashed border-slate-200 text-slate-400">
                <Hourglass size={48} className="mb-4 animate-pulse"/>
-               <p className="font-bold uppercase tracking-widest text-xs">Silakan pilih tanggal lahir</p>
+               <p className="font-bold uppercase tracking-widest text-xs font-sans">Masukkan Tanggal Lahir Anda</p>
             </div>
           ) : (
             <>
-              {/* LIFE METRICS GRID */}
+              {/* METRICS */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
                 <MetricCard icon={<Hourglass size={18} className="text-blue-500"/>} label="Total Hari" value={new Intl.NumberFormat('id-ID').format(stats.totalDays)} />
                 <MetricCard icon={<Timer size={18} className="text-emerald-500"/>} label="Total Jam" value={new Intl.NumberFormat('id-ID').format(stats.totalHours)} />
@@ -207,7 +215,7 @@ function AgeCalculator() {
                 <MetricCard icon={<Orbit size={18} className="text-amber-500"/>} label="Orbit Matahari" value={stats.sunOrbits} />
               </div>
 
-              {/* CULTURE & METAPHYSICS */}
+              {/* METAPHYSICS */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <InfoCard 
                   title="Weton Jawa" 
@@ -217,17 +225,17 @@ function AgeCalculator() {
                   color="bg-amber-50"
                 />
                 <InfoCard 
-                  title="Zodiak Barat" 
+                  title="Zodiak" 
                   icon={<Star size={20} className="text-purple-600"/>}
                   value={zodiac}
-                  sub="Elemen & Horoskop"
+                  sub="Western Horoscope"
                   color="bg-purple-50"
                 />
                 <InfoCard 
-                  title="Shio (China)" 
+                  title="Shio" 
                   icon={<Sparkles size={20} className="text-red-600"/>}
                   value={shio}
-                  sub="Tahun Kelahiran"
+                  sub="Chinese Zodiac"
                   color="bg-red-50"
                 />
               </div>
@@ -242,22 +250,22 @@ function AgeCalculator() {
                   <p className="text-2xl font-black text-slate-800">
                     {nextBday.totalDays === 0 ? "SELAMAT ULANG TAHUN! 🥳" : `${nextBday.totalDays} Hari Lagi`}
                   </p>
-                  <p className="text-sm text-slate-500 mt-1">Menuju usia ke-{age.years + 1} tahun.</p>
+                  <p className="text-sm text-slate-500 mt-1">Ulang tahun ke-{age.years + 1}.</p>
                 </div>
                 <div className="flex gap-4 relative z-10">
                     <div className="text-center">
                         <div className="text-2xl font-black text-indigo-600">{nextBday.months}</div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase">Bulan</div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase font-sans">Bulan</div>
                     </div>
                     <div className="text-center">
                         <div className="text-2xl font-black text-indigo-600">{nextBday.days}</div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase">Hari</div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase font-sans">Hari</div>
                     </div>
                 </div>
               </div>
 
-              <div className="bg-slate-100 p-4 rounded-2xl text-[10px] text-slate-400 italic text-center">
-                *Statistik kesehatan (detak jantung & napas) adalah angka estimasi berdasarkan rata-rata medis.
+              <div className="bg-slate-100 p-4 rounded-2xl text-[10px] text-slate-400 italic text-center font-sans">
+                *Statistik detak jantung dan napas adalah estimasi angka rata-rata.
               </div>
             </>
           )}
@@ -270,10 +278,10 @@ function AgeCalculator() {
 function MetricCard({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) {
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-2">
-      <div className="bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center shadow-inner">{icon}</div>
+      <div className="bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center">{icon}</div>
       <div>
-        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">{label}</p>
-        <p className="text-lg font-black text-slate-800 tracking-tighter leading-tight">{value}</p>
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider font-sans">{label}</p>
+        <p className="text-lg font-black text-slate-800 tracking-tighter leading-tight font-sans">{value}</p>
       </div>
     </div>
   );
@@ -283,9 +291,9 @@ function InfoCard({ title, icon, value, sub, color }: { title: string, icon: Rea
   return (
     <div className={`p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md`}>
       <div className={`${color} w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-inner`}>{icon}</div>
-      <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{title}</p>
-      <p className="text-xl font-black text-slate-800 uppercase tracking-tighter">{value}</p>
-      <p className="text-[10px] font-bold text-slate-500 mt-2 leading-relaxed">{sub}</p>
+      <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 font-sans">{title}</p>
+      <p className="text-xl font-black text-slate-800 uppercase tracking-tighter font-sans">{value}</p>
+      <p className="text-[10px] font-bold text-slate-500 mt-2 leading-relaxed font-sans">{sub}</p>
     </div>
   );
 }
