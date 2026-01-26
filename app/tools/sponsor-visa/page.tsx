@@ -14,7 +14,7 @@
 import { useState, Suspense, useRef, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Plane, UserCircle2, Globe2, Landmark,
-  LayoutTemplate, ChevronDown, Check, Edit3, Eye, ImagePlus, X, Briefcase
+  LayoutTemplate, ChevronDown, Check, Edit3, Eye, ImagePlus, X, Briefcase, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -305,7 +305,7 @@ function VisaSponsorBuilder() {
               </button>
               {showTemplateMenu && <TemplateMenu />}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Print Letter</span>
             </button>
           </div>
