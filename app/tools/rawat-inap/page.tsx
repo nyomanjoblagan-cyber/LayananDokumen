@@ -1,14 +1,78 @@
 'use client';
 
+/**
+ * FILE: RawatInapPage.tsx
+ * STATUS: FINAL & MOBILE READY
+ * DESC: Generator Surat Keterangan Rawat Inap (Hospital Inpatient Certificate)
+ * FEATURES:
+ * - Dual Template (Standard vs Compact)
+ * - Auto Date Logic
+ * - Mobile Menu Fixed
+ * - Strict A4 Print Layout
+ */
+
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Bed, Building2, UserCircle2, 
   X, PenTool, ShieldCheck, CalendarRange, Thermometer, FileText,
-  LayoutTemplate, ChevronDown, Check, Edit3, Eye
+  LayoutTemplate, ChevronDown, Check, Edit3, Eye, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
 
+// Jika ada komponen iklan:
+// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
+// --- 1. TYPE DEFINITIONS ---
+interface InpatientData {
+  city: string;
+  date: string;
+  docNo: string;
+  
+  // RUMAH SAKIT
+  hospitalName: string;
+  hospitalAddress: string;
+  
+  // PASIEN
+  patientName: string;
+  patientNik: string;
+  patientAge: string;
+  patientAddress: string;
+  
+  // PERAWATAN
+  admissionDate: string;
+  dischargeDate: string;
+  roomName: string;
+  diagnosis: string;
+  
+  // DOKTER
+  doctorName: string;
+  sipNumber: string;
+}
+
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: InpatientData = {
+  city: 'DENPASAR',
+  date: '', // Diisi useEffect
+  docNo: 'SKRI/RSBM/2026/01/088',
+  
+  hospitalName: 'RSUD BALI MANDARA',
+  hospitalAddress: 'Jl. Bypass Ngurah Rai No. 548, Sanur, Denpasar Selatan',
+  
+  patientName: 'BAGUS RAMADHAN',
+  patientNik: '5171010101990001',
+  patientAge: '27 Tahun',
+  patientAddress: 'Jl. Ahmad Yani No. 100, Denpasar Utara',
+  
+  admissionDate: '2026-01-05',
+  dischargeDate: '2026-01-08',
+  roomName: 'Ruang Amerta - Kamar 302',
+  diagnosis: 'Demam Berdarah Dengue (DBD) dengan Trombositopenia berat, membutuhkan observasi cairan dan monitoring trombosit secara berkala selama masa perawatan.',
+  
+  doctorName: 'dr. I MADE WIRA, Sp.PD',
+  sipNumber: 'SIP. 445/112/DINKES/2024'
+};
+
+// --- 3. KOMPONEN UTAMA ---
 export default function RawatInapPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs">Memuat Editor...</div>}>
@@ -18,47 +82,50 @@ export default function RawatInapPage() {
 }
 
 function InpatientBuilder() {
-  // --- STATE SYSTEM (SERAGAM) ---
+  // --- STATE SYSTEM ---
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    city: 'Denpasar',
-    date: '',
-    docNo: 'SKRI/RSBM/2026/01/088',
-    hospitalName: 'RSUD BALI MANDARA',
-    hospitalAddress: 'Jl. Bypass Ngurah Rai No. 548, Sanur, Denpasar Selatan',
-    patientName: 'BAGUS RAMADHAN',
-    patientNik: '5171010101990001',
-    patientAge: '27 Tahun',
-    patientAddress: 'Jl. Ahmad Yani No. 100, Denpasar Utara',
-    admissionDate: '2026-01-05',
-    dischargeDate: '2026-01-08',
-    roomName: 'Ruang Amerta - Kamar 302',
-    diagnosis: 'Demam Berdarah Dengue (DBD) dengan Trombositopenia berat, membutuhkan observasi cairan dan monitoring trombosit secara berkala selama masa perawatan.',
-    doctorName: 'dr. I MADE WIRA, Sp.PD',
-    sipNumber: 'SIP. 445/112/DINKES/2024'
-  });
+  const [data, setData] = useState<InpatientData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
-    setData(prev => ({ ...prev, date: new Date().toISOString().split('T')[0] }));
+    const today = new Date().toISOString().split('T')[0];
+    setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  const handleDataChange = (field: string, val: any) => setData({ ...data, [field]: val });
+  const handleDataChange = (field: keyof InpatientData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
 
-  const TEMPLATES = [
-    { id: 1, name: "Format Standar", desc: "Layout medis resmi standar RS" },
-    { id: 2, name: "Format Ringkas", desc: "Layout minimalis tanpa KOP besar" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const handleReset = () => {
+    if(confirm('Reset formulir ke awal?')) {
+        const today = new Date().toISOString().split('T')[0];
+        setData({ ...INITIAL_DATA, date: today });
+    }
+  };
+
+  // --- TEMPLATE MENU COMPONENT ---
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-rose-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-rose-50 text-rose-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-rose-500' : 'bg-slate-300'}`}></div> 
+            Format Standar
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-rose-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-rose-50 text-rose-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-rose-500' : 'bg-slate-300'}`}></div> 
+            Format Ringkas
+        </button>
+    </div>
+  );
+
+  const activeTemplateName = templateId === 1 ? 'Format Standar' : 'Format Ringkas';
 
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
-    <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 print:h-auto print:min-h-0 print:p-[15mm] ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
+    // FIX: Print Padding
+    <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
       
       {/* KOP RUMAH SAKIT */}
       <div className="flex flex-col items-center border-b-4 border-double border-slate-900 pb-4 mb-6 text-center shrink-0">
@@ -114,15 +181,18 @@ function InpatientBuilder() {
     </div>
   );
 
-  if (!isClient) return null;
+  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 uppercase tracking-widest text-xs">Initializing...</div>;
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+      
+      {/* GLOBAL CSS PRINT */}
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; } 
-          body { background: white !important; margin: 0 !important; }
+          @page { size: A4 portrait; margin: 0; } 
+          body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
+          
           #print-only-root { 
             display: block !important; 
             position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
@@ -130,116 +200,115 @@ function InpatientBuilder() {
         }
       `}</style>
 
-      {/* HEADER NAV (SERAGAM) */}
+      {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-               <ArrowLeft size={18} /> <span>Dashboard</span>
+               <ArrowLeft size={18} /> Dashboard
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-rose-400 uppercase tracking-tighter italic">
                <Bed size={16} /> <span>Inpatient Certificate Builder</span>
             </div>
           </div>
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" />
-                <span className="hidden sm:inline">{activeTemplateName}</span>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-transform' : ''} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
+                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
+                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 z-50 text-slate-900 overflow-hidden font-sans">
-                  {TEMPLATES.map(t => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600' : ''}`}>
-                      <div>{t.name}</div>
-                      <div className="text-[10px] text-slate-400 font-normal">{t.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showTemplateMenu && <TemplateMenu />}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all">
-              <Printer size={16} /> <span className="hidden sm:inline">Print</span>
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-rose-500 transition-all shadow-lg active:scale-95">
+              <Printer size={16} /> <span className="hidden md:inline">Print</span>
             </button>
           </div>
         </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative">
-        {/* SIDEBAR */}
-        <div className={`no-print w-full lg:w-[450px] bg-white border-r overflow-y-auto p-4 md:p-6 space-y-6 z-20 h-full ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
-           <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+        
+        {/* SIDEBAR INPUT */}
+        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Rawat Inap</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-              <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Fasilitas Kesehatan</h3>
-              <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.hospitalName} onChange={e => handleDataChange('hospitalName', e.target.value)} />
-              <input className="w-full p-2 border rounded text-xs" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
-              <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.hospitalAddress} onChange={e => handleDataChange('hospitalAddress', e.target.value)} />
-           </div>
-
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-              <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Data Pasien</h3>
-              <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.patientName} onChange={e => handleDataChange('patientName', e.target.value)} />
-              <div className="grid grid-cols-2 gap-2">
-                 <input className="w-full p-2 border rounded text-xs" value={data.patientNik} onChange={e => handleDataChange('patientNik', e.target.value)} placeholder="NIK" />
-                 <input className="w-full p-2 border rounded text-xs" value={data.patientAge} onChange={e => handleDataChange('patientAge', e.target.value)} placeholder="Umur" />
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+              
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Fasilitas Kesehatan</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.hospitalName} onChange={e => handleDataChange('hospitalName', e.target.value)} />
+                 <input className="w-full p-2 border rounded text-xs" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
+                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.hospitalAddress} onChange={e => handleDataChange('hospitalAddress', e.target.value)} />
               </div>
-              <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.patientAddress} onChange={e => handleDataChange('patientAddress', e.target.value)} placeholder="Alamat Pasien" />
-           </div>
 
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-              <h3 className="text-[10px] font-black uppercase text-rose-600 border-b pb-1 flex items-center gap-2"><CalendarRange size={12}/> Detail Rawat</h3>
-              <div className="grid grid-cols-2 gap-2">
-                 <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-slate-400 uppercase">Tgl Masuk</label>
-                    <input type="date" className="w-full p-2 border rounded text-xs" value={data.admissionDate} onChange={e => handleDataChange('admissionDate', e.target.value)} />
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Data Pasien</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.patientName} onChange={e => handleDataChange('patientName', e.target.value)} />
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs" value={data.patientNik} onChange={e => handleDataChange('patientNik', e.target.value)} placeholder="NIK" />
+                    <input className="w-full p-2 border rounded text-xs" value={data.patientAge} onChange={e => handleDataChange('patientAge', e.target.value)} placeholder="Umur" />
                  </div>
-                 <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-slate-400 uppercase">Tgl Keluar</label>
-                    <input type="date" className="w-full p-2 border rounded text-xs" value={data.dischargeDate} onChange={e => handleDataChange('dischargeDate', e.target.value)} />
+                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.patientAddress} onChange={e => handleDataChange('patientAddress', e.target.value)} placeholder="Alamat Pasien" />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
+                 <h3 className="text-[10px] font-black uppercase text-rose-600 border-b pb-1 flex items-center gap-2"><CalendarRange size={12}/> Detail Rawat</h3>
+                 <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-bold text-slate-400 uppercase">Tgl Masuk</label>
+                       <input type="date" className="w-full p-2 border rounded text-xs" value={data.admissionDate} onChange={e => handleDataChange('admissionDate', e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-bold text-slate-400 uppercase">Tgl Keluar</label>
+                       <input type="date" className="w-full p-2 border rounded text-xs" value={data.dischargeDate} onChange={e => handleDataChange('dischargeDate', e.target.value)} />
+                    </div>
+                 </div>
+                 <input className="w-full p-2 border rounded text-xs" value={data.roomName} onChange={e => handleDataChange('roomName', e.target.value)} placeholder="Ruangan" />
+                 <textarea className="w-full p-2 border rounded text-xs h-24 resize-none leading-relaxed" value={data.diagnosis} onChange={e => handleDataChange('diagnosis', e.target.value)} placeholder="Diagnosis Medis" />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
+                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 flex items-center gap-2"><PenTool size={12}/> Penandatangan</h3>
+                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.doctorName} onChange={e => handleDataChange('doctorName', e.target.value)} placeholder="Nama Dokter" />
+                 <input className="w-full p-2 border rounded text-xs" value={data.sipNumber} onChange={e => handleDataChange('sipNumber', e.target.value)} placeholder="NIP / SIP" />
+                 <div className="grid grid-cols-2 gap-2">
+                    <input className="w-full p-2 border rounded text-xs font-bold" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
+                    <input type="date" className="w-full p-2 border rounded text-xs font-bold" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
                  </div>
               </div>
-              <input className="w-full p-2 border rounded text-xs" value={data.roomName} onChange={e => handleDataChange('roomName', e.target.value)} placeholder="Ruangan" />
-              <textarea className="w-full p-2 border rounded text-xs h-24 resize-none leading-relaxed" value={data.diagnosis} onChange={e => handleDataChange('diagnosis', e.target.value)} placeholder="Diagnosis Medis" />
+              <div className="h-20 md:hidden"></div>
            </div>
-
-           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-              <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 flex items-center gap-2"><PenTool size={12}/> Penandatangan</h3>
-              <input className="w-full p-2 border rounded text-xs font-bold" value={data.doctorName} onChange={e => handleDataChange('doctorName', e.target.value)} placeholder="Nama Dokter" />
-              <input className="w-full p-2 border rounded text-xs" value={data.sipNumber} onChange={e => handleDataChange('sipNumber', e.target.value)} placeholder="NIP / SIP" />
-              <div className="grid grid-cols-2 gap-2">
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
-                 <input type="date" className="w-full p-2 border rounded text-xs font-bold" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-              </div>
-           </div>
-           <div className="h-20 md:hidden"></div>
         </div>
 
-        {/* PREVIEW AREA (STABILIZED) */}
-        <div className={`flex-1 bg-slate-200/50 relative h-full ${mobileView === 'editor' ? 'hidden lg:block' : 'block'}`}>
-           <div className="absolute inset-0 overflow-y-auto overflow-x-hidden p-4 md:p-12 flex justify-center custom-scrollbar">
-              <div className="origin-top transition-transform duration-300 transform scale-[0.43] sm:scale-[0.55] md:scale-[0.8] lg:scale-100 h-fit mb-12">
-                 <DocumentContent />
-                 <div className="h-24 lg:hidden"></div>
-              </div>
-           </div>
+        {/* PREVIEW AREA */}
+        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
+            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+                    <DocumentContent />
+                 </div>
+               </div>
+            </div>
         </div>
       </main>
 
-      {/* MOBILE NAV (SERAGAM) */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 z-50">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-rose-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> Preview</button>
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
+         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
+         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
+      {/* PRINT AREA */}
       <div id="print-only-root" className="hidden">
          <div className="flex flex-col">
             <DocumentContent />
          </div>
       </div>
+
     </div>
   );
 }
