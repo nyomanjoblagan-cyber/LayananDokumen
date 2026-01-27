@@ -2,13 +2,8 @@
 
 /**
  * FILE: FinancePage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: FINAL & MOBILE READY (Anti-Shadow Print Optimized)
  * DESC: Generator Invoice, Nota, & Kuitansi (3-in-1 Tool)
- * FEATURES:
- * - Triple Document Type (Invoice A4, Nota A6, Kuitansi 1/3 A4)
- * - Auto Terbilang (Number to Words)
- * - Dynamic Paper Size for Print
- * - Mobile Menu Fixed
  */
 
 import { useState, useEffect, Suspense, useRef } from 'react';
@@ -19,7 +14,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// --- 1. HELPER: TERBILANG (Angka ke Kata) ---
+// --- 1. HELPER: TERBILANG ---
 const terbilang = (angka: number): string => {
   const bil = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
   if (angka < 12) return " " + bil[angka];
@@ -57,7 +52,7 @@ interface FinanceData {
 // --- 3. DATA DEFAULT ---
 const INITIAL_DATA: FinanceData = {
   no: 'INV/2026/001',
-  date: '', // Diisi useEffect
+  date: '', 
   senderName: 'BORCELLE FOOD',
   senderInfo: 'Jl. Raya Merdeka No. 45, Jakarta Selatan\nWhatsApp: 0812-3456-7890',
   receiverName: 'PT. Teknologi Maju',
@@ -67,12 +62,11 @@ const INITIAL_DATA: FinanceData = {
     { id: 2, name: 'Biaya Layanan & Pengiriman', qty: 1, price: 150000 },
   ],
   notes: 'Mohon transfer ke BCA 123-456-789 a.n Borcelle Food.',
-  city: 'JAKARTA',
+  city: 'DENPASAR',
   signer: 'Manager Keuangan',
   footerNote: 'Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.'
 };
 
-// --- 4. KOMPONEN UTAMA ---
 export default function FinancePage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Studio Dokumen...</div>}>
@@ -86,17 +80,14 @@ function FinanceToolBuilder() {
   const modeParam = searchParams.get('mode'); 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- STATE ---
   const [activeDocType, setActiveDocType] = useState<'invoice' | 'nota' | 'kuitansi'>('invoice');
   const [mobileMode, setMobileMode] = useState<'editor' | 'preview'>('editor');
-  
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<FinanceData>(INITIAL_DATA);
 
-  // INITIALIZATION
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -109,11 +100,9 @@ function FinanceToolBuilder() {
     setTemplateId(1); 
   }, [modeParam]);
 
-  const subtotal = data.items.reduce((acc, item) => acc + (item.qty * item.price), 0);
-  const total = subtotal; 
+  const total = data.items.reduce((acc, item) => acc + (item.qty * item.price), 0);
   const terbilangText = total > 0 ? `${terbilang(total)} Rupiah` : 'Nol Rupiah';
 
-  // HANDLERS
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setLogo(URL.createObjectURL(file));
@@ -127,7 +116,6 @@ function FinanceToolBuilder() {
   };
   
   const addItem = () => setData({ ...data, items: [...data.items, { id: Date.now(), name: '', qty: 1, price: 0 }] });
-  
   const removeItem = (idx: number) => {
     const newItems = [...data.items];
     newItems.splice(idx, 1);
@@ -151,19 +139,18 @@ function FinanceToolBuilder() {
   const currentTemplates = TEMPLATES[activeDocType] || TEMPLATES['invoice'];
   const activeTemplateName = currentTemplates.find((t: any) => t.id === templateId)?.name;
 
-  // --- UKURAN KERTAS & LOGIKA CSS ---
   const getPaperDimensions = () => {
-    if (activeDocType === 'nota') return { w: '105mm', h: '148mm' }; // A6
-    if (activeDocType === 'kuitansi') return { w: '210mm', h: '99mm' }; // 1/3 A4
-    return { w: '210mm', h: '297mm' }; // A4
+    if (activeDocType === 'nota') return { w: '105mm', h: '148mm' };
+    if (activeDocType === 'kuitansi') return { w: '210mm', h: '99mm' };
+    return { w: '210mm', h: '297mm' };
   };
   const dims = getPaperDimensions();
 
-  // --- ISI DOKUMEN (KOMPONEN TERPISAH) ---
+  // --- ISI DOKUMEN ---
   const DocumentContent = () => (
-    <div className="bg-white shadow-2xl mx-auto overflow-hidden relative border border-slate-200" style={{ width: dims.w, minHeight: dims.h }}>
+    /* OPTIMASI: shadow-2xl dihilangkan saat print agar bersih */
+    <div className="bg-white print:shadow-none print:border-none shadow-2xl mx-auto overflow-hidden relative border border-slate-200" style={{ width: dims.w, minHeight: dims.h }}>
       
-      {/* 1. INVOICE (A4) */}
       {activeDocType === 'invoice' && (
           <div className="h-full flex flex-col text-[#1e293b] p-[10mm] md:p-[15mm]">
             {templateId === 1 && (
@@ -177,12 +164,13 @@ function FinanceToolBuilder() {
                       </div>
                   </div>
                   <div className="w-[40%] text-right">
-                      {logo && <img src={logo} className="h-16 w-auto object-contain mb-2 ml-auto" />}
+                      {logo && <img src={logo} className="h-16 w-auto object-contain mb-2 ml-auto" alt="logo" />}
                       <div className="font-bold text-lg text-slate-800">{data.senderName}</div>
                       <div className="text-xs text-slate-500 whitespace-pre-line">{data.senderInfo}</div>
                   </div>
                 </div>
-                <div className="mb-8 p-4 bg-slate-50 border-l-4 border-blue-600 text-sm">
+                {/* OPTIMASI: bg-slate-50 diubah ke white saat print */}
+                <div className="mb-8 p-4 bg-slate-50 print:bg-white border-l-4 border-blue-600 text-sm">
                   <p className="text-[10px] font-bold text-blue-600 uppercase mb-1">Tagihan Kepada:</p>
                   <div className="text-lg font-bold text-slate-800">{data.receiverName}</div>
                   <div className="text-sm text-slate-500 whitespace-pre-line">{data.receiverInfo}</div>
@@ -243,7 +231,7 @@ function FinanceToolBuilder() {
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-xl">{data.senderName}</div>
-                      {logo && <img src={logo} className="h-10 w-auto object-contain ml-auto mt-1 opacity-70" />}
+                      {logo && <img src={logo} className="h-10 w-auto object-contain ml-auto mt-1 opacity-70" alt="logo" />}
                     </div>
                 </div>
                 <div className="flex justify-between mb-8">
@@ -258,7 +246,7 @@ function FinanceToolBuilder() {
                     </div>
                 </div>
                 <table className="w-full text-sm border-collapse mb-8">
-                    <thead className="bg-slate-100">
+                    <thead className="bg-slate-100 print:bg-white">
                       <tr>
                           <th className="py-2 px-2 text-left font-bold text-slate-600">Item</th>
                           <th className="py-2 px-2 text-center font-bold text-slate-600">Qty</th>
@@ -297,14 +285,13 @@ function FinanceToolBuilder() {
           </div>
       )}
 
-      {/* 2. NOTA (A6) */}
       {activeDocType === 'nota' && (
         <div className="h-full flex flex-col p-[5mm] md:p-[8mm]">
           {templateId === 1 && (
               <>
                 <div className="flex gap-3 mb-4 border-b-[2px] border-[#658525] pb-3">
                     <div className="w-10 h-10 shrink-0">
-                      {logo ? <img src={logo} className="w-full h-full object-contain" /> : <div className="w-full h-full bg-[#8fab3a] rounded-full flex items-center justify-center text-white font-bold text-xs">LG</div>}
+                      {logo ? <img src={logo} className="w-full h-full object-contain" alt="logo" /> : <div className="w-full h-full bg-[#8fab3a] rounded-full flex items-center justify-center text-white font-bold text-xs">LG</div>}
                     </div>
                     <div className="flex-1">
                       <div className="font-black text-sm md:text-base text-[#4a6118] uppercase leading-none mb-1">{data.senderName}</div>
@@ -319,7 +306,7 @@ function FinanceToolBuilder() {
                     </div>
                 </div>
                 <table className="w-full text-[9px] mb-2" style={{borderCollapse: 'collapse', width: '100%'}}>
-                    <thead className="bg-slate-100">
+                    <thead className="bg-slate-100 print:bg-white">
                       <tr>
                           <th style={{border: '1px solid black', padding: '4px', textAlign: 'center', width: '25px'}}>NO</th>
                           <th style={{border: '1px solid black', padding: '4px', textAlign: 'center'}}>NAMA BARANG</th>
@@ -350,7 +337,7 @@ function FinanceToolBuilder() {
                     </tbody>
                 </table>
                 <div className="flex justify-end mb-4">
-                    <div className="flex border border-black bg-slate-100 text-[10px] font-bold">
+                    <div className="flex border border-black bg-slate-100 print:bg-white text-[10px] font-bold">
                       <div className="px-2 py-1 border-r border-black">JUMLAH TOTAL</div>
                       <div className="px-2 py-1 min-w-[80px] text-right bg-white">Rp {total.toLocaleString('id-ID')}</div>
                     </div>
@@ -362,47 +349,9 @@ function FinanceToolBuilder() {
                 </div>
               </>
           )}
-          {templateId === 2 && (
-              <div className="h-full flex flex-col">
-                <div className="flex items-center gap-3 border-b-4 border-blue-500 pb-2 mb-4">
-                    {logo && <img src={logo} alt="Logo" className="h-12 w-auto" />}
-                    <div className="flex-1">
-                      <div className="font-bold text-xl text-blue-600 mb-1">{data.senderName}</div>
-                      <div className="text-[9px] text-slate-500 whitespace-pre-line">{data.senderInfo}</div>
-                    </div>
-                </div>
-                <div className="bg-slate-100 p-2 rounded mb-4 space-y-1 text-[10px]">
-                    <div className="flex"><span className="w-16 font-bold text-slate-600">Pelanggan</span>: {data.receiverName}</div>
-                    <div className="flex"><span className="w-16 font-bold text-slate-600">Tanggal</span>: {data.date}</div>
-                    <div className="flex"><span className="w-16 font-bold text-slate-600">No Nota</span>: {data.no}</div>
-                </div>
-                <table className="w-full mb-4 text-[10px]">
-                    <thead className="bg-blue-600 text-white">
-                      <tr><th className="py-1 px-2 text-left rounded-l">Layanan</th><th className="py-1 px-2 text-right rounded-r">Biaya</th></tr>
-                    </thead>
-                    <tbody className="divide-y divide-blue-100">
-                      {data.items.map((item) => (
-                          <tr key={item.id}>
-                            <td className="py-2 px-2"><div className="font-bold">{item.name}</div><div className="text-[9px] text-slate-500">{item.qty} x {item.price.toLocaleString()}</div></td>
-                            <td className="py-2 px-2 text-right font-bold">{(item.qty * item.price).toLocaleString()}</td>
-                          </tr>
-                      ))}
-                    </tbody>
-                </table>
-                <div className="mt-auto">
-                    <div className="flex justify-end mb-4">
-                      <div className="bg-blue-50 border border-blue-200 px-4 py-2 rounded text-right">
-                          <span className="text-xs font-bold text-blue-800">TOTAL: Rp {total.toLocaleString('id-ID')}</span>
-                      </div>
-                    </div>
-                    <div className="bg-blue-600 text-center py-1 text-[9px] rounded-b font-medium text-white">Terima kasih atas kepercayaan Anda!</div>
-                </div>
-              </div>
-          )}
         </div>
       )}
 
-      {/* 3. KUITANSI */}
       {activeDocType === 'kuitansi' && (
         <div className="h-full flex flex-col justify-center">
           {templateId === 1 && (
@@ -410,7 +359,7 @@ function FinanceToolBuilder() {
                 <div className="w-[40px] md:w-[50px] bg-[#334155] flex flex-col items-center justify-center text-white shrink-0">
                     <h1 className="text-xl md:text-2xl font-black tracking-[0.2em] -rotate-90 whitespace-nowrap uppercase">KUITANSI</h1>
                 </div>
-                <div className="flex-1 flex flex-col justify-between p-4 md:p-6 bg-[#fdfaf6]">
+                <div className="flex-1 flex flex-col justify-between p-4 md:p-6 bg-[#fdfaf6] print:bg-white">
                     <div className="flex justify-between items-start border-b border-slate-300 pb-2 mb-2">
                       <div className="text-sm font-bold font-mono">No: {data.no}</div>
                       <div className="text-right">
@@ -424,7 +373,7 @@ function FinanceToolBuilder() {
                       </div>
                       <div className="flex items-baseline">
                           <span className="w-28 font-bold text-slate-600 shrink-0">Uang Sejumlah</span>
-                          <span className="flex-1 border-b border-dotted border-slate-400 px-2 font-bold italic bg-slate-100"># {terbilangText} #</span>
+                          <span className="flex-1 border-b border-dotted border-slate-400 px-2 font-bold italic bg-slate-100 print:bg-white"># {terbilangText} #</span>
                       </div>
                       <div className="flex items-baseline">
                           <span className="w-28 font-bold text-slate-600 shrink-0">Untuk Pembayaran</span>
@@ -432,31 +381,12 @@ function FinanceToolBuilder() {
                       </div>
                     </div>
                     <div className="flex justify-between items-end mt-4">
-                      <div className="bg-[#c2410c] text-white px-4 md:px-6 py-2 font-bold text-base md:text-lg rounded-tl-xl rounded-br-xl shadow-md">
+                      <div className="bg-[#c2410c] print:text-black print:bg-transparent print:border print:border-black text-white px-4 md:px-6 py-2 font-bold text-base md:text-lg rounded-tl-xl rounded-br-xl shadow-md print:shadow-none">
                           Rp {total.toLocaleString('id-ID')}
                       </div>
                       <div className="text-center text-[10px] md:text-xs">
                           <div className="mb-8">{data.city}, {data.date}</div>
                           <div className="font-bold text-sm border-b border-slate-400 pb-1">{data.signer}</div>
-                      </div>
-                    </div>
-                </div>
-              </div>
-          )}
-          {templateId === 2 && (
-              <div className="h-full border-2 border-emerald-800 p-1 bg-[#f0fff4] text-emerald-900 absolute inset-0 m-0 box-border">
-                <div className="h-full border border-emerald-600 p-6 flex flex-col justify-between relative">
-                    <div className="flex justify-between items-center relative z-10"><h2 className="font-serif font-bold text-2xl underline decoration-double">KUITANSI</h2><div className="font-mono text-xs font-bold">No: {data.no}</div></div>
-                    <div className="space-y-2 font-serif relative z-10 text-emerald-950 text-sm">
-                      <div className="flex items-end"><span className="w-32">Sudah terima dari :</span><div className="flex-1 border-b border-dotted border-emerald-800 font-bold px-2">{data.receiverName}</div></div>
-                      <div className="flex items-end"><span className="w-32">Banyaknya uang :</span><div className="flex-1 border-b border-dotted border-emerald-800 bg-emerald-100/50 px-2 font-bold italic capitalize"># {terbilangText} #</div></div>
-                      <div className="flex items-end"><span className="w-32">Untuk pembayaran :</span><div className="flex-1 border-b border-dotted border-emerald-800 px-2">{data.items.map(i => i.name).join(', ')}</div></div>
-                    </div>
-                    <div className="flex justify-between items-end relative z-10 mt-2">
-                      <div className="border-2 border-emerald-800 rounded px-4 py-2 font-bold text-lg bg-white shadow-sm">Rp {total.toLocaleString('id-ID')}</div>
-                      <div className="text-center">
-                          <div className="text-xs mb-10">{data.city}, {data.date}</div>
-                          <div className="font-bold underline decoration-dotted">{data.signer}</div>
                       </div>
                     </div>
                 </div>
@@ -472,14 +402,12 @@ function FinanceToolBuilder() {
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800">
       
-      {/* CSS PRINT (TABLE WRAPPER PATTERN FROM DONOR FILE) */}
       <style jsx global>{`
         @media print {
             @page { size: A4; margin: 0; }
             .no-print, header, nav, aside, .sidebar-input { display: none !important; }
             body { background: white; margin: 0; padding: 0; display: block !important; }
             
-            /* FORCE DISPLAY BLOCK FOR PRINT PORTAL */
             #print-only-root { display: block !important; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 9999; background: white; }
             
             .print-table { width: 100%; border-collapse: collapse; }
@@ -487,8 +415,15 @@ function FinanceToolBuilder() {
             .print-table tfoot { height: 10mm; } 
             .print-content-wrapper { padding: 0 15mm; }
             
+            /* RESET SEMUA SHADOW & BG KOTOR SAAT PRINT */
+            * { 
+              box-shadow: none !important; 
+              text-shadow: none !important; 
+              -webkit-print-color-adjust: exact !important; 
+              print-color-adjust: exact !important;
+            }
+
             tr, .keep-together { page-break-inside: avoid !important; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
       `}</style>
 
@@ -513,6 +448,9 @@ function FinanceToolBuilder() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
+            <button onClick={handleReset} className="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Reset Form">
+                <RotateCcw size={18} />
+            </button>
             <div className="relative hidden md:block">
               <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[150px] justify-between">
                 <div className="flex items-center gap-2"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
@@ -539,19 +477,13 @@ function FinanceToolBuilder() {
 
       <div className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden relative">
         
-        {/* --- LEFT SIDEBAR: INPUT (MENIRU DONOR PAGE - SLIDING) --- */}
-        <div className={`no-print w-full md:w-[420px] lg:w-[400px] bg-white md:bg-white rounded-xl md:shadow-sm border border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform duration-300 ${mobileMode === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-          
-          <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2 md:hidden">
-             <User size={14} className="text-blue-600" />
-             <h3 className="text-xs font-bold text-slate-700 uppercase">Input Data</h3>
-          </div>
-
+        {/* LEFT SIDEBAR */}
+        <div className={`no-print w-full md:w-[420px] lg:w-[400px] bg-white rounded-xl border border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform duration-300 ${mobileMode === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
           <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-24 md:pb-10">
              <div className="space-y-4">
                 <div className="flex items-center gap-4">
                    <div className="w-16 h-16 rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all" onClick={() => fileInputRef.current?.click()}>
-                      {logo ? <img src={logo} className="w-full h-full object-contain" /> : <Upload size={20} className="text-slate-300" />}
+                      {logo ? <img src={logo} className="w-full h-full object-contain" alt="logo" /> : <Upload size={20} className="text-slate-300" />}
                    </div>
                    <div className="flex-1">
                       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
@@ -586,7 +518,7 @@ function FinanceToolBuilder() {
                 </div>
                 <div className="space-y-2">
                   {data.items.map((item, idx) => (
-                      <div key={item.id} className="bg-slate-50 p-2 rounded border border-slate-200 relative">
+                     <div key={item.id} className="bg-slate-50 p-2 rounded border border-slate-200 relative">
                         <div className="mb-2">
                            <input type="text" className="w-full bg-transparent border-b border-slate-300 text-xs font-medium focus:border-blue-500 outline-none pb-1" placeholder="Nama Item..." value={item.name} onChange={e => handleItemChange(idx, 'name', e.target.value)} />
                         </div>
@@ -599,12 +531,8 @@ function FinanceToolBuilder() {
                            </div>
                         </div>
                         <button onClick={() => removeItem(idx)} className="absolute top-2 right-2 text-slate-400 hover:text-red-500"><Trash2 size={12} /></button>
-                      </div>
+                     </div>
                   ))}
-                </div>
-                <div className="bg-slate-100 px-3 py-2 rounded flex justify-between items-center text-xs font-bold">
-                   <span>Total</span>
-                   <span>Rp {total.toLocaleString('id-ID')}</span>
                 </div>
              </div>
 
@@ -614,29 +542,23 @@ function FinanceToolBuilder() {
                    <input type="text" className="w-full p-2 border border-slate-300 rounded text-sm font-medium focus:border-blue-500 outline-none" value={data.receiverName} onChange={e => setData({...data, receiverName: e.target.value})} />
                 </div>
                 {activeDocType !== 'kuitansi' && (
-                  <div>
-                      <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-16 resize-none focus:border-blue-500 outline-none" value={data.receiverInfo} onChange={e => setData({...data, receiverInfo: e.target.value})} placeholder="Alamat Penerima" />
-                  </div>
+                  <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-16 resize-none focus:border-blue-500 outline-none" value={data.receiverInfo} onChange={e => setData({...data, receiverInfo: e.target.value})} placeholder="Alamat Penerima" />
                 )}
                 <div className="grid grid-cols-2 gap-3">
                    <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.city} onChange={e => setData({...data, city: e.target.value})} placeholder="Kota" />
                    <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.signer} onChange={e => setData({...data, signer: e.target.value})} placeholder="Penanda Tangan" />
                 </div>
-                <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-16 resize-none" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} placeholder="Catatan" />
-                {activeDocType === 'nota' && (
-                   <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.footerNote} onChange={e => setData({...data, footerNote: e.target.value})} placeholder="Footer Nota" />
-                )}
+                <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-16 resize-none" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} placeholder="Catatan Tambahan" />
              </div>
           </div>
         </div>
 
-        {/* --- RIGHT PREVIEW (MENIRU DONOR PAGE TAPI DENGAN ORIGIN-TOP-LEFT KHUSUS MOBILE) --- */}
+        {/* RIGHT PREVIEW */}
         <div className="no-print flex-1 h-full bg-slate-200/50 rounded-xl flex justify-center p-4 md:p-8 overflow-y-auto overflow-x-hidden relative">
           <div className="origin-top-left md:origin-top transition-transform duration-300 transform scale-[0.4] sm:scale-[0.55] md:scale-100 mb-[-120%] sm:mb-[-130mm] md:mb-10 mt-2 md:mt-0">
               <DocumentContent />
           </div>
         </div>
-
       </div>
 
       {/* MOBILE NAV BOTTOM */}
@@ -645,7 +567,7 @@ function FinanceToolBuilder() {
           <button onClick={() => setMobileMode('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileMode === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* --- PRINT PORTAL (FIX: RENDER ULANG COMPONENT) --- */}
+      {/* PRINT PORTAL */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
             <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
@@ -656,4 +578,5 @@ function FinanceToolBuilder() {
 
     </div>
   );
+}
 }
