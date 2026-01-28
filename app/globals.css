@@ -1,3 +1,57 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================
+   FIX CETAK (SAPU JAGAT)
+   Tempel ini di paling bawah globals.css
+   agar semua file (Surat, Invoice, dll) bersih.
+   ========================================= */
+
+@media print {
+  /* 1. HAPUS SEMUA BAYANGAN & BORDER KOTOR */
+  *, *::before, *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
+  /* 2. PAKSA BACKGROUND JADI PUTIH BERSIH */
+  body, div, section, article, main, header, footer, table, tr, td {
+    background-color: transparent !important;
+    background: white !important; /* Fallback */
+  }
+
+  /* 3. KHUSUS TEXT UTAMA JADI HITAM PEKAT (Biar jelas di kertas) */
+  p, h1, h2, h3, h4, h5, h6, span, td, th, li {
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* 4. SEMBUNYIKAN ELEMEN INTERFACE (Tombol, Navbar, Sidebar) */
+  /* Masukkan class yang biasa Mas pakai untuk elemen UI di sini */
+  button, 
+  nav, 
+  aside, 
+  .no-print, 
+  [role="button"],
+  .sidebar,
+  header {
+    display: none !important;
+  }
+
+  /* 5. ATUR HALAMAN KERTAS */
+  @page {
+    margin: 0;
+    size: auto;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+}
