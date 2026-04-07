@@ -6,7 +6,7 @@ import {
   Scale, Plus, Trash2, DollarSign, ChevronDown, Check, Edit3, Eye
 } from 'lucide-react';
 import Link from 'next/link';
-import AdsterraBanner from '@/components/AdsterraBanner'; 
+
 
 export default function ContractPage() {
   return (
@@ -400,7 +400,7 @@ function ContractToolBuilder() {
         <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
              
-              <div className="md:hidden flex justify-center pb-4 border-b border-dashed border-slate-200"><AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={320} height={50} /></div>
+
 
               {/* Pihak 1 */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">

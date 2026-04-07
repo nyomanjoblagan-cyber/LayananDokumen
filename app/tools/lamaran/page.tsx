@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
 
 // --- 1. TYPE DEFINITIONS ---
 interface LetterData {

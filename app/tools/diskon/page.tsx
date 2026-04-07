@@ -20,7 +20,7 @@ import {
 import Link from 'next/link';
 
 // Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
 
 // --- 1. TYPE DEFINITIONS ---
 interface CalculationResult {
@@ -60,7 +60,7 @@ export default function DiskonPage() {
       {/* MAIN CONTENT */}
       <main className="max-w-6xl mx-auto p-4 md:p-8">
          {/* IKLAN (Opsional) */}
-         {/* <div className="mb-6 flex justify-center"><AdsterraBanner adKey="YOUR_KEY" width={728} height={90} /></div> */}
+
          
          <DiscountCalculator />
       </main>

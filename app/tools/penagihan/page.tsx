@@ -21,7 +21,7 @@ import {
 import Link from 'next/link';
 
 // Jika ada komponen iklan:
-// import AdsterraBanner from '@/components/AdsterraBanner'; 
+
 
 // --- 1. TYPE DEFINITIONS ---
 interface CollectionData {
