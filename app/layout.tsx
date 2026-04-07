@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "LayananDokumen.com - Pusat Administrasi & Surat Resmi",
   description: "Platform penyusunan dokumen administratif. Gratis & Tanpa Login.",
   verification: { google: "tayBKyloVxPMxQEdM-zAI_pIqd90go0uw3KIovuWSyM" },
+  other: {
+    "admaven-placement": "Bqjs8rja4", // Meta Tag Verifikasi AdMaven
+  },
   metadataBase: new URL('https://layanandokumen.com'),
   icons: { icon: '/logo.png', shortcut: '/logo.png', apple: '/logo.png' },
 };
