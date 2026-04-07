@@ -17,7 +17,7 @@ import {
   Printer, ArrowLeft, Upload, LayoutTemplate, Plus, Trash2,
   User, CreditCard, ChevronDown, Check, Edit3, Eye, RotateCcw
 } from 'lucide-react';
-import Link from 'next/link';
+import Link from 'next/ru-link'; // Note: adjust link if needed for your routing
 
 // IMPORT KOMPONEN SAKTI
 import DocumentServices from '@/components/DocumentServices';
@@ -70,7 +70,7 @@ const INITIAL_DATA: FinanceData = {
     { id: 2, name: 'Biaya Layanan & Pengiriman', qty: 1, price: 150000 },
   ],
   notes: 'Mohon transfer ke BCA 123-456-789 a.n Borcelle Food.',
-  city: 'DENPASAR',
+  city: 'JAKARTA',
   signer: 'Manager Keuangan',
   footerNote: 'Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.'
 };
@@ -99,14 +99,15 @@ function FinanceToolBuilder() {
   const [data, setData] = useState<FinanceData>(INITIAL_DATA);
   const [showDonation, setShowDonation] = useState(false);
 
-  // Memory Leak Prevention for Logo
-  useEffect(() => {
-    return () => {
-        if (logo) URL.revokeObjectURL(logo);
-    };
-  }, [logo]);
+  // Helper Format Tanggal yang Aman
+  const formatDateSafe = (dateStr: string) => {
+    if(!dateStr) return '-';
+    try {
+      return new Date(dateStr + 'T00:00:00').toLocaleDateString('id-ID', { dateStyle: 'long' });
+    } catch { return dateStr; }
+  };
 
-  // INITIALIZATION
+  // Memory Leak Prevention & Initial Date
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -115,9 +116,11 @@ function FinanceToolBuilder() {
     if (modeParam === 'nota') setActiveDocType('nota');
     else if (modeParam === 'kwitansi' || modeParam === 'kuitansi') setActiveDocType('kuitansi');
     else setActiveDocType('invoice');
-    
-    setTemplateId(1); 
-  }, [modeParam]);
+
+    return () => {
+        if (logo) URL.revokeObjectURL(logo);
+    };
+  }, [modeParam]); // logo sengaja tidak dimasukkan ke dep agar tidak reset date setiap ganti logo
 
   const subtotal = data.items.reduce((acc, item) => acc + (item.qty * item.price), 0);
   const total = subtotal; 
@@ -167,45 +170,41 @@ function FinanceToolBuilder() {
   const currentTemplates = TEMPLATES[activeDocType] || TEMPLATES['invoice'];
   const activeTemplateName = currentTemplates.find((t: any) => t.id === templateId)?.name;
 
-  const getPaperDimensions = () => {
-    if (activeDocType === 'nota') return { w: '105mm', h: '148mm' };
-    if (activeDocType === 'kuitansi') return { w: '210mm', h: '99mm' };
-    return { w: '210mm', h: '297mm' }; // A4
-  };
-  const dims = getPaperDimensions();
+  const dims = (activeDocType === 'nota') ? { w: '105mm', h: '148mm' } : 
+               (activeDocType === 'kuitansi') ? { w: '210mm', h: '99mm' } : 
+               { w: '210mm', h: '297mm' };
 
-  // --- ISI DOKUMEN ---
+  // --- KOMPONEN DOKUMEN ---
   const DocumentContent = () => (
     <div className="bg-white print:shadow-none print:border-none shadow-2xl mx-auto overflow-hidden relative border border-slate-200" style={{ width: dims.w, minHeight: dims.h }}>
-      
-      {/* 1. INVOICE (A4) */}
+      {/* RENDER INVOICE */}
       {activeDocType === 'invoice' && (
           <div className="h-full flex flex-col text-[#1e293b] p-[10mm] md:p-[15mm]">
-            {templateId === 1 && (
+            {templateId === 1 ? (
               <>
                 <div className="flex justify-between items-start mb-10 shrink-0">
                   <div className="w-[60%]">
                       <h1 className="text-4xl font-extrabold text-[#1e40af] tracking-tight mb-2">INVOICE</h1>
-                      <div className="text-xs text-slate-500">
-                        <p className="font-bold text-slate-700 uppercase">No: {data.no}</p>
-                        <p className="font-bold text-slate-700 uppercase">Tgl: {data.date}</p>
+                      <div className="text-xs text-slate-500 font-mono">
+                        <p className="font-bold text-slate-700">No: {data.no}</p>
+                        <p className="font-bold text-slate-700">Tgl: {formatDateSafe(data.date)}</p>
                       </div>
                   </div>
                   <div className="w-[40%] text-right">
                       {logo && <img src={logo} className="h-16 w-auto object-contain mb-2 ml-auto grayscale" alt="logo" />}
                       <div className="font-bold text-lg text-slate-800 uppercase">{data.senderName}</div>
-                      <div className="text-xs text-slate-500 whitespace-pre-line leading-relaxed">{data.senderInfo}</div>
+                      <div className="text-[10px] text-slate-500 whitespace-pre-line leading-relaxed">{data.senderInfo}</div>
                   </div>
                 </div>
                 <div className="mb-8 p-4 bg-slate-50 print:bg-white border-l-4 border-blue-600 text-sm break-inside-avoid">
                   <p className="text-[10px] font-bold text-blue-600 uppercase mb-1">Tagihan Kepada:</p>
                   <div className="text-lg font-bold text-slate-800 uppercase">{data.receiverName}</div>
-                  <div className="text-sm text-slate-500 whitespace-pre-line leading-relaxed">{data.receiverInfo}</div>
+                  <div className="text-xs text-slate-500 whitespace-pre-line leading-relaxed">{data.receiverInfo}</div>
                 </div>
-                <div className="mb-8 flex-grow">
+                <div className="flex-grow">
                   <table className="w-full text-sm border-collapse">
                       <thead>
-                        <tr className="border-b-2 border-blue-800 text-blue-800 uppercase text-[11px]">
+                        <tr className="border-b-2 border-blue-800 text-blue-800 uppercase text-[10px]">
                             <th className="py-2 text-left">Deskripsi</th>
                             <th className="py-2 text-center w-16">Qty</th>
                             <th className="py-2 text-right w-32">Harga</th>
@@ -214,7 +213,7 @@ function FinanceToolBuilder() {
                       </thead>
                       <tbody className="divide-y divide-slate-200">
                         {data.items.map((item) => (
-                            <tr key={item.id} className="text-[13px] break-inside-avoid">
+                            <tr key={item.id} className="text-[12px] break-inside-avoid">
                               <td className="py-3 font-medium uppercase">{item.name}</td>
                               <td className="py-3 text-center tabular-nums">{item.qty}</td>
                               <td className="py-3 text-right tabular-nums">{item.price.toLocaleString()}</td>
@@ -224,215 +223,148 @@ function FinanceToolBuilder() {
                       </tbody>
                   </table>
                 </div>
-                <div className="mt-auto shrink-0">
-                  <div className="flex justify-end mb-10 break-inside-avoid">
-                      <div className="w-1/2">
-                        <div className="flex justify-between py-2 border-b-2 border-slate-200">
-                            <span className="font-bold text-slate-600 uppercase">Total Tagihan</span>
-                            <span className="font-bold text-2xl text-blue-800 tabular-nums">Rp {total.toLocaleString('id-ID')}</span>
-                        </div>
+                <div className="mt-auto shrink-0 pt-6">
+                  <div className="flex justify-end mb-8 break-inside-avoid">
+                      <div className="w-1/2 border-t-2 border-slate-900 pt-2 flex justify-between items-center">
+                          <span className="font-bold text-slate-600 uppercase text-xs">Total Pembayaran</span>
+                          <span className="font-bold text-2xl text-blue-800 tabular-nums">Rp {total.toLocaleString('id-ID')}</span>
                       </div>
                   </div>
                   <div className="flex justify-between items-end border-t border-slate-200 pt-6 break-inside-avoid">
-                      <div className="w-[60%] text-xs text-slate-500">
-                        <p className="font-bold text-slate-700 uppercase mb-1">Catatan:</p>
-                        <p className="whitespace-pre-line leading-relaxed italic">{data.notes}</p>
+                      <div className="w-[60%] text-[10px] text-slate-500 italic">
+                        <p className="font-bold text-slate-700 uppercase mb-1 not-italic">Catatan:</p>
+                        <p className="whitespace-pre-line leading-relaxed">{data.notes}</p>
                       </div>
-                      <div className="text-center w-[30%]">
-                        <p className="text-xs mb-16">{data.city}, {data.date}</p>
+                      <div className="text-center w-[35%]">
+                        <p className="text-[10px] mb-16 uppercase">{data.city}, {formatDateSafe(data.date)}</p>
                         <p className="font-bold text-sm border-b border-slate-400 pb-1 uppercase">{data.signer}</p>
                       </div>
                   </div>
                 </div>
               </>
-            )}
-            {templateId === 2 && (
-              <div className="h-full flex flex-col">
-                <div className="border-b border-slate-300 pb-6 mb-8 flex justify-between items-center shrink-0">
-                    <div>
-                      <h1 className="text-3xl font-light uppercase tracking-widest text-slate-800">Invoice</h1>
-                      <div className="text-xs mt-2 space-y-1 text-slate-500 font-mono">
-                          <p>No: <span className="font-bold text-slate-700">{data.no}</span></p>
-                          <p>Tgl: <span className="font-bold text-slate-700">{data.date}</span></p>
-                      </div>
+            ) : (
+                <div className="h-full flex flex-col">
+                    <div className="flex justify-between items-center border-b-2 border-slate-100 pb-6 mb-8 shrink-0">
+                        <h1 className="text-3xl font-light tracking-[0.2em] uppercase text-slate-800">Invoice</h1>
+                        <div className="text-right">
+                            <div className="font-bold text-xl uppercase">{data.senderName}</div>
+                            {logo && <img src={logo} className="h-10 w-auto object-contain ml-auto mt-2 grayscale opacity-50" alt="logo" />}
+                        </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-bold text-xl uppercase">{data.senderName}</div>
-                      {logo && <img src={logo} className="h-10 w-auto object-contain ml-auto mt-1 grayscale opacity-70" alt="logo" />}
+                    <div className="flex justify-between mb-10 text-[11px] break-inside-avoid">
+                        <div className="space-y-1">
+                            <p className="font-bold text-blue-600 uppercase tracking-widest text-[9px]">Bill To</p>
+                            <p className="text-lg font-bold uppercase">{data.receiverName}</p>
+                            <p className="text-slate-500 whitespace-pre-line">{data.receiverInfo}</p>
+                        </div>
+                        <div className="text-right space-y-2">
+                            <div><p className="font-bold text-slate-400 uppercase text-[9px]">Invoice No.</p><p className="font-mono font-bold text-slate-800">{data.no}</p></div>
+                            <div><p className="font-bold text-slate-400 uppercase text-[9px]">Date</p><p className="font-bold text-slate-800">{formatDateSafe(data.date)}</p></div>
+                        </div>
                     </div>
-                </div>
-                <div className="flex justify-between mb-8 break-inside-avoid">
-                    <div className="w-1/2">
-                      <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Kepada:</p>
-                      <p className="font-bold uppercase">{data.receiverName}</p>
-                      <p className="text-sm text-slate-500 leading-relaxed">{data.receiverInfo}</p>
-                    </div>
-                    <div className="w-1/2 text-right">
-                      <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Dari:</p>
-                      <p className="text-sm text-slate-500 whitespace-pre-line leading-relaxed">{data.senderInfo}</p>
-                    </div>
-                </div>
-                <div className="flex-grow">
-                  <table className="w-full text-sm border-collapse mb-8">
-                      <thead className="bg-slate-100 print:bg-white uppercase text-[11px]">
-                        <tr>
-                            <th className="py-2 px-2 text-left font-bold text-slate-600">Item Description</th>
-                            <th className="py-2 px-2 text-center font-bold text-slate-600">Qty</th>
-                            <th className="py-2 px-2 text-right font-bold text-slate-600">Price</th>
-                            <th className="py-2 px-2 text-right font-bold text-slate-600">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {data.items.map((item) => (
-                            <tr key={item.id} className="break-inside-avoid">
-                              <td className="py-3 px-2 uppercase">{item.name}</td>
-                              <td className="py-3 px-2 text-center tabular-nums">{item.qty}</td>
-                              <td className="py-3 px-2 text-right tabular-nums">{item.price.toLocaleString()}</td>
-                              <td className="py-3 px-2 text-right font-bold tabular-nums">{(item.qty * item.price).toLocaleString()}</td>
-                            </tr>
-                        ))}
-                      </tbody>
-                  </table>
-                </div>
-                <div className="mt-auto shrink-0">
-                    <div className="flex justify-end mb-8 break-inside-avoid">
-                      <div className="w-1/2 text-right">
-                          <p className="text-sm text-slate-500 uppercase">Total Amount Due</p>
-                          <p className="text-3xl font-light text-slate-800 tabular-nums">Rp {total.toLocaleString('id-ID')}</p>
-                      </div>
-                    </div>
-                    <div className="border-t border-slate-300 pt-4 text-xs text-slate-500 flex justify-between items-end break-inside-avoid">
-                      <div className="w-2/3 whitespace-pre-line italic leading-relaxed">{data.notes}</div>
-                      <div className="text-center">
-                          <div className="mb-10 font-bold uppercase tracking-widest text-[10px]">Authorized by,</div>
-                          <div className="font-bold text-slate-800 border-b border-slate-900 uppercase">{data.signer}</div>
-                      </div>
+                    <table className="w-full text-sm border-collapse mb-10">
+                        <thead className="bg-slate-900 text-white uppercase text-[9px]">
+                            <tr><th className="py-2 px-3 text-left">Description</th><th className="py-2 px-3 text-center">Qty</th><th className="py-2 px-3 text-right">Unit Price</th><th className="py-2 px-3 text-right">Total</th></tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 border-b border-slate-900">
+                            {data.items.map(item => (
+                                <tr key={item.id} className="break-inside-avoid">
+                                    <td className="py-4 px-3 uppercase text-[12px]">{item.name}</td>
+                                    <td className="py-4 px-3 text-center tabular-nums">{item.qty}</td>
+                                    <td className="py-4 px-3 text-right tabular-nums">{item.price.toLocaleString()}</td>
+                                    <td className="py-4 px-3 text-right font-bold tabular-nums">{(item.qty * item.price).toLocaleString()}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <div className="mt-auto">
+                        <div className="flex justify-end mb-10 break-inside-avoid">
+                            <div className="w-64 space-y-2">
+                                <div className="flex justify-between text-xl font-black border-t-4 border-slate-900 pt-2">
+                                    <span>TOTAL</span><span>Rp {total.toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-end text-[10px] break-inside-avoid">
+                            <div className="w-1/2 text-slate-500 whitespace-pre-line italic leading-relaxed">{data.notes}</div>
+                            <div className="text-center w-48">
+                                <p className="mb-14 font-bold uppercase tracking-widest text-slate-400">Authorized by</p>
+                                <p className="font-black uppercase border-b-2 border-slate-900 inline-block">{data.signer}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-              </div>
             )}
           </div>
       )}
 
-      {/* 2. NOTA (A6) */}
+      {/* RENDER NOTA */}
       {activeDocType === 'nota' && (
-        <div className="h-full flex flex-col p-[5mm] md:p-[8mm] text-slate-900">
-          {templateId === 1 && (
-              <>
-                <div className="flex gap-3 mb-4 border-b-[2px] border-slate-900 pb-3 shrink-0">
-                    <div className="w-10 h-10 shrink-0">
-                      {logo ? <img src={logo} className="w-full h-full object-contain grayscale" alt="logo" /> : <div className="w-full h-full bg-slate-200 rounded flex items-center justify-center text-slate-600 font-bold text-xs">NOTA</div>}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-black text-sm uppercase leading-none mb-1">{data.senderName}</div>
-                      <div className="text-[8px] text-slate-500 leading-tight whitespace-pre-line">{data.senderInfo}</div>
-                    </div>
-                </div>
-                <div className="flex justify-between items-end mb-2 text-[10px] shrink-0">
-                    <div><span className="font-bold uppercase">No:</span> <span className="font-mono">{data.no}</span></div>
-                    <div className="text-right space-y-1">
-                      <div><span className="text-slate-500 uppercase text-[8px]">Tgl:</span> {data.date}</div>
-                      <div><span className="text-slate-500 uppercase text-[8px]">Yth:</span> <span className="font-bold uppercase">{data.receiverName}</span></div>
-                    </div>
-                </div>
-                <div className="flex-grow">
-                  <table className="w-full text-[9px] border-collapse">
-                      <thead className="bg-slate-50 print:bg-white uppercase text-[8px]">
-                        <tr>
-                            <th className="border border-slate-900 p-1 w-[25px]">NO</th>
-                            <th className="border border-slate-900 p-1">ITEM</th>
-                            <th className="border border-slate-900 p-1 w-[35px]">QTY</th>
-                            <th className="border border-slate-900 p-1 w-[60px]">PRICE</th>
-                            <th className="border border-slate-900 p-1 w-[60px]">TOTAL</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.items.map((item, idx) => (
-                            <tr key={item.id}>
-                              <td className="border border-slate-900 p-1 text-center">{idx + 1}</td>
-                              <td className="border border-slate-900 p-1 uppercase">{item.name}</td>
-                              <td className="border border-slate-900 p-1 text-center tabular-nums">{item.qty}</td>
-                              <td className="border border-slate-900 p-1 text-right tabular-nums">{item.price.toLocaleString()}</td>
-                              <td className="border border-slate-900 p-1 text-right font-bold tabular-nums">{(item.qty * item.price).toLocaleString()}</td>
-                            </tr>
-                        ))}
-                        {[...Array(Math.max(0, 8 - data.items.length))].map((_, i) => (
-                            <tr key={`fill-${i}`}>
-                              <td className="border border-slate-900 p-1 h-[22px]"></td>
-                              <td className="border border-slate-900 p-1"></td>
-                              <td className="border border-slate-900 p-1"></td>
-                              <td className="border border-slate-900 p-1"></td>
-                              <td className="border border-slate-900 p-1"></td>
-                            </tr>
-                        ))}
-                      </tbody>
-                  </table>
-                </div>
-                <div className="shrink-0 mt-4">
-                    <div className="flex justify-end mb-4">
-                      <div className="flex border border-slate-900 font-bold text-[10px]">
-                        <div className="px-2 py-1 border-r border-slate-900 uppercase">Grand Total</div>
-                        <div className="px-2 py-1 min-w-[80px] text-right bg-slate-50 print:bg-white tabular-nums">Rp {total.toLocaleString('id-ID')}</div>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-end text-[9px] border-t border-slate-100 pt-2">
-                      <div className="text-center"><p className="mb-8 uppercase text-[8px] font-bold text-slate-400 tracking-widest">Tanda Terima,</p><div className="border-b border-slate-300 w-20"></div></div>
-                      <div className="text-center w-[40%] text-[8px] italic text-slate-400 leading-tight px-2">{data.footerNote}</div>
-                      <div className="text-center"><p className="mb-8 uppercase text-[8px] font-bold text-slate-400 tracking-widest">Hormat Kami,</p><p className="font-bold uppercase">{data.signer}</p></div>
-                    </div>
-                </div>
-              </>
-          )}
-        </div>
+          <div className="h-full flex flex-col p-[8mm] text-slate-900">
+              <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-4 shrink-0">
+                  <div className="flex gap-3">
+                      {logo && <img src={logo} className="w-12 h-12 object-contain grayscale" alt="logo" />}
+                      <div><h1 className="font-black text-lg leading-none uppercase">{data.senderName}</h1><p className="text-[8px] text-slate-500 leading-tight whitespace-pre-line mt-1">{data.senderInfo}</p></div>
+                  </div>
+                  <div className="text-right"><h2 className="text-2xl font-black italic text-slate-300 -mt-2">NOTA</h2><p className="font-mono text-[9px] font-bold">No: {data.no}</p></div>
+              </div>
+              <div className="flex justify-between text-[10px] mb-4 shrink-0">
+                  <div><span className="text-slate-400 uppercase text-[8px]">Kepada Yth:</span><p className="font-bold uppercase">{data.receiverName}</p></div>
+                  <div className="text-right"><span className="text-slate-400 uppercase text-[8px]">Tanggal:</span><p className="font-bold">{formatDateSafe(data.date)}</p></div>
+              </div>
+              <table className="w-full text-[10px] border-collapse flex-grow">
+                  <thead className="bg-slate-100 print:bg-white uppercase text-[8px] font-bold">
+                      <tr><th className="border border-slate-900 p-1.5 w-[30px]">NO</th><th className="border border-slate-900 p-1.5 text-left">ITEM</th><th className="border border-slate-900 p-1.5 w-[40px]">QTY</th><th className="border border-slate-900 p-1.5 w-[70px]">HARGA</th><th className="border border-slate-900 p-1.5 w-[80px]">TOTAL</th></tr>
+                  </thead>
+                  <tbody>
+                      {data.items.map((item, i) => (
+                          <tr key={item.id}><td className="border border-slate-900 p-1.5 text-center">{i+1}</td><td className="border border-slate-900 p-1.5 uppercase">{item.name}</td><td className="border border-slate-900 p-1.5 text-center tabular-nums">{item.qty}</td><td className="border border-slate-900 p-1.5 text-right tabular-nums">{item.price.toLocaleString()}</td><td className="border border-slate-900 p-1.5 text-right font-bold tabular-nums">{(item.qty * item.price).toLocaleString()}</td></tr>
+                      ))}
+                      {[...Array(Math.max(0, 10 - data.items.length))].map((_, i) => (
+                          <tr key={i}><td className="border border-slate-900 p-1.5 h-[26px]"></td><td className="border border-slate-900 p-1.5"></td><td className="border border-slate-900 p-1.5"></td><td className="border border-slate-900 p-1.5"></td><td className="border border-slate-900 p-1.5"></td></tr>
+                      ))}
+                  </tbody>
+              </table>
+              <div className="mt-4 shrink-0">
+                  <div className="flex justify-end mb-4"><div className="flex border-2 border-slate-900 font-black text-xs uppercase"><div className="px-3 py-1.5 bg-slate-900 text-white">Grand Total</div><div className="px-4 py-1.5 bg-white min-w-[100px] text-right tabular-nums">Rp {total.toLocaleString('id-ID')}</div></div></div>
+                  <div className="flex justify-between items-end text-[9px]">
+                      <div className="text-center w-24"><p className="mb-10 uppercase text-[8px] font-bold text-slate-400">Penerima</p><div className="border-b border-slate-300"></div></div>
+                      <div className="text-center w-[40%] text-[8px] italic text-slate-400 px-4">{data.footerNote}</div>
+                      <div className="text-center w-24"><p className="mb-10 uppercase text-[8px] font-bold text-slate-400">Hormat Kami</p><p className="font-bold uppercase leading-none">{data.signer}</p></div>
+                  </div>
+              </div>
+          </div>
       )}
 
-      {/* 3. KUITANSI */}
+      {/* RENDER KUITANSI */}
       {activeDocType === 'kuitansi' && (
-        <div className="h-full flex flex-col justify-center bg-white">
-          {templateId === 1 && (
-              <div className="h-full flex flex-row p-0 overflow-hidden border-2 border-slate-900 m-4">
-                <div className="w-[40px] md:w-[60px] bg-slate-900 flex flex-col items-center justify-center text-white shrink-0">
-                    <h1 className="text-xl md:text-2xl font-black tracking-[0.4em] -rotate-90 whitespace-nowrap uppercase">KUITANSI</h1>
-                </div>
-                <div className="flex-1 flex flex-col justify-between p-6 bg-white">
-                    <div className="flex justify-between items-start border-b-2 border-slate-100 pb-4 mb-4">
-                      <div className="text-sm font-bold font-mono uppercase tracking-tighter">Receipt No: {data.no}</div>
-                      <div className="text-right">
-                          <div className="font-black text-slate-900 uppercase tracking-wider">{data.senderName}</div>
+          <div className="h-full flex flex-col p-[8mm]">
+              <div className="border-2 border-slate-900 p-1 flex-grow flex flex-col">
+                  <div className="border border-slate-900 p-6 flex-grow flex flex-col justify-between">
+                      <div className="flex justify-between items-center border-b border-slate-200 pb-4 mb-4">
+                          <h1 className="text-2xl font-black italic tracking-widest text-slate-800">KUITANSI</h1>
+                          <div className="text-right font-mono text-xs font-bold">No. {data.no}</div>
                       </div>
-                    </div>
-                    <div className="space-y-4 text-[12px] md:text-[13px] font-serif">
-                      <div className="flex items-baseline gap-4">
-                          <span className="w-32 uppercase text-[9px] font-bold text-slate-400 shrink-0">Received from</span>
-                          <span className="flex-1 border-b border-dotted border-slate-300 px-2 font-bold uppercase tracking-wide">{data.receiverName}</span>
+                      <div className="space-y-6 text-sm font-serif">
+                          <div className="flex items-baseline gap-4"><span className="w-36 uppercase text-[9px] font-bold text-slate-400">Sudah Terima Dari</span><div className="flex-1 border-b border-dotted border-slate-400 px-2 font-bold uppercase">{data.receiverName}</div></div>
+                          <div className="flex items-baseline gap-4"><span className="w-36 uppercase text-[9px] font-bold text-slate-400">Banyaknya Uang</span><div className="flex-1 border-b border-dotted border-slate-400 bg-slate-50 px-2 font-bold italic capitalize text-slate-700"># {terbilangText} #</div></div>
+                          <div className="flex items-baseline gap-4"><span className="w-36 uppercase text-[9px] font-bold text-slate-400">Untuk Pembayaran</span><div className="flex-1 border-b border-dotted border-slate-400 px-2 uppercase">{data.items.map(i => i.name).join(', ')}</div></div>
                       </div>
-                      <div className="flex items-baseline gap-4">
-                          <span className="w-32 uppercase text-[9px] font-bold text-slate-400 shrink-0">Amount In Words</span>
-                          <span className="flex-1 border-b border-dotted border-slate-300 px-2 font-bold italic text-slate-700 bg-slate-50 print:bg-white"># {terbilangText} #</span>
+                      <div className="flex justify-between items-end mt-10">
+                          <div className="bg-slate-900 text-white px-8 py-3 text-2xl font-black shadow-lg">Rp {total.toLocaleString('id-ID')}</div>
+                          <div className="text-center w-64">
+                              <p className="text-[10px] mb-14 uppercase font-bold text-slate-400">{data.city}, {formatDateSafe(data.date)}</p>
+                              <p className="font-black border-b-2 border-slate-900 uppercase text-sm pb-1">{data.signer}</p>
+                          </div>
                       </div>
-                      <div className="flex items-baseline gap-4">
-                          <span className="w-32 uppercase text-[9px] font-bold text-slate-400 shrink-0">For Payment Of</span>
-                          <span className="flex-1 border-b border-dotted border-slate-300 px-2 uppercase text-slate-600">{data.items.map(i => i.name).join(', ')}</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-end mt-8">
-                      <div className="bg-slate-900 text-white px-6 py-3 font-black text-xl rounded-sm shadow-lg tabular-nums print:border-2 print:border-black print:text-black print:bg-white print:shadow-none">
-                          Rp {total.toLocaleString('id-ID')}
-                      </div>
-                      <div className="text-center">
-                          <div className="text-[10px] mb-12 uppercase font-bold text-slate-400">{data.city}, {data.date}</div>
-                          <div className="font-black border-b-2 border-slate-900 uppercase text-xs pb-1">{data.signer}</div>
-                      </div>
-                    </div>
-                </div>
+                  </div>
               </div>
-          )}
-        </div>
+          </div>
       )}
     </div>
   );
 
-  if (!isClient) return <div className="min-h-screen bg-[#f3f4f6] flex items-center justify-center text-slate-400 font-medium">Memuat Editor Keuangan...</div>;
+  if (!isClient) return <div className="min-h-screen bg-[#f3f4f6] flex items-center justify-center text-slate-400 font-medium">Memuat Editor...</div>;
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800">
@@ -451,7 +383,7 @@ function FinanceToolBuilder() {
             <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700 overflow-x-auto">
               {[{ id: 'invoice', label: 'Invoice' }, { id: 'nota', label: 'Nota' }, { id: 'kuitansi', label: 'Kuitansi' }].map((tab) => (
                 <button 
-                  key={tab.id} onClick={() => setActiveDocType(tab.id as any)}
+                  key={tab.id} onClick={() => { setActiveDocType(tab.id as any); setTemplateId(1); }}
                   className={`px-4 py-1.5 rounded-md text-[10px] md:text-xs font-bold uppercase tracking-wide transition-all whitespace-nowrap ${activeDocType === tab.id ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                 >
                   {tab.label}
@@ -465,152 +397,107 @@ function FinanceToolBuilder() {
                 <RotateCcw size={18} />
             </button>
             <div className="relative hidden md:block">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between">
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
                 <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
                 <ChevronDown size={12} className={`transition-transform duration-200 ${showTemplateMenu ? 'rotate-180' : ''}`} />
               </button>
               {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden z-50 text-slate-800 ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden z-50 text-slate-800 animate-in fade-in slide-in-from-top-1">
                   <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-black uppercase text-slate-400 tracking-widest">Pilih Desain</div>
                   {currentTemplates.map((t: any) => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700' : 'text-slate-700'}`}>
-                      <div><div className="font-bold">{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5">{t.desc}</div></div>
+                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
+                      <div><div>{t.name}</div><div className="text-[10px] text-slate-400 mt-0.5 font-normal">{t.desc}</div></div>
                       {templateId === t.id && <Check size={14} className="text-blue-600" />}
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <button onClick={() => { window.print(); setShowDonation(true); }} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase hover:bg-emerald-500 transition-all shadow-lg active:scale-95 ring-1 ring-emerald-400/50">
+            <button onClick={() => { window.print(); setShowDonation(true); }} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden sm:inline">Cetak</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden relative">
+      <main className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden relative">
         
-        {/* LEFT SIDEBAR: EDITOR */}
+        {/* SIDEBAR EDITOR */}
         <div className={`no-print w-full md:w-[420px] lg:w-[400px] bg-white rounded-xl border border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform duration-300 shadow-xl md:shadow-none ${mobileMode === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-          <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-             <div className="flex items-center gap-2">
-                <Edit3 size={16} className="text-blue-600" />
-                <h3 className="text-xs font-black uppercase text-slate-700 tracking-wider">Editor Dokumen</h3>
-             </div>
-             <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold uppercase">{activeDocType}</span>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-32 md:pb-10 custom-scrollbar">
+           <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center gap-2"><Edit3 size={16} className="text-blue-600" /><h3 className="text-xs font-black uppercase text-slate-700 tracking-wider">Editor Dokumen</h3></div>
+              <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold uppercase">{activeDocType}</span>
+           </div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-32 md:pb-10 custom-scrollbar">
               <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                   <div className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all bg-slate-50 overflow-hidden" onClick={() => fileInputRef.current?.click()}>
-                      {logo ? <img src={logo} className="w-full h-full object-contain" alt="logo" /> : <Upload size={20} className="text-slate-300" />}
-                   </div>
-                   <div className="flex-1">
-                      <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
-                      <button onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-blue-600 hover:underline">Pasang Logo</button>
-                      <div className="text-[9px] text-slate-400 mt-1 uppercase font-bold">Rasio 1:1 Transparan</div>
-                   </div>
-                </div>
-                <div>
-                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Identitas Usaha (Penerbit)</label>
-                   <input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.senderName} onChange={e => setData({...data, senderName: e.target.value})} />
-                </div>
-                <div>
-                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Kontak & Alamat Usaha</label>
-                   <textarea className="w-full p-2.5 border border-slate-200 rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.senderInfo} onChange={e => setData({...data, senderInfo: e.target.value})} />
-                </div>
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                   <div>
-                      <label className="text-[10px] font-black uppercase text-slate-400 mb-1 block">No. Dokumen</label>
-                      <input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" value={data.no} onChange={e => setData({...data, no: e.target.value})} />
-                   </div>
-                   <div>
-                      <label className="text-[10px] font-black uppercase text-slate-400 mb-1 block">Tanggal</label>
-                      <input type="date" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.date} onChange={e => setData({...data, date: e.target.value})} />
-                   </div>
-                </div>
+                 <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all bg-slate-50 overflow-hidden" onClick={() => fileInputRef.current?.click()}>
+                       {logo ? <img src={logo} className="w-full h-full object-contain" alt="logo" /> : <Upload size={20} className="text-slate-300" />}
+                    </div>
+                    <div className="flex-1">
+                       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                       <button onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-blue-600 hover:underline">Pasang Logo</button>
+                       <div className="text-[9px] text-slate-400 mt-1 uppercase font-bold">Rasio 1:1 Guna KOP</div>
+                    </div>
+                 </div>
+                 <div><label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Identitas Penerbit</label><input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.senderName} onChange={e => handleDataChange(0 as any, 'senderName' as any, e.target.value)} /></div>
+                 <div><label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Detail Alamat & Kontak</label><textarea className="w-full p-2.5 border border-slate-200 rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.senderInfo} onChange={e => setData({...data, senderInfo: e.target.value})} /></div>
+                 <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div><label className="text-[10px] font-black uppercase text-slate-400 mb-1 block">Nomor Dokumen</label><input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" value={data.no} onChange={e => setData({...data, no: e.target.value})} /></div>
+                    <div><label className="text-[10px] font-black uppercase text-slate-400 mb-1 block">Tanggal</label><input type="date" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.date} onChange={e => setData({...data, date: e.target.value})} /></div>
+                 </div>
               </div>
-
               <div className="border-t border-slate-100 pt-4 space-y-4">
-                <div className="flex items-center justify-between">
-                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-1"><CreditCard size={12}/> Daftar Transaksi</label>
-                   <button onClick={addItem} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded-full hover:bg-blue-700 flex items-center gap-1 font-bold shadow-md shadow-blue-200">+ ITEM</button>
-                </div>
-                <div className="space-y-3">
-                  {data.items.map((item, idx) => (
-                     <div key={item.id} className="bg-slate-50 p-3 rounded-xl border border-slate-200 relative group animate-in slide-in-from-right-2">
-                        <div className="mb-2">
-                            <input type="text" className="w-full bg-white p-2 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nama Barang/Jasa..." value={item.name} onChange={e => handleItemChange(idx, 'name', e.target.value)} />
-                        </div>
-                        <div className="flex gap-2">
-                            <div className="flex-1">
-                               <label className="text-[8px] font-bold text-slate-400 uppercase ml-1">Qty</label>
-                               <input type="number" className="w-full bg-white border border-slate-200 rounded-lg text-xs p-2 text-center" value={item.qty} onChange={e => handleItemChange(idx, 'qty', parseInt(e.target.value) || 0)} />
-                            </div>
-                            <div className="flex-[2]">
-                               <label className="text-[8px] font-bold text-slate-400 uppercase ml-1">Harga Satuan</label>
-                               <input type="number" className="w-full bg-white border border-slate-200 rounded-lg text-xs p-2 text-right font-mono" value={item.price} onChange={e => handleItemChange(idx, 'price', parseInt(e.target.value) || 0)} />
-                            </div>
-                        </div>
-                        <button onClick={() => removeItem(idx)} className="absolute -top-2 -right-2 bg-white text-slate-400 hover:text-red-500 p-1.5 rounded-full border border-slate-200 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
-                     </div>
-                  ))}
-                </div>
+                 <div className="flex items-center justify-between"><label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-1"><CreditCard size={12}/> Daftar Transaksi</label><button onClick={addItem} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded-full hover:bg-blue-700 flex items-center gap-1 font-bold shadow-md shadow-blue-200">+ ITEM</button></div>
+                 <div className="space-y-3">
+                   {data.items.map((item, idx) => (
+                      <div key={item.id} className="bg-slate-50 p-3 rounded-xl border border-slate-200 relative group animate-in slide-in-from-right-2">
+                         <input type="text" className="w-full bg-white p-2 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none mb-2" placeholder="Nama Barang/Jasa..." value={item.name} onChange={e => handleItemChange(idx, 'name', e.target.value)} />
+                         <div className="flex gap-2">
+                             <div className="flex-1"><label className="text-[8px] font-bold text-slate-400 uppercase ml-1">Qty</label><input type="number" className="w-full bg-white border border-slate-200 rounded-lg text-xs p-2 text-center" value={item.qty} onChange={e => handleItemChange(idx, 'qty', parseInt(e.target.value) || 0)} /></div>
+                             <div className="flex-[2]"><label className="text-[8px] font-bold text-slate-400 uppercase ml-1">Harga</label><input type="number" className="w-full bg-white border border-slate-200 rounded-lg text-xs p-2 text-right font-mono" value={item.price} onChange={e => handleItemChange(idx, 'price', parseInt(e.target.value) || 0)} /></div>
+                         </div>
+                         <button onClick={() => removeItem(idx)} className="absolute -top-2 -right-2 bg-white text-slate-400 hover:text-red-500 p-1.5 rounded-full border border-slate-200 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
+                      </div>
+                   ))}
+                 </div>
               </div>
-
               <div className="border-t border-slate-100 pt-4 space-y-4">
-                <div>
-                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Nama Penerima / Klien</label>
-                   <input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.receiverName} onChange={e => setData({...data, receiverName: e.target.value})} />
-                </div>
-                {activeDocType !== 'kuitansi' && (
-                  <div>
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Alamat / Detail Penerima</label>
-                      <textarea className="w-full p-2.5 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.receiverInfo} onChange={e => setData({...data, receiverInfo: e.target.value})} />
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-3">
-                   <div>
-                      <label className="text-[10px] font-black uppercase text-slate-400 mb-1 block">Kota Penerbitan</label>
-                      <input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.city} onChange={e => setData({...data, city: e.target.value})} />
-                   </div>
-                   <div>
-                      <label className="text-[10px] font-black uppercase text-slate-400 mb-1 block">Nama Penanda Tangan</label>
-                      <input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.signer} onChange={e => setData({...data, signer: e.target.value})} />
-                   </div>
-                </div>
-                <div>
-                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Instruksi Pembayaran / Catatan</label>
-                   <textarea className="w-full p-2.5 border border-slate-200 rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-blue-500 outline-none italic" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} />
-                </div>
+                 <div><label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Nama Klien / Penerima</label><input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.receiverName} onChange={e => setData({...data, receiverName: e.target.value})} /></div>
+                 {activeDocType !== 'kuitansi' && (<div><label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Alamat / Detail Klien</label><textarea className="w-full p-2.5 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.receiverInfo} onChange={e => setData({...data, receiverInfo: e.target.value})} /></div>)}
+                 <div className="grid grid-cols-2 gap-3">
+                    <div><label className="text-[10px] font-black uppercase text-slate-400 mb-1 block">Kota Penerbitan</label><input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.city} onChange={e => setData({...data, city: e.target.value})} /></div>
+                    <div><label className="text-[10px] font-black uppercase text-slate-400 mb-1 block">Nama Penanda Tangan</label><input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.signer} onChange={e => setData({...data, signer: e.target.value})} /></div>
+                 </div>
+                 <div><label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Catatan / Instruksi Bayar</label><textarea className="w-full p-2.5 border border-slate-200 rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-blue-500 outline-none italic" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></div>
+                 {activeDocType === 'nota' && (<div><label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Footer Nota</label><input type="text" className="w-full p-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.footerNote} onChange={e => setData({...data, footerNote: e.target.value})} /></div>)}
               </div>
-          </div>
+           </div>
         </div>
 
-        {/* RIGHT PREVIEW AREA */}
+        {/* RIGHT SIDEBAR: PREVIEW */}
         <div className="no-print flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto overflow-x-hidden relative">
-          <div className="origin-top transition-transform duration-300 transform scale-[0.35] sm:scale-[0.55] md:scale-[0.7] lg:scale-[0.9] xl:scale-100 mb-[-120%] sm:mb-[-100mm] md:mb-[-40mm] lg:mb-[-10mm] xl:mb-10 mt-2 xl:mt-0 shadow-2xl">
+          <div className="origin-top transition-transform duration-300 transform scale-[0.35] sm:scale-[0.55] md:scale-[0.7] lg:scale-[0.85] xl:scale-100 mb-[-120%] sm:mb-[-100mm] md:mb-[-40mm] lg:mb-[-10mm] xl:mb-10 mt-2 xl:mt-0 shadow-2xl">
              <DocumentContent />
           </div>
         </div>
 
-        {/* INJEKSI KOMPONEN SAKTI (IKLAN & MODAL DONASI) */}
+        {/* INJEKSI KOMPONEN MONETISASI */}
         <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-      </div>
+      </main>
 
-      {/* MOBILE NAV BOTTOM */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
           <button onClick={() => setMobileMode('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileMode === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
           <button onClick={() => setMobileMode('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileMode === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT PORTAL */}
+      {/* PRINT PORTAL (Strict Clean) */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
-            <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
+            <thead><tr><td><div style={{ height: '10mm' }}>&nbsp;</div></td></tr></thead>
             <tbody><tr><td><div className="print-content-wrapper"><DocumentContent /></div></td></tr></tbody>
-            <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
+            <tfoot><tr><td><div style={{ height: '10mm' }}>&nbsp;</div></td></tr></tfoot>
          </table>
       </div>
 
