@@ -2,13 +2,14 @@
 
 /**
  * FILE: DiskonPage.tsx
- * STATUS: FINAL & PRODUCTION READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Kalkulator Diskon Bertingkat & Promo Buy X Get Y
  * FEATURES:
  * - Double Discount Logic (50% + 20%)
  * - Promo Logic (Buy 2 Get 1)
  * - Tax Calculation (PPN)
  * - Quick Preset Buttons
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useEffect } from 'react';
@@ -19,8 +20,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface CalculationResult {
@@ -33,11 +34,13 @@ interface CalculationResult {
 
 // --- 2. KOMPONEN UTAMA ---
 export default function DiskonPage() {
+  const [showDonation, setShowDonation] = useState(false);
+
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
       
       {/* HEADER NAVIGASI */}
-      <div className="bg-slate-900 text-white shadow-md sticky top-0 z-50 border-b border-slate-700 h-16">
+      <div className="bg-slate-900 text-white shadow-md sticky top-0 z-50 border-b border-slate-700 h-16 shrink-0">
         <div className="max-w-6xl mx-auto px-4 h-full flex justify-between items-center">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group">
@@ -58,17 +61,17 @@ export default function DiskonPage() {
       </div>
 
       {/* MAIN CONTENT */}
-      <main className="max-w-6xl mx-auto p-4 md:p-8">
-         {/* IKLAN (Opsional) */}
-
+      <main className="max-w-6xl mx-auto p-4 md:p-8 flex-grow w-full">
+         <DiscountCalculator setShowDonation={setShowDonation} />
          
-         <DiscountCalculator />
+         {/* INJEKSI KOMPONEN SAKTI (IKLAN & MODAL DONASI) */}
+         <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
       </main>
     </div>
   );
 }
 
-function DiscountCalculator() {
+function DiscountCalculator({ setShowDonation }: { setShowDonation: (v: boolean) => void }) {
   // --- STATE ---
   const [mode, setMode] = useState<'percent' | 'promo'>('percent');
   
@@ -99,14 +102,13 @@ function DiscountCalculator() {
   // LOGIC PERHITUNGAN
   useEffect(() => {
     if (mode === 'percent') {
-      // Logic Diskon Bertingkat: Harga -> Diskon 1 -> Diskon 2 -> Pajak
       const priceAfterD1 = price * (1 - disc1 / 100);
       const priceAfterD2 = priceAfterD1 * (1 - disc2 / 100);
       
       const taxAmt = priceAfterD2 * (tax / 100);
       const final = priceAfterD2 + taxAmt;
       
-      const save = price - priceAfterD2; // Hemat real (sebelum pajak, karena pajak itu extra cost)
+      const save = price - priceAfterD2;
       const effDisc = price > 0 ? ((price - priceAfterD2) / price) * 100 : 0;
 
       setResult({
@@ -117,7 +119,6 @@ function DiscountCalculator() {
         itemCount: 1
       });
     } else {
-      // Logic Buy X Get Y
       const totalItems = buyQty + getQty;
       if (totalItems === 0 || price === 0) {
           setResult({ finalPrice: 0, totalSave: 0, effectiveDisc: 0, taxAmount: 0, itemCount: 0 });
@@ -125,18 +126,18 @@ function DiscountCalculator() {
       }
 
       const itemsPaid = buyQty;
-      const totalPricePaid = price * itemsPaid; // Total bayar
-      const totalPriceNormal = price * totalItems; // Harga normal kalau beli semua tanpa promo
+      const totalPricePaid = price * itemsPaid;
+      const totalPriceNormal = price * totalItems;
       
       const save = totalPriceNormal - totalPricePaid;
       const effectiveDisc = (save / totalPriceNormal) * 100;
-      const finalPerItem = totalPricePaid / totalItems; // Harga jatuhnya satuan
+      const finalPerItem = totalPricePaid / totalItems;
 
       setResult({
         finalPrice: totalPricePaid,
         totalSave: save,
         effectiveDisc: effectiveDisc,
-        taxAmount: finalPerItem, // HACK: field taxAmount dipakai untuk harga satuan di mode promo
+        taxAmount: finalPerItem,
         itemCount: totalItems
       });
     }
@@ -181,7 +182,6 @@ function DiscountCalculator() {
              </div>
            </div>
 
-           {/* KONTEN BERDASARKAN MODE */}
            {mode === 'percent' ? (
              <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -197,7 +197,6 @@ function DiscountCalculator() {
                          />
                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
                       </div>
-                      {/* Quick Buttons */}
                       <div className="flex gap-2 mt-2">
                          {[10, 20, 50, 70].map(d => (
                             <button key={d} onClick={() => setDisc1(d)} className="text-[10px] bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 px-2 py-1 rounded-md font-bold transition-colors">{d}%</button>
@@ -221,24 +220,18 @@ function DiscountCalculator() {
                    </div>
                 </div>
 
-                {/* PPN Selection */}
                 <div>
                    <label className="text-xs font-bold text-slate-400 uppercase mb-3 block">Pajak (Setelah Diskon)</label>
                    <div className="flex gap-2">
-                      <button onClick={() => setTax(0)} className={`flex-1 py-2.5 rounded-lg text-xs font-bold border-2 transition-all ${tax === 0 ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>
-                         0%
-                      </button>
-                      <button onClick={() => setTax(11)} className={`flex-1 py-2.5 rounded-lg text-xs font-bold border-2 transition-all ${tax === 11 ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>
-                         PPN 11%
-                      </button>
-                      <button onClick={() => setTax(12)} className={`flex-1 py-2.5 rounded-lg text-xs font-bold border-2 transition-all ${tax === 12 ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>
-                         PPN 12%
-                      </button>
+                      {[0, 11, 12].map((t) => (
+                        <button key={t} onClick={() => setTax(t)} className={`flex-1 py-2.5 rounded-lg text-xs font-bold border-2 transition-all ${tax === t ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>
+                           {t === 0 ? 'Tanpa Pajak' : `PPN ${t}%`}
+                        </button>
+                      ))}
                    </div>
                 </div>
              </div>
            ) : (
-             /* MODE PROMO BUY X GET Y */
              <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 p-6 rounded-2xl border border-orange-200">
                 <h3 className="text-sm font-bold text-orange-800 uppercase mb-4 flex items-center gap-2">
                    <TicketPercent size={18}/> Atur Skema Promo
@@ -256,26 +249,25 @@ function DiscountCalculator() {
                 </div>
                 <div className="mt-4 text-center">
                    <p className="text-xs font-bold text-orange-700 bg-white/60 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-orange-200">
-                      <ShoppingBag size={12}/> Pulang Bawa: {buyQty + getQty} Barang
+                     <ShoppingBag size={12}/> Pulang Bawa: {buyQty + getQty} Barang
                    </p>
                 </div>
              </div>
            )}
 
            <div className="pt-4 flex justify-between items-center border-t border-slate-100 mt-4">
-             <button onClick={() => {setPrice(0); setDisc1(0); setDisc2(0);}} className="text-xs text-slate-400 hover:text-red-500 flex items-center gap-1 font-medium transition-colors">
+             <button onClick={() => {setPrice(0); setDisc1(0); setDisc2(0); setTax(0);}} className="text-xs text-slate-400 hover:text-red-500 flex items-center gap-1 font-medium transition-colors">
                 <RefreshCcw size={12}/> Reset
              </button>
-             <p className="text-[10px] text-slate-300 italic">Hasil otomatis dihitung</p>
+             {/* Tombol Donasi di Kalkulator sebagai pengganti Cetak */}
+             <button onClick={() => setShowDonation(true)} className="text-xs text-emerald-600 hover:underline font-bold">Donasi Kopi ☕</button>
            </div>
         </div>
       </div>
 
       {/* --- KOLOM KANAN: HASIL / STRUK --- */}
       <div className="relative">
-         
          <div className="bg-slate-900 rounded-2xl text-white shadow-2xl p-6 md:p-10 relative overflow-hidden min-h-[400px] flex flex-col justify-between border-t-8 border-emerald-500">
-            {/* Background Decor */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[100px] opacity-10 -mr-10 -mt-10 pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full blur-[100px] opacity-10 -ml-10 -mb-10 pointer-events-none"></div>
             
@@ -286,7 +278,6 @@ function DiscountCalculator() {
                </div>
                
                <div className="space-y-8">
-                  {/* Final Price Big */}
                   <div>
                      <p className="text-sm text-slate-400 mb-1">Total yang harus dibayar</p>
                      <p className="text-4xl md:text-5xl font-black tracking-tight text-white tabular-nums">
@@ -294,9 +285,8 @@ function DiscountCalculator() {
                      </p>
                   </div>
 
-                  {/* Hemat */}
                   {(result.totalSave > 0 || result.effectiveDisc > 0) && (
-                     <div className="bg-emerald-500/10 backdrop-blur-md rounded-xl p-4 border border-emerald-500/20 flex items-center gap-4 animate-pulse-slow">
+                     <div className="bg-emerald-500/10 backdrop-blur-md rounded-xl p-4 border border-emerald-500/20 flex items-center gap-4">
                         <div className="bg-emerald-500 text-white p-2 rounded-lg shadow-lg shadow-emerald-500/20 hidden sm:block">
                            <Tag size={24} />
                         </div>
@@ -308,7 +298,6 @@ function DiscountCalculator() {
                      </div>
                   )}
 
-                  {/* Detail List */}
                   <div className="space-y-3 text-sm pt-2">
                      <div className="flex justify-between text-slate-400">
                         <span>Harga Normal (Awal)</span>
@@ -332,7 +321,6 @@ function DiscountCalculator() {
                </div>
             </div>
 
-            {/* Footer Struk */}
             <div className="relative z-10 mt-8 pt-4 border-t-2 border-dashed border-slate-700">
                <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium">
                   <span>SIMULASI HARGA</span>
@@ -341,16 +329,13 @@ function DiscountCalculator() {
             </div>
          </div>
 
-         {/* Info Card */}
          <div className="mt-6 bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
             <AlertCircle size={20} className="text-blue-600 shrink-0 mt-0.5" />
             <div className="text-xs text-blue-800 leading-relaxed">
                <strong>Info Cerdas:</strong> {mode === 'percent' ? 'Diskon bertingkat (contoh 50% + 20%) tidak sama dengan diskon 70%. Kenyataannya itu setara diskon 60%. Selalu cek harga akhir!' : `Promo "Buy ${buyQty} Get ${getQty}" setara dengan diskon ${result.effectiveDisc.toFixed(0)}%.`}
             </div>
          </div>
-
       </div>
-
     </div>
   );
 }
