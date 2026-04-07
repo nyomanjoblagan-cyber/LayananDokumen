@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo, Fragment } from 'react';
-import AdsterraBanner from '@/components/AdsterraBanner';
 
 export default function HomePage() {
   const [search, setSearch] = useState('');
