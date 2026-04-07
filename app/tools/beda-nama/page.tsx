@@ -2,13 +2,15 @@
 
 /**
  * FILE: BedaNamaPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Pernyataan Beda Nama
  * FEATURES:
  * - Comparison Logic (KTP vs Dokumen Lain)
  * - Strict Legal Wording (Satu Orang Yang Sama)
  * - Mobile Menu Fixed
  * - A4 Print Layout
+ * - Timezone-Safe Date Parsing
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -18,6 +20,9 @@ import {
   ArrowLeftCircle, Edit3, Eye, ShieldAlert, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
+
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface BedaNamaData {
@@ -81,6 +86,9 @@ function BedaNamaBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<BedaNamaData>(INITIAL_DATA);
 
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
   // Set Tanggal Hari Ini saat Mount
   useEffect(() => {
     setData(prev => ({ 
@@ -90,12 +98,12 @@ function BedaNamaBuilder() {
   }, []);
 
   // --- HANDLERS ---
-  const handleDataChange = (field: keyof BedaNamaData, val: any) => {
+  const handleDataChange = (field: keyof BedaNamaData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
@@ -103,11 +111,11 @@ function BedaNamaBuilder() {
   // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Format Materai (Formal)
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Format Modern (Simpel)
         </button>
@@ -116,10 +124,12 @@ function BedaNamaBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
+    // FIX TIMEZONE DATE FORMATTER
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
         } catch { return dateString; }
     };
 
@@ -135,7 +145,7 @@ function BedaNamaBuilder() {
            <div className="text-justify px-1">
               <p className="mb-4">Saya yang bertanda tangan di bawah ini:</p>
               
-              <div className="ml-4 mb-4">
+              <div className="ml-4 mb-4 break-inside-avoid">
                  <table className="w-full text-[11pt]">
                     <tbody>
                        <tr><td className="w-36 font-bold align-top">Nama</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.nameKtp}</td></tr>
@@ -147,9 +157,9 @@ function BedaNamaBuilder() {
                  </table>
               </div>
 
-              <p className="mb-4">Dengan ini menyatakan dengan sesungguhnya bahwa:</p>
+              <p className="mb-4 break-inside-avoid">Dengan ini menyatakan dengan sesungguhnya bahwa:</p>
 
-              <div className="ml-2 mb-6 border-l-4 border-black pl-4 py-1">
+              <div className="ml-2 mb-6 border-l-4 border-black pl-4 py-1 break-inside-avoid">
                  <div className="mb-4">
                     <p className="mb-1">1. Nama yang tertulis di <strong>KTP / Kartu Keluarga</strong> saya adalah:</p>
                     <div className="font-black text-[12pt] uppercase tracking-wide">"{data.nameKtp}"</div>
@@ -160,21 +170,21 @@ function BedaNamaBuilder() {
                  </div>
               </div>
 
-              <p className="mb-4">
+              <p className="mb-4 break-inside-avoid">
                  Bahwa nama <strong>{data.nameKtp}</strong> dan <strong>{data.nameOnDoc}</strong> adalah nama dari <strong>SATU ORANG YANG SAMA</strong> (diri saya sendiri). Perbedaan penulisan tersebut terjadi karena kebiasaan penulisan/kesalahan administrasi dan bukan merupakan unsur kesengajaan untuk memalsukan identitas.
               </p>
 
-              <div className="bg-slate-50 p-3 border border-slate-300 italic text-sm mb-4">
+              <div className="bg-slate-50 p-3 border border-slate-300 italic text-sm mb-4 break-inside-avoid">
                  Surat pernyataan ini saya buat guna melengkapi persyaratan: <strong>{data.purpose}</strong>.
               </div>
 
-              <p className="indent-12">
+              <p className="indent-12 break-inside-avoid">
                  Demikian surat pernyataan ini saya buat dengan keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya paksaan dari pihak manapun. Apabila dikemudian hari ternyata pernyataan ini tidak benar, saya bersedia dituntut sesuai dengan hukum yang berlaku.
               </p>
            </div>
 
            {/* TANDA TANGAN */}
-           <div className="mt-10" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-10 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <p className="text-right mb-8">{data.city}, {formatDate(data.date)}</p>
               
               <div className="flex justify-between items-end">
@@ -215,7 +225,7 @@ function BedaNamaBuilder() {
               <p>Kepada Yth. Pihak Yang Berkepentingan,</p>
               <p>Saya yang bertanda tangan di bawah ini:</p>
 
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 grid gap-2 text-sm">
+              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 grid gap-2 text-sm break-inside-avoid">
                  <div className="grid grid-cols-[120px_10px_1fr]">
                     <span className="font-bold text-slate-500">Nama Lengkap</span><span>:</span><span className="font-black uppercase">{data.nameKtp}</span>
                  </div>
@@ -227,7 +237,7 @@ function BedaNamaBuilder() {
                  </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 break-inside-avoid">
                  <p className="font-bold text-slate-700 border-l-4 border-emerald-500 pl-3">MENGKLARIFIKASI BAHWA:</p>
                  <div className="grid grid-cols-2 gap-6">
                     <div className="bg-white border-2 border-slate-100 p-4 rounded-xl text-center shadow-sm">
@@ -244,12 +254,12 @@ function BedaNamaBuilder() {
                  </p>
               </div>
 
-              <p className="italic text-slate-500 text-sm border-t border-dashed border-slate-300 pt-4">
+              <p className="italic text-slate-500 text-sm border-t border-dashed border-slate-300 pt-4 break-inside-avoid">
                  Surat ini dibuat untuk keperluan: <strong>{data.purpose}</strong>
               </p>
            </div>
 
-           <div className="mt-12 flex justify-end" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-12 flex justify-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="text-center w-64">
                  <p className="text-xs mb-20 font-bold uppercase tracking-widest">{data.city}, {formatDate(data.date)}</p>
                  <p className="font-black text-sm uppercase border-b-2 border-slate-900 inline-block pb-1">{data.nameKtp}</p>
@@ -275,7 +285,7 @@ function BedaNamaBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -307,7 +317,13 @@ function BedaNamaBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -375,6 +391,9 @@ function BedaNamaBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
