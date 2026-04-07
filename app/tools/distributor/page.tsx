@@ -2,12 +2,14 @@
 
 /**
  * FILE: PerjanjianResellerPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Perjanjian Kerjasama (MOU/SPK) Distributor/Reseller
  * FEATURES:
  * - Dual Template (Contract vs Appointment Letter)
  * - Strict A4 Print Layout
  * - Mobile Menu Fixed
+ * - Timezone-Safe Date Parsing
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -18,8 +20,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface ContractData {
@@ -80,6 +82,9 @@ function ContractBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<ContractData>(INITIAL_DATA);
 
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
   // Set Tanggal Hari Ini saat Mount
   useEffect(() => {
     setData(prev => ({ 
@@ -89,12 +94,12 @@ function ContractBuilder() {
   }, []);
 
   // --- HANDLERS ---
-  const handleDataChange = (field: keyof ContractData, val: any) => {
+  const handleDataChange = (field: keyof ContractData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
@@ -102,11 +107,11 @@ function ContractBuilder() {
   // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Perjanjian Resmi (Kontrak)
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Surat Penunjukan (SPK)
         </button>
@@ -115,10 +120,12 @@ function ContractBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
+    // FIX TIMEZONE DATE FORMATTER
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
         } catch { return dateString; }
     };
 
@@ -137,20 +144,20 @@ function ContractBuilder() {
            <div className="space-y-4 text-justify px-1">
               <p>Pada hari ini, tanggal <b>{formatDate(data.date)}</b>, bertempat di <b>{data.city}</b>, yang bertanda tangan di bawah ini:</p>
               
-              <div className="ml-2 space-y-4">
+              <div className="ml-2 space-y-4 break-inside-avoid">
                  <div className="bg-slate-50 p-4 border border-slate-300">
                     <p className="mb-1">1. <b>{data.providerOwner}</b>, bertindak atas nama <b>{data.providerName}</b>, berkedudukan di {data.providerAddress}.</p>
-                    <p className="italic text-sm">Selanjutnya disebut sebagai <b>PIHAK PERTAMA (Supplier)</b>.</p>
+                    <p className="italic text-sm text-slate-600">Selanjutnya disebut sebagai <b>PIHAK PERTAMA (Supplier)</b>.</p>
                  </div>
                  <div className="bg-slate-50 p-4 border border-slate-300">
                     <p className="mb-1">2. <b>{data.resellerName}</b>, pemilik <b>{data.resellerStore}</b>, beralamat di {data.resellerAddress}.</p>
-                    <p className="italic text-sm">Selanjutnya disebut sebagai <b>PIHAK KEDUA (Reseller)</b>.</p>
+                    <p className="italic text-sm text-slate-600">Selanjutnya disebut sebagai <b>PIHAK KEDUA (Reseller)</b>.</p>
                  </div>
               </div>
 
               <p>Kedua belah pihak sepakat untuk mengikatkan diri dalam perjanjian kerjasama dengan ketentuan sebagai berikut:</p>
 
-              <div className="space-y-4 ml-2 border-l-4 border-black pl-4 py-2">
+              <div className="space-y-4 ml-2 border-l-4 border-black pl-4 py-2 break-inside-avoid">
                  <div>
                     <p className="font-bold uppercase text-[10pt] mb-1">Pasal 1: Wilayah & Hak Jual</p>
                     <p>Pihak Pertama memberikan hak kepada Pihak Kedua untuk mendistribusikan produk di wilayah <b>{data.region}</b>. Pihak Kedua wajib menjaga nama baik produk dan perusahaan Pihak Pertama.</p>
@@ -169,17 +176,17 @@ function ContractBuilder() {
                  </div>
               </div>
               
-              <p className="indent-12">Demikian surat perjanjian ini dibuat dalam rangkap 2 (dua) bermaterai cukup dan memiliki kekuatan hukum yang sama.</p>
+              <p className="indent-12 break-inside-avoid">Demikian surat perjanjian ini dibuat dalam rangkap 2 (dua) bermaterai cukup dan memiliki kekuatan hukum yang sama.</p>
            </div>
 
            {/* TANDA TANGAN */}
-           <div className="shrink-0 mt-12 pt-4 border-t border-black" style={{ pageBreakInside: 'avoid' }}>
+           <div className="shrink-0 mt-12 pt-4 border-t border-black break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="grid grid-cols-2 gap-10 text-center">
-                 <div className="flex flex-col items-center">
+                 <div className="flex flex-col items-center break-inside-avoid">
                     <p className="mb-24 font-bold uppercase text-[10pt]">Pihak Pertama<br/>(Supplier)</p>
                     <p className="font-bold underline uppercase border-b border-black w-full pb-1">{data.providerOwner}</p>
                  </div>
-                 <div className="flex flex-col items-center">
+                 <div className="flex flex-col items-center break-inside-avoid">
                     <p className="mb-24 font-bold uppercase text-[10pt]">Pihak Kedua<br/>(Reseller)</p>
                     <p className="font-bold underline uppercase border-b border-black w-full pb-1">{data.resellerName}</p>
                  </div>
@@ -191,12 +198,12 @@ function ContractBuilder() {
       // --- TEMPLATE 2: SURAT PENUNJUKAN (SPK) ---
       return (
         <div className="font-sans text-[11pt] text-slate-900 leading-relaxed">
-           <div className="border-b-4 border-double border-slate-900 pb-4 mb-8 text-center">
+           <div className="border-b-4 border-double border-slate-900 pb-4 mb-8 text-center shrink-0">
               <h1 className="text-xl font-black uppercase tracking-wide">{data.providerName}</h1>
               <p className="text-sm">{data.providerAddress}</p>
            </div>
 
-           <div className="text-center mb-8">
+           <div className="text-center mb-8 shrink-0">
               <h2 className="text-lg font-bold underline uppercase decoration-2 underline-offset-4">SURAT PENUNJUKAN DISTRIBUTOR</h2>
               <p className="text-sm font-bold mt-1">No: {data.contractNo}</p>
            </div>
@@ -204,17 +211,17 @@ function ContractBuilder() {
            <div className="space-y-6 px-1">
               <p>Dengan ini, Manajemen <b>{data.providerName}</b> menunjuk secara resmi:</p>
               
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center">
+              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center break-inside-avoid">
                  <h3 className="font-black text-xl uppercase text-slate-800 mb-1">{data.resellerStore}</h3>
                  <p className="text-lg font-bold text-slate-600 mb-2">({data.resellerName})</p>
-                 <p className="text-sm italic">{data.resellerAddress}</p>
+                 <p className="text-sm italic text-slate-500">{data.resellerAddress}</p>
               </div>
 
-              <div className="text-center py-2">
+              <div className="text-center py-2 break-inside-avoid">
                  <span className="bg-emerald-100 text-emerald-800 px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest">Sebagai Distributor Resmi</span>
               </div>
 
-              <div className="bg-emerald-50 p-5 rounded-lg border border-emerald-100 text-sm">
+              <div className="bg-emerald-50 p-5 rounded-lg border border-emerald-100 text-sm break-inside-avoid">
                  <p className="font-bold text-emerald-800 mb-3 underline">KETENTUAN PENUNJUKAN:</p>
                  <ul className="list-disc ml-5 space-y-2 text-emerald-900">
                     <li>Wilayah Pemasaran: <b>{data.region}</b></li>
@@ -223,12 +230,12 @@ function ContractBuilder() {
                  </ul>
               </div>
 
-              <p className="text-justify text-sm">
+              <p className="text-justify text-sm break-inside-avoid">
                  Surat penunjukan ini berlaku efektif sejak tanggal ditandatangani dan dapat dicabut sewaktu-waktu apabila Pihak Kedua melanggar ketentuan perusahaan atau tidak mencapai target yang ditetapkan selama 3 bulan berturut-turut.
               </p>
            </div>
 
-           <div className="mt-12 text-right" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-12 text-right break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <p className="mb-1">{data.city}, {formatDate(data.date)}</p>
               <p className="mb-24 font-bold">Hormat Kami,</p>
               <p className="font-bold underline uppercase">{data.providerOwner}</p>
@@ -253,7 +260,7 @@ function ContractBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -285,7 +292,13 @@ function ContractBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -304,7 +317,7 @@ function ContractBuilder() {
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Pihak Pertama (Supplier)</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                       <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Perusahaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.providerName} onChange={e => handleDataChange('providerName', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pemilik / Penanggung Jawab</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.providerOwner} onChange={e => handleDataChange('providerOwner', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pemilik / Penanggung Jawab</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.providerOwner} onChange={e => handleDataChange('providerOwner', e.target.value)} /></div>
                       <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat Lengkap</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.providerAddress} onChange={e => handleDataChange('providerAddress', e.target.value)} /></div>
                   </div>
                </div>
@@ -350,6 +363,9 @@ function ContractBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
