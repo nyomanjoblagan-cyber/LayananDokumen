@@ -2,13 +2,15 @@
 
 /**
  * FILE: PermohonanDonasiPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Permohonan Donasi / Sponsorship
  * FEATURES:
  * - Dual Template (Yayasan/Sosial vs Event Sponsor)
  * - QR Code Placeholder in Sponsor Template
  * - Mobile Menu Fixed
  * - Strict A4 Print Layout
+ * - Timezone-Safe Date Parsing
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -19,8 +21,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface DonationData {
@@ -92,6 +94,7 @@ function DonationBuilder() {
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<DonationData>(INITIAL_DATA);
+  const [showDonation, setShowDonation] = useState(false);
 
   // Set Tanggal Hari Ini saat Mount
   useEffect(() => {
@@ -102,12 +105,12 @@ function DonationBuilder() {
   }, []);
 
   // --- HANDLERS ---
-  const handleDataChange = (field: keyof DonationData, val: any) => {
+  const handleDataChange = (field: keyof DonationData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
@@ -115,11 +118,11 @@ function DonationBuilder() {
   // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Format Yayasan (Sosial)
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Format Event (Sponsor)
         </button>
@@ -128,10 +131,12 @@ function DonationBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
+    // FIX TIMEZONE DATE FORMATTER
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
         } catch { return dateString; }
     };
 
@@ -147,7 +152,7 @@ function DonationBuilder() {
            </div>
 
            {/* JUDUL & NOMOR */}
-           <div className="mb-6 text-[10.5pt]">
+           <div className="mb-6 text-[10.5pt] break-inside-avoid">
               <div className="flex justify-between mb-3 items-start">
                  <div>
                     <p>Nomor : {data.docNo}</p>
@@ -164,25 +169,25 @@ function DonationBuilder() {
            {/* ISI SURAT */}
            <div className="text-[10.5pt] leading-snug text-justify space-y-3 flex-grow px-1">
               <p>Dengan hormat,</p>
-              <p>Sehubungan dengan rencana pelaksanaan kegiatan <b>{data.activityName}</b> yang akan dilaksanakan pada tanggal {data.executionDate}, kami bermaksud memohon dukungan Bapak/Ibu.</p>
+              <p className="break-inside-avoid">Sehubungan dengan rencana pelaksanaan kegiatan <b>{data.activityName}</b> yang akan dilaksanakan pada tanggal {data.executionDate}, kami bermaksud memohon dukungan Bapak/Ibu.</p>
               
-              <p>Kegiatan ini bertujuan untuk membantu <b>{data.targetAudience}</b> yang saat ini sangat membutuhkan uluran tangan kita bersama. Adapun estimasi total dana yang dibutuhkan adalah sebesar <b>{data.totalNeed}</b>.</p>
+              <p className="break-inside-avoid">Kegiatan ini bertujuan untuk membantu <b>{data.targetAudience}</b> yang saat ini sangat membutuhkan uluran tangan kita bersama. Adapun estimasi total dana yang dibutuhkan adalah sebesar <b>{data.totalNeed}</b>.</p>
 
-              <div className="bg-emerald-50 p-4 rounded-xl border-2 border-dashed border-emerald-200 font-sans text-[10pt] italic text-center text-emerald-900 leading-relaxed shadow-inner my-4">
+              <div className="bg-emerald-50 p-4 rounded-xl border-2 border-dashed border-emerald-200 font-sans text-[10pt] italic text-center text-emerald-900 leading-relaxed shadow-inner my-4 break-inside-avoid">
                  <MessageSquareQuote size={18} className="mx-auto mb-1 opacity-30" />
                  "{data.closingWord}"
               </div>
 
-              <p>Bagi Bapak/Ibu yang berkenan memberikan donasi, bantuan dapat disalurkan melalui:</p>
-              <div className="p-3 border-l-4 border-emerald-600 bg-slate-50 font-mono text-[10pt] tracking-tight">
+              <p className="break-inside-avoid">Bagi Bapak/Ibu yang berkenan memberikan donasi, bantuan dapat disalurkan melalui:</p>
+              <div className="p-3 border-l-4 border-emerald-600 bg-slate-50 font-mono text-[10pt] tracking-tight break-inside-avoid">
                  {data.bankInfo}
               </div>
 
-              <p>Demikian permohonan ini kami sampaikan. Atas keikhlasan dan partisipasi Bapak/Ibu, kami ucapkan terima kasih yang sebesar-besarnya. Semoga Tuhan Yang Maha Esa membalas kebaikan Anda.</p>
+              <p className="break-inside-avoid">Demikian permohonan ini kami sampaikan. Atas keikhlasan dan partisipasi Bapak/Ibu, kami ucapkan terima kasih yang sebesar-besarnya. Semoga Tuhan Yang Maha Esa membalas kebaikan Anda.</p>
            </div>
 
            {/* TANDA TANGAN */}
-           <div className="mt-8 pt-4 border-t border-slate-100" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-8 pt-4 border-t border-slate-100 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <table className="w-full table-fixed text-[10.5pt]">
                  <tbody>
                     <tr>
@@ -215,7 +220,7 @@ function DonationBuilder() {
         <div className="font-sans text-[10.5pt] text-slate-800 leading-snug">
            
            {/* HEADER MODERN */}
-           <div className="flex justify-between items-end border-b-2 border-slate-900 pb-3 mb-6">
+           <div className="flex justify-between items-end border-b-2 border-slate-900 pb-3 mb-6 shrink-0">
               <div>
                  <h1 className="text-xl font-black uppercase tracking-tight text-slate-900 leading-none">{data.orgName}</h1>
                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Organizing Committee</p>
@@ -226,28 +231,28 @@ function DonationBuilder() {
               </div>
            </div>
 
-           <div className="mb-6">
+           <div className="mb-6 break-inside-avoid">
               <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-1">Kepada Yth,</p>
               <p className="font-bold text-base">{data.targetName}</p>
               <p className="text-slate-600 text-sm">{data.targetLocation}</p>
            </div>
 
            <div className="space-y-4 text-justify">
-              <p>
+              <p className="break-inside-avoid">
                  Kami selaku panitia pelaksana dengan ini mengajukan permohonan <strong>Sponsorship / Bantuan Dana</strong> untuk menyukseskan kegiatan:
               </p>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center break-inside-avoid">
                  <h2 className="text-lg font-black text-blue-900 uppercase mb-2">{data.activityName}</h2>
                  <p className="text-xs text-slate-600 mb-1">Target Peserta: <strong>{data.targetAudience}</strong></p>
                  <p className="text-xs text-slate-600">Pelaksanaan: <strong>{data.executionDate}</strong></p>
               </div>
 
-              <p>
+              <p className="break-inside-avoid">
                  Total kebutuhan dana untuk kegiatan ini adalah sebesar <strong>{data.totalNeed}</strong>. Dukungan dari perusahaan/instansi Bapak/Ibu akan sangat berarti bagi kelancaran acara ini dan akan kami apresiasi dalam bentuk publikasi logo pada media promosi acara.
               </p>
 
-              <div className="flex items-center gap-4 bg-blue-50 p-3 rounded-lg border border-blue-100">
+              <div className="flex items-center gap-4 bg-blue-50 p-3 rounded-lg border border-blue-100 break-inside-avoid">
                  <div className="bg-white p-2 rounded shadow-sm hidden sm:block">
                     <QrCode size={32} className="text-slate-800"/>
                  </div>
@@ -257,12 +262,12 @@ function DonationBuilder() {
                  </div>
               </div>
 
-              <p>
+              <p className="break-inside-avoid">
                  Besar harapan kami agar Bapak/Ibu dapat berpartisipasi. Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.
               </p>
            </div>
 
-           <div className="mt-8 flex justify-end" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-8 flex justify-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="text-center w-60">
                  <p className="mb-16 font-bold text-[10px] uppercase tracking-widest text-slate-400">Ketua Pelaksana</p>
                  <p className="font-black text-slate-900 border-b-2 border-slate-900 inline-block uppercase text-sm">{data.chairmanName}</p>
@@ -288,7 +293,7 @@ function DonationBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -320,7 +325,7 @@ function DonationBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
       </header>
@@ -381,6 +386,9 @@ function DonationBuilder() {
              </div>
          </div>
       </main>
+      
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
