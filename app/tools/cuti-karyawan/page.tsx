@@ -2,7 +2,7 @@
 
 /**
  * FILE: IzinCutiPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Izin Cuti / Sakit
  * FEATURES:
  * - Auto Days Calculation (Hitung Hari Otomatis)
@@ -10,6 +10,8 @@
  * - Dual Template (Formal vs Modern)
  * - Mobile Menu Fixed
  * - Strict A4 Print Layout
+ * - Timezone-Safe Date Parsing
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useMemo, useEffect } from 'react';
@@ -20,8 +22,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface LeaveData {
@@ -71,6 +73,9 @@ function LeaveRequestBuilder() {
   const [leaveType, setLeaveType] = useState<'Tahunan' | 'Hamil' | 'Sakit'>('Tahunan');
   const [data, setData] = useState<LeaveData>(INITIAL_DATA);
 
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
   // Set Tanggal Hari Ini saat Mount
   useEffect(() => {
     setData(prev => ({ 
@@ -80,7 +85,7 @@ function LeaveRequestBuilder() {
   }, []);
 
   // --- LOGIC ---
-  const handleDataChange = (field: keyof LeaveData, val: any) => {
+  const handleDataChange = (field: keyof LeaveData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
@@ -110,7 +115,7 @@ function LeaveRequestBuilder() {
   }, [data.startDate, data.endDate]);
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
@@ -118,11 +123,11 @@ function LeaveRequestBuilder() {
   // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Klasik Korporat
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Modern Minimalis
         </button>
@@ -138,11 +143,13 @@ function LeaveRequestBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
-    // Format Tanggal
+    // FIX TIMEZONE DATE FORMATTER
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+            // Append T00:00:00 untuk mencegah UTC offset bug
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
         } catch { return dateString; }
     };
 
@@ -155,7 +162,7 @@ function LeaveRequestBuilder() {
               <p className="font-bold">{data.city}, {formatDate(data.date)}</p>
            </div>
 
-           <div className="mb-8 space-y-1">
+           <div className="mb-8 space-y-1 break-inside-avoid">
               <p>Hal: <b>Permohonan Izin {leaveType === 'Tahunan' ? 'Cuti Tahunan' : (leaveType === 'Sakit' ? 'Sakit (Medical Leave)' : 'Cuti Melahirkan')}</b></p>
               <div className="pt-4">
                  <p>Kepada Yth,</p>
@@ -169,7 +176,7 @@ function LeaveRequestBuilder() {
               <p>Dengan hormat,</p>
               <p>Saya yang bertanda tangan di bawah ini:</p>
               
-              <div className="ml-4 space-y-1 bg-slate-50 p-3 border border-slate-200 rounded text-[11pt]">
+              <div className="ml-4 space-y-1 bg-slate-50 p-3 border border-slate-200 rounded text-[11pt] break-inside-avoid">
                  <table className="w-full">
                     <tbody>
                        <tr><td className="w-36 align-top">Nama Lengkap</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.name}</td></tr>
@@ -180,22 +187,22 @@ function LeaveRequestBuilder() {
                  </table>
               </div>
 
-              <p>
+              <p className="break-inside-avoid">
                  Bermaksud mengajukan permohonan <b>{leaveType === 'Sakit' ? 'IZIN SAKIT' : 'CUTI KERJA'}</b> selama <b>{diffDays} hari kerja</b>, terhitung mulai tanggal <b>{formatDate(data.startDate)}</b> sampai dengan <b>{formatDate(data.endDate)}</b>.
               </p>
               
-              <div className="bg-slate-50 p-3 border-l-4 border-black italic text-[11pt] text-justify rounded-r">
+              <div className="bg-slate-50 p-3 border-l-4 border-black italic text-[11pt] text-justify rounded-r break-inside-avoid">
                  Alasan: "{data.reason}"
               </div>
               
-              <p>
+              <p className="break-inside-avoid">
                  Selama saya tidak berada di tempat, tanggung jawab pekerjaan sementara akan saya delegasikan kepada rekan kerja saya: <strong>{data.substitute}</strong>.
               </p>
               
-              <p>Demikian permohonan ini saya ajukan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.</p>
+              <p className="break-inside-avoid">Demikian permohonan ini saya ajukan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.</p>
            </div>
 
-           <div className="shrink-0 mt-12 grid grid-cols-2 gap-10 text-center" style={{ pageBreakInside: 'avoid' }}>
+           <div className="shrink-0 mt-12 grid grid-cols-2 gap-10 text-center break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="space-y-24">
                  <p className="uppercase text-[10pt] font-bold text-slate-500">Menyetujui,</p>
                  <div>
@@ -219,7 +226,7 @@ function LeaveRequestBuilder() {
         <div className="font-sans text-[10.5pt] text-slate-900 leading-snug h-full flex flex-col pt-6">
            
            {/* HEADER MODERN */}
-           <div className="flex justify-between items-center mb-8 border-b-4 border-slate-900 pb-6">
+           <div className="flex justify-between items-center mb-8 border-b-4 border-slate-900 pb-6 shrink-0">
               <div className="flex items-center gap-4">
                  <div className="p-3 bg-slate-900 text-white rounded-2xl shadow print:text-black print:bg-transparent print:border-2 print:border-black">
                     {getIcon()}
@@ -236,7 +243,7 @@ function LeaveRequestBuilder() {
            </div>
 
            {/* INFO GRID */}
-           <div className="grid grid-cols-3 gap-4 mb-6">
+           <div className="grid grid-cols-3 gap-4 mb-6 break-inside-avoid">
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                  <p className="text-[8pt] font-black text-slate-400 uppercase mb-1">Applicant</p>
                  <p className="font-bold text-slate-900 text-sm uppercase">{data.name}</p>
@@ -255,7 +262,7 @@ function LeaveRequestBuilder() {
            </div>
 
            <div className="flex-grow space-y-6">
-              <div>
+              <div className="break-inside-avoid">
                  <h4 className="text-[9pt] font-black uppercase text-slate-300 mb-2 tracking-widest flex items-center gap-2">
                     <FileText size={12}/> Statement of Purpose
                  </h4>
@@ -263,13 +270,13 @@ function LeaveRequestBuilder() {
                     "Saya mengajukan izin <b>{leaveType}</b> dengan alasan <b>{data.reason}</b>. Saya menyadari kewajiban saya dan telah melakukan koordinasi serah terima tugas dengan tim terkait untuk memastikan produktivitas tetap terjaga selama absennya saya."
                  </div>
               </div>
-              <div className="flex items-start gap-2 text-slate-400 bg-slate-50/50 p-3 rounded-lg border border-slate-100">
+              <div className="flex items-start gap-2 text-slate-400 bg-slate-50/50 p-3 rounded-lg border border-slate-100 break-inside-avoid">
                  <Info size={14} className="shrink-0 mt-0.5" />
                  <p className="text-[9pt] leading-relaxed">Formulir ini sah jika telah ditandatangani oleh atasan langsung dan diserahkan ke HRD.</p>
               </div>
            </div>
 
-           <div className="shrink-0 pt-8 border-t border-slate-100 flex justify-between items-end" style={{ pageBreakInside: 'avoid' }}>
+           <div className="shrink-0 pt-8 border-t border-slate-100 flex justify-between items-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="space-y-4">
                  <div className="w-40 h-20 border-b-2 border-slate-200"></div>
                  <div>
@@ -301,7 +308,7 @@ function LeaveRequestBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -333,7 +340,13 @@ function LeaveRequestBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -409,6 +422,9 @@ function LeaveRequestBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
