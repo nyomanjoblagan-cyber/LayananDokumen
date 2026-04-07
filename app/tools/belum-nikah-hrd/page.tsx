@@ -2,13 +2,15 @@
 
 /**
  * FILE: BelumMenikahPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Keterangan Belum Menikah / Status Perkawinan
  * FEATURES:
  * - Dual Template (RT/RW vs Kelurahan)
  * - Auto Purpose Buttons (CPNS, TNI, Nikah)
  * - Mobile Menu Fixed
  * - Strict A4 Print Layout
+ * - Timezone-Safe Date Parsing
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -18,8 +20,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface StatusData {
@@ -104,18 +106,28 @@ function StatusToolBuilder() {
   const [logo, setLogo] = useState<string | null>(null);
   const [data, setData] = useState<StatusData>(INITIAL_DATA);
 
-  // Set Tanggal Hari Ini saat Mount
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
+  // Set Tanggal Hari Ini saat Mount & Cleanup Logo
   useEffect(() => {
     setData(prev => ({ 
         ...prev, 
         date: new Date().toISOString().split('T')[0] 
     }));
-  }, []);
+
+    return () => {
+        if (logo) URL.revokeObjectURL(logo);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- HANDLERS ---
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setLogo(URL.createObjectURL(file));
+    if (file) {
+        if (logo) URL.revokeObjectURL(logo);
+        setLogo(URL.createObjectURL(file));
+    }
   };
 
   const handleDataChange = (field: keyof StatusData, val: string) => {
@@ -129,20 +141,23 @@ function StatusToolBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
-        setLogo(null);
+        if (logo) {
+            URL.revokeObjectURL(logo);
+            setLogo(null);
+        }
     }
   };
 
   // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Pengantar RT/RW
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Resmi Kelurahan
         </button>
@@ -151,6 +166,15 @@ function StatusToolBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
+    // FIX TIMEZONE DATE FORMATTER
+    const formatDate = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+        } catch { return dateString; }
+    };
+
     if (templateId === 1) {
       // --- TEMPLATE 1: PENGANTAR RT/RW ---
       return (
@@ -168,7 +192,7 @@ function StatusToolBuilder() {
 
            <p className="mb-4 text-justify">Yang bertanda tangan di bawah ini Ketua RT dan Ketua RW, menerangkan dengan sebenarnya bahwa:</p>
            
-           <div className="ml-4 mb-4">
+           <div className="ml-4 mb-4 break-inside-avoid">
               <table className="w-full text-[11pt]">
                  <tbody>
                     <tr><td className="w-40 py-0.5">Nama Lengkap</td><td className="w-3 py-0.5">:</td><td className="font-bold py-0.5 uppercase">{data.name}</td></tr>
@@ -182,30 +206,30 @@ function StatusToolBuilder() {
               </table>
            </div>
 
-           <p className="mb-4 text-justify">
+           <p className="mb-4 text-justify break-inside-avoid">
               Adalah benar warga kami yang berdomisili di alamat tersebut di atas. Berdasarkan pengamatan kami, yang bersangkutan berstatus:
            </p>
 
-           <div className="text-center font-bold text-lg uppercase border-2 border-black py-2 mb-6 mx-8">
+           <div className="text-center font-bold text-lg uppercase border-2 border-black py-2 mb-6 mx-8 break-inside-avoid">
               {data.statusDesc.toUpperCase()}
            </div>
 
-           <p className="mb-4 text-justify">
+           <p className="mb-4 text-justify break-inside-avoid">
               Surat pengantar ini diberikan untuk keperluan: <br/>
               <strong>"{data.purpose}"</strong>
            </p>
 
-           <p className="mb-8 text-justify">
+           <p className="mb-8 text-justify break-inside-avoid">
               Demikian surat keterangan ini kami buat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.
            </p>
 
-           <div className="flex justify-between text-center mt-12" style={{ pageBreakInside: 'avoid' }}>
+           <div className="flex justify-between text-center mt-12 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="w-48">
                  <p className="mb-20 font-bold">Ketua RT</p>
                  <p className="font-bold underline uppercase">{data.nameRT}</p>
               </div>
               <div className="w-48">
-                 <p className="mb-1">{new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
+                 <p className="mb-1">{formatDate(data.date)}</p>
                  <p className="mb-20 font-bold">Ketua RW</p>
                  <p className="font-bold underline uppercase">{data.nameRW}</p>
               </div>
@@ -239,7 +263,7 @@ function StatusToolBuilder() {
               Yang bertanda tangan di bawah ini, Kepala {data.village.replace('KELURAHAN ', 'Kelurahan ').replace('DESA ', 'Desa ')} {data.district.replace('KECAMATAN ', 'Kecamatan ')} {data.govLevel.replace('PEMERINTAH ', '')}, menerangkan bahwa:
            </p>
            
-           <div className="ml-4 mb-4">
+           <div className="ml-4 mb-4 break-inside-avoid">
               <table className="w-full text-[11pt]">
                  <tbody>
                     <tr><td className="w-40 py-0.5">Nama Lengkap</td><td className="w-3 py-0.5">:</td><td className="font-bold py-0.5 uppercase">{data.name}</td></tr>
@@ -253,28 +277,28 @@ function StatusToolBuilder() {
               </table>
            </div>
 
-           <p className="mb-3 text-justify">
+           <p className="mb-3 text-justify break-inside-avoid">
               Adalah benar-benar warga penduduk kami dan berdasarkan data yang ada serta pengakuan yang bersangkutan hingga saat surat ini dikeluarkan berstatus:
            </p>
 
-           <div className="text-center font-bold text-lg border-y-2 border-black py-2 mb-4 mx-8 uppercase bg-slate-50 print:bg-transparent">
+           <div className="text-center font-bold text-lg border-y-2 border-black py-2 mb-4 mx-8 uppercase bg-slate-50 print:bg-transparent break-inside-avoid">
               "{data.statusDesc}"
            </div>
 
-           <p className="mb-3 text-justify">
+           <p className="mb-3 text-justify break-inside-avoid">
               Surat keterangan ini diberikan untuk keperluan: <br/>
               <strong>"{data.purpose}"</strong>
            </p>
 
-           <p className="mb-6 text-justify">
+           <p className="mb-6 text-justify break-inside-avoid">
               Demikian Surat Keterangan ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.
            </p>
 
            {/* TTD */}
-           <div className="flex justify-end text-center mt-8" style={{ pageBreakInside: 'avoid' }}>
+           <div className="flex justify-end text-center mt-8 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="w-72">
                  <p className="mb-1">Dikeluarkan di: {data.district.replace('KECAMATAN ','')}</p>
-                 <p className="mb-4">Pada Tanggal: {new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
+                 <p className="mb-4">Pada Tanggal: {formatDate(data.date)}</p>
                  <p className="font-bold mb-20 uppercase">{data.signerTitle}</p>
                  <p className="font-bold underline uppercase">{data.signerName}</p>
                  <p className="text-sm">{data.signerNIP}</p>
@@ -299,7 +323,7 @@ function StatusToolBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -331,7 +355,13 @@ function StatusToolBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -354,7 +384,7 @@ function StatusToolBuilder() {
                          <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 bg-slate-50 shrink-0 relative overflow-hidden group">
                             {logo ? <img src={logo} className="w-full h-full object-contain p-1" alt="Logo" /> : <div className="text-[8px] text-center text-slate-400 font-bold">LOGO<br/>GARUDA</div>}
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[8px] font-bold">UBAH</div>
-                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
+                            <input type="file" id="logo-upload" aria-label="Upload Logo" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
                          </div>
                          <div className="flex-1 space-y-2">
                             <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.govLevel} onChange={e => handleDataChange('govLevel', e.target.value)} placeholder="Pemkot/Pemkab..." />
@@ -442,6 +472,9 @@ function StatusToolBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
