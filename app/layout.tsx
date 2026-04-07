@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Script from "next/script"; // IMPORT WAJIB
-import AdsterraBanner from '@/components/AdsterraBanner';
+import Script from "next/script";
 import SaweriaBox from '@/components/SaweriaBox';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -26,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id" className="scroll-smooth">
       <head>
-        {/* Google Analytics GA4 - G-7Q73R9SKEL */}
+        {/* Google Analytics GA4 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-7Q73R9SKEL"
           strategy="afterInteractive"
@@ -42,28 +41,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen`}>
         
-        {/* IKLAN HEADER */}
-        <div className="w-full pt-4 px-4 bg-slate-50 no-print">
-          <div className="max-w-4xl mx-auto flex justify-center overflow-hidden">
-             <AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={728} height={90} />
-          </div>
-        </div>
-
         {/* KONTEN UTAMA */}
-        <main className="flex-grow relative">
+        <main className="flex-grow relative mt-4">
           {children}
           <SaweriaBox />
         </main>
 
-        {/* IKLAN FOOTER GLOBAL */}
+        {/* FOOTER BERSIH */}
         <div className="w-full bg-white border-t border-slate-200 py-6 mt-10 no-print">
           <div className="max-w-4xl mx-auto px-4 flex flex-col items-center text-center">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">Sponsored Support</span>
-            
-            <div className="w-full flex justify-center overflow-hidden">
-               <AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={728} height={90} />
-            </div>
-
             <p className="text-[10px] text-slate-300 font-medium mt-4">
               &copy; 2026 LayananDokumen.com
             </p>
