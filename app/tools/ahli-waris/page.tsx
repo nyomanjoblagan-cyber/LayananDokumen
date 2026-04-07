@@ -2,13 +2,14 @@
 
 /**
  * FILE: AhliWarisPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Pernyataan Ahli Waris
  * FEATURES:
  * - Dynamic Asset List (Safe Render)
  * - Pyramid Signature Layout
  * - Strict A4 Print Layout
  * - Mobile Menu Fixed
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -18,6 +19,9 @@ import {
   Edit3, Eye, ArrowLeftCircle, UserCheck, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
+
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface Heir {
@@ -104,6 +108,9 @@ function AhliWarisToolBuilder() {
   
   // Menggunakan Initial Data yang aman
   const [data, setData] = useState<HeirData>(INITIAL_DATA);
+  
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
 
   // SELF-HEALING EFFECT
   useEffect(() => {
@@ -118,7 +125,7 @@ function AhliWarisToolBuilder() {
   }, []);
 
   // --- HANDLERS ---
-  const handleDataChange = (field: keyof HeirData, val: any) => {
+  const handleDataChange = (field: keyof HeirData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
@@ -153,7 +160,7 @@ function AhliWarisToolBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset semua data ke default?')) {
+    if(window.confirm('Reset semua data ke default?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
@@ -161,11 +168,11 @@ function AhliWarisToolBuilder() {
   // --- TEMPLATE MENU (FIX MOBILE) ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Formal Legal
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Modern Clean
         </button>
@@ -177,7 +184,9 @@ function AhliWarisToolBuilder() {
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+            // Append T00:00:00 untuk mencegah UTC offset bug
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
         } catch { return dateString; }
     };
 
@@ -198,7 +207,7 @@ function AhliWarisToolBuilder() {
            <div className="text-justify px-1">
               <p className="mb-4">Kami yang bertanda tangan di bawah ini, para Ahli Waris dari Almarhum/Almarhumah <strong>{data.deceasedName}</strong>, dengan ini menyatakan dengan sesungguhnya dan berani angkat sumpah:</p>
               
-              <div className="pl-4 mb-4">
+              <div className="pl-4 mb-4 break-inside-avoid">
                  <p className="mb-1">Bahwa pada tanggal <strong>{formatDate(data.deceasedDate)}</strong> telah meninggal dunia di <strong>{data.deceasedLocation}</strong> seorang laki-laki/perempuan bernama:</p>
                  <table className="w-full mt-2 text-[11pt] ml-4">
                     <tbody>
@@ -209,9 +218,9 @@ function AhliWarisToolBuilder() {
                  </table>
               </div>
 
-              <p className="mb-4">Bahwa Almarhum/Almarhumah semasa hidupnya pernah menikah sah dan menurunkan Ahli Waris yang sah sebagai berikut:</p>
+              <p className="mb-4 break-inside-avoid">Bahwa Almarhum/Almarhumah semasa hidupnya pernah menikah sah dan menurunkan Ahli Waris yang sah sebagai berikut:</p>
               
-              <table className="w-full mb-6 border-collapse text-[10pt] border border-black font-sans">
+              <table className="w-full mb-6 border-collapse text-[10pt] border border-black font-sans break-inside-avoid">
                 <thead className="bg-slate-100 uppercase font-bold text-center">
                    <tr>
                       <th className="border border-black p-2 w-10">No</th>
@@ -232,10 +241,10 @@ function AhliWarisToolBuilder() {
                 </tbody>
               </table>
 
-              <p className="mb-2">Bahwa Almarhum/Almarhumah meninggalkan harta warisan (Tirkah) berupa:</p>
+              <p className="mb-2 break-inside-avoid">Bahwa Almarhum/Almarhumah meninggalkan harta warisan (Tirkah) berupa:</p>
               
               {/* RENDERING LIST ASET */}
-              <div className="mb-6 ml-4">
+              <div className="mb-6 ml-4 break-inside-avoid">
                  {safeAssets.length === 0 ? (
                     <p className="italic text-slate-400 text-sm">[Belum ada aset yang ditambahkan]</p>
                  ) : safeAssets.length === 1 ? (
@@ -249,18 +258,18 @@ function AhliWarisToolBuilder() {
                  )}
               </div>
               
-              <p className="indent-12">Demikian Surat Pernyataan ini kami buat dengan sebenarnya dalam keadaan sadar tanpa paksaan dari pihak manapun, dan apabila dikemudian hari ternyata pernyataan ini tidak benar, maka kami bersedia dituntut sesuai dengan ketentuan hukum yang berlaku (Pasal 263 KUHP tentang Pemalsuan Surat).</p>
+              <p className="indent-12 break-inside-avoid">Demikian Surat Pernyataan ini kami buat dengan sebenarnya dalam keadaan sadar tanpa paksaan dari pihak manapun, dan apabila dikemudian hari ternyata pernyataan ini tidak benar, maka kami bersedia dituntut sesuai dengan ketentuan hukum yang berlaku (Pasal 263 KUHP tentang Pemalsuan Surat).</p>
            </div>
 
            {/* AREA TTD */}
-           <div className="mt-8" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-8 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <p className="text-center mb-6">{data.city}, {formatDate(data.date)}</p>
               
               <div className="mb-10">
                  <p className="font-bold underline mb-6 text-center text-[10pt] uppercase">PARA AHLI WARIS:</p>
                  <div className="grid grid-cols-3 gap-y-12 gap-x-4 justify-items-center">
                     {safeHeirs.map((heir, idx) => (
-                       <div key={idx} className="flex flex-col items-center min-w-[120px]">
+                       <div key={idx} className="flex flex-col items-center min-w-[120px] break-inside-avoid">
                           <div className="h-20 flex items-center justify-center w-full mb-1 relative">
                              {idx === 0 && (
                                 <div className="border border-slate-400 text-[8pt] text-slate-400 w-16 h-8 flex items-center justify-center absolute bottom-0">
@@ -275,13 +284,13 @@ function AhliWarisToolBuilder() {
                  </div>
               </div>
 
-              <div className="border-t border-black/20 pt-8">
+              <div className="border-t border-black/20 pt-8 break-inside-avoid">
                  <div className="flex justify-between items-start">
                      <div className="w-[45%] text-center">
                         <p className="font-bold underline mb-6 text-[10pt]">SAKSI-SAKSI:</p>
                         <div className="space-y-8 text-left pl-8">
                            {safeWitnesses.map((w, i) => (
-                              <div key={i}>
+                              <div key={i} className="break-inside-avoid">
                                  <div className="flex items-end gap-2 mb-1">
                                     <span className="font-bold text-[10pt]">{i+1}. {w.name}</span>
                                  </div>
@@ -313,7 +322,7 @@ function AhliWarisToolBuilder() {
               <p className="text-emerald-600 font-bold">Keluarga Besar Alm. {data.deceasedName}</p>
            </div>
 
-           <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6" style={{ pageBreakInside: 'avoid' }}>
+           <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-2">Pewaris</p>
               <div className="grid grid-cols-[80px_1fr] gap-1 text-[10pt]">
                  <span className="text-slate-500">Nama</span><span className="font-bold uppercase">{data.deceasedName}</span>
@@ -321,11 +330,11 @@ function AhliWarisToolBuilder() {
               </div>
            </div>
 
-           <div className="mb-6" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mb-6 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-2">Daftar Ahli Waris</p>
               <div className="space-y-2">
                  {safeHeirs.map((heir, idx) => (
-                    <div key={idx} className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <div key={idx} className="flex items-center justify-between border-b border-slate-100 pb-2 break-inside-avoid">
                        <div className="flex items-center gap-3">
                           <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[9pt]">{idx+1}</div>
                           <div><p className="font-bold uppercase text-sm">{heir.name}</p><p className="text-[9pt] text-slate-500">{heir.relation}</p></div>
@@ -336,7 +345,7 @@ function AhliWarisToolBuilder() {
               </div>
            </div>
 
-           <div className="mb-6" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mb-6 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-2">Objek Waris (Tirkah)</p>
               <div className="bg-emerald-50/50 p-4 rounded-lg border border-emerald-100">
                   {safeAssets.length === 0 ? (
@@ -351,11 +360,11 @@ function AhliWarisToolBuilder() {
               </div>
            </div>
 
-           <div className="mt-8 pt-6 border-t border-slate-200" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-8 pt-6 border-t border-slate-200 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <p className="text-center text-xs text-slate-400 mb-8">{data.city}, {formatDate(data.date)}</p>
               <div className="grid grid-cols-3 gap-8 text-center mb-12">
                  {safeHeirs.map((h, i) => (
-                    <div key={i}>
+                    <div key={i} className="break-inside-avoid">
                        <div className="h-12 w-full"></div>
                        <p className="font-bold border-b border-slate-300 pb-1 text-[10pt] uppercase">{h.name}</p>
                        <p className="text-[8pt] text-slate-400 mt-0.5">Ahli Waris</p>
@@ -382,7 +391,7 @@ function AhliWarisToolBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -415,7 +424,13 @@ function AhliWarisToolBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -520,6 +535,9 @@ function AhliWarisToolBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
