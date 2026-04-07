@@ -1,15 +1,20 @@
 'use client';
 
+/**
+ * FILE: KatalogLengkapPage.tsx
+ * STATUS: PRODUCTION READY (FULL FEATURE)
+ * DESC: Katalog seluruh alat bantu administrasi dengan fitur pencarian.
+ */
+
 import { 
   ArrowLeft, Search, ExternalLink, Store, Users, Gavel, 
   Landmark, Truck, GraduationCap, Stethoscope, PartyPopper, 
-  Calculator, X, FileText
+  Calculator, X, FileText, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
 // --- KOMPONEN PENJARA IKLAN (SAFE MODE + RESPONSIVE WRAPPER) ---
-// Fitur: Mencegah layout pecah di HP jika iklan terlalu lebar
 const AdCage = ({ adKey, w, h }: { adKey: string, w: number, h: number }) => {
   const content = `
     <html>
@@ -137,10 +142,10 @@ export default function KatalogLengkapPage() {
       </div>
 
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 font-sans">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-emerald-600 transition-colors">
-            <ArrowLeft size={16} strokeWidth={2.5} /> Kembali ke Beranda
+            <ArrowLeftCircle size={20} className="text-emerald-500" /> Kembali
           </Link>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:inline">Database v2.1</span>
@@ -166,7 +171,7 @@ export default function KatalogLengkapPage() {
               Semua Alat Bantu <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">Administrasi Anda.</span>
             </h1>
-            <p className="text-slate-500 text-sm md:text-base max-w-xl">
+            <p className="text-slate-500 text-sm md:text-base max-w-xl font-medium">
                Temukan 50+ template surat otomatis. Mulai dari invoice bisnis, perjanjian legal, hingga surat izin sekolah. Gratis & instan.
             </p>
           </div>
@@ -197,10 +202,10 @@ export default function KatalogLengkapPage() {
           {filteredCatalog.length === 0 ? (
              <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
                 <p className="text-slate-400 font-bold">Tidak ada alat yang ditemukan untuk "{search}".</p>
-                <button onClick={() => setSearch('')} className="mt-2 text-emerald-600 text-sm font-bold hover:underline">Reset Pencarian</button>
+                <button onClick={() => setSearch('')} className="mt-2 text-emerald-600 text-sm font-bold hover:underline font-sans">Reset Pencarian</button>
              </div>
           ) : (
-             filteredCatalog.map((group, idx) => (
+              filteredCatalog.map((group, idx) => (
                 <section key={idx} className="relative">
                   <div className="sticky top-[64px] z-20 flex items-center gap-3 py-3 mb-6 bg-[#f8fafc]/95 backdrop-blur-sm border-b border-slate-200">
                     <div className={`p-1.5 rounded-lg bg-white shadow-sm border border-slate-100 ${group.color}`}>
@@ -223,7 +228,7 @@ export default function KatalogLengkapPage() {
                           <ExternalLink size={14} />
                         </div>
                         <div className="space-y-1 relative z-10">
-                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors uppercase tracking-tight">
                             {item.name}
                           </h3>
                           <p className="text-[11px] text-slate-500 leading-relaxed font-medium line-clamp-2 group-hover:text-slate-600">
@@ -234,7 +239,7 @@ export default function KatalogLengkapPage() {
                     ))}
                   </div>
 
-                  {/* IKLAN SISIPAN SETIAP SELESAI SATU KATEGORI */}
+                  {/* IKLAN SISIPAN */}
                   <div className="mt-8">
                      <AdCage adKey="8fd377728513d5d23b9caf7a2bba1a73" w={728} h={90} />
                   </div>
@@ -246,7 +251,7 @@ export default function KatalogLengkapPage() {
 
       <footer className="relative z-10 border-t border-slate-200 py-12 bg-white/50">
         <div className="max-w-5xl mx-auto px-6 text-center">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">&copy; 2026 LayananDokumen.com • Dokumen Aman & Instan</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-sans">&copy; 2026 LayananDokumen.com • Dokumen Aman & Instan</p>
         </div>
       </footer>
     </div>

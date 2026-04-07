@@ -4,11 +4,7 @@
  * FILE: IzinPasanganPage.tsx
  * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Izin Pasangan (Suami/Istri)
- * FEATURES:
- * - Dual Template (Formal Materai vs Sederhana)
- * - Full Editor UI with all original input fields
- * - Strict A4 Print Layout with page-break protection
- * - Timezone-Safe Date Rendering
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -140,7 +136,7 @@ function PartnerConsentBuilder() {
                 <div className="text-center w-56">
                   <p className="mb-4 font-bold uppercase text-xs tracking-widest">Pemberi Izin ({data.partnerRelation}),</p>
                   {templateId === 1 ? (
-                    <div className="border border-slate-300 w-20 h-14 mx-auto mb-2 flex items-center justify-center text-[8px] text-slate-400 italic uppercase font-sans">Materai 10.000</div>
+                    <div className="border border-slate-300 w-20 h-14 mx-auto mb-2 flex items-center justify-center text-[8px] text-slate-400 italic font-sans uppercase">MATERAI 10.000</div>
                   ) : (
                     <div className="h-16"></div>
                   )}
@@ -156,20 +152,30 @@ function PartnerConsentBuilder() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      <style jsx global>{`
+      
+      {/* GLOBAL CSS PRINT - FIXED TypeScript 2322 */}
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          #print-only-root { 
+            display: block !important; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            z-index: 9999; 
+            background: white; 
+          }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
-      {/* NAVBAR */}
+      {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2">
               <ArrowLeftCircle size={20} className="text-emerald-400" />
               <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
@@ -204,26 +210,26 @@ function PartnerConsentBuilder() {
               <div className="space-y-4">
                 <h3 className="text-[10px] font-black uppercase text-pink-600 tracking-widest border-b pb-1">Data Pasangan</h3>
                 <div className="grid grid-cols-2 gap-2">
-                  <button onClick={() => handleDataChange('partnerRelation', 'ISTRI')} className={`py-2 rounded-lg text-xs font-bold ${data.partnerRelation === 'ISTRI' ? 'bg-pink-600 text-white' : 'bg-slate-100 text-slate-400'}`}>ISTRI</button>
-                  <button onClick={() => handleDataChange('partnerRelation', 'SUAMI')} className={`py-2 rounded-lg text-xs font-bold ${data.partnerRelation === 'SUAMI' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'}`}>SUAMI</button>
+                  <button onClick={() => handleDataChange('partnerRelation', 'ISTRI')} className={`py-2 rounded-lg text-xs font-bold ${data.partnerRelation === 'ISTRI' ? 'bg-pink-600 text-white shadow-sm' : 'bg-slate-100 text-slate-400'}`}>ISTRI</button>
+                  <button onClick={() => handleDataChange('partnerRelation', 'SUAMI')} className={`py-2 rounded-lg text-xs font-bold ${data.partnerRelation === 'SUAMI' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-400'}`}>SUAMI</button>
                 </div>
-                <input className="w-full p-2 border rounded-lg text-sm font-bold" value={data.partnerName} onChange={e => handleDataChange('partnerName', e.target.value)} placeholder="Nama Pasangan" />
+                <input className="w-full p-2 border rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-pink-500 outline-none" value={data.partnerName} onChange={e => handleDataChange('partnerName', e.target.value)} placeholder="Nama Pasangan" />
                 <div className="grid grid-cols-2 gap-3">
-                  <input className="w-full p-2 border rounded-lg text-sm" value={data.partnerNik} onChange={e => handleDataChange('partnerNik', e.target.value)} placeholder="NIK" />
-                  <input className="w-full p-2 border rounded-lg text-sm" value={data.partnerJob} onChange={e => handleDataChange('partnerJob', e.target.value)} placeholder="Pekerjaan" />
+                  <input className="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-pink-500 outline-none" value={data.partnerNik} onChange={e => handleDataChange('partnerNik', e.target.value)} placeholder="NIK" />
+                  <input className="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-pink-500 outline-none" value={data.partnerJob} onChange={e => handleDataChange('partnerJob', e.target.value)} placeholder="Pekerjaan" />
                 </div>
-                <textarea className="w-full p-2 border rounded-lg text-xs h-16" value={data.partnerAddress} onChange={e => handleDataChange('partnerAddress', e.target.value)} placeholder="Alamat Pasangan" />
+                <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-pink-500 outline-none" value={data.partnerAddress} onChange={e => handleDataChange('partnerAddress', e.target.value)} placeholder="Alamat Pasangan" />
               </div>
 
               <div className="border-t pt-4 space-y-4">
                 <h3 className="text-[10px] font-black uppercase text-blue-600 tracking-widest border-b pb-1">Data Anda</h3>
-                <input className="w-full p-2 border rounded-lg text-sm font-bold uppercase" value={data.userName} onChange={e => handleDataChange('userName', e.target.value)} placeholder="Nama Anda" />
-                <input className="w-full p-2 border rounded-lg text-sm" value={data.userNik} onChange={e => handleDataChange('userNik', e.target.value)} placeholder="NIK Anda" />
+                <input className="w-full p-2 border rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.userName} onChange={e => handleDataChange('userName', e.target.value)} placeholder="Nama Anda" />
+                <input className="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" value={data.userNik} onChange={e => handleDataChange('userNik', e.target.value)} placeholder="NIK Anda" />
               </div>
 
               <div className="border-t pt-4 space-y-4">
                 <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-1">Tujuan Izin</h3>
-                <textarea className="w-full p-2 border rounded-lg text-xs h-24" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} placeholder="Keperluan..." />
+                <textarea className="w-full p-2 border rounded-lg text-xs h-24 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} placeholder="Keperluan..." />
                 <div className="grid grid-cols-2 gap-3">
                     <input className="w-full p-2 border rounded-lg text-xs uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
                     <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
@@ -242,12 +248,12 @@ function PartnerConsentBuilder() {
       </main>
 
       {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl">
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans">
           <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      <div id="print-only-root" className="hidden"><DocumentContent /></div>
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }

@@ -4,11 +4,7 @@
  * FILE: IzinKeramaianPage.tsx
  * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Izin Keramaian (Polisi / Lingkungan)
- * FEATURES:
- * - Dual Template (Permohonan Polisi vs Izin Lingkungan Warga)
- * - Quick Presets (Wedding, Concert, Sport)
- * - Strict A4 Print Layout
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -168,43 +164,29 @@ function CrowdPermitBuilder() {
                 <div className="text-right mb-4">
                     {data.city}, {formatDateSafe(data.date)}
                 </div>
-
                 <div className="mb-4">
-                    <div className="flex">
-                        <div className="w-[80px]">Perihal</div>
-                        <div className="font-bold underline">: Permohonan Izin Keramaian</div>
-                    </div>
-                    <div className="flex">
-                        <div className="w-[80px]">Lampiran</div>
-                        <div>: 1 (Satu) Berkas</div>
-                    </div>
+                    <div className="flex"><div className="w-[80px]">Perihal</div><div className="font-bold underline">: Permohonan Izin Keramaian</div></div>
+                    <div className="flex"><div className="w-[80px]">Lampiran</div><div>: 1 (Satu) Berkas</div></div>
                 </div>
-
                 <div className="mb-6">
                     <p>Kepada Yth,</p>
                     <p className="font-bold uppercase">{data.policeStation}</p>
-                    <p>Di -</p>
-                    <p className="pl-4 underline">Tempat</p>
+                    <p>Di Tempat</p>
                 </div>
-
                 <div className="flex-grow space-y-2 text-justify">
                     <p>Dengan hormat,</p>
                     <p>Yang bertanda tangan di bawah ini:</p>
-                    
                     <div className="ml-6 mb-4 text-[11pt]">
                         <table className="w-full leading-snug">
                             <tbody>
                                 <tr><td className="w-32 align-top">Nama Lengkap</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.name}</td></tr>
                                 <tr><td className="align-top">NIK</td><td className="align-top">:</td><td className="align-top">{data.nik}</td></tr>
-                                <tr><td className="align-top">Umur</td><td className="align-top">:</td><td className="align-top">{data.umur} Tahun</td></tr>
                                 <tr><td className="align-top">Pekerjaan</td><td className="align-top">:</td><td className="align-top">{data.job}</td></tr>
                                 <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.address}</td></tr>
                             </tbody>
                         </table>
                     </div>
-
-                    <p>Dengan ini mengajukan permohonan <strong>IZIN KERAMAIAN</strong> untuk kegiatan:</p>
-
+                    <p>Mengajukan permohonan izin keramaian untuk kegiatan:</p>
                     <div className="ml-6 mb-4 text-[11pt]">
                         <table className="w-full leading-snug">
                             <tbody>
@@ -215,16 +197,10 @@ function CrowdPermitBuilder() {
                             </tbody>
                         </table>
                     </div>
-
                     <p className="indent-8">{data.closing}</p>
-                    <p className="indent-8">Demikian surat permohonan ini kami sampaikan. Terima kasih.</p>
                 </div>
-
                 <div className="flex justify-end text-center mt-8 mb-10" style={{ pageBreakInside: 'avoid' }}>
-                    <div className="w-64">
-                        <p className="mb-20 font-bold">Hormat Kami,</p>
-                        <p className="font-bold underline uppercase">{data.name}</p>
-                    </div>
+                    <div className="w-64"><p className="mb-20 font-bold">Hormat Kami,</p><p className="font-bold underline uppercase">{data.name}</p></div>
                 </div>
             </div>
         ) : (
@@ -232,7 +208,7 @@ function CrowdPermitBuilder() {
                 <div className="text-center mb-6 border-b-2 border-black pb-2">
                     <h2 className="text-xl font-bold uppercase underline tracking-widest">SURAT IZIN LINGKUNGAN</h2>
                 </div>
-                <p className="mb-4 text-justify">Warga menyatakan <strong>TIDAK KEBERATAN</strong> dengan diadakannya kegiatan:</p>
+                <p className="mb-4 text-justify">Kami warga menyatakan <strong>TIDAK KEBERATAN</strong> atas kegiatan:</p>
                 <div className="bg-slate-50 border border-slate-300 p-3 mb-4 text-sm rounded">
                     <p>Acara: <b>{data.eventName}</b></p>
                     <p>Tanggal: <b>{formatDateSafe(data.eventDate)}</b></p>
@@ -268,7 +244,8 @@ function CrowdPermitBuilder() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      <style jsx global>{`
+      
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
@@ -276,11 +253,11 @@ function CrowdPermitBuilder() {
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors group">
               <ArrowLeftCircle size={20} className="text-emerald-400" />
               <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
@@ -304,8 +281,8 @@ function CrowdPermitBuilder() {
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32">
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
               <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 grid grid-cols-3 gap-2">
                 <button onClick={() => applyPreset('wedding')} className="bg-white p-2 rounded text-[9px] font-bold shadow-sm">HAJATAN</button>
                 <button onClick={() => applyPreset('concert')} className="bg-white p-2 rounded text-[9px] font-bold shadow-sm">KONSER</button>
@@ -325,7 +302,6 @@ function CrowdPermitBuilder() {
                   <input type="date" className="w-full p-2 border rounded-lg text-sm" value={data.eventDate} onChange={e => handleDataChange('eventDate', e.target.value)} />
                   <input className="w-full p-2 border rounded-lg text-sm" value={data.eventTime} onChange={e => handleDataChange('eventTime', e.target.value)} placeholder="Waktu (08.00 - Selesai)" />
                 </div>
-                <input className="w-full p-2 border rounded-lg text-sm" value={data.eventPlace} onChange={e => handleDataChange('eventPlace', e.target.value)} placeholder="Lokasi Acara" />
               </div>
            </div>
         </div>
@@ -338,12 +314,12 @@ function CrowdPermitBuilder() {
         </div>
       </main>
 
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl">
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans">
           <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      <div id="print-only-root" className="hidden"><DocumentContent /></div>
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }

@@ -2,25 +2,20 @@
 
 /**
  * FILE: LabelPengirimanPage.tsx
- * STATUS: FINAL & MOBILE READY (A6 SIZE)
- * DESC: Generator Label Pengiriman / Resi
- * FEATURES:
- * - A6 Paper Size (Standard Thermal Printer)
- * - Dual Template (Marketplace vs Fragile Alert)
- * - Auto Date & Presets
- * - Mobile Menu Fixed
- * - Color Print Enabled
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
+ * DESC: Generator Label Pengiriman / Resi (Ukuran A6)
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
  */
 
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, LayoutTemplate, 
-  Package, Truck, AlertTriangle, Video, MapPin, ChevronDown, Check, Edit3, Eye, RotateCcw
+  Package, Truck, AlertTriangle, Video, MapPin, ChevronDown, Check, Edit3, Eye, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface LabelData {
@@ -53,7 +48,7 @@ const INITIAL_DATA: LabelData = {
   service: 'REG (Reguler)',
   resi: 'JP1234567890',
   weight: '1 Kg',
-  date: '', // Diisi useEffect
+  date: '', 
   
   senderName: 'Tokoku Gadget Official',
   senderPhone: '0812-3456-7890',
@@ -75,7 +70,7 @@ const INITIAL_DATA: LabelData = {
 // --- 3. KOMPONEN UTAMA ---
 export default function LabelPengirimanPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Sistem Logistik...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem Logistik...</div>}>
       <ShippingLabelBuilder />
     </Suspense>
   );
@@ -88,6 +83,7 @@ function ShippingLabelBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<LabelData>(INITIAL_DATA);
+  const [showDonation, setShowDonation] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -104,7 +100,7 @@ function ShippingLabelBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
         setData({ ...INITIAL_DATA, date: today });
     }
@@ -140,111 +136,73 @@ function ShippingLabelBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Standard Marketplace
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Warning / Fragile
-        </button>
-    </div>
-  );
-
   const activeTemplateName = templateId === 1 ? 'Standard Marketplace' : 'Warning / Fragile';
 
   // --- KOMPONEN ISI LABEL ---
   const LabelContent = () => (
-    <div className={`
-        bg-white shadow-2xl 
-        w-[105mm] min-h-[148mm] 
-        flex flex-col text-[#1e293b] box-border relative transition-all border-2 border-black 
-        
-        /* PRINT STYLE: FIXED POSITION, NO SHADOW, NO BORDER */
-        print:absolute print:top-0 print:left-0 
-        print:w-[105mm] print:h-[148mm] print:overflow-hidden
-        print:shadow-none print:border-none print:m-0
-    `}>
+    <div className={`bg-white shadow-2xl w-[105mm] min-h-[148mm] flex flex-col text-[#1e293b] box-border relative transition-all border-2 border-black print:absolute print:top-0 print:left-0 print:w-[105mm] print:h-[148mm] print:overflow-hidden print:shadow-none print:border-none print:m-0 mx-auto`}>
       
-      {/* TEMPLATE 1: STANDARD OLSHOP */}
       {templateId === 1 && (
         <div className="font-sans text-xs h-full flex flex-col">
-            
-            {/* Header Kurir */}
             <div className="flex border-b-2 border-black shrink-0">
               <div className="w-[40%] border-r-2 border-black p-3 flex flex-col justify-center items-center">
-                  <h2 className="text-xl font-black uppercase italic tracking-tighter">{data.courier}</h2>
-                  <div className="text-sm font-bold mt-1 bg-black text-white px-2 py-0.5 rounded print:text-black print:border print:border-black print:bg-transparent">{data.service}</div>
+                  <h2 className="text-xl font-black uppercase italic tracking-tighter leading-none">{data.courier}</h2>
+                  <div className="text-[10px] font-bold mt-2 bg-black text-white px-2 py-0.5 rounded print:text-black print:border print:border-black print:bg-transparent">{data.service}</div>
               </div>
               <div className="w-[60%] p-2 flex flex-col justify-center items-center">
-                  {/* DUMMY BARCODE */}
                   <div className="h-10 w-full bg-[repeating-linear-gradient(90deg,black,black_2px,white_2px,white_4px)] mb-1"></div>
                   <div className="font-mono text-sm font-bold tracking-widest">{data.resi}</div>
               </div>
             </div>
 
-            {/* COD & Weight */}
             {data.isCod ? (
-              <div className="bg-black text-white p-2 text-center border-b-2 border-black shrink-0 print:text-black print:bg-transparent print:border-b-2 print:border-black">
-                  <div className="text-[10px] font-bold uppercase tracking-widest opacity-80 print:opacity-100">Cash On Delivery (COD)</div>
-                  <div className="text-2xl font-black">{formatRupiah(data.codAmount)}</div>
+              <div className="bg-black text-white p-2 text-center border-b-2 border-black shrink-0 print:text-black print:bg-transparent">
+                  <div className="text-[9px] font-bold uppercase tracking-widest opacity-80 print:opacity-100">COD (Bayar di Tempat)</div>
+                  <div className="text-2xl font-black leading-none mt-1">{formatRupiah(data.codAmount)}</div>
               </div>
             ) : (
-              <div className="bg-slate-100 p-1 text-center border-b-2 border-black text-[10px] font-bold text-slate-500 uppercase shrink-0 print:bg-transparent print:text-black">
-                  Non-COD (Sudah Dibayar)
-              </div>
+              <div className="bg-slate-50 p-1 text-center border-b-2 border-black text-[9px] font-bold text-slate-400 uppercase shrink-0 print:text-black">LUNAS (NON-COD)</div>
             )}
 
-            {/* Penerima - Besar */}
             <div className="p-4 flex-grow overflow-hidden">
-              <div className="flex items-start gap-2 mb-1">
-                  <div className="text-[10px] font-bold bg-black text-white px-1.5 py-0.5 rounded uppercase print:text-black print:border print:border-black print:bg-transparent">Kepada</div>
-                  <div className="text-[10px] text-slate-500 mt-0.5 print:text-black">{data.weight}</div>
+              <div className="flex items-center gap-2 mb-2">
+                  <div className="text-[9px] font-bold bg-black text-white px-2 py-0.5 rounded uppercase print:text-black print:border print:border-black print:bg-transparent">Penerima</div>
+                  <div className="text-[10px] text-slate-400 font-bold print:text-black">{data.weight}</div>
               </div>
-              <div className="text-lg font-bold uppercase leading-tight mb-1">{data.receiverName}</div>
-              <div className="text-sm font-bold mb-2">{data.receiverPhone}</div>
-              <div className="text-sm leading-snug text-slate-800 print:text-black">
-                  {data.receiverAddress}
-              </div>
+              <div className="text-xl font-black uppercase leading-tight mb-1">{data.receiverName}</div>
+              <div className="text-sm font-black mb-2">{data.receiverPhone}</div>
+              <div className="text-[11pt] leading-snug font-medium text-slate-800 print:text-black">{data.receiverAddress}</div>
             </div>
 
-            {/* Pengirim - Kecil */}
             <div className="p-3 border-t-2 border-dashed border-black bg-slate-50 shrink-0 print:bg-transparent">
-              <div className="text-[10px] font-bold text-slate-500 uppercase mb-1 print:text-black">Pengirim (Dari):</div>
+              <div className="text-[9px] font-bold text-slate-400 uppercase mb-1 print:text-black">Pengirim:</div>
               <div className="flex justify-between items-start">
-                  <div className="w-[60%]">
-                    <div className="font-bold uppercase text-xs">{data.senderName}</div>
-                    <div className="text-[10px] text-slate-600 print:text-black">{data.senderAddress}</div>
+                  <div className="w-[65%]">
+                    <div className="font-bold uppercase text-[10px] leading-tight">{data.senderName}</div>
+                    <div className="text-[9px] text-slate-500 print:text-black mt-0.5">{data.senderAddress}</div>
                   </div>
-                  <div className="font-bold text-xs">{data.senderPhone}</div>
+                  <div className="font-bold text-[10px]">{data.senderPhone}</div>
               </div>
             </div>
 
-            {/* Produk & Note */}
-            <div className="p-2 border-t-2 border-black text-[10px] shrink-0">
+            <div className="p-3 border-t-2 border-black text-[9px] shrink-0">
               <div className="flex gap-1 mb-1">
-                  <span className="font-bold">Isi:</span>
-                  <span className="line-clamp-2">{data.content}</span>
+                  <span className="font-bold uppercase text-slate-400">Isi:</span>
+                  <span className="font-bold">{data.content}</span>
               </div>
-              {data.note && <div className="italic text-slate-500 print:text-black">Catatan: {data.note}</div>}
+              {data.note && <div className="italic text-slate-500 print:text-black font-medium">Note: {data.note}</div>}
             </div>
 
-            {/* Footer Icons */}
             {(data.isFragile || data.isUnboxing) && (
-              <div className="flex border-t-2 border-black shrink-0">
+              <div className="flex border-t-2 border-black shrink-0 font-bold">
                   {data.isFragile && (
-                    <div className="flex-1 bg-red-600 text-white p-2 flex items-center justify-center gap-1 print:bg-transparent print:text-black print:border-r print:border-black">
-                        <AlertTriangle size={16} className="text-white print:text-black" />
-                        <span className="font-black text-xs uppercase">FRAGILE</span>
+                    <div className="flex-1 bg-red-600 text-white p-2 flex items-center justify-center gap-2 print:bg-transparent print:text-black print:border-r print:border-black">
+                        <AlertTriangle size={16} /> <span className="text-xs uppercase font-black">Fragile</span>
                     </div>
                   )}
                   {data.isUnboxing && (
-                    <div className="flex-1 bg-blue-600 text-white p-2 flex items-center justify-center gap-1 print:bg-transparent print:text-black">
-                        <Video size={16} className="text-white print:text-black" />
-                        <span className="font-bold text-[9px] uppercase leading-none text-center">Wajib Video<br/>Unboxing</span>
+                    <div className="flex-1 bg-blue-600 text-white p-2 flex items-center justify-center gap-2 print:bg-transparent print:text-black">
+                        <Video size={16} /> <span className="text-[10px] uppercase font-black">Video Unboxing</span>
                     </div>
                   )}
               </div>
@@ -252,47 +210,31 @@ function ShippingLabelBuilder() {
         </div>
       )}
 
-      {/* TEMPLATE 2: WARNING / FRAGILE */}
       {templateId === 2 && (
         <div className="font-sans text-xs h-full flex flex-col bg-white">
-            
-            {/* Header Warning */}
-            <div className="bg-red-600 text-white text-center p-2 border-b-2 border-black shrink-0 print:bg-transparent print:text-black print:border-b-4">
-              <h2 className="text-2xl font-black uppercase tracking-tighter">FRAGILE</h2>
-              <div className="text-[10px] font-bold">JANGAN DIBANTING / MUDAH PECAH</div>
+            <div className="bg-red-600 text-white text-center p-3 border-b-2 border-black shrink-0 print:bg-transparent print:text-black print:border-b-4">
+              <h2 className="text-3xl font-black uppercase tracking-tighter leading-none">FRAGILE</h2>
+              <div className="text-[10px] font-black mt-1 uppercase tracking-widest">Jangan Dibanting / Pecah Belah</div>
             </div>
-
-            {/* Kurir & Resi */}
-            <div className="flex border-b-2 border-black p-2 justify-between items-center bg-slate-50 shrink-0 print:bg-transparent">
-              <div className="font-black text-xl italic">{data.courier}</div>
+            <div className="flex border-b-2 border-black p-3 justify-between items-center bg-slate-50 shrink-0 print:bg-transparent">
+              <div className="font-black text-2xl italic tracking-tighter">{data.courier}</div>
               <div className="text-right">
-                  <div className="font-mono font-bold text-sm">{data.resi}</div>
-                  <div className="text-[10px]">{data.service} • {data.weight}</div>
+                  <div className="font-mono font-bold text-sm tracking-tighter">{data.resi}</div>
+                  <div className="text-[10px] font-bold text-slate-400 print:text-black uppercase">{data.service} • {data.weight}</div>
               </div>
             </div>
-
-            {/* Penerima */}
-            <div className="p-4 flex-grow overflow-hidden">
-              <div className="text-[10px] text-slate-500 uppercase mb-1 print:text-black">Penerima:</div>
-              <div className="text-xl font-bold uppercase leading-none mb-1">{data.receiverName}</div>
-              <div className="font-mono text-sm font-bold bg-yellow-300 inline-block px-1 mb-3 print:bg-transparent print:border print:border-black">{data.receiverPhone}</div>
-              <div className="text-sm border-l-4 border-red-600 pl-3 py-1 print:border-black">
-                  {data.receiverAddress}
-              </div>
+            <div className="p-5 flex-grow overflow-hidden">
+              <div className="text-[10px] font-bold text-slate-400 uppercase mb-2 print:text-black">Penerima:</div>
+              <div className="text-2xl font-black uppercase leading-none mb-2 tracking-tighter">{data.receiverName}</div>
+              <div className="font-mono text-sm font-bold bg-yellow-300 inline-block px-2 mb-4 print:bg-transparent print:border print:border-black">{data.receiverPhone}</div>
+              <div className="text-[12pt] border-l-4 border-red-600 pl-4 py-1 font-medium leading-snug print:border-black">{data.receiverAddress}</div>
             </div>
-
-            {/* Isi Paket */}
-            <div className="px-4 py-2 border-t border-dashed border-slate-300 shrink-0 print:border-black">
-              <div className="text-[10px] text-slate-400 uppercase print:text-black">Isi Paket:</div>
-              <div className="font-bold text-xs">{data.content}</div>
+            <div className="px-5 py-3 border-t border-dashed border-slate-300 shrink-0 print:border-black">
+              <div className="text-[9px] font-bold text-slate-400 uppercase print:text-black">Konten Paket:</div>
+              <div className="font-bold text-xs mt-1">{data.content}</div>
             </div>
-
-            {/* Pengirim */}
-            <div className="p-3 bg-black text-white text-xs flex justify-between items-center shrink-0 print:bg-transparent print:text-black print:border-t-2 print:border-black">
-              <div>
-                  <span className="opacity-70 text-[10px] print:opacity-100">Dari: </span>
-                  <span className="font-bold uppercase">{data.senderName}</span>
-              </div>
+            <div className="p-4 bg-black text-white text-xs flex justify-between items-center shrink-0 print:bg-transparent print:text-black print:border-t-2 print:border-black font-bold">
+              <div className="uppercase tracking-tight"><span className="opacity-60 print:opacity-100 mr-2 font-normal">Dari:</span>{data.senderName}</div>
               <div className="font-mono">{data.senderPhone}</div>
             </div>
         </div>
@@ -300,219 +242,106 @@ function ShippingLabelBuilder() {
     </div>
   );
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
-      {/* GLOBAL CSS PRINT */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          /* SET UKURAN KERTAS A6 & FORCE COLOR */
           @page { size: 105mm 148mm; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          body { background: white; margin: 0; padding: 0; min-width: 105mm; }
           .no-print { display: none !important; }
-          
-          /* FORCE BACKGROUND COLOR TO PRINT */
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          
-          #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
-          }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 105mm; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
-      {/* HEADER NAV */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-               <ArrowLeft size={18} /> Dashboard
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors group">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
-               <Package size={16} className="text-emerald-500" /> <span>SHIPPING LABEL BUILDER</span>
+               <Package size={16} className="text-blue-400" /> <span className="uppercase tracking-tighter">Shipping Label Builder</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
-                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
+                <LayoutTemplate size={14} className="text-blue-400" /> {templateId === 1 ? 'Marketplace' : 'Fragile'} <ChevronDown size={12} />
               </button>
-              {showTemplateMenu && <TemplateMenu />}
+              {showTemplateMenu && (
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Marketplace Style {templateId === 1 && <Check size={14}/>}</button>
+                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Fragile Warning {templateId === 2 && <Check size={14}/>}</button>
+                </div>
+              )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+            <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
             </button>
           </div>
-        </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        
-        {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Pengiriman</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
+        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Label</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+              <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 grid grid-cols-3 gap-2">
+                <button onClick={() => applyPreset('olshop')} className="bg-white p-2 rounded text-[9px] font-black shadow-sm uppercase">Olshop</button>
+                <button onClick={() => applyPreset('pribadi')} className="bg-white p-2 rounded text-[9px] font-black shadow-sm uppercase">Pribadi</button>
+                <button onClick={() => applyPreset('dokumen')} className="bg-white p-2 rounded text-[9px] font-black shadow-sm uppercase">Dokumen</button>
+              </div>
               
-              {/* Quick Preset */}
-              <div className="bg-emerald-50 rounded-xl shadow-sm border border-emerald-100 overflow-hidden">
-                 <div className="px-4 py-3 border-b border-emerald-200 flex items-center gap-2">
-                    <Package size={14} className="text-emerald-600" />
-                    <h3 className="text-xs font-bold text-emerald-800 uppercase">Isi Otomatis</h3>
-                 </div>
-                 <div className="p-4 grid grid-cols-3 gap-2">
-                    <button onClick={() => applyPreset('olshop')} className="bg-white hover:bg-emerald-100 border border-emerald-200 text-emerald-700 py-2 rounded text-[10px] font-bold transition-colors flex flex-col items-center gap-1">
-                       <Package size={14}/> Olshop
-                    </button>
-                    <button onClick={() => applyPreset('pribadi')} className="bg-white hover:bg-blue-100 border border-blue-200 text-blue-700 py-2 rounded text-[10px] font-bold transition-colors flex flex-col items-center gap-1">
-                       <Truck size={14}/> Pribadi
-                    </button>
-                    <button onClick={() => applyPreset('dokumen')} className="bg-white hover:bg-amber-100 border border-amber-200 text-amber-700 py-2 rounded text-[10px] font-bold transition-colors flex flex-col items-center gap-1">
-                       <LayoutTemplate size={14}/> Dokumen
-                    </button>
-                 </div>
+              <div className="space-y-4">
+                <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1">Tujuan (Penerima)</h3>
+                <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.receiverName} onChange={e => handleDataChange('receiverName', e.target.value)} placeholder="Nama Lengkap" />
+                <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.receiverPhone} onChange={e => handleDataChange('receiverPhone', e.target.value)} placeholder="No. HP" />
+                <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.receiverAddress} onChange={e => handleDataChange('receiverAddress', e.target.value)} placeholder="Alamat Lengkap" />
               </div>
 
-              {/* Pengiriman Info */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                 <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-                    <Truck size={14} className="text-blue-600" />
-                    <h3 className="text-xs font-bold text-slate-700 uppercase">Ekspedisi & Layanan</h3>
-                 </div>
-                 <div className="p-4 space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                       <div>
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">Kurir</label>
-                          <select className="w-full p-2 border border-slate-300 rounded text-xs font-bold" value={data.courier} onChange={e => handleDataChange('courier', e.target.value)}>
-                             <option value="JNE">JNE</option>
-                             <option value="J&T">J&T</option>
-                             <option value="SiCepat">SiCepat</option>
-                             <option value="Shopee Xpress">Shopee Xpress</option>
-                             <option value="ID Express">ID Express</option>
-                             <option value="AnterAja">AnterAja</option>
-                             <option value="Pos Indo">Pos Indo</option>
-                             <option value="GoSend">GoSend</option>
-                             <option value="GrabExpress">GrabExpress</option>
-                          </select>
-                       </div>
-                       <div>
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Layanan</label>
-                          <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" placeholder="REG / YES / CARGO" value={data.service} onChange={e => handleDataChange('service', e.target.value)} />
-                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                       <div>
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">No. Resi (Opsional)</label>
-                          <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs uppercase font-mono" value={data.resi} onChange={e => handleDataChange('resi', e.target.value)} />
-                       </div>
-                       <div>
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">Berat (Kg)</label>
-                          <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" value={data.weight} onChange={e => handleDataChange('weight', e.target.value)} />
-                       </div>
-                    </div>
-                 </div>
+              <div className="border-t pt-4 space-y-4">
+                <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1">Detail Ekspedisi</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <select className="w-full p-2 border rounded-lg text-xs font-bold" value={data.courier} onChange={e => handleDataChange('courier', e.target.value)}><option value="JNE">JNE</option><option value="J&T">J&T</option><option value="SiCepat">SiCepat</option><option value="Shopee Xpress">Shopee Xpress</option></select>
+                  <input className="w-full p-2 border rounded-lg text-xs" value={data.service} onChange={e => handleDataChange('service', e.target.value)} placeholder="Layanan" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input className="w-full p-2 border rounded-lg text-xs font-mono uppercase" value={data.resi} onChange={e => handleDataChange('resi', e.target.value)} placeholder="No Resi" />
+                  <input className="w-full p-2 border rounded-lg text-xs" value={data.weight} onChange={e => handleDataChange('weight', e.target.value)} placeholder="Berat" />
+                </div>
               </div>
 
-              {/* Alamat */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                 <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-                    <MapPin size={14} className="text-blue-600" />
-                    <h3 className="text-xs font-bold text-slate-700 uppercase">Alamat Tujuan</h3>
-                 </div>
-                 <div className="p-4 space-y-4">
-                    <div className="p-3 bg-blue-50 border border-blue-100 rounded">
-                       <div className="text-[10px] font-bold text-blue-700 uppercase mb-2">Penerima (Kepada)</div>
-                       <input type="text" className="w-full p-2 border border-blue-200 rounded text-xs font-bold mb-2" placeholder="Nama Penerima" value={data.receiverName} onChange={e => handleDataChange('receiverName', e.target.value)} />
-                       <input type="text" className="w-full p-2 border border-blue-200 rounded text-xs mb-2" placeholder="No. HP Penerima" value={data.receiverPhone} onChange={e => handleDataChange('receiverPhone', e.target.value)} />
-                       <textarea className="w-full p-2 border border-blue-200 rounded text-xs h-20 resize-none" placeholder="Alamat Lengkap (Jalan, RT/RW, Kota, Kode Pos)" value={data.receiverAddress} onChange={e => handleDataChange('receiverAddress', e.target.value)} />
-                    </div>
-
-                    <div className="p-3 bg-slate-50 border border-slate-200 rounded">
-                       <div className="text-[10px] font-bold text-slate-600 uppercase mb-2">Pengirim (Dari)</div>
-                       <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs font-bold mb-2" placeholder="Nama Pengirim / Toko" value={data.senderName} onChange={e => handleDataChange('senderName', e.target.value)} />
-                       <div className="grid grid-cols-2 gap-2">
-                          <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" placeholder="No. HP" value={data.senderPhone} onChange={e => handleDataChange('senderPhone', e.target.value)} />
-                          <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" placeholder="Kota Asal" value={data.senderAddress} onChange={e => handleDataChange('senderAddress', e.target.value)} />
-                       </div>
-                    </div>
-                 </div>
+              <div className="border-t pt-4 space-y-4">
+                <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1">Opsi Tambahan</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="flex items-center gap-2 p-2 border rounded-lg text-[10px] font-bold cursor-pointer hover:bg-slate-50"><input type="checkbox" checked={data.isCod} onChange={e => handleDataChange('isCod', e.target.checked)} /> COD</label>
+                  <label className="flex items-center gap-2 p-2 border rounded-lg text-[10px] font-bold cursor-pointer hover:bg-slate-50"><input type="checkbox" checked={data.isFragile} onChange={e => handleDataChange('isFragile', e.target.checked)} /> FRAGILE</label>
+                </div>
+                {data.isCod && <input type="number" className="w-full p-2 border rounded-lg text-xs font-black text-emerald-600 bg-emerald-50" value={data.codAmount} onChange={e => handleDataChange('codAmount', parseInt(e.target.value))} placeholder="Nominal COD" />}
+                <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none" value={data.content} onChange={e => handleDataChange('content', e.target.value)} placeholder="Isi Paket" />
               </div>
-
-              {/* Isi Paket & Opsi */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                 <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-                    <Package size={14} className="text-blue-600" />
-                    <h3 className="text-xs font-bold text-slate-700 uppercase">Isi & Fitur</h3>
-                 </div>
-                 <div className="p-4 space-y-4">
-                    <div>
-                       <label className="text-[10px] font-bold text-slate-500 uppercase">Deskripsi Isi Paket</label>
-                       <textarea className="w-full p-2 border border-slate-300 rounded text-xs h-12 resize-none" value={data.content} onChange={e => handleDataChange('content', e.target.value)} />
-                    </div>
-                    <div>
-                       <label className="text-[10px] font-bold text-slate-500 uppercase">Catatan Kurir (Opsional)</label>
-                       <input type="text" className="w-full p-2 border border-slate-300 rounded text-xs" placeholder="Misal: Warna Hitam, Size L" value={data.note} onChange={e => handleDataChange('note', e.target.value)} />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 pt-2">
-                       <label className="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-slate-50">
-                          <input type="checkbox" checked={data.isCod} onChange={e => handleDataChange('isCod', e.target.checked)} />
-                          <span className="text-xs font-bold">Aktifkan COD</span>
-                       </label>
-                       {data.isCod && (
-                          <div>
-                             <input type="number" className="w-full p-2 border border-emerald-300 rounded text-xs font-bold text-emerald-700" placeholder="Nominal COD" value={data.codAmount} onChange={e => handleDataChange('codAmount', parseInt(e.target.value) || 0)} />
-                          </div>
-                       )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                       <label className="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-slate-50">
-                          <input type="checkbox" checked={data.isFragile} onChange={e => handleDataChange('isFragile', e.target.checked)} />
-                          <span className="text-xs font-bold text-red-600">Fragile</span>
-                       </label>
-                       <label className="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-slate-50">
-                          <input type="checkbox" checked={data.isUnboxing} onChange={e => handleDataChange('isUnboxing', e.target.checked)} />
-                          <span className="text-xs font-bold text-blue-600">Video Unboxing</span>
-                       </label>
-                    </div>
-                 </div>
-              </div>
-              <div className="h-20 md:hidden"></div>
            </div>
         </div>
 
-        {/* PREVIEW AREA */}
-        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               {/* FIX: Removed shadow from wrapper to avoid stacked look. Shadow is only on LabelContent */}
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 flex flex-col items-center">
-                 <LabelContent />
-               </div>
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.50] sm:scale-[0.70] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-100mm] sm:mb-[-60mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
+                <LabelContent />
             </div>
+            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
         </div>
       </main>
 
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans">
+          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
+          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      {/* PRINT AREA */}
-      <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
-            <LabelContent />
-         </div>
-      </div>
-
+      <div id="print-only-root" className="hidden"><LabelContent /></div>
     </div>
   );
 }

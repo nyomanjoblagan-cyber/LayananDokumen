@@ -4,11 +4,7 @@
  * FILE: IMBSederhanaPage.tsx
  * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Keterangan IMB Sederhana / Ijin Bangunan Desa
- * FEATURES:
- * - Full Editor UI with all original input fields
- * - Strict A4 Print Layout with page-break protection
- * - Timezone-Safe Date Rendering
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -189,11 +185,11 @@ function IMBBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* GLOBAL CSS PRINT */}
-      <style jsx global>{`
+      {/* GLOBAL CSS PRINT - FIXED TypeScript 2322 */}
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
           #print-only-root { 
             display: block !important; 
@@ -206,7 +202,7 @@ function IMBBuilder() {
           }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
       {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans shrink-0">
@@ -237,32 +233,18 @@ function IMBBuilder() {
             </div>
 
            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar font-sans">
-              {/* Instansi Desa */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <div className="flex items-center gap-2 border-b pb-2"><Building2 size={14} className="text-blue-500"/><h3 className="text-xs font-bold uppercase text-slate-700 tracking-tight">Instansi / Desa</h3></div>
                  <div className="space-y-3">
-                    <div>
-                        <label className="text-[9px] text-slate-400 font-bold uppercase block mb-1">Kop Surat (Instansi)</label>
-                        <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.issuerOffice} onChange={e => handleDataChange('issuerOffice', e.target.value)} />
-                    </div>
-                    <div>
-                        <label className="text-[9px] text-slate-400 font-bold uppercase block mb-1">Nomor Surat</label>
-                        <input className="w-full p-2 border rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} />
-                    </div>
+                    <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.issuerOffice} onChange={e => handleDataChange('issuerOffice', e.target.value)} placeholder="Kop Surat" />
+                    <input className="w-full p-2 border rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
                     <div className="grid grid-cols-2 gap-3">
-                      <div>
-                          <label className="text-[9px] text-slate-400 font-bold uppercase block mb-1">Jabatan Pejabat</label>
-                          <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.villageJob} onChange={e => handleDataChange('villageJob', e.target.value)} />
-                      </div>
-                      <div>
-                          <label className="text-[9px] text-slate-400 font-bold uppercase block mb-1">Nama Pejabat</label>
-                          <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none" value={data.villageHead} onChange={e => handleDataChange('villageHead', e.target.value)} />
-                      </div>
+                        <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.villageJob} onChange={e => handleDataChange('villageJob', e.target.value)} placeholder="Jabatan Pejabat" />
+                        <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none" value={data.villageHead} onChange={e => handleDataChange('villageHead', e.target.value)} placeholder="Nama Pejabat" />
                     </div>
                  </div>
               </div>
 
-              {/* Data Pemilik */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <div className="flex items-center gap-2 border-b pb-2"><UserCircle2 size={14} className="text-blue-500"/><h3 className="text-xs font-bold uppercase text-slate-700 tracking-tight">Data Pemilik</h3></div>
                  <div className="space-y-3">
@@ -272,7 +254,6 @@ function IMBBuilder() {
                  </div>
               </div>
 
-              {/* Spesifikasi Bangunan */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <div className="flex items-center gap-2 border-b pb-2"><Ruler size={14} className="text-emerald-500"/><h3 className="text-xs font-bold uppercase text-slate-700 tracking-tight">Spesifikasi Bangunan</h3></div>
                  <div className="space-y-3">
@@ -290,7 +271,6 @@ function IMBBuilder() {
                     <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} placeholder="Tujuan Surat" />
                  </div>
               </div>
-
               <div className="h-20 md:hidden"></div>
            </div>
         </div>
@@ -300,8 +280,6 @@ function IMBBuilder() {
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center shrink-0">
                 <DocumentContent />
             </div>
-            
-            {/* INJEKSI KOMPONEN MONETISASI */}
             <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
         </div>
       </main>
@@ -312,13 +290,7 @@ function IMBBuilder() {
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> PREVIEW</button>
       </div>
 
-      {/* PRINT PORTAL */}
-      <div id="print-only-root" className="hidden">
-         <div className="bg-white">
-            <DocumentContent />
-         </div>
-      </div>
-
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }

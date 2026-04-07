@@ -4,11 +4,7 @@
  * FILE: IzinRenovasiPage.tsx
  * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Izin Renovasi Rumah
- * FEATURES:
- * - Dual Template (Permohonan RT/RW vs Izin Tetangga)
- * - Full Editor UI with all original input fields
- * - Strict A4 Print Layout with page-break protection
- * - Timezone-Safe Date Rendering
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -55,7 +51,7 @@ const INITIAL_DATA: RenovasiData = {
 
 export default function IzinRenovasiPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat...</div>}>
       <RenovasiBuilder />
     </Suspense>
   );
@@ -142,7 +138,7 @@ function RenovasiBuilder() {
                       </div>
 
                       <p className="mt-4 break-inside-avoid">
-                          Melalui surat ini, saya bermaksud untuk memohon izin kepada Bapak Ketua RT/RW dan warga sekitar guna melakukan pekerjaan <strong>{data.renovationType}</strong> pada bangunan rumah saya tersebut di atas.
+                          Melalui surat ini, saya bermaksud untuk memohon izin guna melakukan pekerjaan <strong>{data.renovationType}</strong> pada bangunan rumah saya tersebut di atas.
                       </p>
 
                       <p className="break-inside-avoid">
@@ -150,10 +146,10 @@ function RenovasiBuilder() {
                       </p>
 
                       <p className="break-inside-avoid">
-                          Selama pengerjaan renovasi berlangsung, saya akan berusaha semaksimal mungkin untuk menjaga kebersihan lingkungan serta meminimalisir gangguan suara maupun debu material. Saya juga memohon maaf yang sebesar-besarnya kepada Bapak dan warga sekitar atas ketidaknyamanan yang mungkin timbul.
+                          Selama pengerjaan renovasi berlangsung, saya akan berusaha semaksimal mungkin untuk menjaga kebersihan lingkungan serta meminimalisir gangguan suara maupun debu material.
                       </p>
 
-                      <p className="mt-4 break-inside-avoid">Demikian surat permohonan ini saya sampaikan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.</p>
+                      <p className="mt-4 break-inside-avoid">Demikian surat permohonan ini saya sampaikan. Atas perhatiannya, saya ucapkan terima kasih.</p>
                   </div>
 
                   <div className="shrink-0 mt-8 mb-4" style={{ pageBreakInside: 'avoid' }}>
@@ -162,7 +158,6 @@ function RenovasiBuilder() {
                               <p className="mb-20 font-bold uppercase text-xs">Mengetahui,<br/>Ketua RT {data.rt}</p>
                               <p className="font-bold underline uppercase">{data.ketuaRt}</p>
                           </div>
-                          
                           <div className="text-center w-60">
                               <p className="mb-20 font-bold uppercase text-xs">Hormat Saya,</p>
                               <p className="font-bold underline uppercase">{data.ownerName}</p>
@@ -175,11 +170,7 @@ function RenovasiBuilder() {
                   <div className="text-center mb-8 border-b-2 border-black pb-4">
                       <h1 className="text-xl font-black uppercase underline tracking-widest">SURAT IZIN TETANGGA</h1>
                   </div>
-
-                  <p className="mb-4 text-justify">
-                      Kami yang bertanda tangan di bawah ini adalah warga tetangga dari lokasi bangunan:
-                  </p>
-
+                  <p className="mb-4 text-justify">Kami yang bertanda tangan di bawah ini adalah warga tetangga dari lokasi bangunan:</p>
                   <div className="bg-slate-50 border border-slate-300 p-4 mb-6 text-sm rounded break-inside-avoid">
                       <div className="grid grid-cols-[140px_10px_1fr] gap-1">
                           <span>Pemilik Bangunan</span><span>:</span><span className="font-bold uppercase">{data.ownerName}</span>
@@ -187,11 +178,7 @@ function RenovasiBuilder() {
                           <span>Jenis Pekerjaan</span><span>:</span><span>{data.renovationType}</span>
                       </div>
                   </div>
-
-                  <p className="mb-4 text-justify break-inside-avoid">
-                      Dengan ini menyatakan <strong>TIDAK KEBERATAN</strong> atas rencana renovasi yang akan dilakukan oleh Bapak/Ibu {data.ownerName}, selama pengerjaan tersebut menjaga ketertiban lingkungan.
-                  </p>
-
+                  <p className="mb-4 text-justify break-inside-avoid">Dengan ini menyatakan <strong>TIDAK KEBERATAN</strong> atas rencana renovasi yang akan dilakukan, selama tetap menjaga ketertiban umum.</p>
                   <div className="mb-6 flex-grow">
                       <table className="w-full border-collapse border border-black text-sm">
                           <thead>
@@ -203,9 +190,7 @@ function RenovasiBuilder() {
                               </tr>
                           </thead>
                           <tbody>
-                              {[
-                                {n:1, p:'Kanan'}, {n:2, p:'Kiri'}, {n:3, p:'Depan'}, {n:4, p:'Belakang'}
-                              ].map((item) => (
+                              {[{n:1, p:'Kanan'}, {n:2, p:'Kiri'}, {n:3, p:'Depan'}, {n:4, p:'Belakang'}].map((item) => (
                                   <tr key={item.n} className="h-12 break-inside-avoid">
                                       <td className="border border-black text-center">{item.n}.</td>
                                       <td className="border border-black px-2"></td>
@@ -216,7 +201,6 @@ function RenovasiBuilder() {
                           </tbody>
                       </table>
                   </div>
-
                   <div className="text-right mt-auto shrink-0 break-inside-avoid">
                       <p className="mb-1">{data.city}, {formatDateSafe(data.date)}</p>
                       <p className="mb-20 font-bold uppercase text-xs">Pemilik Bangunan,</p>
@@ -232,17 +216,17 @@ function RenovasiBuilder() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      <style jsx global>{`
+      
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
-      {/* NAVBAR */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
@@ -251,7 +235,7 @@ function RenovasiBuilder() {
             </Link>
             <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
-               <Hammer size={16} className="text-amber-500" /> <span>RENOVATION PERMIT BUILDER</span>
+               <Hammer size={16} className="text-amber-500" /> <span className="uppercase tracking-tighter">RENOVATION PERMIT BUILDER</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -273,40 +257,38 @@ function RenovasiBuilder() {
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        {/* EDITOR */}
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Data Renovasi</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32">
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-amber-600 tracking-widest"><UserCircle2 size={14}/> Identitas Pemilik</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.ownerName} onChange={e => handleDataChange('ownerName', e.target.value)} placeholder="Nama Pemilik" />
-                 <input className="w-full p-2 border rounded text-xs" value={data.phone} onChange={e => handleDataChange('phone', e.target.value)} placeholder="No. HP" />
-                 <textarea className="w-full p-2 border rounded text-xs h-16" value={data.address} onChange={e => handleDataChange('address', e.target.value)} placeholder="Alamat Rumah" />
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold" value={data.ownerName} onChange={e => handleDataChange('ownerName', e.target.value)} placeholder="Nama Pemilik" />
+                 <input className="w-full p-2 border rounded-lg text-xs" value={data.phone} onChange={e => handleDataChange('phone', e.target.value)} placeholder="No. HP" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs h-16" value={data.address} onChange={e => handleDataChange('address', e.target.value)} placeholder="Alamat Rumah" />
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-blue-600 tracking-widest"><Info size={14}/> Detail Renovasi</h3>
-                 <input className="w-full p-2 border rounded text-xs" value={data.renovationType} onChange={e => handleDataChange('renovationType', e.target.value)} placeholder="Jenis Pekerjaan" />
+                 <input className="w-full p-2 border rounded-lg text-xs" value={data.renovationType} onChange={e => handleDataChange('renovationType', e.target.value)} placeholder="Jenis Pekerjaan" />
                  <div className="grid grid-cols-2 gap-3">
-                    <input type="date" className="w-full p-2 border rounded text-xs" value={data.startDate} onChange={e => handleDataChange('startDate', e.target.value)} />
-                    <input type="date" className="w-full p-2 border rounded text-xs" value={data.endDate} onChange={e => handleDataChange('endDate', e.target.value)} />
+                    <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.startDate} onChange={e => handleDataChange('startDate', e.target.value)} />
+                    <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.endDate} onChange={e => handleDataChange('endDate', e.target.value)} />
                  </div>
-                 <input className="w-full p-2 border rounded text-xs" value={data.workerCount} onChange={e => handleDataChange('workerCount', e.target.value)} placeholder="Jumlah Tukang" />
+                 <input className="w-full p-2 border rounded-lg text-xs" value={data.workerCount} onChange={e => handleDataChange('workerCount', e.target.value)} placeholder="Jumlah Tukang" />
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase border-b pb-2 flex items-center gap-2 text-slate-400 tracking-widest"><MapPin size={14}/> Wilayah RT/RW</h3>
                  <div className="grid grid-cols-2 gap-3">
-                    <input className="w-full p-2 border rounded text-xs" value={data.rt} onChange={e => handleDataChange('rt', e.target.value)} placeholder="RT" />
-                    <input className="w-full p-2 border rounded text-xs" value={data.rw} onChange={e => handleDataChange('rw', e.target.value)} placeholder="RW" />
+                    <input className="w-full p-2 border rounded-lg text-xs" value={data.rt} onChange={e => handleDataChange('rt', e.target.value)} placeholder="RT" />
+                    <input className="w-full p-2 border rounded-lg text-xs" value={data.rw} onChange={e => handleDataChange('rw', e.target.value)} placeholder="RW" />
                  </div>
-                 <input className="w-full p-2 border rounded text-xs" value={data.ketuaRt} onChange={e => handleDataChange('ketuaRt', e.target.value)} placeholder="Ketua RT" />
-                 <input className="w-full p-2 border rounded text-xs uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
+                 <input className="w-full p-2 border rounded-lg text-xs" value={data.ketuaRt} onChange={e => handleDataChange('ketuaRt', e.target.value)} placeholder="Ketua RT" />
+                 <input className="w-full p-2 border rounded-lg text-xs uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
               </div>
            </div>
         </div>
 
-        {/* PREVIEW */}
         <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
                 <DocumentContent />
@@ -315,13 +297,12 @@ function RenovasiBuilder() {
         </div>
       </main>
 
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl">
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans">
           <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      <div id="print-only-root" className="hidden"><DocumentContent /></div>
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }
