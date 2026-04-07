@@ -2,13 +2,15 @@
 
 /**
  * FILE: CVMakerPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator CV (Curriculum Vitae)
  * FEATURES:
  * - Dual Template (ATS vs Visual Sidebar)
  * - Dynamic Experience & Education List
  * - Mobile Menu Fixed
  * - Strict A4 Print Layout
+ * - Memory-Leak Safe Photo Upload
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -19,8 +21,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface Experience {
@@ -115,10 +117,23 @@ function CVToolBuilder() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [data, setData] = useState<CVData>(INITIAL_DATA);
 
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
+  // Memory Leak Prevention for Photo
+  useEffect(() => {
+    return () => {
+        if (photo) URL.revokeObjectURL(photo);
+    };
+  }, [photo]);
+
   // --- HANDLERS ---
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setPhoto(URL.createObjectURL(file));
+    if (file) {
+        if (photo) URL.revokeObjectURL(photo);
+        setPhoto(URL.createObjectURL(file));
+    }
   };
 
   const handlePersonalChange = (field: keyof CVData, val: string) => {
@@ -169,20 +184,23 @@ function CVToolBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset CV ke awal?')) {
+    if(window.confirm('Reset CV ke awal?')) {
         setData(INITIAL_DATA);
-        setPhoto(null);
+        if (photo) {
+            URL.revokeObjectURL(photo);
+            setPhoto(null);
+        }
     }
   };
 
   // --- TEMPLATE MENU ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             ATS Friendly (Clean)
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Modern Sidebar (Visual)
         </button>
@@ -196,7 +214,7 @@ function CVToolBuilder() {
       return (
         <div className="font-sans text-[#1e293b] leading-relaxed p-[20mm]">
            {/* Header */}
-           <div className="text-center border-b-2 border-slate-900 pb-4 mb-6">
+           <div className="text-center border-b-2 border-slate-900 pb-4 mb-6 break-inside-avoid">
               <h1 className="text-3xl font-bold uppercase tracking-wide mb-1">{data.fullName}</h1>
               <div className="text-lg text-slate-600 font-medium mb-2">{data.jobTitle}</div>
               <div className="flex justify-center gap-4 text-xs text-slate-500 flex-wrap">
@@ -208,17 +226,17 @@ function CVToolBuilder() {
            </div>
 
            {/* Summary */}
-           <div className="mb-6">
+           <div className="mb-6 break-inside-avoid">
               <h2 className="text-sm font-bold uppercase border-b border-slate-300 mb-2 pb-1 tracking-wider">Professional Summary</h2>
               <p className="text-sm text-justify leading-relaxed">{data.summary}</p>
            </div>
 
            {/* Experience */}
            <div className="mb-6">
-              <h2 className="text-sm font-bold uppercase border-b border-slate-300 mb-3 pb-1 tracking-wider">Work Experience</h2>
+              <h2 className="text-sm font-bold uppercase border-b border-slate-300 mb-3 pb-1 tracking-wider break-inside-avoid">Work Experience</h2>
               <div className="space-y-4">
                  {data.experience.map(exp => (
-                    <div key={exp.id}>
+                    <div key={exp.id} className="break-inside-avoid">
                        <div className="flex justify-between items-baseline mb-1">
                           <h3 className="font-bold text-sm">{exp.role}</h3>
                           <span className="text-xs font-medium text-slate-500">{exp.date}</span>
@@ -232,10 +250,10 @@ function CVToolBuilder() {
 
            {/* Education */}
            <div className="mb-6">
-              <h2 className="text-sm font-bold uppercase border-b border-slate-300 mb-3 pb-1 tracking-wider">Education</h2>
+              <h2 className="text-sm font-bold uppercase border-b border-slate-300 mb-3 pb-1 tracking-wider break-inside-avoid">Education</h2>
               <div className="space-y-3">
                  {data.education.map(edu => (
-                    <div key={edu.id}>
+                    <div key={edu.id} className="break-inside-avoid">
                        <div className="flex justify-between items-baseline mb-1">
                           <h3 className="font-bold text-sm">{edu.school}</h3>
                           <span className="text-xs font-medium text-slate-500">{edu.date}</span>
@@ -248,7 +266,7 @@ function CVToolBuilder() {
            </div>
 
            {/* Skills */}
-           <div className="mb-6">
+           <div className="mb-6 break-inside-avoid">
               <h2 className="text-sm font-bold uppercase border-b border-slate-300 mb-2 pb-1 tracking-wider">Skills & Languages</h2>
               <div className="text-sm">
                  <div className="mb-2"><span className="font-bold">Hard Skills:</span> {data.skills.join(', ')}</div>
@@ -265,7 +283,7 @@ function CVToolBuilder() {
            <div className="w-[35%] bg-slate-900 print:bg-slate-900 text-white p-6 print:p-6 flex flex-col gap-6 shrink-0">
               <div className="flex flex-col items-center text-center">
                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-slate-700 mb-4 bg-slate-800 print:bg-slate-800 shrink-0">
-                    {photo ? <img src={photo} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-500"><User size={40}/></div>}
+                    {photo ? <img src={photo} className="w-full h-full object-cover" alt="Profile" /> : <div className="w-full h-full flex items-center justify-center text-slate-500"><User size={40}/></div>}
                  </div>
                  <h1 className="text-lg font-bold uppercase tracking-wide mb-1 text-white">{data.fullName}</h1>
                  <div className="text-xs text-blue-300 font-medium">{data.jobTitle}</div>
@@ -306,17 +324,17 @@ function CVToolBuilder() {
            {/* Main Content Kanan */}
            <div className="w-[65%] p-8 bg-white text-slate-800 flex flex-col gap-8">
               {/* Summary */}
-              <div>
+              <div className="break-inside-avoid">
                  <h2 className="text-lg font-bold uppercase text-blue-800 border-b-2 border-blue-100 mb-3 pb-1">Profile</h2>
                  <p className="text-sm text-justify leading-relaxed text-slate-600">{data.summary}</p>
               </div>
 
               {/* Experience */}
               <div>
-                 <h2 className="text-lg font-bold uppercase text-blue-800 border-b-2 border-blue-100 mb-4 pb-1">Experience</h2>
+                 <h2 className="text-lg font-bold uppercase text-blue-800 border-b-2 border-blue-100 mb-4 pb-1 break-inside-avoid">Experience</h2>
                  <div className="space-y-5">
                     {data.experience.map(exp => (
-                       <div key={exp.id} className="relative pl-4 border-l-2 border-slate-200">
+                       <div key={exp.id} className="relative pl-4 border-l-2 border-slate-200 break-inside-avoid">
                           <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-blue-500 print:bg-blue-500"></div>
                           <h3 className="font-bold text-sm text-slate-900">{exp.role}</h3>
                           <div className="flex justify-between text-xs text-slate-500 mb-2">
@@ -331,10 +349,10 @@ function CVToolBuilder() {
 
               {/* Education */}
               <div>
-                 <h2 className="text-lg font-bold uppercase text-blue-800 border-b-2 border-blue-100 mb-4 pb-1">Education</h2>
+                 <h2 className="text-lg font-bold uppercase text-blue-800 border-b-2 border-blue-100 mb-4 pb-1 break-inside-avoid">Education</h2>
                  <div className="space-y-4">
                     {data.education.map(edu => (
-                       <div key={edu.id} className="bg-slate-50 print:bg-slate-50 p-3 rounded border-l-4 border-blue-500 print:border-blue-500">
+                       <div key={edu.id} className="bg-slate-50 print:bg-slate-50 p-3 rounded border-l-4 border-blue-500 print:border-blue-500 break-inside-avoid">
                           <h3 className="font-bold text-sm text-slate-900">{edu.school}</h3>
                           <div className="text-xs text-slate-600 mb-1">{edu.degree}</div>
                           <div className="flex justify-between text-[10px] text-slate-500">
@@ -365,7 +383,7 @@ function CVToolBuilder() {
             .print-table thead { height: 0mm; } 
             .print-table tfoot { height: 0mm; } 
             .print-content-wrapper { padding: 0; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -397,7 +415,13 @@ function CVToolBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -418,11 +442,11 @@ function CVToolBuilder() {
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                       <div className="flex items-center gap-4">
                          <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all overflow-hidden relative group" onClick={() => fileInputRef.current?.click()}>
-                            {photo ? <img src={photo} className="w-full h-full object-cover" /> : <Upload size={20} className="text-slate-300" />}
+                            {photo ? <img src={photo} className="w-full h-full object-cover" alt="Profile" /> : <Upload size={20} className="text-slate-300" />}
                             {photo && <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X size={16} className="text-white" onClick={(e) => { e.stopPropagation(); setPhoto(null); }} /></div>}
                          </div>
                          <div className="flex-1">
-                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+                            <input type="file" id="photo-upload" aria-label="Upload Photo" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
                             <button onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-blue-600 hover:underline">Upload Foto</button>
                             <div className="text-[10px] text-slate-400 mt-1">Disarankan rasio 1:1</div>
                          </div>
@@ -513,6 +537,9 @@ function CVToolBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
