@@ -2,13 +2,13 @@
 
 /**
  * FILE: HutangPiutangPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Perjanjian Hutang Piutang
  * FEATURES:
- * - Dual Template (Legal Formal vs Simple Statement)
+ * - Dual Template (Legal Formal 2 Hal vs Sederhana 1 Hal)
+ * - Auto Calculation & Presets (Personal/Business)
  * - Strict A4 Print Layout
- * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * - Integrated Saweria Donation Modal
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -122,7 +122,7 @@ function DebtAgreementBuilder() {
   }, []);
 
   const formatRupiah = (num: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   };
 
   const formatDateSafe = (dateString: string) => {
@@ -163,7 +163,7 @@ function DebtAgreementBuilder() {
   };
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date();
         const nextYear = new Date();
         nextYear.setFullYear(nextYear.getFullYear() + 1);
@@ -182,7 +182,7 @@ function DebtAgreementBuilder() {
   ];
   const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
 
-  // --- KOMPONEN ISI DOKUMEN ---
+  // --- ISI DOKUMEN ---
   const DocumentContent = () => (
     <div className="w-full h-full relative text-slate-900 font-serif text-[11pt]">
       
@@ -226,7 +226,7 @@ function DebtAgreementBuilder() {
                   </div>
                </div>
 
-               <p className="mb-4 leading-relaxed">Para Pihak sepakat untuk mengadakan perjanjian hutang piutang dengan ketentuan sebagai berikut:</p>
+               <p className="mb-4 leading-relaxed">Para Pihak sepakat untuk mengadakan perjanjian hutang piutang dengan ketentuan dan syarat-syarat sebagai berikut:</p>
 
                <div className="space-y-4 text-sm flex-grow">
                   <div className="break-inside-avoid">
@@ -263,12 +263,12 @@ function DebtAgreementBuilder() {
                       <div className="break-inside-avoid">
                           <div className="font-bold uppercase text-xs underline mb-2">PASAL 4 : SANKSI & KETERLAMBATAN</div>
                           <p className="text-justify leading-relaxed">{data.penalty}</p>
-                          <p className="text-justify mt-2 leading-relaxed">Apabila Pihak Kedua Wanprestasi atau tidak dapat melunasi hutang hingga jatuh tempo, maka Pihak Pertama memiliki hak penuh untuk menjual aset jaminan yang disebutkan pada Pasal 3 guna menutupi sisa hutang.</p>
+                          <p className="text-justify mt-2 leading-relaxed">Apabila Pihak Kedua Wanprestasi atau tidak dapat melunasi hutang hingga jatuh tempo, maka Pihak Pertama memiliki hak penuh untuk menjual aset jaminan yang disebutkan pada Pasal 3 guna menutupi sisa hutang Pihak Kedua.</p>
                       </div>
 
                       <div className="break-inside-avoid">
                           <div className="font-bold uppercase text-xs underline mb-2">PASAL 5 : PENYELESAIAN PERSELISIHAN</div>
-                          <p className="text-justify leading-relaxed">Apabila terjadi perselisihan sehubungan dengan perjanjian ini, kedua belah pihak sepakat untuk menyelesaikannya secara kekeluargaan. Apabila tidak tercapai kata sepakat, maka akan diselesaikan melalui jalur hukum.</p>
+                          <p className="text-justify leading-relaxed">Apabila terjadi perselisihan sehubungan dengan perjanjian ini, kedua belah pihak sepakat untuk menyelesaikannya secara kekeluargaan (musyawarah untuk mufakat). Apabila tidak tercapai kata sepakat, maka akan diselesaikan melalui jalur hukum yang berlaku.</p>
                       </div>
                    </div>
 
@@ -364,7 +364,7 @@ function DebtAgreementBuilder() {
     </div>
   );
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
+  if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
@@ -413,7 +413,7 @@ function DebtAgreementBuilder() {
               )}
             </div>
             <button onClick={() => { window.print(); setShowDonation(true); }} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
             </button>
           </div>
         </div>
@@ -424,7 +424,7 @@ function DebtAgreementBuilder() {
         {/* INPUT SIDEBAR */}
         <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Perjanjian</h2>
+                <h2 className="font-bold text-slate-700 flex items-center gap-2 text-xs uppercase tracking-widest"><Edit3 size={16} /> Isi Formulir</h2>
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
@@ -514,8 +514,10 @@ function DebtAgreementBuilder() {
 
         {/* PREVIEW AREA */}
         <div className={`flex-1 h-full bg-slate-200/50 relative overflow-hidden flex flex-col items-center p-0 md:p-8 overflow-y-auto ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                <DocumentContent />
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center shrink-0">
+                <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+                  <DocumentContent />
+                </div>
             </div>
             
             {/* INJEKSI KOMPONEN MONETISASI */}
@@ -530,9 +532,9 @@ function DebtAgreementBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT PORTAL (Strict Clean) */}
+      {/* PRINT PORTAL */}
       <div id="print-only-root" className="hidden">
-         <div className="bg-white">
+         <div className="bg-white flex flex-col p-[20mm]">
             <DocumentContent />
          </div>
       </div>

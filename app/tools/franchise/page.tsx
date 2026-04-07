@@ -4,21 +4,28 @@
  * FILE: FranchisePage.tsx
  * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Perjanjian Waralaba / Franchise Agreement
- * FEATURES:
- * - Dual Template (Contract vs Appointment Letter)
- * - Strict A4 Print Layout
- * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Store, ShieldCheck, User, 
-  FileText, BadgeCheck, Coins, LayoutTemplate, ChevronDown, Check, Edit3, Eye, RotateCcw, ArrowLeftCircle
+  Printer, 
+  Store, 
+  ShieldCheck, 
+  FileText, 
+  BadgeCheck, 
+  Coins, 
+  LayoutTemplate, 
+  ChevronDown, 
+  Check, 
+  Edit3, 
+  Eye, 
+  RotateCcw, 
+  ArrowLeftCircle 
 } from 'lucide-react';
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
+// Pastikan file ini ada di: src/components/DocumentServices.tsx
 import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
@@ -26,27 +33,19 @@ interface FranchiseData {
   city: string;
   date: string;
   docNo: string;
-  
-  // Franchisor
   p1Name: string;
   p1Title: string;
   p1Company: string;
   p1Brand: string;
   p1Address: string;
-
-  // Franchisee
   p2Name: string;
   p2ID: string;
   p2Address: string;
   p2Location: string;
-
-  // Detail Bisnis
   franchiseFee: string;
   royaltyFee: string;
   marketingFee: string;
   contractDuration: string;
-  
-  // Saksi
   witness1: string;
   witness2: string;
 }
@@ -54,25 +53,21 @@ interface FranchiseData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: FranchiseData = {
   city: 'JAKARTA',
-  date: '', // Diisi useEffect
+  date: '', 
   docNo: 'FRA/LGL/2026/012',
-  
   p1Name: 'DODI PRASETYO',
   p1Title: 'Direktur Utama',
   p1Company: 'PT. KULINER NUSANTARA JAYA',
   p1Brand: 'Kopi Kenangan Rakyat',
   p1Address: 'Menara Bisnis Lt. 12, Jl. HR Rasuna Said, Jakarta Selatan',
-
   p2Name: 'IWAN SETIAWAN',
   p2ID: '3273012345670001',
   p2Address: 'Jl. Merdeka No. 88, Bandung, Jawa Barat',
   p2Location: 'Cihampelas Walk, Bandung (Unit G-05)',
-
   franchiseFee: 'Rp 150.000.000,-',
   royaltyFee: '5% dari Omzet Kotor',
   marketingFee: '1% dari Omzet Kotor',
   contractDuration: '5 (Lima) Tahun',
-  
   witness1: 'SITI RAHMAWATI, S.H.',
   witness2: 'ANDI WIJAYA'
 };
@@ -87,7 +82,6 @@ export default function FranchisePage() {
 }
 
 function FranchiseBuilder() {
-  // --- STATE SYSTEM ---
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
@@ -95,7 +89,6 @@ function FranchiseBuilder() {
   const [isClient, setIsClient] = useState(false);
   const [showDonation, setShowDonation] = useState(false);
 
-  // Hydration & Initial Date Fix
   useEffect(() => {
     setIsClient(true);
     setData(prev => ({ 
@@ -109,12 +102,11 @@ function FranchiseBuilder() {
   };
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -128,18 +120,15 @@ function FranchiseBuilder() {
     </div>
   );
 
-  // --- KOMPONEN ISI SURAT ---
   const ContentInside = () => {
     const formatDateSafe = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            // FIX: Append time to prevent timezone shift
             return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
         } catch { return dateString; }
     };
 
     if (templateId === 1) {
-      // --- TEMPLATE 1: KLASIK SERIF ---
       return (
         <div className="font-serif text-[11pt] leading-relaxed text-justify text-black">
           <div className="text-center mb-8">
@@ -163,7 +152,7 @@ function FranchiseBuilder() {
                         <tr><td className="font-bold align-top">Alamat</td><td>: {data.p1Address}</td></tr>
                       </tbody>
                     </table>
-                    <p className="mt-2">Bertindak untuk dan atas nama <b>{data.p1Company}</b> selaku Pemilik Merek <b>"{data.p1Brand}"</b>, selanjutnya disebut <b>PIHAK PERTAMA (FRANCHISOR)</b>.</p>
+                    <p className="mt-2 text-sm">Bertindak untuk dan atas nama <b>{data.p1Company}</b> selaku Pemilik Merek <b>"{data.p1Brand}"</b>, selanjutnya disebut <b>PIHAK PERTAMA (FRANCHISOR)</b>.</p>
                   </div>
               </div>
               <div className="flex break-inside-avoid">
@@ -176,7 +165,7 @@ function FranchiseBuilder() {
                         <tr><td className="font-bold align-top">Alamat</td><td>: {data.p2Address}</td></tr>
                       </tbody>
                     </table>
-                    <p className="mt-2">Bertindak atas nama pribadi, bermaksud menjalankan usaha di <b>{data.p2Location}</b>, selanjutnya disebut <b>PIHAK KEDUA (FRANCHISEE)</b>.</p>
+                    <p className="mt-2 text-sm">Bertindak atas nama pribadi, bermaksud menjalankan usaha di <b>{data.p2Location}</b>, selanjutnya disebut <b>PIHAK KEDUA (FRANCHISEE)</b>.</p>
                   </div>
               </div>
           </div>
@@ -185,13 +174,13 @@ function FranchiseBuilder() {
 
           <div className="space-y-4 mb-8">
               <div className="break-inside-avoid">
-                <h3 className="font-bold text-center underline uppercase mb-1">Pasal 1: PEMBERIAN HAK</h3>
-                <p>Pihak Pertama memberikan hak eksklusif kepada Pihak Kedua untuk menggunakan merek dan sistem <b>{data.p1Brand}</b> di lokasi <b>{data.p2Location}</b>.</p>
+                <h3 className="font-bold text-center underline uppercase mb-1 text-[10pt]">Pasal 1: PEMBERIAN HAK</h3>
+                <p className="text-sm">Pihak Pertama memberikan hak eksklusif kepada Pihak Kedua untuk menggunakan merek dan sistem <b>{data.p1Brand}</b> di lokasi <b>{data.p2Location}</b>.</p>
               </div>
 
               <div className="break-inside-avoid">
-                <h3 className="font-bold text-center underline uppercase mb-1">Pasal 2: BIAYA & ROYALTI</h3>
-                <ol className="list-decimal list-inside space-y-1">
+                <h3 className="font-bold text-center underline uppercase mb-1 text-[10pt]">Pasal 2: BIAYA & ROYALTI</h3>
+                <ol className="list-decimal list-inside space-y-1 text-sm">
                   <li>Franchise Fee: <b>{data.franchiseFee}</b> dibayar di muka.</li>
                   <li>Royalty Fee: <b>{data.royaltyFee}</b> dibayar setiap bulan.</li>
                   <li>Marketing Fee: <b>{data.marketingFee}</b> dibayar setiap bulan.</li>
@@ -199,17 +188,12 @@ function FranchiseBuilder() {
               </div>
 
               <div className="break-inside-avoid">
-                <h3 className="font-bold text-center underline uppercase mb-1">Pasal 3: JANGKA WAKTU</h3>
-                <p>Perjanjian ini berlaku selama <b>{data.contractDuration}</b> terhitung sejak tanggal ditandatanganinya perjanjian ini.</p>
-              </div>
-
-              <div className="break-inside-avoid">
-                  <h3 className="font-bold text-center underline uppercase mb-1">Pasal 4: PENYELESAIAN PERSELISIHAN</h3>
-                  <p>Segala perselisihan akan diselesaikan secara musyawarah. Apabila tidak tercapai kata sepakat, akan diselesaikan di Pengadilan Negeri {data.city}.</p>
+                <h3 className="font-bold text-center underline uppercase mb-1 text-[10pt]">Pasal 3: JANGKA WAKTU</h3>
+                <p className="text-sm">Perjanjian ini berlaku selama <b>{data.contractDuration}</b> terhitung sejak tanggal ditandatanganinya perjanjian ini.</p>
               </div>
           </div>
 
-          <p className="mb-8">
+          <p className="mb-8 text-sm italic">
             Demikian perjanjian ini dibuat dalam 2 (dua) rangkap bermaterai cukup.
           </p>
 
@@ -217,15 +201,15 @@ function FranchiseBuilder() {
             <table className="w-full text-center">
               <tbody>
                 <tr>
-                  <td className="pb-24 font-bold w-1/2 align-top uppercase">PIHAK PERTAMA</td>
-                  <td className="pb-24 font-bold w-1/2 align-top uppercase">PIHAK KEDUA</td>
+                  <td className="pb-24 font-bold w-1/2 align-top uppercase text-sm">PIHAK PERTAMA</td>
+                  <td className="pb-24 font-bold w-1/2 align-top uppercase text-sm">PIHAK KEDUA</td>
                 </tr>
                 <tr>
-                  <td className="uppercase font-bold underline">({data.p1Name})</td>
-                  <td className="uppercase font-bold underline">({data.p2Name})</td>
+                  <td className="uppercase font-bold underline text-sm">({data.p1Name})</td>
+                  <td className="uppercase font-bold underline text-sm">({data.p2Name})</td>
                 </tr>
                 <tr>
-                  <td className="pt-12 pb-16 font-bold text-xs text-slate-500 align-top uppercase tracking-widest" colSpan={2}>Saksi-Saksi:</td>
+                  <td className="pt-12 pb-16 font-bold text-[9pt] text-slate-500 align-top uppercase tracking-widest" colSpan={2}>Saksi-Saksi:</td>
                 </tr>
                 <tr>
                   <td className="uppercase font-bold text-sm">({data.witness1})</td>
@@ -237,7 +221,6 @@ function FranchiseBuilder() {
         </div>
       );
     } else {
-      // --- TEMPLATE 2: MODERN CORPORATE ---
       return (
         <div className="font-sans text-[10pt] leading-snug text-slate-800">
           <div className="flex justify-between items-start border-b-4 border-blue-900 pb-4 mb-6 shrink-0">
@@ -297,10 +280,6 @@ function FranchiseBuilder() {
                     </div>
                  </div>
               </div>
-              <div className="border-l-4 border-blue-900 pl-4 py-1 break-inside-avoid">
-                 <h4 className="font-bold text-blue-900 uppercase text-xs mb-1">Pasal 3 &mdash; Ketentuan</h4>
-                 <p className="text-justify text-slate-600 text-xs">Berlaku selama <b>{data.contractDuration}</b>. Franchisee wajib mematuhi SOP dan menjaga kerahasiaan bisnis.</p>
-              </div>
           </div>
 
           <div className="flex items-end justify-between pt-8 border-t-2 border-slate-900 mt-auto break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
@@ -327,12 +306,10 @@ function FranchiseBuilder() {
     }
   };
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center text-slate-400 font-sans">Memuat...</div>;
+  if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
-      {/* CSS PRINT FIXED */}
       <style jsx global>{`
         @media print {
             @page { size: A4 portrait; margin: 0; }
@@ -347,7 +324,6 @@ function FranchiseBuilder() {
         }
       `}</style>
 
-      {/* HEADER NAVY */}
       <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
          <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -365,14 +341,6 @@ function FranchiseBuilder() {
                   </button>
                   {showTemplateMenu && <TemplateMenu />}
                </div>
-
-               <div className="relative md:hidden">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
-                    Template <ChevronDown size={14}/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
                <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
@@ -398,44 +366,31 @@ function FranchiseBuilder() {
                </div>
 
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><BadgeCheck size={12}/> Franchisor (Pihak 1)</h3>
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><BadgeCheck size={12}/> Franchisor</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <input className="w-full p-2 border rounded text-xs font-bold" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} placeholder="Nama Direktur/Penanggung Jawab" />
-                      <input className="w-full p-2 border rounded text-xs" value={data.p1Title} onChange={e => handleDataChange('p1Title', e.target.value)} placeholder="Jabatan" />
+                      <input className="w-full p-2 border rounded text-xs font-bold" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} placeholder="Nama Direktur" />
                       <input className="w-full p-2 border rounded text-xs" value={data.p1Company} onChange={e => handleDataChange('p1Company', e.target.value)} placeholder="Nama Perusahaan" />
-                      <input className="w-full p-2 border rounded text-xs" value={data.p1Brand} onChange={e => handleDataChange('p1Brand', e.target.value)} placeholder="Nama Merek Waralaba" />
-                      <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} placeholder="Alamat Resmi Kantor" />
+                      <input className="w-full p-2 border rounded text-xs" value={data.p1Brand} onChange={e => handleDataChange('p1Brand', e.target.value)} placeholder="Nama Merek" />
+                      <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} placeholder="Alamat Resmi" />
                   </div>
                </div>
 
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Store size={12}/> Franchisee (Pihak 2)</h3>
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Store size={12}/> Franchisee</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <input className="w-full p-2 border rounded text-xs font-bold" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} placeholder="Nama Lengkap Mitra" />
+                      <input className="w-full p-2 border rounded text-xs font-bold" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} placeholder="Nama Mitra" />
                       <input className="w-full p-2 border rounded text-xs" value={data.p2ID} onChange={e => handleDataChange('p2ID', e.target.value)} placeholder="Nomor KTP" />
-                      <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} placeholder="Alamat Sesuai KTP" />
-                      <input className="w-full p-2 border rounded text-xs" value={data.p2Location} onChange={e => handleDataChange('p2Location', e.target.value)} placeholder="Lokasi Lokasi Outlet/Cabang" />
+                      <input className="w-full p-2 border rounded text-xs" value={data.p2Location} onChange={e => handleDataChange('p2Location', e.target.value)} placeholder="Lokasi Outlet" />
                   </div>
                </div>
 
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Coins size={12}/> Investasi & Biaya</h3>
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Coins size={12}/> Biaya</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500 uppercase">Franchise Fee</label><input className="w-full p-2 border rounded text-xs" value={data.franchiseFee} onChange={e => handleDataChange('franchiseFee', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500 uppercase">Royalty Fee</label><input className="w-full p-2 border rounded text-xs" value={data.royaltyFee} onChange={e => handleDataChange('royaltyFee', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500 uppercase">Marketing Fee</label><input className="w-full p-2 border rounded text-xs" value={data.marketingFee} onChange={e => handleDataChange('marketingFee', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500 uppercase">Durasi Kontrak</label><input className="w-full p-2 border rounded text-xs font-bold" value={data.contractDuration} onChange={e => handleDataChange('contractDuration', e.target.value)} /></div>
+                      <input className="w-full p-2 border rounded text-xs" value={data.franchiseFee} onChange={e => handleDataChange('franchiseFee', e.target.value)} placeholder="Franchise Fee" />
+                      <input className="w-full p-2 border rounded text-xs" value={data.royaltyFee} onChange={e => handleDataChange('royaltyFee', e.target.value)} placeholder="Royalty Fee" />
                   </div>
                </div>
-
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><ShieldCheck size={12}/> Saksi Hukum</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <input className="w-full p-2 border rounded text-xs" value={data.witness1} onChange={e => handleDataChange('witness1', e.target.value)} placeholder="Nama Saksi 1" />
-                      <input className="w-full p-2 border rounded text-xs" value={data.witness2} onChange={e => handleDataChange('witness2', e.target.value)} placeholder="Nama Saksi 2" />
-                  </div>
-               </div>
-               <div className="h-20 md:hidden"></div>
             </div>
          </div>
 

@@ -2,13 +2,13 @@
 
 /**
  * FILE: SuratJaminanPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Jaminan Garansi Produk/Jasa
  * FEATURES:
- * - Dual Template (Certificate vs Formal Letter)
- * - Strict A4 Print Layout
+ * - Dual Template (Sertifikat Gold vs Surat Formal)
+ * - Full Editor UI with all input fields
  * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * - Integrated Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -103,7 +103,7 @@ function WarrantyBuilder() {
   };
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
         setData({ ...INITIAL_DATA, date: today, purchaseDate: today });
     }
@@ -128,7 +128,6 @@ function WarrantyBuilder() {
     const formatDateSafe = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            // FIX: Append T00:00:00 to prevent day shift in local timezone
             return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle:'long'});
         } catch { return dateString; }
     };
@@ -284,7 +283,7 @@ function WarrantyBuilder() {
     }
   };
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 bg-slate-50">Memuat Studio Garansi...</div>;
+  if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800 overflow-x-hidden">
@@ -308,8 +307,9 @@ function WarrantyBuilder() {
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-bold uppercase tracking-widest text-xs">
-              <ArrowLeft size={18} /> Dashboard
+            <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">

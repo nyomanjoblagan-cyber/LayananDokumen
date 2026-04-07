@@ -2,7 +2,7 @@
 
 /**
  * FILE: GadaiAsetPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Perjanjian Gadai
  * FEATURES:
  * - Dual Template (Formal Legal vs Simple Receipt)
@@ -15,7 +15,7 @@ import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
   Wallet, ShieldCheck, Scale, CalendarDays, FileText, User, Box, 
-  Edit3, Eye, Briefcase, RotateCcw
+  Edit3, Eye, Briefcase, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -122,7 +122,7 @@ function GadaiBuilder() {
   };
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date();
         const nextYear = new Date(today);
         nextYear.setFullYear(today.getFullYear() + 1);
@@ -188,6 +188,8 @@ function GadaiBuilder() {
             </div>
           </div>
 
+          <p className="mb-4 text-justify break-inside-avoid">Kedua belah pihak telah bersepakat untuk mengadakan perjanjian gadai dengan ketentuan sebagai berikut:</p>
+
           <div className="space-y-6">
             <div className="break-inside-avoid">
               <div className="font-bold uppercase mb-2 text-sm border-b border-black inline-block">PASAL 1 : NILAI PINJAMAN</div>
@@ -212,6 +214,13 @@ function GadaiBuilder() {
                 <div className="font-bold uppercase mb-2 text-sm border-b border-black inline-block">PASAL 4 : WANPRESTASI</div>
                 <p className="text-sm text-justify">Apabila sampai batas waktu yang ditentukan PIHAK KEDUA belum melunasi hutangnya, maka PIHAK PERTAMA berhak untuk mengambil tindakan hukum atau menjual aset jaminan tersebut untuk menutupi hutang PIHAK KEDUA.</p>
             </div>
+
+            {data.additionalClause && (
+              <div className="break-inside-avoid">
+                <div className="font-bold uppercase mb-2 text-sm border-b border-black inline-block">PASAL 5 : LAIN-LAIN</div>
+                <p className="text-sm whitespace-pre-wrap text-justify">{data.additionalClause}</p>
+              </div>
+            )}
           </div>
 
           <p className="mt-8 mb-8 text-sm text-justify text-slate-600 italic break-inside-avoid">Demikian perjanjian ini dibuat rangkap 2 (dua) di atas kertas bermaterai cukup dan mempunyai kekuatan hukum yang sama.</p>
@@ -288,20 +297,35 @@ function GadaiBuilder() {
     }
   };
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 bg-slate-50">Memuat...</div>;
+  if (!isClient) return null; // CRITICAL Fix for Deployment Hydration Error
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800 overflow-x-hidden">
       
-      {/* HEADER NAV */}
+      {/* CSS PRINT FIXED */}
+      <style jsx global>{`
+        @media print {
+          @page { size: A4 portrait; margin: 0; }
+          .no-print { display: none !important; }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
+          .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+          .print-table thead { height: 15mm; display: table-header-group; } 
+          .print-table tfoot { height: 15mm; display: table-footer-group; } 
+          .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
+          .break-inside-avoid, tr, td { page-break-inside: avoid !important; break-inside: avoid !important; }
+        }
+      `}</style>
+
+      {/* HEADER NAVBAR */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans shrink-0">
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-bold uppercase tracking-widest text-xs">
-              <ArrowLeft size={18} /> Dashboard
+              <ArrowLeftCircle size={20} className="text-emerald-400" /> Dashboard
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-widest">
                <Briefcase size={16} className="text-blue-400" /> <span>GADAI ASET BUILDER</span>
             </div>
           </div>
@@ -309,13 +333,13 @@ function GadaiBuilder() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium transition-colors min-w-[160px] justify-between">
-                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{templateId === 1 ? 'Formal' : 'Ringkas'}</span></div>
+                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{templateId === 1 ? 'Formal (Lengkap)' : 'Ringkas (1 Hal)'}</span></div>
                 <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
               </button>
               {showTemplateMenu && <TemplateMenu />}
             </div>
             <button onClick={() => { window.print(); setShowDonation(true); }} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
             </button>
           </div>
         </div>
@@ -324,7 +348,7 @@ function GadaiBuilder() {
       <main className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden">
         
         {/* INPUT SIDEBAR */}
-        <div className={`no-print w-full lg:w-[450px] shrink-0 h-full overflow-y-auto pr-2 pb-20 space-y-6 font-sans ${mobileView === 'preview' ? 'hidden lg:block' : 'block'} custom-scrollbar`}>
+        <div className={`no-print w-full lg:w-[450px] shrink-0 h-full overflow-y-auto pb-20 space-y-6 font-sans ${mobileView === 'preview' ? 'hidden lg:block' : 'block'} custom-scrollbar`}>
            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
               <div className="flex items-center justify-between border-b pb-2">
                 <div className="flex items-center gap-2"><CalendarDays size={14} className="text-blue-500"/><h3 className="text-xs font-black uppercase text-slate-700">Waktu & Tempat</h3></div>
@@ -395,8 +419,8 @@ function GadaiBuilder() {
 
         {/* PREVIEW AREA */}
         <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-0 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
+                <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col shadow-2xl">
                   <ContentInside />
                 </div>
             </div>
@@ -413,7 +437,7 @@ function GadaiBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT PORTAL (Strict Clean) */}
+      {/* PRINT PORTAL */}
       <div id="print-only-root" className="hidden">
          <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
             <ContentInside />

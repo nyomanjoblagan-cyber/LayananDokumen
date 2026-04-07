@@ -2,13 +2,13 @@
 
 /**
  * FILE: SuratHibahPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Keterangan / Pernyataan Hibah
  * FEATURES:
  * - Dual Template (Formal Akta vs Sederhana)
- * - Strict A4 Print Layout
- * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * - Full Editor UI with Logo Upload
+ * - Strict A4 Print Layout with Page Break Protection
+ * - Integrated Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -82,7 +82,6 @@ export default function SuratHibahPage() {
 
 function GrantLetterBuilder() {
   // --- STATE SYSTEM ---
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [showDonation, setShowDonation] = useState(false);
@@ -121,7 +120,7 @@ function GrantLetterBuilder() {
   };
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
         if (logo) {
             URL.revokeObjectURL(logo);
@@ -130,7 +129,6 @@ function GrantLetterBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
@@ -144,28 +142,22 @@ function GrantLetterBuilder() {
     </div>
   );
 
-  // --- KOMPONEN ISI SURAT ---
   const HibahContent = () => {
     const formatDateSafe = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            // FIX: Prevent timezone shift
             return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle: 'long'});
         } catch { return dateString; }
     };
 
     if (templateId === 1) {
-      // --- TEMPLATE 1: FORMAL (AKTA) ---
       return (
         <div className="font-serif text-[11pt] leading-relaxed text-justify text-black">
-           
-           {/* JUDUL */}
            <div className="text-center mb-10 shrink-0">
               <h2 className="text-lg font-black underline uppercase decoration-2 underline-offset-4 tracking-widest">SURAT KETERANGAN HIBAH</h2>
               <p className="text-[10pt] font-sans mt-1 italic uppercase tracking-widest">Nomor: {data.docNo}</p>
            </div>
 
-           {/* ISI SURAT */}
            <div className="space-y-6 flex-grow text-[11pt] font-serif leading-relaxed text-justify overflow-hidden">
               <p>Pada hari ini, tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di {data.city}, kami yang bertanda tangan di bawah ini:</p>
               
@@ -203,7 +195,6 @@ function GrantLetterBuilder() {
               <p className="break-inside-avoid">Demikian surat hibah ini dibuat dengan sebenar-benarnya tanpa ada paksaan dari pihak manapun.</p>
            </div>
 
-           {/* TANDA TANGAN */}
            <div className="shrink-0 mt-auto pt-10 border-t-2 border-slate-100 break-inside-avoid">
               <div className="grid grid-cols-2 gap-10">
                  <div className="flex flex-col h-44 text-center break-inside-avoid">
@@ -237,10 +228,9 @@ function GrantLetterBuilder() {
         </div>
       );
     } else {
-      // --- TEMPLATE 2: SEDERHANA ---
       return (
         <div className="font-sans text-[10.5pt] leading-snug text-slate-800">
-           <div className="text-center border-b-2 border-slate-900 pb-4 mb-8">
+           <div className="text-center border-b-2 border-slate-900 pb-4 mb-8 shrink-0">
               <h1 className="text-xl font-black uppercase tracking-tight text-slate-900">SURAT PERNYATAAN HIBAH</h1>
               <p className="text-sm font-bold text-slate-500 uppercase mt-1">Nomor: {data.docNo}</p>
            </div>
@@ -249,9 +239,9 @@ function GrantLetterBuilder() {
               <p>Saya yang bertanda tangan di bawah ini:</p>
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 break-inside-avoid">
                  <div className="grid grid-cols-[100px_10px_1fr] gap-y-2 text-sm">
-                    <span className="font-bold text-slate-500 uppercase text-[9px]">Nama</span><span>:</span><span className="font-bold uppercase">{data.grantorName}</span>
-                    <span className="font-bold text-slate-500 uppercase text-[9px]">NIK</span><span>:</span><span className="font-mono">{data.grantorNik}</span>
-                    <span className="font-bold text-slate-500 uppercase text-[9px]">Alamat</span><span>:</span><span>{data.grantorAddress}</span>
+                    <span className="font-bold text-slate-400 uppercase text-[9px]">Nama</span><span>:</span><span className="font-bold uppercase">{data.grantorName}</span>
+                    <span className="font-bold text-slate-400 uppercase text-[9px]">NIK</span><span>:</span><span className="font-mono">{data.grantorNik}</span>
+                    <span className="font-bold text-slate-400 uppercase text-[9px]">Alamat</span><span>:</span><span>{data.grantorAddress}</span>
                  </div>
                  <p className="text-[10px] text-center mt-3 font-black text-emerald-600 uppercase tracking-widest">Selaku Pemberi Hibah</p>
               </div>
@@ -259,9 +249,9 @@ function GrantLetterBuilder() {
               <p className="break-inside-avoid">Dengan ini memberikan hibah kepada:</p>
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 break-inside-avoid">
                  <div className="grid grid-cols-[100px_10px_1fr] gap-y-2 text-sm">
-                    <span className="font-bold text-slate-500 uppercase text-[9px]">Nama</span><span>:</span><span className="font-bold uppercase">{data.granteeName}</span>
-                    <span className="font-bold text-slate-500 uppercase text-[9px]">NIK</span><span>:</span><span className="font-mono">{data.granteeNik}</span>
-                    <span className="font-bold text-slate-500 uppercase text-[9px]">Alamat</span><span>:</span><span>{data.granteeAddress}</span>
+                    <span className="font-bold text-slate-400 uppercase text-[9px]">Nama</span><span>:</span><span className="font-bold uppercase">{data.granteeName}</span>
+                    <span className="font-bold text-slate-400 uppercase text-[9px]">NIK</span><span>:</span><span className="font-mono">{data.granteeNik}</span>
+                    <span className="font-bold text-slate-400 uppercase text-[9px]">Alamat</span><span>:</span><span>{data.granteeAddress}</span>
                  </div>
                  <p className="text-[10px] text-center mt-3 font-black text-blue-600 uppercase tracking-widest">Selaku Penerima Hibah</p>
               </div>
@@ -293,18 +283,16 @@ function GrantLetterBuilder() {
     }
   };
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 bg-slate-50">Memuat Studio Hibah...</div>;
+  if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
-      {/* CSS PRINT FIXED */}
       <style jsx global>{`
         @media print {
             @page { size: A4 portrait; margin: 0; }
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
+            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; }
             .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
             .print-table thead { height: 20mm; display: table-header-group; } 
             .print-table tfoot { height: 20mm; display: table-footer-group; } 
@@ -313,49 +301,36 @@ function GrantLetterBuilder() {
         }
       `}</style>
 
-      {/* HEADER NAVY */}
       <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
          <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
             <div className="flex items-center gap-4">
                <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-800 rounded-full transition-all group">
-                  <ArrowLeftCircle size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors"/>
-                  <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
+                  <ArrowLeftCircle size={20} className="text-emerald-400"/>
+                  <span className="text-sm font-bold text-slate-300 group-hover:text-white uppercase tracking-widest hidden md:inline">Dashboard</span>
                </Link>
                <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Hibah <span className="text-emerald-400">Builder</span></h1></div>
             </div>
             <div className="flex items-center gap-3">
-               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Formal (Akta)' : 'Sederhana'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
                   {showTemplateMenu && <TemplateMenu />}
                </div>
-
-               {/* MOBILE MENU TRIGGER */}
-               <div className="relative md:hidden">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
-                    Template <ChevronDown size={14}/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
                <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         {/* EDITOR SIDEBAR */}
-         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Formulir</h2>
+         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10 font-sans">
+                <h2 className="font-bold text-slate-700 flex items-center gap-2 text-xs uppercase tracking-widest"><Edit3 size={16} /> Isi Formulir</h2>
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               {/* 1. PEMBERI */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar font-sans">
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Gift size={12}/> Pemberi Hibah</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
@@ -374,8 +349,7 @@ function GrantLetterBuilder() {
                   </div>
                </div>
 
-               {/* 2. PENERIMA */}
-               <div className="space-y-3">
+               <div className="space-y-3 border-t pt-6">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><UserCircle2 size={12}/> Penerima Hibah</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                       <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.granteeName} onChange={e => handleDataChange('granteeName', e.target.value)} placeholder="Nama Lengkap Penerima..." />
@@ -384,8 +358,7 @@ function GrantLetterBuilder() {
                   </div>
                </div>
 
-               {/* 3. OBJEK HIBAH */}
-               <div className="space-y-3">
+               <div className="space-y-3 border-t pt-6">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><MapPin size={12}/> Objek Hibah</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                       <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.objectType} onChange={e => handleDataChange('objectType', e.target.value)} placeholder="Jenis Objek (cth: Tanah)" />
@@ -393,33 +366,17 @@ function GrantLetterBuilder() {
                   </div>
                </div>
 
-               {/* 4. LEGALITAS */}
-               <div className="space-y-3">
+               <div className="space-y-3 border-t pt-6">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><ShieldCheck size={12}/> Legalitas & Saksi</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                      <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-emerald-500 outline-none" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="No. Surat" />
                       <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1">
-                            <label className="text-[9px] font-bold text-slate-400 uppercase">No. Surat</label>
-                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} />
-                         </div>
-                         <div className="space-y-1">
-                            <label className="text-[9px] font-bold text-slate-400 uppercase">Kota</label>
-                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
-                         </div>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
+                         <input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1">
-                            <label className="text-[9px] font-bold text-slate-400 uppercase">Tanggal</label>
-                            <input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                         </div>
-                         <div className="space-y-1">
-                            <label className="text-[9px] font-bold text-slate-400 uppercase">Saksi 1</label>
-                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness1} onChange={e => handleDataChange('witness1', e.target.value)} />
-                         </div>
-                      </div>
-                      <div className="space-y-1">
-                         <label className="text-[9px] font-bold text-slate-400 uppercase">Saksi 2</label>
-                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness2} onChange={e => handleDataChange('witness2', e.target.value)} />
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness1} onChange={e => handleDataChange('witness1', e.target.value)} placeholder="Saksi 1" />
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness2} onChange={e => handleDataChange('witness2', e.target.value)} placeholder="Saksi 2" />
                       </div>
                   </div>
                </div>
@@ -427,11 +384,10 @@ function GrantLetterBuilder() {
             </div>
          </div>
 
-         {/* PREVIEW */}
          <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
              <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-100 mb-[-160mm] sm:mb-[-130mm] md:mb-10 mt-2 md:mt-0">
-                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '0mm' }}>
+                <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[1.0] mb-[-160mm] sm:mb-[-130mm] md:mb-10 mt-2 md:mt-0">
+                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                       <HibahContent />
                    </div>
                 </div>
@@ -439,22 +395,17 @@ function GrantLetterBuilder() {
          </div>
       </main>
 
-      {/* INJEKSI KOMPONEN MONETISASI */}
       <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
-         <button onClick={() => setMobileMode('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileMode === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileMode('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileMode === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl border border-white/10 font-sans">
+          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
+          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      {/* PRINT PORTAL */}
       <div id="print-only-root" className="hidden">
-         <table className="print-table">
-            <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
-            <tbody><tr><td><div className="print-content-wrapper"><HibahContent /></div></td></tr></tbody>
-            <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
-         </table>
+         <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col p-[20mm]">
+            <HibahContent />
+         </div>
       </div>
     </div>
   );

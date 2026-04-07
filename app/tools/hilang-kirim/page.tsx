@@ -2,7 +2,7 @@
 
 /**
  * FILE: HilangKirimPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Pernyataan Kehilangan Paket / Barang
  * FEATURES:
  * - Dual Template (Logistics Formal vs Incident Report)
@@ -103,7 +103,7 @@ function LostPackageBuilder() {
   };
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date();
         const lastWeek = new Date(today);
         lastWeek.setDate(today.getDate() - 10);
@@ -134,7 +134,6 @@ function LostPackageBuilder() {
     const formatDateSafe = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            // FIX: Prevent timezone shift
             return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
         } catch { return dateString; }
     };
@@ -174,7 +173,7 @@ function LostPackageBuilder() {
             Demikian surat pernyataan ini saya buat dengan sebenar-benarnya untuk dapat dipergunakan sebagai syarat pengajuan klaim asuransi atau proses investigasi lebih lanjut.
           </p>
 
-          <div className="mt-auto pt-4 border-t border-slate-100 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+          <div className="mt-auto pt-4 border-t border-slate-100 break-inside-avoid">
             <table className="w-full table-fixed">
               <tbody>
                 <tr>
@@ -189,7 +188,7 @@ function LostPackageBuilder() {
                 </tr>
                 <tr>
                   <td className="text-center align-bottom h-24">
-                    <p className="font-bold underline uppercase">({data.witnessName})</p>
+                    <p className="font-bold underline uppercase text-sm">({data.witnessName})</p>
                   </td>
                   <td className="text-center align-bottom h-24">
                       <div className="border border-slate-300 w-20 h-12 flex items-center justify-center text-[7pt] text-slate-400 italic mb-2 mx-auto bg-white uppercase">Materai</div>
@@ -207,7 +206,7 @@ function LostPackageBuilder() {
             <div className="flex justify-between items-center border-b-4 border-red-600 pb-4 mb-8 shrink-0">
                <div>
                   <h1 className="text-2xl font-black uppercase tracking-tighter text-slate-900 leading-none">Berita Acara Kehilangan</h1>
-                  <p className="text-red-600 font-bold tracking-wide mt-1">LOGISTIK & PENGIRIMAN</p>
+                  <p className="text-red-600 font-bold tracking-wide mt-1 uppercase text-xs">Logistik & Pengiriman</p>
                </div>
                <div className="text-right">
                   <p className="text-xs text-slate-400 uppercase font-bold">Nomor Dokumen</p>
@@ -248,15 +247,15 @@ function LostPackageBuilder() {
             </p>
 
             <div className="mt-auto border-t-2 border-slate-900 pt-6 flex justify-between items-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-               <div className="text-center w-48 break-inside-avoid">
+               <div className="text-center w-48">
                   <p className="text-xs font-bold uppercase text-slate-400 mb-20">Saksi / Petugas</p>
-                  <p className="font-bold border-b border-slate-400 pb-1 uppercase">{data.witnessName}</p>
+                  <p className="font-bold border-b border-slate-400 pb-1 uppercase text-sm">{data.witnessName}</p>
                </div>
-               <div className="text-center w-48 break-inside-avoid">
+               <div className="text-center w-48">
                   <p className="text-xs mb-1 uppercase font-bold text-slate-500">{data.city}, {formatDateSafe(data.date)}</p>
                   <p className="text-xs font-bold uppercase text-slate-400 mb-4 tracking-tighter">Yang Menyatakan</p>
                   <div className="h-16 w-24 border border-dashed border-slate-300 mx-auto mb-2 flex items-center justify-center text-[9px] text-slate-300 uppercase">Sign</div>
-                  <p className="font-bold border-b border-slate-900 pb-1 uppercase">{data.declarantName}</p>
+                  <p className="font-bold border-b border-slate-900 pb-1 uppercase text-sm">{data.declarantName}</p>
                </div>
             </div>
         </div>
@@ -264,7 +263,7 @@ function LostPackageBuilder() {
     }
   };
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 bg-slate-50">Memuat...</div>;
+  if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800 overflow-x-hidden">
@@ -274,7 +273,7 @@ function LostPackageBuilder() {
           @page { size: A4 portrait; margin: 0; }
           .no-print { display: none !important; }
           body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; }
           .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
           .print-table thead { height: 15mm; display: table-header-group; } 
           .print-table tfoot { height: 15mm; display: table-footer-group; } 
@@ -288,7 +287,7 @@ function LostPackageBuilder() {
         <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group">
-               <ArrowLeftCircle size={20} className="group-hover:text-emerald-400 transition-colors" />
+               <ArrowLeftCircle size={20} className="text-emerald-400" />
                <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
@@ -356,7 +355,7 @@ function LostPackageBuilder() {
 
         {/* PREVIEW AREA */}
         <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-0 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center shrink-0">
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[1.0] mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center shrink-0">
                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
                   <LostContent />
                 </div>
@@ -374,9 +373,9 @@ function LostPackageBuilder() {
          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* PRINT PORTAL (Strict Clean) */}
+      {/* PRINT PORTAL */}
       <div id="print-only-root" className="hidden">
-         <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
+         <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col p-[20mm]">
             <LostContent />
          </div>
       </div>
