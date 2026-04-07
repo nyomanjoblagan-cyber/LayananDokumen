@@ -2,13 +2,15 @@
 
 /**
  * FILE: DomisiliPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Keterangan Domisili
  * FEATURES:
  * - Dual Template (RT/RW vs Kelurahan)
  * - Kop Surat Otomatis
  * - Mobile Menu Fixed
  * - Strict A4 Print Layout
+ * - Timezone-Safe Date Parsing
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -18,8 +20,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface DomisiliData {
@@ -99,19 +101,27 @@ function DomisiliToolBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const [data, setData] = useState<DomisiliData>(INITIAL_DATA);
+  const [showDonation, setShowDonation] = useState(false);
 
-  // Set Tanggal Hari Ini saat Mount
+  // Set Tanggal Hari Ini saat Mount & Cleanup Logo
   useEffect(() => {
     setData(prev => ({ 
         ...prev, 
         date: new Date().toISOString().split('T')[0] 
     }));
-  }, []);
+
+    return () => {
+        if (logo) URL.revokeObjectURL(logo);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- HANDLERS ---
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setLogo(URL.createObjectURL(file));
+    if (file) {
+        if (logo) URL.revokeObjectURL(logo);
+        setLogo(URL.createObjectURL(file));
+    }
   };
 
   const handleDataChange = (field: keyof DomisiliData, val: string) => {
@@ -119,20 +129,23 @@ function DomisiliToolBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
-        setLogo(null);
+        if (logo) {
+            URL.revokeObjectURL(logo);
+            setLogo(null);
+        }
     }
   };
 
   // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Pengantar RT/RW
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Format Kelurahan
         </button>
@@ -141,11 +154,18 @@ function DomisiliToolBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
+    const formatDate = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+        } catch { return dateString; }
+    };
+
     if (templateId === 1) {
       // --- TEMPLATE 1: PENGANTAR RT/RW (SIMPLE) ---
       return (
         <div className="font-serif text-[11pt] leading-relaxed text-slate-900 h-full flex flex-col">
-           {/* Header Simple */}
            <div className="text-center mb-8">
               <h2 className="text-lg font-bold uppercase tracking-wide">PENGURUS RT {data.rt} RW {data.rw}</h2>
               <h1 className="text-xl font-black uppercase tracking-wider">{data.village}</h1>
@@ -159,7 +179,7 @@ function DomisiliToolBuilder() {
 
            <p className="mb-4 text-justify">Yang bertanda tangan di bawah ini, Ketua RT {data.rt} / RW {data.rw} {data.village} {data.district} {data.city}, menerangkan bahwa:</p>
            
-           <div className="ml-4 mb-4">
+           <div className="ml-4 mb-4 break-inside-avoid">
               <table className="w-full leading-snug">
                  <tbody>
                     <tr><td className="w-40 py-1">Nama Lengkap</td><td className="w-3 py-1">:</td><td className="font-bold py-1 uppercase">{data.name}</td></tr>
@@ -174,22 +194,21 @@ function DomisiliToolBuilder() {
               </table>
            </div>
 
-           <p className="mb-4 text-justify">
+           <p className="mb-4 text-justify break-inside-avoid">
               Adalah benar warga kami yang berdomisili di alamat tersebut di atas. Surat keterangan ini dibuat untuk keperluan administrasi dan sebagai tanda bukti diri.
            </p>
 
-           <p className="mb-8 text-justify">
+           <p className="mb-8 text-justify break-inside-avoid">
               Demikian surat keterangan ini kami buat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.
            </p>
 
-           {/* TTD 2 KOLOM */}
-           <div className="flex justify-between text-center mt-auto" style={{ pageBreakInside: 'avoid' }}>
+           <div className="flex justify-between text-center mt-auto break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="w-48">
                  <p className="mb-20 font-bold">Ketua RT {data.rt}</p>
                  <p className="font-bold underline uppercase">{data.nameRT}</p>
               </div>
               <div className="w-48">
-                 <p className="mb-1">{data.city.replace('KOTA ','').replace('KABUPATEN ','')}, {new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
+                 <p className="mb-1">{data.city.replace('KOTA ','').replace('KABUPATEN ','')}, {formatDate(data.date)}</p>
                  <p className="mb-20 font-bold">Ketua RW {data.rw}</p>
                  <p className="font-bold underline uppercase">{data.nameRW}</p>
               </div>
@@ -200,10 +219,9 @@ function DomisiliToolBuilder() {
       // --- TEMPLATE 2: FORMAT KELURAHAN (RESMI) ---
       return (
         <div className="font-serif text-[11pt] leading-relaxed text-slate-900 h-full flex flex-col">
-           {/* KOP RESMI */}
            <div className="text-center border-b-4 border-double border-black pb-3 mb-6 relative">
               {logo && (
-                 <img src={logo} className="h-20 w-auto object-contain absolute left-0 top-0 print:left-4" />
+                 <img src={logo} className="h-20 w-auto object-contain absolute left-0 top-0 print:left-4 grayscale" alt="logo" />
               )}
               <div className="px-10">
                  <h3 className="text-lg uppercase tracking-wide font-bold leading-tight">{data.city}</h3>
@@ -213,16 +231,14 @@ function DomisiliToolBuilder() {
               </div>
            </div>
 
-           {/* JUDUL */}
            <div className="text-center mb-6">
               <h2 className="font-bold text-lg uppercase underline">SURAT KETERANGAN DOMISILI</h2>
               <div className="text-sm font-bold">Nomor: {data.no}</div>
            </div>
 
-           {/* ISI */}
            <p className="mb-4 text-justify">Yang bertanda tangan di bawah ini, Kepala {data.village.replace('KELURAHAN ', 'Kelurahan ').replace('DESA ', 'Desa ')} {data.district.replace('KECAMATAN ', 'Kecamatan ')} {data.city}, menerangkan dengan sebenarnya bahwa:</p>
            
-           <div className="ml-4 mb-6">
+           <div className="ml-4 mb-6 break-inside-avoid">
               <table className="w-full leading-snug">
                  <tbody>
                     <tr><td className="w-40 py-1">Nama Lengkap</td><td className="w-3 py-1">:</td><td className="font-bold py-1 uppercase">{data.name}</td></tr>
@@ -238,19 +254,18 @@ function DomisiliToolBuilder() {
               </table>
            </div>
 
-           <p className="mb-4 text-justify">
+           <p className="mb-4 text-justify break-inside-avoid">
               Orang tersebut di atas adalah benar-benar warga penduduk {data.village} {data.district} {data.city} dan berdomisili pada alamat tersebut di atas.
            </p>
 
-           <p className="mb-8 text-justify">
+           <p className="mb-8 text-justify break-inside-avoid">
               Demikian Surat Keterangan Domisili ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
            </p>
 
-           {/* TTD LURAH */}
-           <div className="flex justify-end text-center mt-auto" style={{ pageBreakInside: 'avoid' }}>
+           <div className="flex justify-end text-center mt-auto break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="w-72">
                  <p className="mb-1">Dikeluarkan di: {data.city.replace('KOTA ','').replace('KABUPATEN ','')}</p>
-                 <p className="mb-4">Pada Tanggal: {new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
+                 <p className="mb-4">Pada Tanggal: {formatDate(data.date)}</p>
                  <p className="font-bold mb-20 uppercase">LURAH {data.village.replace('KELURAHAN ','')}</p>
                  <p className="font-bold underline uppercase">{data.lurahName}</p>
                  <p className="text-sm">{data.lurahNIP}</p>
@@ -275,7 +290,7 @@ function DomisiliToolBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -291,44 +306,38 @@ function DomisiliToolBuilder() {
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Keterangan Domisili <span className="text-emerald-400">Generator</span></h1></div>
             </div>
             <div className="flex items-center gap-3">
-               {/* DESKTOP MENU */}
                <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Pengantar RT/RW' : 'Format Kelurahan'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
                   {showTemplateMenu && <TemplateMenu />}
                </div>
-
-               {/* MOBILE MENU TRIGGER */}
                <div className="relative md:hidden">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
                     Template <ChevronDown size={14}/>
                   </button>
                   {showTemplateMenu && <TemplateMenu />}
                </div>
-
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95">
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         {/* EDITOR SIDEBAR */}
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
                 <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Surat</h2>
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
-
             <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               
-               {/* 1. WILAYAH */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><MapPin size={12}/> Data Wilayah</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                       <div className="flex gap-4 items-center">
                          <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 bg-slate-50 shrink-0 relative overflow-hidden group">
-                            {logo ? <img src={logo} className="w-full h-full object-contain p-1" alt="Logo" /> : <div className="text-[8px] text-center text-slate-400 font-bold">LOGO<br/>GARUDA</div>}
+                            {logo ? <img src={logo} className="w-full h-full object-contain p-1 grayscale" alt="Logo" /> : <div className="text-[8px] text-center text-slate-400 font-bold">LOGO<br/>GARUDA</div>}
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[8px] font-bold">UBAH</div>
                             <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
                          </div>
@@ -345,25 +354,21 @@ function DomisiliToolBuilder() {
                       {templateId === 2 && <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address_office} onChange={e => handleDataChange('address_office', e.target.value)} placeholder="Alamat Kantor Desa..." />}
                   </div>
                </div>
-
-               {/* 2. DATA PEMOHON */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><User size={12}/> Data Pemohon</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                       <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.name} onChange={e => handleDataChange('name', e.target.value)} /></div>
                       <div className="grid grid-cols-2 gap-3">
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Lahir</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kewarganegaraan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.citizenship} onChange={e => handleDataChange('citizenship', e.target.value)} /></div>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tempat Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.ttl.split(',')[0]} onChange={e => handleDataChange('ttl', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">TTL</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.ttl} onChange={e => handleDataChange('ttl', e.target.value)} /></div>
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pekerjaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.job} onChange={e => handleDataChange('job', e.target.value)} /></div>
                       </div>
                       <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} /></div>
                   </div>
                </div>
-
-               {/* 3. PEJABAT */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Pejabat Penandatangan</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
@@ -388,7 +393,6 @@ function DomisiliToolBuilder() {
             </div>
          </div>
 
-         {/* PREVIEW */}
          <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
              <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
                 <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0">
@@ -399,14 +403,14 @@ function DomisiliToolBuilder() {
              </div>
          </div>
       </main>
+      
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
-      {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
          <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
          <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
       </div>
 
-      {/* --- PRINT PORTAL --- */}
       <div id="print-only-root" className="hidden">
          <table className="print-table">
             <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
