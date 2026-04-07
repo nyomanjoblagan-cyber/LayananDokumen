@@ -2,12 +2,14 @@
 
 /**
  * FILE: BusinessPlanPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Business Plan / Proposal Usaha
  * FEATURES:
  * - Dual Template (Canvas vs Text Proposal)
  * - Mobile Menu Fixed
  * - Strict A4 Print Layout
+ * - Timezone-Safe Date Parsing
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -18,8 +20,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface BusinessData {
@@ -87,6 +89,9 @@ function PlanBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<BusinessData>(INITIAL_DATA);
 
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
   // Set Tanggal Hari Ini saat Mount
   useEffect(() => {
     setData(prev => ({ 
@@ -96,12 +101,12 @@ function PlanBuilder() {
   }, []);
 
   // --- HANDLERS ---
-  const handleDataChange = (field: keyof BusinessData, val: any) => {
+  const handleDataChange = (field: keyof BusinessData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
@@ -109,11 +114,11 @@ function PlanBuilder() {
   // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Canvas (Modern One-Page)
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Proposal (Formal Text)
         </button>
@@ -122,6 +127,15 @@ function PlanBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
+    // FIX TIMEZONE DATE FORMATTER
+    const formatDate = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+        } catch { return dateString; }
+    };
+
     if (templateId === 1) {
       // --- TEMPLATE 1: MODERN CANVAS (One Page) ---
       return (
@@ -137,7 +151,7 @@ function PlanBuilder() {
 
            <div className="flex-grow space-y-6">
               {/* ROW 1: PROBLEM & SOLUTION */}
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-6 break-inside-avoid">
                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                     <h2 className="text-xs font-black uppercase text-blue-900 flex items-center gap-2 mb-2"><Target size={14} /> The Problem</h2>
                     <p className="text-[9pt] leading-relaxed text-slate-700 text-justify">{data.problem}</p>
@@ -149,7 +163,7 @@ function PlanBuilder() {
               </div>
 
               {/* ROW 2: MARKET & REVENUE */}
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-3 gap-6 break-inside-avoid">
                  <div className="col-span-2 space-y-4">
                     <div>
                        <h2 className="text-xs font-black uppercase text-slate-900 border-b border-slate-200 pb-1 mb-2 flex items-center gap-2"><Users size={14} className="text-blue-600"/> Target Market</h2>
@@ -169,19 +183,19 @@ function PlanBuilder() {
               </div>
 
               {/* ROW 3: TEAM */}
-              <div>
+              <div className="break-inside-avoid">
                  <h2 className="text-xs font-black uppercase text-slate-900 border-b border-slate-200 pb-1 mb-2 flex items-center gap-2"><PieChart size={14} className="text-amber-600"/> Operational Team</h2>
                  <p className="text-[9pt] leading-relaxed text-slate-700 bg-white border border-slate-100 p-3 rounded-lg shadow-sm italic">{data.team}</p>
               </div>
            </div>
 
            {/* FOOTER */}
-           <div className="mt-auto pt-6 border-t border-slate-100 flex justify-between items-end" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-auto pt-6 border-t border-slate-100 flex justify-between items-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="text-[8pt] text-slate-400 font-mono">
                  ID: BP-{data.companyName.substring(0,3).toUpperCase()}-2026
               </div>
               <div className="text-center">
-                 <p className="text-[9pt] mb-12">{data.city}, {new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+                 <p className="text-[9pt] mb-12">{data.city}, {formatDate(data.date)}</p>
                  <p className="font-black underline uppercase text-[10pt] text-blue-900">{data.owner}</p>
                  <p className="text-[8pt] font-bold uppercase text-slate-400 tracking-widest mt-1">Founder / CEO</p>
               </div>
@@ -198,32 +212,32 @@ function PlanBuilder() {
            </div>
 
            <div className="space-y-6 text-justify">
-              <div>
+              <div className="break-inside-avoid">
                  <h3 className="font-bold uppercase text-sm border-b border-slate-400 pb-1 mb-2">1. Ringkasan Eksekutif</h3>
                  <p className="mb-2"><strong>Masalah:</strong> {data.problem}</p>
                  <p><strong>Solusi:</strong> {data.solution}</p>
               </div>
 
-              <div>
+              <div className="break-inside-avoid">
                  <h3 className="font-bold uppercase text-sm border-b border-slate-400 pb-1 mb-2">2. Analisis Pasar</h3>
                  <p className="mb-2">Target pasar kami adalah {data.targetMarket}</p>
                  <p>Potensi pasar saat ini diperkirakan mencapai {data.marketSize}. Pesaing utama dalam industri ini meliputi {data.competitors}.</p>
               </div>
 
-              <div>
+              <div className="break-inside-avoid">
                  <h3 className="font-bold uppercase text-sm border-b border-slate-400 pb-1 mb-2">3. Model Pendapatan & Keuangan</h3>
                  <p className="mb-2">Pendapatan utama perusahaan berasal dari {data.revenueStream}.</p>
                  <p>Untuk mencapai target pertumbuhan tahap awal, kami membutuhkan pendanaan sebesar <strong>{data.fundingNeed}</strong>.</p>
               </div>
 
-              <div>
+              <div className="break-inside-avoid">
                  <h3 className="font-bold uppercase text-sm border-b border-slate-400 pb-1 mb-2">4. Manajemen Tim</h3>
                  <p>Perusahaan dijalankan oleh tim profesional yang terdiri dari: {data.team}.</p>
               </div>
            </div>
 
-           <div className="mt-12 flex justify-end text-center" style={{ pageBreakInside: 'avoid' }}>
-              <div>
+           <div className="mt-12 flex justify-end text-center break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+              <div className="w-64">
                  <p className="mb-20">Hormat Kami,</p>
                  <p className="font-bold underline uppercase">{data.owner}</p>
                  <p className="text-sm">Direktur Utama</p>
@@ -248,7 +262,7 @@ function PlanBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -281,7 +295,13 @@ function PlanBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -354,6 +374,9 @@ function PlanBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
