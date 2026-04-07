@@ -12,7 +12,7 @@ import { useState, useMemo, Fragment } from 'react';
 export default function HomePage() {
   const [search, setSearch] = useState('');
   
-  // --- DATABASE DOKUMEN LENGKAP (ORIGINAL - TIDAK DIUBAH SAMA SEKALI) ---
+  // --- DATABASE DOKUMEN LENGKAP ---
   const DIRECTORY = [
     {
       group: "Bisnis & UMKM",
@@ -223,13 +223,9 @@ export default function HomePage() {
              <a href="#directory" className="text-xs font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1.5 transition-colors cursor-pointer">
                 <LayoutGrid size={14}/> Kategori
              </a>
-             
-             {/* --- LINK PANDUAN (BARU) --- */}
              <Link href="/panduan" className="text-xs font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1.5 transition-colors">
                 <BookOpen size={14}/> Pusat Panduan
              </Link>
-             {/* --------------------------- */}
-
              <Link href="/legalitas?tab=disclaimer" className="text-xs font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1.5 transition-colors">
                 <AlertCircle size={14}/> Disclaimer
              </Link>
@@ -361,24 +357,11 @@ export default function HomePage() {
         </a>
       </div>
 
-      {/* IKLAN BANNER TENGAH */}
-      <div className="max-w-5xl mx-auto px-6 mt-4 mb-4">
-         <div className="w-full min-h-[100px] bg-white/50 border border-slate-200 border-dashed rounded-xl flex items-center justify-center overflow-hidden py-4 no-print">
-            <AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={728} height={90} />
-         </div>
-      </div>
-
       <section id="directory" className="px-6 max-w-5xl mx-auto py-12 relative z-10 scroll-mt-20">
         {filteredDirectory.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredDirectory.map((cat, idx) => (
               <Fragment key={idx}>
-                {idx > 0 && idx % 3 === 0 && (
-                   <div className="flex flex-col bg-white/50 border border-slate-200 border-dashed rounded-xl overflow-hidden h-full items-center justify-center p-4 min-h-[280px] no-print">
-                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-4">Sponsored Advertisement</span>
-                      <AdsterraBanner adKey="9873c2eb956caac3e296de9c4fea56fc" width={300} height={250} />
-                   </div>
-                )}
                 <div className={`flex flex-col bg-white border ${cat.border} rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group h-full`}>
                   <div className={`px-4 py-3 border-b ${cat.border} ${cat.bgHeader} flex items-center gap-3`}>
                     <div className={`p-1.5 rounded-lg bg-white/60 shadow-sm ${cat.color}`}><cat.icon size={18} strokeWidth={2.5} /></div>
@@ -408,7 +391,6 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* --- [BARU] SECTION PROMOSI EKOSISTEM (Di bawah List Directory) --- */}
       <section className="bg-gradient-to-b from-slate-50 to-white py-16 border-t border-slate-200 mt-8 relative z-10">
          <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-10">
@@ -420,7 +402,6 @@ export default function HomePage() {
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
-               {/* 1. LINK KE PDF TOOLS (SUBDOMAIN) */}
                <a href="https://pdf.layanandokumen.com" target="_blank" rel="noopener noreferrer" className="group block p-6 bg-white rounded-2xl border border-red-100 hover:border-red-300 shadow-sm hover:shadow-lg transition-all relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                      <FileStack size={80} className="text-red-500"/>
@@ -441,7 +422,6 @@ export default function HomePage() {
                   </div>
                </a>
 
-               {/* 2. LINK KE LATIHAN ONLINE */}
                <a href="https://www.latihanonline.com" target="_blank" rel="noopener noreferrer" className="group block p-6 bg-white rounded-2xl border border-orange-100 hover:border-orange-300 shadow-sm hover:shadow-lg transition-all relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                      <BookOpen size={80} className="text-orange-500"/>
