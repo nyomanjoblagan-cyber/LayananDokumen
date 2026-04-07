@@ -2,13 +2,14 @@
 
 /**
  * FILE: AhliWarisDesaPage.tsx
- * STATUS: PRODUCTION READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Keterangan Waris (Versi Desa/Kelurahan)
  * FEATURES: 
  * - Memory-leak safe Image Upload
  * - Timezone-safe Date Formatting
  * - Strict Print Media Break Handling
  * - Layout Tanda Tangan Hierarki
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -18,6 +19,9 @@ import {
   Eye, ArrowLeftCircle, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
+
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface Heir {
@@ -113,6 +117,9 @@ function VillageHeirBuilder() {
 
   // Data State
   const [data, setData] = useState<VillageData>(INITIAL_DATA);
+  
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
 
   // Effect: Set tanggal hari ini & Cleanup Logo Blob
   useEffect(() => {
@@ -414,7 +421,13 @@ function VillageHeirBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak / PDF</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak / PDF</span>
+               </button>
             </div>
          </div>
       </header>
@@ -528,6 +541,9 @@ function VillageHeirBuilder() {
          </div>
       </main>
       
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
+
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
          <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900' : 'text-slate-400'}`}><Edit3 size={16}/> Editor</button>
