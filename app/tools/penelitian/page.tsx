@@ -2,24 +2,20 @@
 
 /**
  * FILE: PenelitianPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Permohonan Izin Penelitian (Riset)
- * FEATURES:
- * - Dual Template (University Standard vs Formal Agency)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
  */
 
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Search, Building2, UserCircle2, 
-  MapPin, LayoutTemplate, X, PenTool, ShieldCheck, FileSearch, Edit3, Eye, Check, ChevronDown, RotateCcw
+  MapPin, LayoutTemplate, X, PenTool, ShieldCheck, FileSearch, Edit3, Eye, Check, ChevronDown, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface ResearchData {
@@ -54,7 +50,7 @@ interface ResearchData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: ResearchData = {
   city: 'DENPASAR',
-  date: '', // Diisi useEffect
+  date: '', 
   docNo: '044/UNUD/FT/I/2026',
   
   university: 'UNIVERSITAS UDAYANA (UNUD)',
@@ -79,7 +75,7 @@ const INITIAL_DATA: ResearchData = {
 // --- 3. KOMPONEN UTAMA ---
 export default function PenelitianPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Surat Izin Riset...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat Izin Riset...</div>}>
       <ResearchBuilder />
     </Suspense>
   );
@@ -92,6 +88,7 @@ function ResearchBuilder() {
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<ResearchData>(INITIAL_DATA);
+  const [showDonation, setShowDonation] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -104,279 +101,245 @@ function ResearchBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
         setData({ ...INITIAL_DATA, date: today });
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Standar Kampus
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Formal Instansi
-        </button>
-    </div>
-  );
-
   const activeTemplateName = templateId === 1 ? 'Standar Kampus' : 'Formal Instansi';
 
-  // --- KOMPONEN ISI SURAT ---
-  const ResearchContent = () => (
-    // FIX: Print Padding
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
-      
-      {/* TEMPLATE 1: STANDAR KAMPUS */}
-      {templateId === 1 && (
-        <div className="flex flex-col h-full">
-            {/* KOP UNIVERSITAS */}
-            <div className="flex flex-col items-center border-b-4 border-double border-slate-900 pb-3 mb-6 shrink-0 text-center">
-                <h2 className="text-[10pt] font-black uppercase leading-tight italic">KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI</h2>
-                <h1 className="text-[13pt] font-black uppercase leading-tight mt-1">{data.university}</h1>
-                <h2 className="text-[12pt] font-bold uppercase leading-tight">{data.faculty}</h2>
-                <p className="text-[8.5pt] font-sans mt-0.5 italic text-slate-600 print:text-black">{data.campusAddress}</p>
-            </div>
+  const ResearchContent = () => {
+    const formatDateSafe = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+        } catch { return dateString; }
+    };
 
-            {/* TANGGAL & NOMOR */}
-            <div className="flex justify-between mb-6 text-[10.5pt] shrink-0">
-                <div className="space-y-0.5">
-                    <p>Nomor : {data.docNo}</p>
-                    <p>Lampiran : 1 (satu) Berkas Proposal</p>
-                    <p>Hal : <b>Permohonan Izin Penelitian</b></p>
-                </div>
-                <p>{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '...'}</p>
-            </div>
+    return (
+      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+        
+        {templateId === 1 && (
+          <div className="flex flex-col h-full">
+              <div className="flex flex-col items-center border-b-4 border-double border-slate-900 pb-3 mb-6 shrink-0 text-center font-sans">
+                  <h2 className="text-[9pt] font-black uppercase leading-tight tracking-tight italic">KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI</h2>
+                  <h1 className="text-[13pt] font-black uppercase leading-tight mt-1">{data.university}</h1>
+                  <h2 className="text-[11pt] font-bold uppercase leading-tight">{data.faculty}</h2>
+                  <p className="text-[8pt] mt-0.5 italic text-slate-500 print:text-black">{data.campusAddress}</p>
+              </div>
 
-            {/* TUJUAN */}
-            <div className="mb-6 text-[10.5pt] shrink-0">
-                <p>Yth. <b>{data.targetOffice}</b></p>
-                <p>{data.targetAddress}</p>
-                <p>Di Tempat</p>
-            </div>
-
-            {/* ISI SURAT */}
-            <div className="flex-grow text-[10.5pt] leading-relaxed text-justify overflow-hidden">
-                <p className="mb-3">Dengan hormat,</p>
-                <p className="mb-3">Dalam rangka penyelesaian tugas akhir (Skripsi/Tesis), kami bermaksud memohon bantuan Bapak/Ibu untuk memberikan izin penelitian kepada mahasiswa kami:</p>
-                
-                <div className="ml-8 mb-4 space-y-1 font-sans text-[10pt] border-l-4 border-blue-100 pl-4 py-0.5 print:border-slate-300">
-                    <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama Lengkap</span><span>:</span><span className="font-bold uppercase tracking-tight">{data.studentName}</span></div>
-                    <div className="grid grid-cols-[140px_10px_1fr]"><span>NIM</span><span>:</span><span>{data.studentId}</span></div>
-                    <div className="grid grid-cols-[140px_10px_1fr]"><span>Program Studi</span><span>:</span><span>{data.department}</span></div>
-                </div>
-
-                <p className="mb-3">Adapun rencana penelitian tersebut akan dilaksanakan dengan rincian:</p>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 font-sans text-[9.5pt] mb-4 space-y-1.5 print:bg-transparent print:border-black">
-                    <p className="leading-snug"><b>Judul Penelitian:</b><br/><span className="italic">"{data.researchTitle}"</span></p>
-                    <p><b>Durasi Penelitian:</b> {data.duration}</p>
-                </div>
-
-                <p className="mb-4 leading-relaxed">
-                Seluruh data yang diperoleh hanya akan digunakan untuk kepentingan akademik dan kerahasiaan data instansi akan dijaga sesuai dengan kode etik penelitian.
-                </p>
-
-                <p>Demikian surat permohonan ini kami sampaikan. Atas bantuan dan kerja sama yang diberikan, kami ucapkan terima kasih.</p>
-            </div>
-
-            {/* TANDA TANGAN */}
-            <div className="mt-auto pt-8 shrink-0" style={{ pageBreakInside: 'avoid' }}>
-                <table className="w-full table-fixed">
-                <tbody>
-                    <tr>
-                    <td className="w-1/2"></td>
-                    <td className="text-center">
-                        <p className="font-bold mb-20 uppercase text-[9.5pt]">Dekan / Ketua Program Studi,</p>
-                        <div className="flex flex-col items-center">
-                            <p className="font-bold underline uppercase text-[10.5pt] tracking-tight">{data.deanName}</p>
-                            <p className="text-[9pt] font-sans mt-0.5">NIP. {data.deanNip}</p>
-                        </div>
-                    </td>
-                    </tr>
-                </tbody>
-                </table>
-            </div>
-        </div>
-      )}
-
-      {/* TEMPLATE 2: FORMAL INSTANSI */}
-      {templateId === 2 && (
-        <div className="flex flex-col h-full font-sans text-[10.5pt]">
-            <div className="border-b-2 border-slate-900 pb-4 mb-8 shrink-0 flex justify-between items-start">
-               <div>
-                  <h1 className="text-lg font-black uppercase text-slate-900 leading-none">{data.university}</h1>
-                  <p className="text-sm text-slate-500">{data.faculty} - {data.department}</p>
-               </div>
-               <div className="text-right text-sm">
-                  <p>Ref: {data.docNo}</p>
-                  <p>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID') : '...'}</p>
-               </div>
-            </div>
-
-            <div className="mb-8 shrink-0">
-               <p className="font-bold">Kepada Yth,</p>
-               <p className="font-bold uppercase">{data.targetOffice}</p>
-               <p>{data.targetAddress}</p>
-            </div>
-
-            <div className="flex-grow space-y-4 text-justify">
-               <p><strong>Perihal: Permohonan Izin Riset Lapangan</strong></p>
-               <p>Dengan hormat,</p>
-               <p>
-                  Sehubungan dengan kegiatan akademik mahasiswa kami, kami mohon kesediaan Bapak/Ibu untuk memberikan izin pelaksanaan riset/pengambilan data di instansi yang Bapak/Ibu pimpin.
-               </p>
-               
-               <div className="border p-4 mb-4 bg-slate-50 print:bg-transparent">
-                  <p className="font-bold mb-2 border-b pb-1">Data Mahasiswa:</p>
-                  <div className="grid grid-cols-[100px_10px_1fr] gap-1 text-sm">
-                     <span>Nama</span><span>:</span><span className="font-bold uppercase">{data.studentName}</span>
-                     <span>NIM</span><span>:</span><span>{data.studentId}</span>
-                     <span>Judul Riset</span><span>:</span><span>"{data.researchTitle}"</span>
+              <div className="flex justify-between mb-6 text-[10.5pt] shrink-0 font-sans">
+                  <div className="space-y-0.5">
+                      <p>Nomor : {data.docNo}</p>
+                      <p>Lampiran : 1 (satu) Berkas Proposal</p>
+                      <p>Hal : <b>Permohonan Izin Penelitian</b></p>
                   </div>
-               </div>
+                  <p>{data.city}, {formatDateSafe(data.date)}</p>
+              </div>
 
-               <p>
-                  Kegiatan ini direncanakan berlangsung selama <strong>{data.duration}</strong>. Kami menjamin bahwa data yang diperoleh semata-mata untuk tujuan ilmiah.
-               </p>
-               <p>Atas perhatian dan izin yang diberikan, kami sampaikan terima kasih.</p>
-            </div>
+              <div className="mb-6 text-[11pt] shrink-0">
+                  <p>Yth. <b>{data.targetOffice}</b></p>
+                  <p>{data.targetAddress}</p>
+                  <p>Di Tempat</p>
+              </div>
 
-            <div className="mt-12 shrink-0 text-right">
-               <p className="mb-20 font-bold">Hormat Kami,</p>
-               <p className="font-bold underline uppercase">{data.deanName}</p>
-               <p>NIP. {data.deanNip}</p>
-            </div>
-        </div>
-      )}
-    </div>
-  );
+              <div className="flex-grow text-[11pt] leading-relaxed text-justify overflow-hidden">
+                  <p className="mb-3">Dengan hormat,</p>
+                  <p className="mb-3">Dalam rangka pemenuhan persyaratan akademik dan penyelesaian tugas akhir mahasiswa, kami memohon kesediaan Bapak/Ibu untuk memberikan izin penelitian kepada:</p>
+                  
+                  <div className="ml-8 mb-4 space-y-1 font-sans text-[10pt] border-l-4 border-slate-100 pl-6 italic py-1 break-inside-avoid">
+                      <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama Lengkap</span><span>:</span><span className="font-bold uppercase tracking-tight">{data.studentName}</span></div>
+                      <div className="grid grid-cols-[140px_10px_1fr]"><span>Nomor Induk (NIM)</span><span>:</span><span className="font-mono">{data.studentId}</span></div>
+                      <div className="grid grid-cols-[140px_10px_1fr]"><span>Program Studi</span><span>:</span><span>{data.department}</span></div>
+                  </div>
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 uppercase tracking-widest text-xs">Initializing...</div>;
+                  <p className="mb-3">Penelitian tersebut akan dilakukan dengan rincian sebagai berikut:</p>
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 font-sans text-[10pt] mb-4 space-y-2 print:bg-transparent print:border-black break-inside-avoid">
+                      <p className="leading-snug"><b>Judul Penelitian:</b><br/><span className="italic">"{data.researchTitle}"</span></p>
+                      <p><b>Durasi:</b> {data.duration}</p>
+                  </div>
+
+                  <p className="mb-4">
+                  Segala data yang diperoleh akan dijaga kerahasiaannya dan hanya akan dipergunakan untuk kepentingan pengembangan ilmu pengetahuan secara akademik.
+                  </p>
+
+                  <p>Demikian permohonan ini kami sampaikan. Atas bantuan dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.</p>
+              </div>
+
+              <div className="mt-auto pt-8 shrink-0 break-inside-avoid">
+                  <table className="w-full table-fixed font-sans">
+                  <tbody>
+                      <tr>
+                      <td className="w-1/2"></td>
+                      <td className="text-center">
+                          <p className="font-bold mb-20 uppercase text-[9pt] tracking-widest text-slate-400">Mengetahui,</p>
+                          <div className="flex flex-col items-center">
+                              <p className="font-bold underline uppercase text-[10pt] tracking-tight">{data.deanName}</p>
+                              <p className="text-[9pt] mt-0.5">NIP. {data.deanNip}</p>
+                          </div>
+                      </td>
+                      </tr>
+                  </tbody>
+                  </table>
+              </div>
+          </div>
+        )}
+
+        {templateId === 2 && (
+          <div className="flex flex-col h-full font-sans text-[10.5pt]">
+              <div className="border-b-2 border-slate-900 pb-4 mb-8 shrink-0 flex justify-between items-start">
+                  <div>
+                      <h1 className="text-xl font-black uppercase text-slate-900 leading-none tracking-tighter">{data.university}</h1>
+                      <p className="text-xs font-bold text-blue-600 mt-1 uppercase tracking-widest">{data.faculty}</p>
+                  </div>
+                  <div className="text-right text-[9pt] text-slate-500 font-mono">
+                      <p>Ref No: {data.docNo}</p>
+                      <p>{formatDateSafe(data.date)}</p>
+                  </div>
+              </div>
+
+              <div className="mb-10 shrink-0">
+                  <p className="text-slate-400 uppercase text-[10px] font-black tracking-widest mb-2">Recipient</p>
+                  <p className="font-black text-lg text-slate-800 uppercase">{data.targetOffice}</p>
+                  <p className="text-sm text-slate-500 w-2/3">{data.targetAddress}</p>
+              </div>
+
+              <div className="flex-grow space-y-6 text-justify leading-relaxed">
+                  <div className="border-l-4 border-slate-800 pl-6 py-2 bg-slate-50 print:bg-transparent">
+                    <p className="font-black text-slate-900 text-sm uppercase">Subject: Field Research Access Request</p>
+                  </div>
+                  
+                  <p>
+                    With respect to the academic requirements for the completion of the undergraduate thesis, we hereby formally request access for our student to conduct data collection and analysis within your organization.
+                  </p>
+                  
+                  <div className="bg-white border-2 border-slate-100 p-6 rounded-3xl space-y-4 print:border-black break-inside-avoid">
+                      <div className="grid grid-cols-[100px_1fr] gap-2">
+                        <span className="text-[10px] font-black text-slate-300 uppercase">Researcher</span>
+                        <span className="font-black uppercase text-slate-800">{data.studentName}</span>
+                        <span className="text-[10px] font-black text-slate-300 uppercase">ID No.</span>
+                        <span className="font-mono">{data.studentId}</span>
+                        <span className="text-[10px] font-black text-slate-300 uppercase">Project</span>
+                        <span className="italic text-sm">"{data.researchTitle}"</span>
+                      </div>
+                  </div>
+
+                  <p>
+                    The proposed study period is <strong>{data.duration}</strong>. We guarantee that all data acquired will be handled with strict confidentiality and used solely for academic purposes in compliance with ethics standards.
+                  </p>
+                  
+                  <p>We look forward to your positive response regarding this matter. Thank you for your support of academic research.</p>
+              </div>
+
+              <div className="mt-16 shrink-0 text-right break-inside-avoid">
+                  <div className="font-serif italic text-2xl text-slate-300 mb-4 print:text-black">Best Regards,</div>
+                  <p className="font-black text-slate-900 text-lg underline uppercase tracking-tight">{data.deanName}</p>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mt-1">NIP. {data.deanNip}</p>
+              </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
-      {/* GLOBAL CSS PRINT */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
-          
-          #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
-          }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
-      {/* HEADER NAV */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
+      {/* NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-               <ArrowLeft size={18} /> Dashboard
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
                <FileSearch size={16} className="text-blue-500" /> <span>Research Permit Builder</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
-                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
               </button>
-              {showTemplateMenu && <TemplateMenu />}
+              {showTemplateMenu && (
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Standar Kampus {templateId === 1 && <Check size={14}/>}</button>
+                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Formal Instansi {templateId === 2 && <Check size={14}/>}</button>
+                </div>
+              )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+            <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
             </button>
           </div>
-        </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        
         {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Penelitian</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-              
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Institusi Kampus</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.university} onChange={e => handleDataChange('university', e.target.value)} placeholder="Nama Universitas" />
-                 <input className="w-full p-2 border rounded text-xs" value={data.faculty} onChange={e => handleDataChange('faculty', e.target.value)} placeholder="Fakultas" />
-                 <input className="w-full p-2 border rounded text-xs" value={data.department} onChange={e => handleDataChange('department', e.target.value)} placeholder="Program Studi" />
-                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.campusAddress} onChange={e => handleDataChange('campusAddress', e.target.value)} placeholder="Alamat Kampus" />
+        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Riset</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Kampus</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.university} onChange={e => handleDataChange('university', e.target.value)} placeholder="Nama Kampus" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.faculty} onChange={e => handleDataChange('faculty', e.target.value)} placeholder="Fakultas" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.department} onChange={e => handleDataChange('department', e.target.value)} placeholder="Program Studi" />
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 font-sans space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Data Peneliti</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.studentName} onChange={e => handleDataChange('studentName', e.target.value)} placeholder="Nama Mahasiswa" />
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Mahasiswa</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none uppercase" value={data.studentName} onChange={e => handleDataChange('studentName', e.target.value)} placeholder="Nama Peneliti" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.studentId} onChange={e => handleDataChange('studentId', e.target.value)} placeholder="NIM" />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Search size={12}/> Objek Riset</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none" value={data.targetOffice} onChange={e => handleDataChange('targetOffice', e.target.value)} placeholder="Tujuan Instansi" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed italic" value={data.researchTitle} onChange={e => handleDataChange('researchTitle', e.target.value)} placeholder="Judul Riset" />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 tracking-widest flex items-center gap-2"><PenTool size={12}/> Otoritas</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-slate-500 outline-none" value={data.deanName} onChange={e => handleDataChange('deanName', e.target.value)} placeholder="Nama Dekan/Kaprodi" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.deanNip} onChange={e => handleDataChange('deanNip', e.target.value)} placeholder="NIP" />
                  <div className="grid grid-cols-2 gap-2">
-                    <input className="w-full p-2 border rounded text-xs" value={data.studentId} onChange={e => handleDataChange('studentId', e.target.value)} placeholder="NIM" />
-                    <input className="w-full p-2 border rounded text-xs" value={data.semester} onChange={e => handleDataChange('semester', e.target.value)} placeholder="Semester" />
+                    <input className="w-full p-2 border rounded-lg text-xs uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
+                    <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
                  </div>
               </div>
-
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 font-sans space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 flex items-center gap-2"><Search size={12}/> Detail Penelitian</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.targetOffice} onChange={e => handleDataChange('targetOffice', e.target.value)} placeholder="Tujuan (Instansi)" />
-                 <textarea className="w-full p-2 border rounded text-xs h-24 resize-none leading-relaxed italic" value={data.researchTitle} onChange={e => handleDataChange('researchTitle', e.target.value)} placeholder="Judul Penelitian" />
-                 <div className="grid grid-cols-2 gap-2">
-                    <input className="w-full p-2 border rounded text-xs" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
-                    <input className="w-full p-2 border rounded text-xs" value={data.duration} onChange={e => handleDataChange('duration', e.target.value)} placeholder="Durasi" />
-                 </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 font-sans space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-slate-700 border-b pb-1 flex items-center gap-2"><PenTool size={12}/> Otoritas Pengesah</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.deanName} onChange={e => handleDataChange('deanName', e.target.value)} placeholder="Nama Dekan/Kaprodi" />
-                 <input className="w-full p-2 border rounded text-xs" value={data.deanNip} onChange={e => handleDataChange('deanNip', e.target.value)} placeholder="NIP" />
-                 <div className="grid grid-cols-2 gap-2">
-                    <input className="w-full p-2 border rounded text-xs" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
-                    <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                 </div>
-              </div>
-              <div className="h-20 md:hidden"></div>
            </div>
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                    <ResearchContent />
-                 </div>
-               </div>
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
+                <ResearchContent />
             </div>
+            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
         </div>
       </main>
 
       {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
+          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
+          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      {/* PRINT AREA */}
-      <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
-            <ResearchContent />
-         </div>
-      </div>
-
+      <div id="print-only-root" className="hidden"><div className="bg-white"><ResearchContent /></div></div>
     </div>
   );
 }

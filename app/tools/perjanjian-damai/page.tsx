@@ -2,24 +2,20 @@
 
 /**
  * FILE: PerjanjianDamaiPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Perjanjian Perdamaian (Settlement Agreement)
- * FEATURES:
- * - Dual Template (Full Legal Formal vs Compact)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
  */
 
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  HeartHandshake, ShieldAlert, Users, Scale, CalendarDays, FileText, User, Edit3, Eye, RotateCcw
+  HeartHandshake, ShieldAlert, Users, Scale, CalendarDays, FileText, User, Edit3, Eye, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface SettlementData {
@@ -60,7 +56,7 @@ interface SettlementData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: SettlementData = {
   day: 'SENIN',
-  date: '', // Diisi useEffect
+  date: '', 
   city: 'JAKARTA',
   
   p1Name: 'BUDI SANTOSO', 
@@ -91,7 +87,7 @@ const INITIAL_DATA: SettlementData = {
 // --- 3. KOMPONEN UTAMA ---
 export default function PerjanjianDamaiPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Legal Editor...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Legal Editor...</div>}>
       <DamaiBuilder />
     </Suspense>
   );
@@ -104,6 +100,7 @@ function DamaiBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<SettlementData>(INITIAL_DATA);
+  const [showDonation, setShowDonation] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -116,331 +113,280 @@ function DamaiBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
         setData({ ...INITIAL_DATA, date: today });
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Legal Formal (2 Halaman)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Compact Rapi (1 Halaman)
-        </button>
-    </div>
-  );
-
   const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
 
   // --- KOMPONEN ISI SURAT ---
-  const DocumentContent = () => (
-    <div className="flex flex-col gap-8 print:gap-0 font-serif text-slate-900 leading-normal text-[11pt]">
-      {/* TEMPLATE 1: FORMAL (2 HALAMAN) */}
-      {templateId === 1 && (
-        <>
-          {/* HALAMAN 1 */}
-          <div className="bg-white flex flex-col box-border p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto mb-8 print:mb-0">
-              <div className="text-center mb-8 pb-4 border-b-2 border-black shrink-0">
-                <h1 className="font-black text-xl uppercase tracking-widest underline">SURAT PERJANJIAN PERDAMAIAN</h1>
-              </div>
+  const DocumentContent = () => {
+    const formatDateSafe = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+        } catch { return dateString; }
+    };
 
-              <p className="mb-4 text-justify">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
-
-              <div className="ml-4 mb-4 text-sm shrink-0">
-                <table className="w-full leading-snug">
-                    <tbody>
-                      <tr><td className="w-24 font-bold align-top">Nama</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p1Name}</td></tr>
-                      <tr><td className="align-top">NIK</td><td className="align-top">:</td><td className="align-top">{data.p1Nik}</td></tr>
-                      <tr><td className="align-top">Pekerjaan</td><td className="align-top">:</td><td className="align-top">{data.p1Job}</td></tr>
-                      <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p1Address}</td></tr>
-                    </tbody>
-                </table>
-                <div className="mt-1 italic">Selanjutnya disebut <strong>PIHAK PERTAMA</strong>.</div>
-              </div>
-
-              <div className="ml-4 mb-6 text-sm shrink-0">
-                <table className="w-full leading-snug">
-                    <tbody>
-                      <tr><td className="w-24 font-bold align-top">Nama</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p2Name}</td></tr>
-                      <tr><td className="align-top">NIK</td><td className="align-top">:</td><td className="align-top">{data.p2Nik}</td></tr>
-                      <tr><td className="align-top">Pekerjaan</td><td className="align-top">:</td><td className="align-top">{data.p2Job}</td></tr>
-                      <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p2Address}</td></tr>
-                    </tbody>
-                </table>
-                <div className="mt-1 italic">Selanjutnya disebut <strong>PIHAK KEDUA</strong>.</div>
-              </div>
-
-              <p className="mb-4 text-justify">Kedua Belah Pihak secara sadar mengakui telah terjadi peristiwa <strong>{data.incidentTitle}</strong> pada tanggal {isClient && data.incidentDate ? new Date(data.incidentDate).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : ''} dengan rincian:</p>
-              <div className="bg-slate-50 p-4 border rounded italic text-sm mb-6 print:bg-transparent print:border-black">
-                "{data.incidentDetail}"
-              </div>
-
-              <p className="mb-4 text-justify">Bahwa atas peristiwa tersebut, Kedua Belah Pihak telah sepakat untuk berdamai dengan ketentuan sebagai berikut:</p>
-
-              <div className="mb-4">
-                <div className="text-center font-bold uppercase mb-2">PASAL 1<br/>KESEPAKATAN GANTI RUGI</div>
-                <p className="text-sm text-justify">PIHAK PERTAMA bersedia memberikan ganti rugi/kompensasi kepada PIHAK KEDUA sebesar <strong>{data.compensation}</strong> ({data.compensationText}) sebagai bentuk pertanggungjawaban atas kerugian yang dialami. {data.settlementDetail}</p>
-              </div>
-
-              <div className="text-right mt-auto text-[10px] text-slate-400 italic">Halaman 1 dari 2</div>
-          </div>
-
-          {/* HALAMAN 2 */}
-          <div className="bg-white flex flex-col box-border p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
-              <div className="space-y-6 text-justify pt-4">
-                <div>
-                    <div className="text-center font-bold uppercase mb-2">PASAL 2<br/>PENGHENTIAN TUNTUTAN</div>
-                    <p className="text-sm">Dengan ditandatanganinya surat ini, maka PIHAK KEDUA menyatakan bahwa permasalahan ini telah <strong>SELESAI</strong>. PIHAK KEDUA tidak akan melakukan tuntutan hukum apapun di kemudian hari, baik secara Perdata maupun Pidana.</p>
-                </div>
-                <div>
-                    <div className="text-center font-bold uppercase mb-2">PASAL 3<br/>KEKELUARGAAN</div>
-                    <p className="text-sm">Kedua Belah Pihak sepakat untuk saling memaafkan dan menjalin hubungan baik di masa depan, serta tidak akan saling mengungkit kembali permasalahan ini.</p>
+    return (
+      <div className="flex flex-col gap-8 print:gap-0 font-serif text-slate-900 leading-normal text-[11pt]">
+        {/* TEMPLATE 1: FORMAL (2 HALAMAN) */}
+        {templateId === 1 && (
+          <>
+            {/* HALAMAN 1 */}
+            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto mb-8 print:mb-0">
+                <div className="text-center mb-8 pb-4 border-b-2 border-black shrink-0">
+                  <h1 className="font-black text-xl uppercase tracking-widest underline">SURAT PERJANJIAN PERDAMAIAN</h1>
                 </div>
 
-                {data.additionalClause && (
-                  <div>
-                    <div className="text-center font-bold uppercase mb-2">PASAL 4<br/>LAIN-LAIN</div>
-                    <p className="text-sm whitespace-pre-wrap">{data.additionalClause}</p>
+                <div className="flex-grow">
+                  <p className="mb-4 text-justify">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
+
+                  <div className="ml-4 mb-4 text-sm shrink-0 break-inside-avoid">
+                    <table className="w-full leading-snug">
+                        <tbody>
+                          <tr><td className="w-24 font-bold align-top">Nama</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p1Name}</td></tr>
+                          <tr><td className="align-top">NIK</td><td className="align-top">:</td><td className="align-top font-mono">{data.p1Nik}</td></tr>
+                          <tr><td className="align-top">Pekerjaan</td><td className="align-top">:</td><td className="align-top">{data.p1Job}</td></tr>
+                          <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p1Address}</td></tr>
+                        </tbody>
+                    </table>
+                    <div className="mt-1 italic">Bertindak untuk dan atas nama pribadi, selanjutnya disebut <strong>PIHAK PERTAMA</strong>.</div>
                   </div>
-                )}
 
-                <p className="mt-8 text-sm">Demikian surat perjanjian perdamaian ini dibuat dalam keadaan sadar, sehat jasmani dan rohani, tanpa ada paksaan dari pihak manapun.</p>
+                  <div className="ml-4 mb-6 text-sm shrink-0 break-inside-avoid">
+                    <table className="w-full leading-snug">
+                        <tbody>
+                          <tr><td className="w-24 font-bold align-top">Nama</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p2Name}</td></tr>
+                          <tr><td className="align-top">NIK</td><td className="align-top">:</td><td className="align-top font-mono">{data.p2Nik}</td></tr>
+                          <tr><td className="align-top">Pekerjaan</td><td className="align-top">:</td><td className="align-top">{data.p2Job}</td></tr>
+                          <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p2Address}</td></tr>
+                        </tbody>
+                    </table>
+                    <div className="mt-1 italic">Bertindak untuk dan atas nama pribadi, selanjutnya disebut <strong>PIHAK KEDUA</strong>.</div>
+                  </div>
+
+                  <p className="mb-4 text-justify">Kedua Belah Pihak secara sadar mengakui telah terjadi peristiwa <strong>{data.incidentTitle}</strong> pada tanggal {formatDateSafe(data.incidentDate)} dengan rincian:</p>
+                  <div className="bg-slate-50 p-4 border rounded italic text-sm mb-6 print:bg-transparent print:border-black break-inside-avoid">
+                    "{data.incidentDetail}"
+                  </div>
+
+                  <p className="mb-6 text-justify">Bahwa atas peristiwa tersebut, PARA PIHAK sepakat berdamai dengan ketentuan sebagai berikut:</p>
+
+                  <div className="mb-4 break-inside-avoid">
+                    <div className="text-center font-bold uppercase mb-2 text-sm underline">PASAL 1: KESEPAKATAN GANTI RUGI</div>
+                    <p className="text-sm text-justify">PIHAK PERTAMA bersedia memberikan ganti rugi kepada PIHAK KEDUA sebesar <strong>{data.compensation}</strong> ({data.compensationText}) sebagai bentuk tanggung jawab. {data.settlementDetail}</p>
+                  </div>
+                </div>
+
+                <div className="text-right mt-auto text-[10px] text-slate-300 italic">Halaman 1 dari 2</div>
+            </div>
+
+            {/* HALAMAN 2 */}
+            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+                <div className="space-y-8 text-justify pt-4 flex-grow">
+                  <div className="break-inside-avoid">
+                      <div className="text-center font-bold uppercase mb-2 text-sm underline">PASAL 2: PENGHENTIAN TUNTUTAN</div>
+                      <p className="text-sm">Dengan ditandatanganinya surat ini, PIHAK KEDUA menyatakan permasalahan telah <strong>SELESAI</strong>. PIHAK KEDUA tidak akan melakukan tuntutan hukum apapun, baik Perdata maupun Pidana.</p>
+                  </div>
+                  <div className="break-inside-avoid">
+                      <div className="text-center font-bold uppercase mb-2 text-sm underline">PASAL 3: KEKELUARGAAN</div>
+                      <p className="text-sm">PARA PIHAK sepakat untuk saling memaafkan dan menjalin hubungan baik di masa depan, serta tidak akan saling mengungkit kembali permasalahan ini.</p>
+                  </div>
+
+                  {data.additionalClause && (
+                    <div className="break-inside-avoid">
+                      <div className="text-center font-bold uppercase mb-2 text-sm underline">PASAL 4: LAIN-LAIN</div>
+                      <p className="text-sm whitespace-pre-wrap">{data.additionalClause}</p>
+                    </div>
+                  )}
+
+                  <p className="mt-8 text-sm italic">Demikian surat perjanjian ini dibuat dalam keadaan sadar tanpa paksaan dari pihak manapun.</p>
+                </div>
+
+                <div className="mt-12 shrink-0 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+                  <div className="grid grid-cols-2 gap-8 text-center text-sm mb-12">
+                      <div>
+                          <p className="mb-2 font-bold uppercase text-[10px] text-slate-400">Pihak Pertama</p>
+                          <div className="h-24 flex flex-col justify-end">
+                            <div className="border border-slate-200 w-24 h-14 mx-auto mb-[-2.5rem] flex items-center justify-center text-[7px] text-slate-300 italic uppercase">Materai</div>
+                            <p className="font-bold underline uppercase relative z-10">{data.p1Name}</p>
+                          </div>
+                      </div>
+                      <div>
+                          <p className="mb-2 font-bold uppercase text-[10px] text-slate-400">Pihak Kedua</p>
+                          <div className="h-24 flex flex-col justify-end">
+                             <p className="font-bold underline uppercase">{data.p2Name}</p>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div className="text-center text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-4">Saksi-Saksi</div>
+                  <div className="grid grid-cols-2 gap-8 text-center text-xs">
+                      <div>
+                          <p className="mb-12 border-b border-slate-200 w-3/4 mx-auto"></p>
+                          <p>( {data.witness1} )</p>
+                      </div>
+                      <div>
+                          <p className="mb-12 border-b border-slate-200 w-3/4 mx-auto"></p>
+                          <p>( {data.witness2} )</p>
+                      </div>
+                  </div>
+                </div>
+                <div className="text-right mt-auto text-[10px] text-slate-300 italic">Halaman 2 dari 2</div>
+            </div>
+          </>
+        )}
+
+        {/* TEMPLATE 2: COMPACT (1 HALAMAN) */}
+        {templateId === 2 && (
+          <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+              <div className="text-center mb-10 border-b-4 border-slate-900 pb-2 shrink-0">
+                <h1 className="font-black text-2xl uppercase tracking-tighter">SURAT PERNYATAAN DAMAI</h1>
+              </div>
+              <p className="mb-4 text-justify text-sm">Pada hari ini {data.day}, {formatDateSafe(data.date)}, bertempat di {data.city}, PARA PIHAK sepakat berdamai atas insiden <strong>{data.incidentTitle}</strong>:</p>
+
+              <div className="grid grid-cols-2 gap-6 mb-6 text-[9pt] shrink-0 break-inside-avoid">
+                <div className="border-l-4 border-emerald-500 p-3 bg-slate-50 rounded-r-xl print:bg-transparent print:border-2">
+                  <div className="font-black uppercase mb-1 text-emerald-700">PIHAK I</div>
+                  <b>{data.p1Name}</b><br/>{data.p1Nik}<br/>{data.p1Address}
+                </div>
+                <div className="border-l-4 border-blue-500 p-3 bg-slate-50 rounded-r-xl print:bg-transparent print:border-2">
+                  <div className="font-black uppercase mb-1 text-blue-700">PIHAK II</div>
+                  <b>{data.p2Name}</b><br/>{data.p2Nik}<br/>{data.p2Address}
+                </div>
               </div>
 
-              {/* TANDA TANGAN */}
-              <div className="mt-12 shrink-0" style={{ pageBreakInside: 'avoid' }}>
-                <div className="grid grid-cols-2 gap-8 text-center text-sm mb-12">
-                    <div>
-                        <p className="mb-2 font-bold uppercase">Pihak Pertama</p>
-                        <p className="text-xs mb-16">{data.p1Name}</p>
-                        <div className="border border-slate-300 w-24 h-14 mx-auto mb-[-3.5rem] mt-[-3rem] flex items-center justify-center text-[8px] text-slate-400 italic print:border-black print:text-black">MATERAI</div>
-                        <p className="font-bold underline uppercase relative z-10">{data.p1Name}</p>
+              <div className="mb-6 border-2 border-dashed border-slate-200 p-5 text-sm italic text-slate-600 bg-slate-50/50 print:bg-transparent print:border-black shrink-0 break-inside-avoid">
+                " {data.incidentDetail} "
+              </div>
+
+              <div className="text-[11pt] text-justify space-y-6 flex-grow">
+                <p>PIHAK I memberikan ganti rugi sebesar <strong>{data.compensation}</strong>. Dengan ini permasalahan dinyatakan selesai secara kekeluargaan.</p>
+                <p>PARA PIHAK tidak akan melakukan tuntutan hukum di kemudian hari. {data.additionalClause}</p>
+                <p>Demikian surat pernyataan ini dibuat agar dapat dipergunakan semestinya.</p>
+              </div>
+
+              <div className="mt-12 shrink-0 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+                  <div className="flex justify-between text-center mb-16 text-sm">
+                    <div className="w-48">
+                        <p className="mb-4 font-bold uppercase text-[10px] text-slate-300">Pihak I</p>
+                        <div className="border border-slate-200 w-20 h-12 mx-auto mb-2 flex items-center justify-center text-[8px] text-slate-300 italic">MATERAI</div>
+                        <p className="font-bold underline uppercase">{data.p1Name}</p>
                     </div>
-                    <div>
-                        <p className="mb-2 font-bold uppercase">Pihak Kedua</p>
-                        <p className="text-xs mb-16">{data.p2Name}</p>
+                    <div className="w-48">
+                        <p className="mb-4 font-bold uppercase text-[10px] text-slate-300">Pihak II</p>
+                        <div className="h-12 mb-2"></div>
                         <p className="font-bold underline uppercase">{data.p2Name}</p>
                     </div>
-                </div>
+                  </div>
 
-                <div className="text-center text-xs">
-                    <p className="mb-4 font-bold">SAKSI-SAKSI</p>
-                    <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
-                        <div>
-                            <p className="mb-8 border-b border-black w-3/4 mx-auto"></p>
-                            <p>( {data.witness1} )</p>
-                        </div>
-                        <div>
-                            <p className="mb-8 border-b border-black w-3/4 mx-auto"></p>
-                            <p>( {data.witness2} )</p>
-                        </div>
-                    </div>
-                </div>
+                  <div className="text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest border-t pt-4">Saksi: {data.witness1} & {data.witness2}</div>
               </div>
-
-              <div className="text-right mt-auto text-[10px] text-slate-400 italic">Halaman 2 dari 2</div>
           </div>
-        </>
-      )}
+        )}
+      </div>
+    );
+  };
 
-      {/* TEMPLATE 2: COMPACT (1 HALAMAN) */}
-      {templateId === 2 && (
-        <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
-            <div className="text-center mb-6 border-b-2 border-black pb-2 shrink-0">
-              <h1 className="font-bold text-xl uppercase underline">SURAT PERNYATAAN DAMAI</h1>
-            </div>
-            <p className="mb-4 text-justify text-sm">Pada hari ini {data.day}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {dateStyle:'full'}) : ''}, bertempat di {data.city}, kami yang bertanda tangan di bawah ini sepakat berdamai atas peristiwa <strong>{data.incidentTitle}</strong>:</p>
-
-            <div className="grid grid-cols-2 gap-4 mb-4 text-[10px] shrink-0">
-              <div className="border border-black p-2 rounded">
-                <div className="font-bold uppercase mb-1 border-b border-black">Pihak I</div>
-                Nama: {data.p1Name}<br/>NIK: {data.p1Nik}<br/>Alamat: {data.p1Address}
-              </div>
-              <div className="border border-black p-2 rounded">
-                <div className="font-bold uppercase mb-1 border-b border-black">Pihak II</div>
-                Nama: {data.p2Name}<br/>NIK: {data.p2Nik}<br/>Alamat: {data.p2Address}
-              </div>
-            </div>
-
-            <div className="mb-4 border border-black p-4 text-xs italic bg-slate-50 print:bg-transparent shrink-0">
-              " {data.incidentDetail} "
-            </div>
-
-            <div className="text-sm text-justify space-y-4 flex-grow">
-              <p>Pihak I memberikan ganti rugi sebesar <strong>{data.compensation}</strong>. Dengan ini permasalahan dinyatakan selesai secara kekeluargaan.</p>
-              <p>Kedua Pihak tidak akan melakukan tuntutan hukum di kemudian hari. {data.additionalClause}</p>
-              <p className="pt-2">Demikian surat pernyataan ini dibuat agar dapat dipergunakan semestinya.</p>
-            </div>
-
-            <div className="mt-12 shrink-0" style={{ pageBreakInside: 'avoid' }}>
-                <div className="flex justify-between text-center mb-12 text-sm">
-                <div className="w-40">
-                    <p className="mb-4 font-bold uppercase">Pihak I</p>
-                    <div className="border border-slate-300 w-20 h-12 mx-auto mb-2 flex items-center justify-center text-[8px] text-slate-300 italic print:border-black print:text-black">MATERAI</div>
-                    <p className="font-bold underline uppercase">{data.p1Name}</p>
-                </div>
-                <div className="w-40">
-                    <p className="mb-16 font-bold uppercase">Pihak Kedua</p>
-                    <p className="font-bold underline uppercase">{data.p2Name}</p>
-                </div>
-                </div>
-
-                <div className="text-center text-xs">
-                <p className="mb-10 font-bold underline uppercase">Saksi-Saksi</p>
-                <div className="flex justify-center gap-12">
-                    <div>( {data.witness1} )</div>
-                    <div>( {data.witness2} )</div>
-                </div>
-                </div>
-            </div>
-        </div>
-      )}
-    </div>
-  );
-
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Loading...</div>;
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
-      {/* GLOBAL CSS PRINT */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
-          
-          #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
-          }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
       {/* HEADER NAV */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-               <ArrowLeft size={18} /> Dashboard
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
-               <HeartHandshake size={16} className="text-emerald-500" /> <span>SETTLEMENT BUILDER</span>
+            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
+               <HeartHandshake size={16} className="text-emerald-500" /> <span>Settlement Builder</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
-                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
               </button>
-              {showTemplateMenu && <TemplateMenu />}
+              {showTemplateMenu && (
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Legal Formal (2 Hal) {templateId === 1 && <Check size={14}/>}</button>
+                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Compact Rapi (1 Hal) {templateId === 2 && <Check size={14}/>}</button>
+                </div>
+              )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+            <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
             </button>
           </div>
-        </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        
         {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Perjanjian</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-              
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 flex items-center gap-2"><CalendarDays size={12}/> Waktu & Lokasi</h3>
-                 <div className="grid grid-cols-2 gap-2">
-                    <input className="w-full p-2 border rounded text-xs" value={data.day} onChange={e => handleDataChange('day', e.target.value)} placeholder="Hari" />
-                    <input className="w-full p-2 border rounded text-xs" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
-                 </div>
-                 <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Legal</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Pihak Pertama</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} placeholder="Nama Lengkap" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.p1Nik} onChange={e => handleDataChange('p1Nik', e.target.value)} placeholder="NIK" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} placeholder="Alamat Lengkap" />
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><User size={12}/> Para Pihak</h3>
-                 <div className="space-y-4">
-                    <div className="p-3 bg-emerald-50/50 rounded-lg border border-emerald-100 space-y-2">
-                       <label className="text-[9px] font-bold text-emerald-700 uppercase">Pihak I (Pelaku/Penanggung)</label>
-                       <input className="w-full p-2 border rounded text-xs font-bold" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} placeholder="Nama" />
-                       <input className="w-full p-2 border rounded text-xs" value={data.p1Nik} onChange={e => handleDataChange('p1Nik', e.target.value)} placeholder="NIK" />
-                       <input className="w-full p-2 border rounded text-xs" value={data.p1Job} onChange={e => handleDataChange('p1Job', e.target.value)} placeholder="Pekerjaan" />
-                       <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} placeholder="Alamat" />
-                    </div>
-                    <div className="p-3 bg-blue-50/50 rounded-lg border border-blue-100 space-y-2">
-                       <label className="text-[9px] font-bold text-blue-700 uppercase">Pihak II (Korban/Penerima)</label>
-                       <input className="w-full p-2 border rounded text-xs font-bold" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} placeholder="Nama" />
-                       <input className="w-full p-2 border rounded text-xs" value={data.p2Nik} onChange={e => handleDataChange('p2Nik', e.target.value)} placeholder="NIK" />
-                       <input className="w-full p-2 border rounded text-xs" value={data.p2Job} onChange={e => handleDataChange('p2Job', e.target.value)} placeholder="Pekerjaan" />
-                       <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} placeholder="Alamat" />
-                    </div>
-                 </div>
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Pihak Kedua</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} placeholder="Nama Lengkap" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.p2Nik} onChange={e => handleDataChange('p2Nik', e.target.value)} placeholder="NIK" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} placeholder="Alamat Lengkap" />
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 flex items-center gap-2"><ShieldAlert size={12}/> Masalah & Kronologi</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.incidentTitle} onChange={e => handleDataChange('incidentTitle', e.target.value)} placeholder="Judul Masalah" />
-                 <textarea className="w-full p-2 border rounded text-xs h-24 resize-none leading-relaxed" value={data.incidentDetail} onChange={e => handleDataChange('incidentDetail', e.target.value)} placeholder="Kronologi Singkat" />
-                 <input type="date" className="w-full p-2 border rounded text-xs" value={data.incidentDate} onChange={e => handleDataChange('incidentDate', e.target.value)} />
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><ShieldAlert size={12}/> Detail Insiden</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-red-500 outline-none" value={data.incidentTitle} onChange={e => handleDataChange('incidentTitle', e.target.value)} placeholder="Judul Masalah" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs h-24 resize-none focus:ring-2 focus:ring-red-500 outline-none leading-relaxed" value={data.incidentDetail} onChange={e => handleDataChange('incidentDetail', e.target.value)} placeholder="Kronologi Singkat..." />
+                 <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.incidentDate} onChange={e => handleDataChange('incidentDate', e.target.value)} />
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 flex items-center gap-2"><Scale size={12}/> Kesepakatan</h3>
-                 <div className="grid grid-cols-2 gap-2">
-                    <input className="w-full p-2 border rounded text-xs font-bold" value={data.compensation} onChange={e => handleDataChange('compensation', e.target.value)} placeholder="Nominal" />
-                    <input className="w-full p-2 border rounded text-xs" value={data.compensationText} onChange={e => handleDataChange('compensationText', e.target.value)} placeholder="Terbilang" />
-                 </div>
-                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.settlementDetail} onChange={e => handleDataChange('settlementDetail', e.target.value)} placeholder="Detail Ganti Rugi" />
-                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.additionalClause} onChange={e => handleDataChange('additionalClause', e.target.value)} placeholder="Pasal Tambahan" />
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Scale size={12}/> Kesepakatan Damai</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-black text-amber-600 focus:ring-2 focus:ring-amber-500 outline-none" value={data.compensation} onChange={e => handleDataChange('compensation', e.target.value)} placeholder="Nominal Ganti Rugi" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-amber-500 outline-none" value={data.settlementDetail} onChange={e => handleDataChange('settlementDetail', e.target.value)} placeholder="Cara Penyelesaian..." />
               </div>
-
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans">
-                 <h3 className="text-[10px] font-black uppercase text-slate-700 border-b pb-1 flex items-center gap-2"><Users size={12}/> Saksi-Saksi</h3>
-                 <input className="w-full p-2 border rounded text-xs" value={data.witness1} onChange={e => handleDataChange('witness1', e.target.value)} placeholder="Saksi I" />
-                 <input className="w-full p-2 border rounded text-xs" value={data.witness2} onChange={e => handleDataChange('witness2', e.target.value)} placeholder="Saksi II" />
-              </div>
-              <div className="h-20 md:hidden"></div>
            </div>
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                    <DocumentContent />
-                 </div>
-               </div>
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
+                <DocumentContent />
             </div>
+            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
         </div>
       </main>
 
       {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
+          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
+          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      {/* PRINT AREA */}
-      <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
-            <DocumentContent />
-         </div>
-      </div>
-
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }

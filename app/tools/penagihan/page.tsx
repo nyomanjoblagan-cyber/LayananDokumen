@@ -2,31 +2,27 @@
 
 /**
  * FILE: CollectionPage.tsx
- * STATUS: FINAL & MOBILE READY
- * DESC: Generator Surat Penagihan (Collection Letter)
- * FEATURES:
- * - Dual Template (Formal Letter vs Modern Notice)
- * - Tone Selector (Ramah, Tegas, Keras)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
+ * DESC: Generator Surat Penagihan (Collection Letter) dengan Tone Selector
+ * FIX: Menambahkan properti 'city' yang hilang pada interface CollectionData (TS 2339)
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Upload, LayoutTemplate, AlertTriangle, 
   Megaphone, ShieldAlert, Mail, ChevronDown, Check, Edit3, Eye, X,
-  Building2, CreditCard, RotateCcw
+  Building2, CreditCard, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface CollectionData {
   no: string;
   date: string;
+  city: string; // FIX: Menambahkan city ke interface
   
   // Pengirim
   senderName: string;
@@ -55,7 +51,8 @@ interface CollectionData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: CollectionData = {
   no: `COLL/2026/${Math.floor(Math.random() * 1000)}`,
-  date: '', // Diisi useEffect
+  date: '', 
+  city: 'JAKARTA', // FIX: Inisialisasi city
   
   senderName: 'PT. KARYA MAJU SENTOSA',
   senderInfo: 'Jl. Industri Raya No. 88, Cikarang\nEmail: finance@kms.com | WA: 0812-9999-7777',
@@ -71,16 +68,15 @@ const INITIAL_DATA: CollectionData = {
   daysOverdue: 5,
   
   subject: 'Pengingat Pembayaran Invoice No. INV-2025-099',
-  body: 'Kami ingin mengingatkan bahwa Invoice No. INV-2025-099 tertanggal 2025-12-20 telah jatuh tempo pada tanggal 2026-01-20. Mungkin invoice ini terlewat dari perhatian Bapak/Ibu. Mohon konfirmasi jika pembayaran telah dilakukan.',
+  body: 'Kami ingin mengingatkan dengan hormat bahwa Invoice No. INV-2025-099 telah jatuh tempo. Mungkin invoice ini terlewat dari perhatian Bapak/Ibu. Mohon konfirmasi jika pembayaran telah dilakukan.',
   paymentInfo: 'Pembayaran dapat ditransfer ke:\nBCA 123-456-7890 a.n PT Karya Maju Sentosa',
   signer: 'SITI AMINAH',
   signerJob: 'Finance Manager'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function CollectionPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Sistem Penagihan...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem Penagihan...</div>}>
       <CollectionToolBuilder />
     </Suspense>
   );
@@ -97,6 +93,7 @@ function CollectionToolBuilder() {
   const [logo, setLogo] = useState<string | null>(null);
   const [severity, setSeverity] = useState<1 | 2 | 3>(1);
   const [data, setData] = useState<CollectionData>(INITIAL_DATA);
+  const [showDonation, setShowDonation] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -118,7 +115,7 @@ function CollectionToolBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
         setData({ ...INITIAL_DATA, date: today });
         setLogo(null);
@@ -144,281 +141,245 @@ function CollectionToolBuilder() {
     setData(prev => ({ ...prev, subject: newSubject, body: newBody }));
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Surat Resmi (Standard)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Modern Notice
-        </button>
-    </div>
-  );
-
   const activeTemplateName = templateId === 1 ? 'Surat Resmi' : 'Modern Notice';
 
-  // --- KOMPONEN ISI SURAT ---
-  const DocumentContent = () => (
-    // FIX: Print Padding
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-relaxed text-[11pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+  const DocumentContent = () => {
+    const formatDateSafe = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+        } catch { return dateString; }
+    };
+
+    return (
+      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-relaxed text-[11pt] p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
         
-        {/* TEMPLATE 1: SURAT RESMI */}
         {templateId === 1 && (
             <div className="h-full flex flex-col">
-                <div className="flex items-center gap-6 border-b-4 border-slate-800 pb-3 mb-8 shrink-0">
+                <div className="flex items-center gap-6 border-b-4 border-slate-800 pb-3 mb-8 shrink-0 font-sans">
                    <div className="w-16 h-16 flex items-center justify-center shrink-0">
-                      {logo ? <img src={logo} className="w-full h-full object-contain block print:block" /> : <div className="w-full h-full bg-slate-200 flex items-center justify-center text-[10px] text-slate-500 font-bold rounded print:hidden">LOGO</div>}
+                      {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <div className="w-full h-full bg-slate-100 border-2 border-dashed flex items-center justify-center text-[10px] text-slate-400">LOGO</div>}
                    </div>
                    <div className="flex-1 text-center">
-                      <h1 className="text-2xl font-black uppercase text-slate-900 tracking-wide mb-1">{data.senderName}</h1>
-                      <div className="text-xs text-slate-600 whitespace-pre-line leading-tight">{data.senderInfo}</div>
+                      <h1 className="text-2xl font-black uppercase text-slate-900 tracking-tight leading-none mb-1">{data.senderName}</h1>
+                      <div className="text-[9pt] text-slate-500 whitespace-pre-line leading-tight">{data.senderInfo}</div>
                    </div>
                 </div>
 
-                <div className="flex justify-between text-sm mb-8 shrink-0">
+                <div className="flex justify-between text-sm mb-8 shrink-0 font-sans">
                    <div>
                       <div>No: {data.no}</div>
                       <div>Hal: <strong>{data.subject}</strong></div>
                    </div>
-                   <div className="text-right">
-                      {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : ''}
-                   </div>
+                   <div className="text-right">{data.city}, {formatDateSafe(data.date)}</div>
                 </div>
 
-                <div className="mb-8 text-sm shrink-0">
+                <div className="mb-8 text-sm shrink-0 font-sans">
                    <p>Kepada Yth,</p>
-                   <p className="font-bold">{data.receiverName}</p>
-                   <p>{data.receiverCompany}</p>
+                   <p className="font-bold text-lg">{data.receiverName}</p>
+                   <p className="font-bold text-slate-600">{data.receiverCompany}</p>
                    <p className="max-w-xs">{data.receiverAddress}</p>
                 </div>
 
-                <div className="flex-grow text-sm text-justify whitespace-pre-line leading-relaxed overflow-hidden">
-                   Dengan hormat,
-                   {"\n\n"}
+                <div className="flex-grow text-[11pt] text-justify whitespace-pre-line leading-relaxed mb-8">
+                   Dengan hormat,{"\n\n"}
                    {data.body}
                 </div>
 
-                <div className="mt-8 border border-slate-300 rounded p-4 bg-slate-50 print:bg-transparent print:border-black text-sm shrink-0">
-                   <p className="font-bold border-b border-slate-300 pb-2 mb-2 print:border-black">Rincian Kewajiban:</p>
-                   <div className="grid grid-cols-[120px_1fr] gap-2">
-                      <span className="text-slate-500 print:text-black">Nomor Invoice</span><span className="font-mono font-bold">{data.invoiceRef}</span>
-                      <span className="text-slate-500 print:text-black">Jatuh Tempo</span><span className="text-red-600 font-bold print:text-black">{data.dueDate}</span>
-                      <span className="text-slate-500 print:text-black">Total Tagihan</span><span className="font-bold">Rp {data.amount.toLocaleString('id-ID')}</span>
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8 shrink-0 print:bg-transparent print:border-black break-inside-avoid">
+                   <p className="font-bold border-b border-slate-300 pb-2 mb-3 text-xs uppercase tracking-widest text-slate-500 font-sans">Rincian Tunggakan:</p>
+                   <div className="grid grid-cols-[140px_10px_1fr] text-sm gap-y-1 font-sans">
+                      <span>Nomor Invoice</span><span>:</span><span className="font-mono font-bold">{data.invoiceRef}</span>
+                      <span>Jatuh Tempo</span><span>:</span><span className="text-red-600 font-bold">{data.dueDate}</span>
+                      <span>Total Tagihan</span><span>:</span><span className="font-black text-lg">Rp {data.amount.toLocaleString('id-ID')}</span>
                    </div>
                 </div>
 
-                <div className="mt-8 text-sm whitespace-pre-line leading-relaxed bg-blue-50 print:bg-transparent p-4 border-l-4 border-blue-500 print:border-black shrink-0">
-                   <strong>Informasi Pembayaran:</strong>{"\n"}
+                <div className="text-sm whitespace-pre-line leading-relaxed bg-blue-50 p-5 border-l-4 border-blue-500 shrink-0 print:bg-transparent print:border-black break-inside-avoid font-sans">
+                   <strong className="text-blue-800 uppercase text-[10px] tracking-widest block mb-1">Informasi Pembayaran:</strong>
                    {data.paymentInfo}
                 </div>
 
-                <div className="mt-12 flex justify-end shrink-0" style={{ pageBreakInside: 'avoid' }}>
-                   <div className="text-center w-48">
-                      <p className="mb-20">Hormat Kami,</p>
-                      <p className="font-bold underline uppercase">{data.signer}</p>
-                      <p className="text-sm font-sans">{data.signerJob}</p>
+                <div className="shrink-0 mt-12 flex justify-end text-center break-inside-avoid font-sans">
+                   <div className="w-56">
+                      <p className="mb-20 font-bold uppercase text-[10px] tracking-widest text-slate-400">Finance Department,</p>
+                      <p className="font-bold underline uppercase text-sm font-serif">{data.signer}</p>
+                      <p className="text-[10px] uppercase font-bold text-slate-500 mt-1">{data.signerJob}</p>
                    </div>
                 </div>
             </div>
         )}
 
-        {/* TEMPLATE 2: MODERN NOTICE */}
         {templateId === 2 && (
             <div className="flex flex-col h-full font-sans text-[10.5pt]">
                <div className={`h-4 w-full mb-8 shrink-0 ${severity === 1 ? 'bg-emerald-500' : severity === 2 ? 'bg-amber-500' : 'bg-red-600'} print:bg-black`}></div>
                <div className="flex justify-between items-start mb-12 shrink-0">
                   <div>
-                     <h1 className="text-4xl font-bold text-slate-800 tracking-tight mb-1 uppercase print:text-black">
-                        {severity === 1 ? 'PAYMENT REMINDER' : severity === 2 ? 'OVERDUE NOTICE' : 'FINAL NOTICE'}
-                     </h1>
-                     <div className="text-sm text-slate-500 font-mono print:text-black">Ref: {data.no}</div>
+                      <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-1 uppercase">
+                         {severity === 1 ? 'Payment Reminder' : severity === 2 ? 'Overdue Notice' : 'Final Demand'}
+                      </h1>
+                      <div className="text-xs text-slate-400 font-mono">Reference: {data.no}</div>
                   </div>
                   <div className="text-right">
-                     {logo && <img src={logo} className="h-12 w-auto object-contain mb-2 ml-auto block print:block" />}
-                     <div className="font-bold text-slate-800 uppercase print:text-black">{data.senderName}</div>
+                     {logo && <img src={logo} className="h-10 w-auto ml-auto mb-2" alt="Logo" />}
+                     <div className="font-black text-slate-900 uppercase text-sm">{data.senderName}</div>
                   </div>
                </div>
 
-               <div className="flex gap-12 mb-12 text-sm shrink-0">
+               <div className="flex gap-12 mb-12 shrink-0 break-inside-avoid">
                   <div className="w-1/2">
-                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 print:text-black">Attention To</h3>
-                     <div className="font-bold text-lg text-slate-800 uppercase print:text-black">{data.receiverName}</div>
-                     <div className="font-medium text-slate-600 print:text-black">{data.receiverCompany}</div>
-                     <div className="text-xs text-slate-500 mt-1 print:text-black">{data.receiverAddress}</div>
+                      <h3 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-3">Bill To:</h3>
+                      <div className="font-black text-xl text-slate-900 uppercase leading-none mb-1">{data.receiverName}</div>
+                      <div className="font-bold text-slate-500 uppercase text-xs mb-2">{data.receiverCompany}</div>
+                      <div className="text-xs text-slate-400 leading-snug">{data.receiverAddress}</div>
                   </div>
                   <div className="w-1/2 text-right">
-                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 print:text-black">Amount Due</h3>
-                     <div className={`text-4xl font-black ${severity === 3 ? 'text-red-600' : 'text-slate-800'} print:text-black`}>
-                        Rp {data.amount.toLocaleString('id-ID')}
-                     </div>
-                     <div className="text-red-500 font-bold mt-1 text-xs print:text-black">
-                        Jatuh Tempo: {data.dueDate} ({data.daysOverdue} Hari Terlambat)
-                     </div>
+                      <h3 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-3">Outstanding Amount:</h3>
+                      <div className={`text-4xl font-black ${severity === 3 ? 'text-red-600' : 'text-slate-900'} leading-none mb-2`}>
+                         Rp {data.amount.toLocaleString('id-ID')}
+                      </div>
+                      <div className="text-red-500 font-bold text-[10px] uppercase tracking-tighter">
+                         Due Date: {data.dueDate} ({data.daysOverdue} Days Past Due)
+                      </div>
                   </div>
                </div>
 
-               <div className="flex-grow text-sm leading-relaxed whitespace-pre-line text-slate-700 overflow-hidden mb-10 print:text-black">
+               <div className="flex-grow text-[11pt] leading-relaxed whitespace-pre-line text-slate-700 mb-10 text-justify italic border-l-4 border-slate-100 pl-8">
                   {data.body}
                </div>
 
-               <div className="bg-slate-50 print:bg-transparent p-6 rounded-lg border border-slate-200 mb-12 shrink-0 print:border-black">
-                  <h4 className="text-sm font-bold text-slate-800 mb-3 border-b border-slate-200 pb-2 print:text-black print:border-black">Payment Details</h4>
-                  <div className="whitespace-pre-line text-sm text-slate-600 font-mono print:text-black">
+               <div className="bg-slate-900 text-white p-8 rounded-3xl mb-12 shrink-0 print:bg-transparent print:text-black print:border-2 print:border-black break-inside-avoid">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-50">Settlement Instructions</h4>
+                  <div className="whitespace-pre-line text-sm font-mono leading-loose">
                      {data.paymentInfo}
                   </div>
                </div>
 
-               <div className="mt-auto flex justify-between items-end shrink-0" style={{ pageBreakInside: 'avoid' }}>
-                  <div className="text-xs text-slate-400 italic max-w-sm print:text-black">
-                     Mohon abaikan surat ini jika pembayaran telah dilakukan dalam 24 jam terakhir.
+               <div className="mt-auto flex justify-between items-end shrink-0 break-inside-avoid">
+                  <div className="text-[8pt] text-slate-400 max-w-[300px] leading-tight">
+                     Please disregard this notice if payment has been settled within the last 48 hours. For inquiries, contact our finance desk.
                   </div>
                   <div className="text-right">
-                     <div className="font-serif italic text-2xl text-slate-400 mb-2 print:text-black">Sincerely,</div>
-                     <div className="font-bold text-slate-800 uppercase print:text-black">{data.signer}</div>
-                     <div className="text-xs text-slate-500 uppercase tracking-widest font-bold print:text-black">{data.signerJob}</div>
+                     <p className="text-[10pt] text-slate-400 font-bold uppercase tracking-widest mb-16">{data.city}, {formatDateSafe(data.date)}</p>
+                     <p className="font-black text-slate-900 text-xl leading-none uppercase tracking-tight">{data.signer}</p>
+                     <p className="text-[10px] text-blue-600 font-black mt-2 uppercase tracking-widest">{data.signerJob}</p>
                   </div>
                </div>
             </div>
         )}
-    </div>
-  );
+      </div>
+    );
+  };
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Loading...</div>;
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
-      {/* GLOBAL CSS PRINT */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
-          
-          #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
-          }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
-      {/* HEADER NAV */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
+      {/* NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-               <ArrowLeft size={18} /> Dashboard
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
-               <AlertTriangle size={16} className="text-red-500" /> <span>COLLECTION LETTER BUILDER</span>
+            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
+               <AlertTriangle size={16} className="text-red-500" /> <span>Collection Letter Builder</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
-                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
               </button>
-              {showTemplateMenu && <TemplateMenu />}
+              {showTemplateMenu && (
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Standard Letter {templateId === 1 && <Check size={14}/>}</button>
+                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Modern Notice {templateId === 2 && <Check size={14}/>}</button>
+                </div>
+              )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+            <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
             </button>
           </div>
-        </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        
-        {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Penagihan</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-              
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Megaphone size={12}/> Tingkat Ketegasan</h3>
+        {/* SIDEBAR */}
+        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+              <div className="bg-slate-900 rounded-xl p-4 space-y-3">
+                 <h3 className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2"><Megaphone size={12}/> Tone Penagihan</h3>
                  <div className="grid grid-cols-3 gap-2">
-                    <button onClick={() => applyTone(1)} className={`p-2 rounded border flex flex-col items-center gap-1 transition-all ${severity === 1 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white text-slate-400 hover:bg-slate-50'}`}><Mail size={16}/><span className="text-[9px] font-bold">Ramah</span></button>
-                    <button onClick={() => applyTone(2)} className={`p-2 rounded border flex flex-col items-center gap-1 transition-all ${severity === 2 ? 'bg-amber-50 border-amber-500 text-amber-700' : 'bg-white text-slate-400 hover:bg-slate-50'}`}><Megaphone size={16}/><span className="text-[9px] font-bold">Tegas</span></button>
-                    <button onClick={() => applyTone(3)} className={`p-2 rounded border flex flex-col items-center gap-1 transition-all ${severity === 3 ? 'bg-red-50 border-red-500 text-red-700' : 'bg-white text-slate-400 hover:bg-slate-50'}`}><ShieldAlert size={16}/><span className="text-[9px] font-bold">Keras</span></button>
+                    <button onClick={() => applyTone(1)} className={`py-2 rounded-lg text-[10px] font-bold border-2 transition-all ${severity === 1 ? 'bg-emerald-600 border-emerald-400 text-white' : 'bg-slate-800 border-slate-700 text-slate-500'}`}>RAMAH</button>
+                    <button onClick={() => applyTone(2)} className={`py-2 rounded-lg text-[10px] font-bold border-2 transition-all ${severity === 2 ? 'bg-amber-600 border-amber-400 text-white' : 'bg-slate-800 border-slate-700 text-slate-500'}`}>TEGAS</button>
+                    <button onClick={() => applyTone(3)} className={`py-2 rounded-lg text-[10px] font-bold border-2 transition-all ${severity === 3 ? 'bg-red-600 border-red-400 text-white' : 'bg-slate-800 border-slate-700 text-slate-500'}`}>KERAS</button>
                  </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Info Pengirim</h3>
-                 <div className="flex items-center gap-4">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-14 h-14 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 relative overflow-hidden shrink-0">
-                       {logo ? <img src={logo} className="w-full h-full object-contain" /> : <Upload size={16} className="text-slate-300" />}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Perusahaan</h3>
+                 <div className="flex items-center gap-4 py-2">
+                    <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 overflow-hidden shrink-0">
+                       {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <Upload size={20} className="text-slate-300" />}
                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
                     </div>
-                    <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.senderName} onChange={e => setData({...data, senderName: e.target.value})} />
-                 </div>
-                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.senderInfo} onChange={e => setData({...data, senderInfo: e.target.value})} />
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><CreditCard size={12}/> Detail Tagihan</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.receiverName} onChange={e => setData({...data, receiverName: e.target.value})} placeholder="Nama Klien" />
-                 <div className="grid grid-cols-2 gap-2">
-                    <input className="w-full p-2 border rounded text-xs" value={data.invoiceRef} onChange={e => setData({...data, invoiceRef: e.target.value})} placeholder="No Invoice" />
-                    <input className="w-full p-2 border rounded text-xs font-bold text-red-600" type="number" value={data.amount} onChange={e => setData({...data, amount: Number(e.target.value)})} />
+                    <input className="flex-1 p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.senderName} onChange={e => handleDataChange('senderName', e.target.value)} placeholder="Nama PT" />
                  </div>
                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                       <label className="text-[9px] font-bold text-slate-400 uppercase">Jatuh Tempo</label>
-                       <input className="w-full p-2 border rounded text-xs" type="date" value={data.dueDate} onChange={e => setData({...data, dueDate: e.target.value})} />
-                    </div>
-                    <div className="space-y-1">
-                       <label className="text-[9px] font-bold text-slate-400 uppercase">Terlambat (Hari)</label>
-                       <input className="w-full p-2 border rounded text-xs" type="number" value={data.daysOverdue} onChange={e => setData({...data, daysOverdue: Number(e.target.value)})} />
-                    </div>
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" type="date" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
                  </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 flex items-center gap-2"><Edit3 size={12}/> Narasi Surat</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.subject} onChange={e => setData({...data, subject: e.target.value})} placeholder="Subjek Surat" />
-                 <textarea className="w-full p-2 border rounded text-xs h-32 resize-none leading-relaxed" value={data.body} onChange={e => setData({...data, body: e.target.value})} />
-                 <textarea className="w-full p-2 border rounded text-xs h-16 resize-none" value={data.paymentInfo} onChange={e => setData({...data, paymentInfo: e.target.value})} placeholder="Info Pembayaran" />
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><CreditCard size={12}/> Detail Hutang</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-bold" value={data.receiverName} onChange={e => handleDataChange('receiverName', e.target.value)} placeholder="Nama Klien" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.invoiceRef} onChange={e => handleDataChange('invoiceRef', e.target.value)} placeholder="No Invoice" />
+                 <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">NOMINAL</label><input type="number" className="w-full p-2 border rounded-lg text-xs font-black text-red-600" value={data.amount} onChange={e => handleDataChange('amount', parseInt(e.target.value) || 0)} /></div>
+                    <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">JATUH TEMPO</label><input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.dueDate} onChange={e => handleDataChange('dueDate', e.target.value)} /></div>
+                 </div>
               </div>
 
-              <div className="h-20 md:hidden"></div>
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Edit3 size={12}/> Narasi</h3>
+                 <textarea className="w-full p-2 border rounded-lg text-xs h-32 focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed" value={data.body} onChange={e => handleDataChange('body', e.target.value)} />
+                 <textarea className="w-full p-2 border rounded-lg text-xs h-20 focus:ring-2 focus:ring-amber-500 outline-none" value={data.paymentInfo} onChange={e => handleDataChange('paymentInfo', e.target.value)} placeholder="Metode Pembayaran..." />
+              </div>
            </div>
         </div>
 
-        {/* PREVIEW AREA */}
-        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                    <DocumentContent />
-                 </div>
-               </div>
+        {/* PREVIEW */}
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
+                <DocumentContent />
             </div>
+            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
         </div>
       </main>
 
       {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
+          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
+          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      {/* PRINT AREA */}
-      <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
-            <DocumentContent />
-         </div>
-      </div>
-
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }

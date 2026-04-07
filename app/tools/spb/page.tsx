@@ -1,11 +1,23 @@
 'use client';
 
-import { useState, Suspense, useEffect, useRef } from 'react';
+/**
+ * FILE: PerintahBayarPage.tsx
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
+ * DESC: Generator Surat Perintah Bayar (SPB) / Payment Order
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML & Optimasi Layout Responsif
+ */
+
+import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Banknote, Building2, LayoutTemplate, ChevronDown, Edit3, Eye, RotateCcw
+  Printer, ArrowLeft, Banknote, Building2, LayoutTemplate, 
+  ChevronDown, Edit3, Eye, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
+// IMPORT KOMPONEN SAKTI (Pastikan file ini ada di path tersebut)
+import DocumentServices from '@/components/DocumentServices';
+
+// --- 1. TYPE DEFINITIONS ---
 interface PaymentData {
   city: string;
   date: string;
@@ -24,6 +36,7 @@ interface PaymentData {
   treasurerJob: string;
 }
 
+// --- 2. DATA DEFAULT ---
 const INITIAL_DATA: PaymentData = {
   city: 'JAKARTA',
   date: '',
@@ -44,78 +57,122 @@ const INITIAL_DATA: PaymentData = {
 
 export default function PerintahBayarPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 text-xs">Loading...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 text-xs bg-slate-50 uppercase tracking-widest font-bold">Memuat Editor...</div>}>
       <PaymentOrderBuilder />
     </Suspense>
   );
 }
 
 function PaymentOrderBuilder() {
-  const [templateId, setTemplateId] = useState<number>(1);
+  // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<PaymentData>(INITIAL_DATA);
+  const [showDonation, setShowDonation] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    setData(prev => ({ ...prev, date: new Date().toISOString().split('T')[0] }));
+    const today = new Date().toISOString().split('T')[0];
+    setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  const handleDataChange = (field: keyof PaymentData, val: any) => setData(prev => ({ ...prev, [field]: val }));
-  const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+  const handleDataChange = (field: keyof PaymentData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
+  };
+
+  const formatRupiah = (num: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(num);
+  };
 
   const handleReset = () => {
-    if(confirm('Reset formulir?')) {
-        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke setelan awal?')) {
+        const today = new Date().toISOString().split('T')[0];
+        setData({ ...INITIAL_DATA, date: today });
     }
   };
 
+  // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => (
-    <div className="bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto font-sans text-[10.5pt]">
+    <div className="bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto font-sans text-[10.5pt]">
       
+      {/* HEADER / KOP */}
       <div className="flex items-center gap-6 border-b-4 border-double border-slate-900 pb-4 mb-8 shrink-0">
-        <div className="p-3 bg-slate-900 text-white rounded shrink-0 print:border print:border-black print:text-black print:bg-transparent"><Building2 size={32} /></div>
+        <div className="p-3 bg-slate-900 text-white rounded-lg shrink-0 print:border-2 print:border-black print:text-black print:bg-transparent">
+          <Building2 size={32} />
+        </div>
         <div className="text-left flex-grow">
-           <h1 className="text-xl font-black uppercase tracking-tighter leading-none print:text-black">{data.companyName}</h1>
+           <h1 className="text-xl font-black uppercase tracking-tighter leading-none text-slate-900">{data.companyName}</h1>
            <p className="text-[9pt] mt-1 text-slate-500 print:text-black italic leading-tight">{data.companyAddress}</p>
         </div>
       </div>
 
-      <div className="text-center mb-8 shrink-0 leading-tight">
-        <h2 className="text-lg font-black underline uppercase decoration-1 underline-offset-4 tracking-widest">SURAT PERINTAH BAYAR (SPB)</h2>
-        <p className="text-[9pt] mt-1 italic font-bold">Nomor: {data.docNo}</p>
+      {/* JUDUL */}
+      <div className="text-center mb-10 shrink-0 leading-tight">
+        <h2 className="text-lg font-black underline uppercase decoration-2 underline-offset-8 tracking-widest text-slate-900">SURAT PERINTAH BAYAR (SPB)</h2>
+        <p className="text-[10pt] mt-4 font-mono font-bold text-slate-400 print:text-black">Nomor: {data.docNo}</p>
       </div>
 
-      <div className="space-y-6 text-left overflow-visible">
-        <p>Kepada Yth. <b>{data.treasurerName} ({data.treasurerJob})</b>,</p>
-        <p>Harap melakukan pembayaran dana tunai/transfer dengan rincian sebagai berikut:</p>
+      {/* BODY */}
+      <div className="space-y-8 flex-grow overflow-visible text-left leading-relaxed">
+        <div className="font-medium">
+            <p>Kepada Yth.</p>
+            <p className="font-black text-lg uppercase tracking-tight">{data.treasurerName}</p>
+            <p className="text-slate-500 print:text-black">{data.treasurerJob}</p>
+        </div>
+
+        <p>Dengan hormat, harap segera melakukan pembayaran dana tunai/transfer dengan rincian instruksi sebagai berikut:</p>
         
-        <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4 print:bg-transparent print:border-black">
-           <div className="grid grid-cols-[160px_10px_1fr]"><span>Dibayarkan Kepada</span><span>:</span><span className="font-bold uppercase">{data.recipientName}</span></div>
-           <div className="grid grid-cols-[160px_10px_1fr]"><span>Sejumlah Dana</span><span>:</span><span className="font-bold text-lg text-emerald-700 print:text-black">{formatRupiah(data.amount)}</span></div>
-           <div className="grid grid-cols-[160px_10px_1fr] italic text-[10pt] text-slate-500 print:text-black border-t pt-2"><span>Terbilang</span><span>:</span><span className="font-medium uppercase"># {data.amountText} #</span></div>
-           <div className="pt-2 border-t border-dashed border-slate-300 print:border-black text-[9pt]">
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>Bank Tujuan</span><span>:</span><span>{data.recipientBank}</span></div>
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>Nomor Rekening</span><span>:</span><span className="font-mono font-bold">{data.recipientAccount}</span></div>
+        <div className="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 space-y-4 print:bg-transparent print:border-2 print:border-black break-inside-avoid">
+           <div className="grid grid-cols-[160px_10px_1fr]">
+              <span className="font-bold text-slate-400 uppercase text-[8px] tracking-widest">Penerima Dana</span>
+              <span>:</span>
+              <span className="font-black uppercase text-slate-900 text-[11pt] tracking-tight">{data.recipientName}</span>
+           </div>
+           <div className="grid grid-cols-[160px_10px_1fr] items-center">
+              <span className="font-bold text-slate-400 uppercase text-[8px] tracking-widest">Nominal</span>
+              <span>:</span>
+              <span className="font-black text-2xl text-emerald-700 print:text-black leading-none">{formatRupiah(data.amount)}</span>
+           </div>
+           <div className="grid grid-cols-[160px_10px_1fr] italic text-[10pt] text-slate-600 print:text-black border-t border-slate-200 print:border-black pt-3">
+              <span className="not-italic font-bold text-slate-400 uppercase text-[8px] tracking-widest">Terbilang</span>
+              <span>:</span>
+              <span className="font-bold uppercase tracking-tighter"># {data.amountText} #</span>
+           </div>
+           <div className="pt-3 border-t border-dashed border-slate-200 print:border-black text-[9.5pt]">
+              <div className="grid grid-cols-[160px_10px_1fr]"><span>Bank Tujuan</span><span>:</span><span className="font-bold">{data.recipientBank}</span></div>
+              <div className="grid grid-cols-[160px_10px_1fr]"><span>Nomor Rekening</span><span>:</span><span className="font-mono font-black text-blue-700 print:text-black">{data.recipientAccount}</span></div>
            </div>
         </div>
 
-        <div className="space-y-2">
-           <h4 className="font-bold text-[9pt] uppercase">Untuk Keperluan:</h4>
-           <p className="text-[10pt] bg-amber-50 p-4 rounded-xl border-l-4 border-amber-400 italic print:bg-transparent print:border print:border-black">"{data.purpose}"</p>
+        <div className="space-y-3">
+           <h4 className="font-black text-[8px] uppercase tracking-[0.3em] text-slate-400">Tujuan Penggunaan Dana:</h4>
+           <div className="text-[10.5pt] bg-amber-50 p-5 rounded-2xl border-l-4 border-amber-400 italic text-slate-800 print:bg-transparent print:border-2 print:border-black leading-relaxed">
+              "{data.purpose}"
+           </div>
         </div>
       </div>
 
-      <div className="mt-auto pt-8 border-t border-slate-100 print:border-black">
-         <div className="grid grid-cols-2 gap-10 text-center">
-            <div className="flex flex-col h-40">
-               <p className="uppercase text-[8.5pt] font-black text-slate-400 print:text-black mb-1">Pihak Penyetuju,</p>
-               <div className="mt-auto"><p className="font-bold underline uppercase text-[11pt]">{data.approverName}</p><p className="text-[9pt]">{data.approverJob}</p></div>
+      {/* FOOTER / TTD */}
+      <div className="mt-12 pt-8 border-t-2 border-slate-50 print:border-black break-inside-avoid">
+         <div className="grid grid-cols-2 gap-10 text-center font-sans">
+            <div className="flex flex-col h-44">
+               <p className="uppercase text-[8pt] font-black text-slate-300 tracking-widest mb-1">Disetujui Oleh,</p>
+               <div className="mt-auto">
+                  <p className="font-black underline uppercase tracking-tight leading-none text-[11pt] text-slate-900">{data.approverName}</p>
+                  <p className="text-[9pt] font-bold text-blue-600 mt-1 uppercase tracking-tighter">{data.approverJob}</p>
+               </div>
             </div>
-            <div className="flex flex-col h-40">
-               <p className="text-[10pt] mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : ''}</p>
-               <p className="uppercase text-[8.5pt] font-black text-slate-400 print:text-black mb-1">Bendahara,</p>
-               <div className="mt-auto"><p className="font-bold underline uppercase text-[11pt]">{data.treasurerName}</p><p className="text-[9pt] italic">Penerima Perintah</p></div>
+            <div className="flex flex-col h-44">
+               <p className="text-[10pt] font-bold text-slate-400 mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : ''}</p>
+               <p className="uppercase text-[8pt] font-black text-slate-300 tracking-widest mb-1">Bendahara,</p>
+               <div className="mt-auto">
+                  <p className="font-black underline uppercase tracking-tight leading-none text-[11pt] text-slate-900">{data.treasurerName}</p>
+                  <p className="text-[9pt] font-bold text-emerald-600 mt-1 uppercase tracking-tighter italic">Pelaksana Bayar</p>
+               </div>
             </div>
          </div>
       </div>
@@ -125,44 +182,101 @@ function PaymentOrderBuilder() {
   if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white">
-      <style jsx global>{`@media print {@page {size: A4 portrait; margin: 0;} body {background: white;} .no-print {display: none !important;} #print-only-root {display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999;}}`}</style>
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+      
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: A4 portrait; margin: 0; } 
+          body { background: white !important; margin: 0; padding: 0; min-width: 210mm; }
+          .no-print { display: none !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+        }
+      ` }} />
+
+      {/* NAVBAR */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 h-16 flex items-center justify-between px-4">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 font-bold uppercase text-xs"><ArrowLeft size={18} /> Dashboard</Link>
-          <div className="h-6 w-px bg-slate-700"></div>
-          <div className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-400 uppercase italic"><Banknote size={16} /> Payment Order</div>
+          <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase text-xs">
+            <ArrowLeftCircle size={20} className="text-emerald-400" /> Dashboard
+          </Link>
+          <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
+          <div className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-400 uppercase italic tracking-tighter">
+            <Banknote size={18} /> <span>Payment Order Builder</span>
+          </div>
         </div>
-        <button onClick={() => window.print()} className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg flex items-center gap-2"><Printer size={16}/> Print</button>
+        <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all flex items-center gap-2">
+          <Printer size={16}/> Cetak SPB
+        </button>
       </div>
 
-      <main className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden">
-        <div className={`no-print w-full lg:w-[400px] bg-white border-r overflow-y-auto p-4 space-y-4 ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
-            <div className="flex justify-between items-center border-b pb-2">
-                <h2 className="font-bold text-slate-700 text-sm">EDITOR SPB</h2>
-                <button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button>
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+        {/* SIDEBAR INPUT */}
+        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+            <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans">
+                <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2">
+                  <Edit3 size={16} className="text-blue-500" /> Editor Keuangan
+                </h2>
+                <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors">
+                  <RotateCcw size={16}/>
+                </button>
             </div>
-            <input className="w-full p-2 border rounded text-xs" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} placeholder="Company Name" />
-            <input className="w-full p-2 border rounded text-xs" value={data.recipientName} onChange={e => handleDataChange('recipientName', e.target.value)} placeholder="Recipient" />
-            <input className="w-full p-2 border rounded text-xs" type="number" value={data.amount} onChange={e => handleDataChange('amount', parseInt(e.target.value) || 0)} placeholder="Amount" />
-            <textarea className="w-full p-2 border rounded text-xs h-24" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} placeholder="Payment Purpose" />
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32">
+                <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 font-sans">
+                  <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2">
+                    <Building2 size={12}/> Info Instansi
+                  </h3>
+                  <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} placeholder="Nama Perusahaan" />
+                  <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.companyAddress} onChange={e => handleDataChange('companyAddress', e.target.value)} placeholder="Alamat Kantor" />
+                  <input className="w-full p-2 border rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 font-sans">
+                  <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2">
+                    <Banknote size={12}/> Detail Pembayaran
+                  </h3>
+                  <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.recipientName} onChange={e => handleDataChange('recipientName', e.target.value)} placeholder="Nama Penerima Dana" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input className="w-full p-2 border rounded-lg text-xs font-black focus:ring-2 focus:ring-emerald-500 outline-none" type="number" value={data.amount} onChange={e => handleDataChange('amount', parseInt(e.target.value) || 0)} placeholder="Nominal Rp" />
+                    <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-emerald-500 outline-none" value={data.recipientBank} onChange={e => handleDataChange('recipientBank', e.target.value)} placeholder="Nama Bank" />
+                  </div>
+                  <input className="w-full p-2 border rounded-lg text-xs font-mono focus:ring-2 focus:ring-emerald-500 outline-none" value={data.recipientAccount} onChange={e => handleDataChange('recipientAccount', e.target.value)} placeholder="Nomor Rekening" />
+                  <textarea className="w-full p-2 border rounded-lg text-xs h-24 focus:ring-2 focus:ring-emerald-500 outline-none leading-relaxed" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} placeholder="Keperluan Pembayaran..." />
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 font-sans">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 tracking-widest flex items-center gap-2">
+                    <ChevronDown size={12}/> Otoritas Penanda Tangan
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.approverName} onChange={e => handleDataChange('approverName', e.target.value)} placeholder="Penyetuju" />
+                    <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.treasurerName} onChange={e => handleDataChange('treasurerName', e.target.value)} placeholder="Bendahara" />
+                  </div>
+                </div>
+            </div>
         </div>
 
-        <div className={`flex-1 bg-slate-200/50 relative overflow-hidden flex justify-center ${mobileView === 'editor' ? 'hidden lg:block' : 'block'}`}>
-            <div className="overflow-y-auto w-full flex justify-center p-4 md:p-12">
-               <div className="origin-top transition-transform scale-[0.45] sm:scale-[0.6] md:scale-[0.8] lg:scale-100 shadow-2xl h-fit">
-                 <DocumentContent />
-               </div>
+        {/* PREVIEW AREA */}
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
+                <DocumentContent />
             </div>
+            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
         </div>
       </main>
 
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1.5 z-50">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'editor' ? 'bg-white text-slate-900' : 'text-slate-400'}`}>Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'preview' ? 'bg-emerald-500 text-white' : 'text-slate-400'}`}>Preview</button>
+      {/* MOBILE NAV */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl z-50 font-sans font-bold">
+          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
+          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      <div id="print-only-root" className="hidden"><DocumentContent /></div>
+      {/* HIDDEN PRINT TARGET */}
+      <div id="print-only-root" className="hidden">
+        <div className="bg-white"><DocumentContent /></div>
+      </div>
     </div>
   );
 }

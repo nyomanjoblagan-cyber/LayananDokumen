@@ -2,25 +2,21 @@
 
 /**
  * FILE: IjazahSementaraPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Keterangan Lulus (SKL) / Ijazah Sementara
- * FEATURES:
- * - Dual Template (Official Standard vs Modern Clean)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
  */
 
 import { useState, Suspense, useEffect, useRef } from 'react';
 import { 
   Printer, ArrowLeft, GraduationCap, Building2, UserCircle2, 
   X, PenTool, ShieldCheck, FileBadge, Award, CalendarDays,
-  LayoutTemplate, ChevronDown, Check, Edit3, Eye, ImagePlus, RotateCcw
+  LayoutTemplate, ChevronDown, Check, Edit3, Eye, ImagePlus, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface SKLData {
@@ -39,18 +35,18 @@ interface SKLData {
   nisn: string;
   placeBirth: string;
   dateBirth: string;
-  department: string; // Jurusan
+  department: string; 
   
   // Kelulusan
   examYear: string;
   averageScore: string;
-  status: string; // LULUS / TIDAK LULUS
+  status: string; 
 }
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: SKLData = {
   city: 'DENPASAR',
-  date: '', // Diisi useEffect
+  date: '', 
   docNo: '800/421.3/SMK-TI/VI/2026',
   
   schoolHeader: 'PEMERINTAH PROVINSI BALI\nDINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA\nSMK TEKNOLOGI INFORMATIKA BALI',
@@ -70,10 +66,9 @@ const INITIAL_DATA: SKLData = {
   principalNip: '19700101 199501 1 002'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function IjazahSementaraPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs">Memuat Editor SKL...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs bg-slate-50">Memuat Editor SKL...</div>}>
       <SKLBuilder />
     </Suspense>
   );
@@ -87,6 +82,7 @@ function SKLBuilder() {
   const [isClient, setIsClient] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showDonation, setShowDonation] = useState(false);
 
   const [data, setData] = useState<SKLData>(INITIAL_DATA);
 
@@ -110,230 +106,222 @@ function SKLBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
         setData({ ...INITIAL_DATA, date: today });
         setLogo(null);
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-blue-50 text-blue-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
-            Format Standar
+            Format Standar Resmi
         </button>
         <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
-            Format Modern
+            Format Modern Clean
         </button>
     </div>
   );
 
   const activeTemplateName = templateId === 1 ? 'Format Standar' : 'Format Modern';
 
-  // --- KOMPONEN ISI SURAT ---
-  const DocumentContent = () => (
-    // FIX: Print Padding
-    <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
-      
-      {/* KOP SEKOLAH */}
-      <div className="flex items-center border-b-4 border-double border-slate-900 pb-4 mb-6 shrink-0 text-center">
-        <div className="flex items-center gap-6 w-full px-4">
-           {logo ? (
-              <img src={logo} alt="Logo" className="w-20 h-20 object-contain shrink-0 block print:block" />
-           ) : (
-              <div className="w-20 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 shrink-0 print:hidden">
-                 <Building2 size={32} />
-              </div>
-           )}
-           <div className="flex-grow">
-              <div className="text-[12pt] font-black leading-tight whitespace-pre-line uppercase tracking-tighter print:text-black">
-                 {data.schoolHeader}
-              </div>
-              <p className="text-[8pt] font-sans mt-1 normal-case font-normal italic text-slate-600 print:text-black">{data.schoolAddress}</p>
-           </div>
-        </div>
-      </div>
+  const DocumentContent = () => {
+    const formatDateSafe = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+        } catch { return dateString; }
+    };
 
-      {/* JUDUL */}
-      <div className="text-center mb-8 shrink-0 leading-tight">
-        <h2 className="text-lg font-black underline uppercase decoration-1 underline-offset-4 tracking-widest">SURAT KETERANGAN LULUS (SKL)</h2>
-        <p className="text-[10pt] font-sans mt-2 italic font-bold">Tahun Pelajaran {data.examYear}</p>
-        <p className="text-[9pt] font-sans print:text-black">Nomor: {data.docNo}</p>
-      </div>
-
-      {/* BODY SURAT */}
-      <div className="flex-grow space-y-6 overflow-hidden text-left">
-        <p>Kepala <b>{data.schoolHeader.split('\n').pop()}</b> dengan ini menerangkan bahwa:</p>
+    return (
+      <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
         
-        <div className="ml-12 space-y-2 font-sans text-[10.5pt] italic border-l-4 border-slate-100 pl-6 print:border-slate-300">
-            <div className="grid grid-cols-[160px_10px_1fr]"><span>Nama Lengkap</span><span>:</span><span className="font-bold uppercase tracking-tight">{data.studentName}</span></div>
-            <div className="grid grid-cols-[160px_10px_1fr]"><span>NISN</span><span>:</span><span>{data.nisn}</span></div>
-            <div className="grid grid-cols-[160px_10px_1fr]"><span>Tempat, Tgl Lahir</span><span>:</span><span>{data.placeBirth}, {isClient && data.dateBirth ? new Date(data.dateBirth).toLocaleDateString('id-ID', {dateStyle: 'long'}) : ''}</span></div>
-            <div className="grid grid-cols-[160px_10px_1fr]"><span>Kompetensi Keahlian</span><span>:</span><span className="font-bold">{data.department}</span></div>
+        {/* KOP SEKOLAH */}
+        <div className="flex items-center border-b-4 border-double border-slate-900 pb-4 mb-8 shrink-0 text-center font-sans">
+          <div className="flex items-center gap-6 w-full px-4">
+             {logo ? (
+                <img src={logo} alt="Logo" className="w-20 h-20 object-contain shrink-0" />
+             ) : (
+                <div className="w-20 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 shrink-0 print:hidden">
+                   <Building2 size={32} />
+                </div>
+             )}
+             <div className="flex-grow">
+                <div className="text-[13pt] font-black leading-tight whitespace-pre-line uppercase tracking-tight text-slate-900">
+                   {data.schoolHeader}
+                </div>
+                <p className="text-[8.5pt] mt-1 normal-case font-medium italic text-slate-500 print:text-black">{data.schoolAddress}</p>
+             </div>
+          </div>
         </div>
 
-        <p className="text-justify leading-relaxed">
-          Berdasarkan hasil Rapat Pleno Dewan Guru tentang Kelulusan Siswa Tahun Pelajaran {data.examYear}, serta merujuk pada kriteria kelulusan yang berlaku, maka nama tersebut di atas dinyatakan:
-        </p>
-
-        <div className="text-center my-8 shrink-0">
-            <div className="inline-block border-4 border-slate-900 px-10 py-3 rounded-xl print:border-black">
-                <span className="text-3xl font-black tracking-[0.3em] uppercase print:text-black">{data.status}</span>
-            </div>
-            <p className="mt-4 font-sans text-sm">Dengan Nilai Rata-Rata Ujian: <b className="text-xl underline decoration-double">{data.averageScore}</b></p>
+        {/* JUDUL */}
+        <div className="text-center mb-8 shrink-0 leading-tight font-sans">
+          <h2 className="text-xl font-black underline uppercase decoration-2 underline-offset-8 tracking-widest">SURAT KETERANGAN LULUS</h2>
+          <p className="text-[10pt] mt-3 italic font-bold text-slate-400 print:text-black uppercase tracking-widest">Tahun Pelajaran {data.examYear}</p>
+          <p className="text-[9pt] font-mono mt-1">Nomor: {data.docNo}</p>
         </div>
 
-        <p className="text-justify leading-relaxed">
-          Surat keterangan ini berlaku sementara sampai dengan diterbitkannya Ijazah asli. Harap dipergunakan sebagaimana mestinya.
-        </p>
-      </div>
+        {/* BODY SURAT */}
+        <div className="flex-grow space-y-6 overflow-hidden text-justify leading-relaxed">
+          <p>Kepala <strong>{data.schoolHeader.split('\n').pop()}</strong> dengan ini menerangkan dengan sebenarnya bahwa:</p>
+          
+          <div className="ml-12 space-y-2 font-sans text-[10.5pt] italic border-l-4 border-slate-100 pl-8 py-1 break-inside-avoid print:border-slate-300">
+              <div className="grid grid-cols-[160px_10px_1fr]"><span>Nama Lengkap</span><span>:</span><span className="font-bold uppercase tracking-tight text-slate-900">{data.studentName}</span></div>
+              <div className="grid grid-cols-[160px_10px_1fr]"><span>Nomor Induk (NISN)</span><span>:</span><span className="font-mono">{data.nisn}</span></div>
+              <div className="grid grid-cols-[160px_10px_1fr]"><span>Tempat, Tgl Lahir</span><span>:</span><span>{data.placeBirth}, {formatDateSafe(data.dateBirth)}</span></div>
+              <div className="grid grid-cols-[160px_10px_1fr]"><span>Kompetensi Keahlian</span><span>:</span><span className="font-bold text-blue-700 print:text-black">{data.department}</span></div>
+          </div>
 
-      {/* TANDA TANGAN (NORMAL FLOW) */}
-      <div className="shrink-0 mt-6 pt-8 border-t border-slate-100 print:border-black" style={{ pageBreakInside: 'avoid' }}>
-         <table className="w-full table-fixed">
-          <tbody>
-            <tr>
-              <td className="w-1/3 align-bottom">
-                 <div className="w-32 h-40 border-2 border-dashed border-slate-200 flex items-center justify-center text-center p-4 print:border-slate-400 mx-auto md:mx-0">
-                    <p className="text-[7pt] text-slate-300 font-sans uppercase print:text-slate-500 font-bold">Pas Foto<br/>3 x 4<br/>(Cap Tiga Jari)</p>
-                 </div>
-              </td>
-              <td className="text-center">
-                 <p className="text-[10pt] mb-1">{data.city}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : ''}</p>
-                 <p className="uppercase text-[9pt] font-black text-slate-400 tracking-widest print:text-black mb-24">Kepala Sekolah,</p>
-                 <div className="flex flex-col items-center">
-                    <p className="font-bold underline uppercase text-[11pt] tracking-tight leading-none">{data.principalName}</p>
-                    <p className="text-[9pt] font-sans mt-1">NIP. {data.principalNip}</p>
-                 </div>
-              </td>
-            </tr>
-          </tbody>
-         </table>
-      </div>
-    </div>
-  );
+          <p>Berdasarkan hasil Keputusan Rapat Pleno Dewan Guru mengenai kelulusan siswa Tahun Pelajaran {data.examYear}, nama siswa tersebut di atas dinyatakan:</p>
 
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400 uppercase tracking-widest text-xs">Initializing...</div>;
+          <div className="text-center my-10 shrink-0 break-inside-avoid">
+              <div className="inline-block border-4 border-slate-900 px-16 py-4 rounded-2xl print:border-black shadow-lg">
+                  <span className="text-4xl font-black tracking-[0.4em] uppercase print:text-black">{data.status}</span>
+              </div>
+              <p className="mt-6 font-sans text-sm text-slate-500 print:text-black">Dengan Perolehan Nilai Rata-Rata Ujian:</p>
+              <p className="text-3xl font-black underline decoration-double text-slate-900">{data.averageScore}</p>
+          </div>
+
+          <p>Surat keterangan ini berlaku sebagai dokumen pengganti Ijazah sementara sampai dengan diterbitkannya Ijazah asli dari Kementerian Pendidikan dan Kebudayaan RI. Harap dipergunakan sebagaimana mestinya.</p>
+        </div>
+
+        {/* TANDA TANGAN */}
+        <div className="shrink-0 mt-8 pt-8 border-t-2 border-slate-50 print:border-black break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+           <table className="w-full table-fixed font-sans">
+             <tbody>
+               <tr>
+                 <td className="w-1/3 align-bottom">
+                    <div className="w-32 h-40 border-2 border-dashed border-slate-200 flex items-center justify-center text-center p-4 print:border-slate-400 mx-auto md:mx-0 bg-slate-50 print:bg-transparent">
+                       <p className="text-[7pt] text-slate-400 uppercase font-black tracking-widest leading-relaxed">Pas Foto<br/>3 x 4<br/><span className="text-[6pt] opacity-50 italic">(Cap Tiga Jari)</span></p>
+                    </div>
+                 </td>
+                 <td className="text-center">
+                    <p className="text-[10pt] mb-1 font-bold text-slate-400">{data.city}, {formatDateSafe(data.date)}</p>
+                    <p className="uppercase text-[8.5pt] font-black text-slate-300 tracking-widest mb-24 print:text-black">Kepala Sekolah,</p>
+                    <div className="flex flex-col items-center">
+                       <p className="font-black underline uppercase text-[11pt] tracking-tight text-slate-900">{data.principalName}</p>
+                       <p className="text-[9pt] font-bold text-blue-600 mt-1 uppercase tracking-tighter">NIP. {data.principalNip}</p>
+                    </div>
+                 </td>
+               </tr>
+             </tbody>
+           </table>
+        </div>
+      </div>
+    );
+  };
+
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
-      {/* GLOBAL CSS PRINT */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          body { background: white !important; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
-          
-          #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
-          }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
-      {/* HEADER NAV */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
+      {/* NAVBAR */}
+      <div className="no-print bg-slate-900 text-white h-16 sticky top-0 z-50 border-b border-slate-700 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-               <ArrowLeft size={18} /> Dashboard
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-blue-400 uppercase tracking-tighter italic">
+            <div className="h-6 w-px bg-slate-700 hidden md:block mx-2"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-400 uppercase tracking-tighter">
                <GraduationCap size={16} /> <span>Temporary Certificate Builder</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
-                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
               </button>
               {showTemplateMenu && <TemplateMenu />}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+            <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
-        </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        
         {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full lg:w-[450px] bg-white border-r overflow-y-auto p-4 md:p-6 space-y-6 z-20 h-full ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}>
-           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data SKL</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-              
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans text-left">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 flex items-center gap-2"><Building2 size={12}/> Instansi Sekolah</h3>
-                 <div className="flex items-center gap-4">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-14 h-14 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 relative overflow-hidden shrink-0">
-                       {logo ? <img src={logo} className="w-full h-full object-contain" /> : <ImagePlus size={16} className="text-slate-300" />}
+        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor SKL</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Kop Sekolah</h3>
+                 <div className="flex items-center gap-4 py-2">
+                    <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 overflow-hidden shrink-0">
+                       {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <ImagePlus size={20} className="text-slate-300" />}
                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
                     </div>
-                    {logo && <button onClick={() => setLogo(null)} className="text-[10px] text-red-500 font-bold uppercase underline">Hapus Logo</button>}
-                    <textarea className="flex-1 p-2 border rounded text-[10px] font-bold uppercase bg-slate-50 h-14 leading-tight" value={data.schoolHeader} onChange={e => handleDataChange('schoolHeader', e.target.value)} />
+                    <textarea className="flex-1 p-2 border rounded-lg text-[10px] font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase h-20 leading-tight" value={data.schoolHeader} onChange={e => handleDataChange('schoolHeader', e.target.value)} placeholder="Header (Dinas & Sekolah)" />
                  </div>
-                 <input className="w-full p-2 border rounded text-xs" value={data.schoolAddress} onChange={e => handleDataChange('schoolAddress', e.target.value)} placeholder="Alamat & Kontak" />
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans text-left text-xs">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 flex items-center gap-2"><UserCircle2 size={12}/> Data Siswa</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold uppercase bg-slate-50" value={data.studentName} onChange={e => handleDataChange('studentName', e.target.value)} />
-                 <div className="grid grid-cols-2 gap-2">
-                    <input className="w-full p-2 border rounded text-xs" value={data.nisn} onChange={e => handleDataChange('nisn', e.target.value)} placeholder="NISN" />
-                    <input type="date" className="w-full p-2 border rounded text-xs" value={data.dateBirth} onChange={e => handleDataChange('dateBirth', e.target.value)} />
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Data Siswa</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.studentName} onChange={e => handleDataChange('studentName', e.target.value)} placeholder="Nama Siswa" />
+                 <div className="grid grid-cols-2 gap-3">
+                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.nisn} onChange={e => handleDataChange('nisn', e.target.value)} placeholder="NISN" />
+                   <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.dateBirth} onChange={e => handleDataChange('dateBirth', e.target.value)} />
                  </div>
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.department} onChange={e => handleDataChange('department', e.target.value)} placeholder="Jurusan" />
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 font-sans text-left pb-10">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 flex items-center gap-2"><Award size={12}/> Kelulusan</h3>
-                 <div className="grid grid-cols-2 gap-2">
-                    <input className="w-full p-2 border rounded text-xs font-black text-blue-700" value={data.averageScore} onChange={e => handleDataChange('averageScore', e.target.value)} placeholder="Nilai Rata-rata" />
-                    <input className="w-full p-2 border rounded text-xs" value={data.examYear} onChange={e => handleDataChange('examYear', e.target.value)} placeholder="Tahun Pelajaran" />
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Award size={12}/> Kelulusan</h3>
+                 <div className="grid grid-cols-2 gap-3">
+                    <input className="w-full p-2 border rounded-lg text-xs font-black text-blue-700" value={data.averageScore} onChange={e => handleDataChange('averageScore', e.target.value)} placeholder="Nilai Rata-rata" />
+                    <input className="w-full p-2 border rounded-lg text-xs" value={data.examYear} onChange={e => handleDataChange('examYear', e.target.value)} placeholder="Tahun Pelajaran" />
                  </div>
-                 <input className="w-full p-2 border rounded text-xs font-bold" value={data.principalName} onChange={e => handleDataChange('principalName', e.target.value)} placeholder="Nama Kepsek" />
-                 <input className="w-full p-2 border rounded text-xs" value={data.principalNip} onChange={e => handleDataChange('principalNip', e.target.value)} placeholder="NIP Kepsek" />
+                 <select className="w-full p-2 border rounded-lg text-xs font-black bg-slate-50 uppercase" value={data.status} onChange={e => handleDataChange('status', e.target.value)}>
+                    <option value="LULUS">LULUS</option>
+                    <option value="TIDAK LULUS">TIDAK LULUS</option>
+                 </select>
               </div>
-              <div className="h-20 md:hidden"></div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 font-sans pb-10">
+                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 tracking-widest flex items-center gap-2"><PenTool size={12}/> Otoritas & Administrasi</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase" value={data.principalName} onChange={e => handleDataChange('principalName', e.target.value)} placeholder="Kepala Sekolah" />
+                 <input className="w-full p-2 border rounded-lg text-xs" value={data.principalNip} onChange={e => handleDataChange('principalNip', e.target.value)} placeholder="NIP Kepala Sekolah" />
+                 <div className="grid grid-cols-2 gap-3">
+                    <input className="w-full p-2 border rounded-lg text-xs uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
+                    <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                 </div>
+                 <input className="w-full p-2 border rounded-lg text-[10px] font-mono" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
+              </div>
            </div>
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                    <DocumentContent />
-                 </div>
-               </div>
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
+                <DocumentContent />
             </div>
+            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
         </div>
       </main>
 
       {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-bold font-sans">
+          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
+          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      {/* PRINT AREA */}
-      <div id="print-only-root" className="hidden">
-         <div className="flex flex-col">
-            <DocumentContent />
-         </div>
-      </div>
-
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }

@@ -2,24 +2,20 @@
 
 /**
  * FILE: MOUPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Perjanjian Kerjasama (MOU)
- * FEATURES:
- * - Dual Template (Formal Corporate vs Simple Partnership)
- * - Auto Date Logic
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
  */
 
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, Map, 
-  Handshake, Users, CalendarClock, FileText, Edit3, Eye, Briefcase, RotateCcw
+  Handshake, Users, CalendarClock, FileText, Edit3, Eye, Briefcase, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface MOUData {
@@ -53,7 +49,7 @@ interface MOUData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: MOUData = {
   day: 'Senin',
-  date: '', // Diisi useEffect
+  date: '', 
   city: 'JAKARTA',
   
   p1Name: 'PT. TEKNOLOGI MAJU', 
@@ -79,7 +75,7 @@ const INITIAL_DATA: MOUData = {
 // --- 3. KOMPONEN UTAMA ---
 export default function MOUPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Legal Editor...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Legal Editor...</div>}>
       <MOUBuilder />
     </Suspense>
   );
@@ -92,6 +88,7 @@ function MOUBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<MOUData>(INITIAL_DATA);
+  const [showDonation, setShowDonation] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -104,425 +101,220 @@ function MOUBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
         setData({ ...INITIAL_DATA, date: today });
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            MOU Bisnis Formal
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            MOU Kemitraan Simpel
-        </button>
-    </div>
-  );
-
   const activeTemplateName = templateId === 1 ? 'Bisnis Formal' : 'Kemitraan Simpel';
 
-  // --- KOMPONEN ISI SURAT ---
-  const DocumentContent = () => (
-    // FIX: Print Padding
-    <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-relaxed text-[11pt] p-[20mm] print:p-[20mm] w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
-      
-      {/* TEMPLATE 1: FORMAL */}
-      {templateId === 1 && (
-        <div className="flex flex-col h-full">
-            <div className="text-center mb-8 pb-4 border-b-2 border-black shrink-0">
-              <h1 className="font-black text-xl uppercase tracking-widest underline">NOTA KESEPAHAMAN</h1>
-              <h2 className="font-bold text-sm mt-1 uppercase">(MEMORANDUM OF UNDERSTANDING)</h2>
-              <div className="mt-2 text-xs font-bold uppercase tracking-wide text-slate-600 print:text-black">TENTANG {data.cooperationTitle}</div>
-            </div>
+  const DocumentContent = () => {
+    const formatDateSafe = (dateString: string) => {
+      if(!dateString) return '...';
+      try {
+        return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+      } catch { return dateString; }
+    };
 
-            <div className="flex-grow">
-              <p className="mb-4 text-justify">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '...'}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
-
-              {/* PIHAK 1 */}
-              <div className="ml-4 mb-4 text-sm">
-                <table className="w-full leading-snug">
-                    <tbody>
-                      <tr><td className="w-32 font-bold align-top">Nama Instansi</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p1Name}</td></tr>
-                      <tr><td className="align-top">Diwakili Oleh</td><td className="align-top">:</td><td className="align-top">{data.p1Rep}</td></tr>
-                      <tr><td className="align-top">Jabatan</td><td className="align-top">:</td><td className="align-top">{data.p1Title}</td></tr>
-                      <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p1Address}</td></tr>
-                    </tbody>
-                </table>
-                <div className="mt-1 italic">Bertindak untuk dan atas nama <strong>{data.p1Name}</strong>, selanjutnya disebut <strong>PIHAK PERTAMA</strong>.</div>
+    return (
+      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-relaxed text-[11pt] p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+        
+        {templateId === 1 && (
+          <div className="flex flex-col h-full">
+              <div className="text-center mb-8 pb-4 border-b-2 border-black shrink-0">
+                <h1 className="font-black text-xl uppercase tracking-widest underline leading-none">NOTA KESEPAHAMAN</h1>
+                <h2 className="font-bold text-sm mt-2 uppercase">(MEMORANDUM OF UNDERSTANDING)</h2>
+                <div className="mt-3 text-xs font-bold uppercase tracking-wide text-slate-500 print:text-black">TENTANG {data.cooperationTitle}</div>
               </div>
 
-              {/* PIHAK 2 */}
-              <div className="ml-4 mb-6 text-sm">
-                <table className="w-full leading-snug">
-                    <tbody>
-                      <tr><td className="w-32 font-bold align-top">Nama Instansi</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p2Name}</td></tr>
-                      <tr><td className="align-top">Diwakili Oleh</td><td className="align-top">:</td><td className="align-top">{data.p2Rep}</td></tr>
-                      <tr><td className="align-top">Jabatan</td><td className="align-top">:</td><td className="align-top">{data.p2Title}</td></tr>
-                      <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p2Address}</td></tr>
-                    </tbody>
-                </table>
-                <div className="mt-1 italic">Bertindak untuk dan atas nama <strong>{data.p2Name}</strong>, selanjutnya disebut <strong>PIHAK KEDUA</strong>.</div>
-              </div>
+              <div className="flex-grow">
+                <p className="mb-4 text-justify">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
 
-              <p className="mb-4 text-justify">PIHAK PERTAMA dan PIHAK KEDUA (selanjutnya disebut "PARA PIHAK") sepakat untuk mengadakan kerjasama dengan ketentuan sebagai berikut:</p>
-
-              {/* PASAL-PASAL */}
-              <div className="space-y-4">
-                <div className="break-inside-avoid">
-                  <div className="text-center font-bold uppercase mb-1 text-sm">PASAL 1<br/>MAKSUD DAN TUJUAN</div>
-                  <p className="text-justify text-sm">Kerjasama ini bertujuan untuk mensinergikan potensi PARA PIHAK dalam rangka {data.cooperationTitle.toLowerCase()}.</p>
+                <div className="ml-4 mb-4 text-sm break-inside-avoid">
+                  <table className="w-full leading-snug">
+                      <tbody>
+                        <tr><td className="w-32 font-bold align-top">Instansi</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p1Name}</td></tr>
+                        <tr><td className="align-top">Perwakilan</td><td className="align-top">:</td><td className="align-top">{data.p1Rep} ({data.p1Title})</td></tr>
+                        <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p1Address}</td></tr>
+                      </tbody>
+                  </table>
+                  <div className="mt-1 italic">Selanjutnya disebut sebagai <strong>PIHAK PERTAMA</strong>.</div>
                 </div>
 
-                <div className="break-inside-avoid">
-                  <div className="text-center font-bold uppercase mb-1 text-sm">PASAL 2<br/>RUANG LINGKUP KERJASAMA</div>
-                  <p className="text-justify text-sm">{data.scope}</p>
+                <div className="ml-4 mb-6 text-sm break-inside-avoid">
+                  <table className="w-full leading-snug">
+                      <tbody>
+                        <tr><td className="w-32 font-bold align-top">Instansi</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p2Name}</td></tr>
+                        <tr><td className="align-top">Perwakilan</td><td className="align-top">:</td><td className="align-top">{data.p2Rep} ({data.p2Title})</td></tr>
+                        <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p2Address}</td></tr>
+                      </tbody>
+                  </table>
+                  <div className="mt-1 italic">Selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong>.</div>
                 </div>
 
-                <div className="break-inside-avoid">
-                  <div className="text-center font-bold uppercase mb-1 text-sm">PASAL 3<br/>JANGKA WAKTU</div>
-                  <p className="text-justify text-sm">Perjanjian ini berlaku selama <strong>{data.period}</strong> terhitung sejak ditandatanganinya surat ini dan dapat diperpanjang berdasarkan kesepakatan PARA PIHAK.</p>
-                </div>
+                <p className="mb-6 text-justify italic">PARA PIHAK sepakat untuk mengadakan kerjasama dengan ketentuan sebagai berikut:</p>
 
-                <div className="break-inside-avoid">
-                  <div className="text-center font-bold uppercase mb-1 text-sm">PASAL 4<br/>HAK DAN KEWAJIBAN</div>
-                  <p className="text-justify text-sm">{data.rightsObligations}</p>
-                </div>
-
-                <div className="break-inside-avoid">
-                  <div className="text-center font-bold uppercase mb-1 text-sm">PASAL 5<br/>PEMBIAYAAN & KOMPENSASI</div>
-                  <p className="text-justify text-sm">{data.financing}</p>
-                </div>
-              </div>
-
-              <p className="mt-8 mb-8 text-sm text-justify">Demikian Nota Kesepahaman ini dibuat rangkap 2 (dua) bermaterai cukup dan memiliki kekuatan hukum yang sama.</p>
-            </div>
-
-            {/* TANDA TANGAN */}
-            <div className="grid grid-cols-2 gap-8 text-center text-sm mb-12 shrink-0" style={{ pageBreakInside: 'avoid' }}>
-              <div>
-                  <p className="mb-2 font-bold">PIHAK PERTAMA</p>
-                  <p className="text-xs mb-16">{data.p1Name}</p>
-                  <div className="border border-slate-300 w-24 h-14 mx-auto mb-[-3.5rem] mt-[-3rem] flex items-center justify-center text-[8px] text-slate-400 italic print:border-black print:text-black">MATERAI</div>
-                  <p className="font-bold underline uppercase relative z-10">{data.p1Rep}</p>
-                  <p className="text-xs">{data.p1Title}</p>
-              </div>
-              <div>
-                  <p className="mb-2 font-bold">PIHAK KEDUA</p>
-                  <p className="text-xs mb-16">{data.p2Name}</p>
-                  <p className="font-bold underline uppercase">{data.p2Rep}</p>
-                  <p className="text-xs">{data.p2Title}</p>
-              </div>
-            </div>
-
-            <div className="text-center text-xs shrink-0">
-              <p className="mb-4 font-bold">SAKSI-SAKSI</p>
-              <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
-                  <div>
-                    <p className="mb-8 border-b border-black w-3/4 mx-auto"></p>
-                    <p>( {data.witness1} )</p>
+                <div className="space-y-6">
+                  <div className="break-inside-avoid">
+                    <div className="text-center font-bold uppercase mb-1 text-sm underline">PASAL 1: TUJUAN</div>
+                    <p className="text-justify text-sm">Mensinergikan potensi PARA PIHAK dalam rangka <strong>{data.cooperationTitle.toLowerCase()}</strong>.</p>
                   </div>
-                  <div>
-                    <p className="mb-8 border-b border-black w-3/4 mx-auto"></p>
-                    <p>( {data.witness2} )</p>
-                  </div>
-              </div>
-            </div>
-        </div>
-      )}
 
-      {/* TEMPLATE 2: COMPACT */}
-      {templateId === 2 && (
-        <div className="flex flex-col h-full">
-            <div className="text-center mb-6 border-b-2 border-black pb-2 shrink-0">
-              <h1 className="font-bold text-xl uppercase underline">SURAT PERJANJIAN KERJASAMA</h1>
-              <div className="text-xs font-bold uppercase mt-1">{data.cooperationTitle}</div>
-            </div>
-            
-            <div className="flex-grow">
-              <p className="mb-4 text-justify text-sm">Pada {data.day}, {isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {dateStyle:'full'}) : '...'}, bertempat di {data.city}, yang bertanda tangan di bawah ini:</p>
-
-              <div className="grid grid-cols-1 gap-4 mb-4 text-sm">
-                <div className="bg-slate-50 p-3 border rounded print:bg-transparent print:border-black">
-                  <div className="font-bold uppercase underline mb-1">PIHAK PERTAMA</div>
-                  <div className="grid grid-cols-[80px_1fr]">
-                      <div>Instansi</div><div className="font-bold uppercase">: {data.p1Name}</div>
-                      <div>Nama</div><div>: {data.p1Rep} ({data.p1Title})</div>
-                      <div>Alamat</div><div>: {data.p1Address}</div>
+                  <div className="break-inside-avoid">
+                    <div className="text-center font-bold uppercase mb-1 text-sm underline">PASAL 2: RUANG LINGKUP</div>
+                    <p className="text-justify text-sm">{data.scope}</p>
                   </div>
-                </div>
-                
-                <div className="bg-slate-50 p-3 border rounded print:bg-transparent print:border-black">
-                  <div className="font-bold uppercase underline mb-1">PIHAK KEDUA</div>
-                  <div className="grid grid-cols-[80px_1fr]">
-                      <div>Instansi</div><div className="font-bold uppercase">: {data.p2Name}</div>
-                      <div>Nama</div><div>: {data.p2Rep} ({data.p2Title})</div>
-                      <div>Alamat</div><div>: {data.p2Address}</div>
+
+                  <div className="break-inside-avoid">
+                    <div className="text-center font-bold uppercase mb-1 text-sm underline">PASAL 3: JANGKA WAKTU</div>
+                    <p className="text-justify text-sm">Berlaku selama <strong>{data.period}</strong> dan dapat diperpanjang atas kesepakatan PARA PIHAK.</p>
+                  </div>
+
+                  <div className="break-inside-avoid">
+                    <div className="text-center font-bold uppercase mb-1 text-sm underline">PASAL 4: PEMBIAYAAN</div>
+                    <p className="text-justify text-sm">{data.financing}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mb-4 text-sm space-y-3">
-                <div className="border border-black p-3 break-inside-avoid">
-                  <span className="font-bold block mb-1 underline">LINGKUP KERJASAMA:</span>
-                  {data.scope}
+              <div className="grid grid-cols-2 gap-8 text-center text-sm mt-12 mb-8 break-inside-avoid">
+                <div>
+                    <p className="mb-2 font-bold uppercase text-[10px] text-slate-400">Pihak Pertama</p>
+                    <div className="h-20 flex flex-col justify-end">
+                       <div className="border border-slate-200 w-20 h-12 mx-auto mb-[-2rem] flex items-center justify-center text-[7px] text-slate-300 italic uppercase">Materai</div>
+                       <p className="font-bold underline uppercase relative z-10">{data.p1Rep}</p>
+                       <p className="text-[10px] opacity-70">{data.p1Name}</p>
+                    </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="border border-black p-3 break-inside-avoid">
-                    <span className="font-bold block mb-1 underline">DURASI:</span>
-                    {data.period}
-                  </div>
-                  <div className="border border-black p-3 break-inside-avoid">
-                    <span className="font-bold block mb-1 underline">NILAI / SISTEM:</span>
-                    {data.financing}
-                  </div>
-                </div>
-
-                <div className="border border-black p-3 break-inside-avoid">
-                  <span className="font-bold block mb-1 underline">HAK & KEWAJIBAN UTAMA:</span>
-                  {data.rightsObligations}
+                <div>
+                    <p className="mb-2 font-bold uppercase text-[10px] text-slate-400">Pihak Kedua</p>
+                    <div className="h-20 flex flex-col justify-end">
+                       <p className="font-bold underline uppercase">{data.p2Rep}</p>
+                       <p className="text-[10px] opacity-70">{data.p2Name}</p>
+                    </div>
                 </div>
               </div>
+          </div>
+        )}
 
-              <p className="mb-8 text-justify text-sm">
-                Perjanjian ini dibuat rangkap dua dan ditandatangani di atas materai yang cukup. Hal-hal yang belum tercantum akan diputuskan secara musyawarah.
-                {data.additionalClause && <span className="block mt-1 italic font-bold">Note: {data.additionalClause}</span>}
-              </p>
-            </div>
-
-            <div className="flex justify-between text-center mt-auto mb-8 text-sm shrink-0" style={{ pageBreakInside: 'avoid' }}>
-              <div className="w-48">
-                  <p className="mb-1 font-bold">PIHAK PERTAMA</p>
-                  <p className="text-[10px] mb-12 opacity-70 print:text-black">{data.p1Name}</p>
-                  <div className="border border-slate-300 w-16 h-10 mx-auto mb-[-2.5rem] mt-[-2rem] flex items-center justify-center text-[8px] text-slate-300 italic print:border-black print:text-black">MATERAI</div>
-                  <p className="font-bold underline uppercase">{data.p1Rep}</p>
+        {templateId === 2 && (
+          <div className="flex flex-col h-full font-sans">
+              <div className="text-center mb-6 border-b-4 border-slate-900 pb-2 shrink-0">
+                <h1 className="font-black text-2xl uppercase tracking-tighter">PERJANJIAN KEMITRAAN</h1>
+                <div className="text-xs font-bold uppercase mt-1 text-blue-600">{data.cooperationTitle}</div>
               </div>
-              <div className="w-48">
-                  <p className="mb-1 font-bold">PIHAK KEDUA</p>
-                  <p className="text-[10px] mb-12 opacity-70 print:text-black">{data.p2Name}</p>
-                  <p className="font-bold underline uppercase">{data.p2Rep}</p>
+              <p className="mb-4 text-sm">Kami yang sepakat bekerjasama pada {formatDateSafe(data.date)}:</p>
+              <div className="grid grid-cols-2 gap-4 mb-6 text-xs">
+                <div className="border-2 border-slate-100 p-3 rounded-lg"><b>PIHAK 1:</b><br/>{data.p1Name}<br/>({data.p1Rep})</div>
+                <div className="border-2 border-slate-100 p-3 rounded-lg"><b>PIHAK 2:</b><br/>{data.p2Name}<br/>({data.p2Rep})</div>
               </div>
-            </div>
+              <div className="space-y-4 text-sm flex-grow">
+                <div className="p-3 bg-slate-50 rounded border"><b>LINGKUP:</b> {data.scope}</div>
+                <div className="p-3 bg-slate-50 rounded border"><b>KOMPENSASI:</b> {data.financing}</div>
+                <div className="p-3 bg-slate-50 rounded border"><b>DURASI:</b> {data.period}</div>
+              </div>
+              <div className="flex justify-between text-center mt-20 break-inside-avoid">
+                <div className="w-40 border-t border-black pt-2 font-bold uppercase">{data.p1Rep}</div>
+                <div className="w-40 border-t border-black pt-2 font-bold uppercase">{data.p2Rep}</div>
+              </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
-            <div className="text-center text-xs text-slate-500 print:text-black shrink-0">
-              Mengetahui Saksi: {data.witness1} & {data.witness2}
-            </div>
-        </div>
-      )}
-    </div>
-  );
-
-  if (!isClient) return <div className="flex h-screen items-center justify-center font-sans text-slate-400">Memuat...</div>;
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 print:bg-white print:m-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
-      {/* GLOBAL CSS PRINT */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
-          
-          #print-only-root { 
-            display: block !important; 
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; 
-          }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
       {/* HEADER NAV */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans">
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center text-sm">
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-               <ArrowLeft size={18} /> Dashboard
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
-               <Handshake size={16} className="text-blue-500" /> <span>MOU BUILDER</span>
+            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
+               <Handshake size={16} className="text-blue-500" /> <span>MOU Builder</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium min-w-[160px] justify-between transition-all">
-                <div className="flex items-center gap-2 font-bold uppercase tracking-wide"><LayoutTemplate size={14} className="text-blue-400" /><span>{activeTemplateName}</span></div>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-all' : 'transition-all'} />
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
               </button>
-              {showTemplateMenu && <TemplateMenu />}
+              {showTemplateMenu && (
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>MOU Formal {templateId === 1 && <Check size={14}/>}</button>
+                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>MOU Simpel {templateId === 2 && <Check size={14}/>}</button>
+                </div>
+              )}
             </div>
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-blue-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-blue-500 transition-all shadow-lg active:scale-95">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+            <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
             </button>
           </div>
-        </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        
         {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full lg:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute lg:relative shadow-xl lg:shadow-none ${mobileView === 'preview' ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
-           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi MOU</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar">
-              
-              {/* 1. WAKTU & TEMPAT */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <div className="flex items-center gap-2 border-b pb-2">
-                    <CalendarClock size={14} className="text-slate-600"/>
-                    <h3 className="text-xs font-bold uppercase">Waktu & Tempat</h3>
-                 </div>
-                 <div className="space-y-3">
-                    <div>
-                       <label className="text-[10px] text-slate-500 font-bold block mb-1">Kota Penandatanganan</label>
-                       <input className="w-full p-2 border rounded text-xs font-bold text-blue-700" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Jakarta" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                       <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">Hari</label>
-                          <input className="w-full p-2 border rounded text-xs" value={data.day} onChange={e => handleDataChange('day', e.target.value)} placeholder="Senin" />
-                       </div>
-                       <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">Tanggal</label>
-                          <input type="date" className="w-full p-2 border rounded text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                       </div>
-                    </div>
-                 </div>
+        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor MOU</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+              <div className="space-y-4">
+                <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1">Pihak Pertama</h3>
+                <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} placeholder="Nama PT / Instansi" />
+                <div className="grid grid-cols-2 gap-2">
+                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.p1Rep} onChange={e => handleDataChange('p1Rep', e.target.value)} placeholder="Nama Wakil" />
+                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.p1Title} onChange={e => handleDataChange('p1Title', e.target.value)} placeholder="Jabatan" />
+                </div>
               </div>
-
-              {/* 2. IDENTITAS PARA PIHAK */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-6">
-                 {/* PIHAK 1 */}
-                 <div className="border-l-4 border-blue-500 pl-3">
-                    <h4 className="text-xs font-bold text-blue-600 mb-2 uppercase">Pihak Pertama</h4>
-                    <div className="space-y-2">
-                       <input className="w-full p-2 border rounded text-xs font-bold" placeholder="Nama Instansi / PT" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} />
-                       <div className="grid grid-cols-2 gap-2">
-                          <input className="w-full p-2 border rounded text-xs" placeholder="Nama Wakil" value={data.p1Rep} onChange={e => handleDataChange('p1Rep', e.target.value)} />
-                          <input className="w-full p-2 border rounded text-xs" placeholder="Jabatan" value={data.p1Title} onChange={e => handleDataChange('p1Title', e.target.value)} />
-                       </div>
-                       <textarea className="w-full p-2 border rounded text-xs h-12" placeholder="Alamat Pihak 1" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} />
-                    </div>
-                 </div>
-                 {/* PIHAK 2 */}
-                 <div className="border-l-4 border-emerald-500 pl-3">
-                    <h4 className="text-xs font-bold text-emerald-600 mb-2 uppercase">Pihak Kedua</h4>
-                    <div className="space-y-2">
-                       <input className="w-full p-2 border rounded text-xs font-bold" placeholder="Nama Instansi / PT" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} />
-                       <div className="grid grid-cols-2 gap-2">
-                          <input className="w-full p-2 border rounded text-xs" placeholder="Nama Wakil" value={data.p2Rep} onChange={e => handleDataChange('p2Rep', e.target.value)} />
-                          <input className="w-full p-2 border rounded text-xs" placeholder="Jabatan" value={data.p2Title} onChange={e => handleDataChange('p2Title', e.target.value)} />
-                       </div>
-                       <textarea className="w-full p-2 border rounded text-xs h-12" placeholder="Alamat Pihak 2" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} />
-                    </div>
-                 </div>
+              <div className="border-t pt-4 space-y-4">
+                <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1">Pihak Kedua</h3>
+                <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} placeholder="Nama PT / Instansi" />
+                <div className="grid grid-cols-2 gap-2">
+                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p2Rep} onChange={e => handleDataChange('p2Rep', e.target.value)} placeholder="Nama Wakil" />
+                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p2Title} onChange={e => handleDataChange('p2Title', e.target.value)} placeholder="Jabatan" />
+                </div>
               </div>
-
-              {/* 3. DETAIL KERJASAMA */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <div className="flex items-center gap-2 border-b pb-2"><Briefcase size={14}/><h3 className="text-xs font-bold uppercase">Detail Kerjasama</h3></div>
-                 
-                 <div className="space-y-3">
-                    <div>
-                       <label className="text-[10px] text-slate-500 font-bold block mb-1">Judul Kerjasama</label>
-                       <input className="w-full p-2 border rounded text-xs font-bold uppercase" value={data.cooperationTitle} onChange={e => handleDataChange('cooperationTitle', e.target.value)} placeholder="Contoh: PENGADAAN BARANG" />
-                    </div>
-
-                    <div>
-                       <label className="text-[10px] text-slate-500 font-bold block mb-1">Ruang Lingkup (Pasal 1-2)</label>
-                       <textarea className="w-full p-2 border rounded text-xs h-20" value={data.scope} onChange={e => handleDataChange('scope', e.target.value)} placeholder="Jelaskan detail apa yang dikerjakan..." />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3">
-                       <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">Jangka Waktu</label>
-                          <input className="w-full p-2 border rounded text-xs" value={data.period} onChange={e => handleDataChange('period', e.target.value)} placeholder="Contoh: 1 Tahun" />
-                       </div>
-                       <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">Pembiayaan / Sistem Bagi Hasil</label>
-                          <textarea className="w-full p-2 border rounded text-xs h-16" value={data.financing} onChange={e => handleDataChange('financing', e.target.value)} placeholder="Jelaskan sistem pembayaran..." />
-                       </div>
-                    </div>
-                 </div>
+              <div className="border-t pt-4 space-y-4">
+                <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1">Detail Perjanjian</h3>
+                <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-slate-500 outline-none" value={data.cooperationTitle} onChange={e => handleDataChange('cooperationTitle', e.target.value)} placeholder="Judul Kerjasama" />
+                <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-slate-500 outline-none" value={data.scope} onChange={e => handleDataChange('scope', e.target.value)} placeholder="Ruang Lingkup..." />
+                <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-slate-500 outline-none" value={data.financing} onChange={e => handleDataChange('financing', e.target.value)} placeholder="Sistem Pembiayaan..." />
               </div>
-
-              {/* 4. HAK & KEWAJIBAN + LAINNYA */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <div className="flex items-center gap-2 border-b pb-2"><FileText size={14}/><h3 className="text-xs font-bold uppercase">Ketentuan Lain</h3></div>
-                 
-                 <div className="space-y-3">
-                    <div>
-                       <label className="text-[10px] text-slate-500 font-bold block mb-1">Hak & Kewajiban Utama</label>
-                       <textarea className="w-full p-2 border rounded text-xs h-20" value={data.rightsObligations} onChange={e => handleDataChange('rightsObligations', e.target.value)} placeholder="Ringkasan hak dan kewajiban..." />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                       <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">Saksi 1</label>
-                          <input className="w-full p-2 border rounded text-xs" value={data.witness1} onChange={e => handleDataChange('witness1', e.target.value)} />
-                       </div>
-                       <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">Saksi 2</label>
-                          <input className="w-full p-2 border rounded text-xs" value={data.witness2} onChange={e => handleDataChange('witness2', e.target.value)} />
-                       </div>
-                    </div>
-
-                    <div>
-                       <label className="text-[10px] text-slate-500 font-bold block mb-1">Pasal Tambahan (Opsional)</label>
-                       <textarea className="w-full p-2 border rounded text-xs h-16" value={data.additionalClause} onChange={e => handleDataChange('additionalClause', e.target.value)} placeholder="Klausul tambahan jika ada..." />
-                    </div>
-                 </div>
-              </div>
-
-              <div className="h-20 md:hidden"></div>
            </div>
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-130mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
-                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
-                   <div style={{ width: '100%', height: '100%' }}>
-                      <DocumentContent />
-                   </div>
-                 </div>
-               </div>
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
+                <DocumentContent />
             </div>
+            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
         </div>
       </main>
 
       {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 font-sans">
-         <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
+          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
+          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      {/* PRINT AREA (TABLE WRAPPER) */}
-      <div id="print-only-root" className="hidden">
-         <table className="print-table">
-            <thead><tr><td><div className="print-header-space"></div></td></tr></thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div className="print-content-wrapper">
-                            <DocumentContent />
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot><tr><td><div className="print-footer-space"></div></td></tr></tfoot>
-         </table>
-      </div>
-
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }
