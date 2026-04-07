@@ -2,13 +2,15 @@
 
 /**
  * FILE: BASTPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Berita Acara Serah Terima (BAST)
  * FEATURES:
  * - Dual Template (Tabel & Narasi)
  * - Smart Presets (Barang, Pekerjaan, Aset)
  * - Strict A4 Print Layout
  * - Mobile Menu Fixed
+ * - Timezone-Safe Date Parsing
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -18,6 +20,9 @@ import {
   FileText, User, ArrowLeftCircle, Edit3, Eye, PackageCheck, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
+
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface BastItem {
@@ -94,6 +99,9 @@ function BASTBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<BastData>(INITIAL_DATA);
 
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
   // Set Tanggal Hari Ini saat Mount
   useEffect(() => {
     setData(prev => ({ 
@@ -103,7 +111,7 @@ function BASTBuilder() {
   }, []);
 
   // --- HANDLERS ---
-  const handleDataChange = (field: keyof BastData, val: any) => {
+  const handleDataChange = (field: keyof BastData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
@@ -128,7 +136,7 @@ function BASTBuilder() {
 
   // SMART PRESETS
   const applyPreset = (type: 'goods' | 'job' | 'key') => {
-    if (confirm('Ganti preset akan mereset isi data. Lanjutkan?')) {
+    if (window.confirm('Ganti preset akan mereset isi data. Lanjutkan?')) {
         if (type === 'goods') {
           setTemplateId(1);
           setData(prev => ({ 
@@ -158,7 +166,7 @@ function BASTBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
@@ -166,11 +174,11 @@ function BASTBuilder() {
   // --- TEMPLATE MENU COMPONENT (FIX MOBILE) ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Format Tabel (Aset/Barang)
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Format Narasi (Jasa/Kunci)
         </button>
@@ -179,28 +187,32 @@ function BASTBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
-    // Date Formatter
+    // FIX TIMEZONE DATE FORMATTER
     const getFormattedDate = (dateString: string) => {
         if(!dateString) return { dayName: '...', fullDate: '...' };
-        const date = new Date(dateString);
-        return {
-          dayName: date.toLocaleDateString('id-ID', { weekday: 'long' }),
-          fullDate: date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-        };
+        try {
+            const date = new Date(dateString + 'T00:00:00');
+            return {
+              dayName: date.toLocaleDateString('id-ID', { weekday: 'long' }),
+              fullDate: date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+            };
+        } catch {
+            return { dayName: dateString, fullDate: dateString };
+        }
     };
     const { dayName, fullDate } = getFormattedDate(data.date);
 
     // Common Footer (Signature)
     const SignatureSection = () => (
-        <div className="mt-8 pt-4" style={{ pageBreakInside: 'avoid' }}>
+        <div className="mt-8 pt-4 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
             <div className="flex justify-between text-center mb-10">
-                <div className="w-48 flex flex-col items-center">
+                <div className="w-48 flex flex-col items-center break-inside-avoid">
                     <p className="mb-1 text-[9pt] font-bold text-slate-500 uppercase">Pihak Kedua (Menerima)</p>
                     <p className="mb-16 font-bold uppercase text-[10pt]">{data.p2Dept}</p>
                     <p className="font-bold border-b border-black w-full uppercase text-[10pt]">{data.p2Name}</p>
                     <p className="text-[9pt]">{data.p2Title}</p>
                 </div>
-                <div className="w-48 flex flex-col items-center">
+                <div className="w-48 flex flex-col items-center break-inside-avoid">
                     <p className="mb-1 text-[9pt] font-bold text-slate-500 uppercase">Pihak Pertama (Menyerahkan)</p>
                     <p className="mb-16 font-bold uppercase text-[10pt]">{data.p1Dept}</p>
                     <p className="font-bold border-b border-black w-full uppercase text-[10pt]">{data.p1Name}</p>
@@ -209,7 +221,7 @@ function BASTBuilder() {
             </div>
 
             {data.witness && (
-                <div className="text-center flex flex-col items-center">
+                <div className="text-center flex flex-col items-center break-inside-avoid">
                     <p className="mb-16 text-[10pt] font-bold uppercase">Mengetahui (Saksi)</p>
                     <p className="font-bold underline uppercase text-[10pt]">{data.witness}</p>
                 </div>
@@ -232,7 +244,7 @@ function BASTBuilder() {
            </p>
 
            {/* PIHAK 1 & 2 (GRID) */}
-           <div className="mb-6 border border-black grid grid-cols-2">
+           <div className="mb-6 border border-black grid grid-cols-2 break-inside-avoid">
               {/* KIRI: PIHAK 1 */}
               <div className="p-4 border-r border-black">
                  <div className="font-bold text-[9pt] uppercase text-slate-500 mb-2 border-b border-slate-300 pb-1">PIHAK PERTAMA (Menyerahkan)</div>
@@ -258,12 +270,12 @@ function BASTBuilder() {
               </div>
            </div>
 
-           <p className="mb-4 text-justify">
+           <p className="mb-4 text-justify break-inside-avoid">
               PIHAK PERTAMA menyerahkan kepada PIHAK KEDUA, dan PIHAK KEDUA menyatakan telah menerima dari PIHAK PERTAMA, {data.type.toLowerCase()} dengan rincian sebagai berikut:
            </p>
 
            {/* TABEL BARANG */}
-           <div className="mb-4">
+           <div className="mb-4 break-inside-avoid">
               <table className="w-full text-[10pt] border-collapse border border-black">
                  <thead className="bg-slate-100 uppercase font-bold text-center">
                     <tr>
@@ -275,7 +287,7 @@ function BASTBuilder() {
                  </thead>
                  <tbody>
                     {(data.items || []).map((item, idx) => (
-                       <tr key={item.id} style={{ pageBreakInside: 'avoid' }}>
+                       <tr key={item.id} className="break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
                           <td className="p-2 border border-black text-center">{idx + 1}</td>
                           <td className="p-2 border border-black font-bold">{item.name}</td>
                           <td className="p-2 border border-black text-center">{item.qty}</td>
@@ -287,12 +299,12 @@ function BASTBuilder() {
            </div>
 
            {data.additionalNote && (
-              <div className="mb-6 text-[10pt] italic bg-slate-50 p-3 border border-slate-300 rounded text-justify">
+              <div className="mb-6 text-[10pt] italic bg-slate-50 p-3 border border-slate-300 rounded text-justify break-inside-avoid">
                  <strong>Catatan:</strong> {data.additionalNote}
               </div>
            )}
 
-           <p className="mb-6 text-justify">
+           <p className="mb-6 text-justify break-inside-avoid">
               Sejak ditandatanganinya Berita Acara ini, maka tanggung jawab atas {data.type.toLowerCase()} tersebut beralih sepenuhnya dari PIHAK PERTAMA kepada PIHAK KEDUA.
            </p>
 
@@ -314,7 +326,7 @@ function BASTBuilder() {
            </p>
 
            {/* PIHAK LIST */}
-           <div className="ml-4 mb-6">
+           <div className="ml-4 mb-6 break-inside-avoid">
               <table className="w-full leading-snug mb-2">
                  <tbody>
                     <tr><td className="w-6 font-bold align-top">1.</td><td className="w-24 font-bold align-top">Nama</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p1Name}</td></tr>
@@ -332,21 +344,21 @@ function BASTBuilder() {
               <div className="pl-[140px] italic">Selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong>.</div>
            </div>
 
-           <p className="mb-4 text-justify indent-12">
+           <p className="mb-4 text-justify indent-12 break-inside-avoid">
               PIHAK PERTAMA dengan ini menyerahkan kepada PIHAK KEDUA, dan PIHAK KEDUA menerima dari PIHAK PERTAMA hasil {data.type.toLowerCase()} dengan rincian sebagai berikut:
            </p>
 
-           <div className="bg-slate-50 p-6 border-l-4 border-black mb-6 italic text-justify leading-relaxed">
+           <div className="bg-slate-50 p-6 border-l-4 border-black mb-6 italic text-justify leading-relaxed break-inside-avoid">
               "{data.desc}"
            </div>
 
            {data.additionalNote && (
-              <p className="mb-6 text-[10pt] italic bg-slate-50 p-3 border border-dashed border-slate-300 rounded">
+              <p className="mb-6 text-[10pt] italic bg-slate-50 p-3 border border-dashed border-slate-300 rounded break-inside-avoid">
                  <strong>Catatan:</strong> {data.additionalNote}
               </p>
            )}
 
-           <p className="mb-10 text-justify indent-12">
+           <p className="mb-10 text-justify indent-12 break-inside-avoid">
               Demikian Berita Acara Serah Terima ini dibuat dengan sebenar-benarnya dalam rangkap 2 (dua) untuk dapat dipergunakan sebagaimana mestinya.
            </p>
 
@@ -370,7 +382,7 @@ function BASTBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -402,7 +414,13 @@ function BASTBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -515,6 +533,9 @@ function BASTBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
