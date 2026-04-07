@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Script from "next/script"; // IMPORT WAJIB
 import AdsterraBanner from '@/components/AdsterraBanner';
-import SaweriaBox from '@/components/SaweriaBox'; // Import komponen donasi
+import SaweriaBox from '@/components/SaweriaBox';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,9 +25,24 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" className="scroll-smooth">
+      <head>
+        {/* Google Analytics GA4 - G-7Q73R9SKEL */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-7Q73R9SKEL"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-7Q73R9SKEL');
+          `}
+        </Script>
+      </head>
       <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen`}>
         
-        {/* IKLAN HEADER (TETAP ADA) */}
+        {/* IKLAN HEADER */}
         <div className="w-full pt-4 px-4 bg-slate-50 no-print">
           <div className="max-w-4xl mx-auto flex justify-center overflow-hidden">
              <AdsterraBanner adKey="8fd377728513d5d23b9caf7a2bba1a73" width={728} height={90} />
@@ -36,8 +52,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* KONTEN UTAMA */}
         <main className="flex-grow relative">
           {children}
-          
-          {/* TOMBOL DONASI FLOATING (GLOBAL) */}
           <SaweriaBox />
         </main>
 
