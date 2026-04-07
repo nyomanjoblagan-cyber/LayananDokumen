@@ -2,13 +2,15 @@
 
 /**
  * FILE: BelumPunyaRumahPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Pernyataan Belum Memiliki Rumah
  * FEATURES:
  * - Dual Template (Formal Materai vs Sederhana)
  * - RT/RW Acknowledge Section
  * - Strict A4 Print Layout
  * - Mobile Menu Fixed
+ * - Timezone-Safe Date Parsing
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -19,8 +21,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// Jika ada komponen iklan:
-
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface HomeData {
@@ -79,6 +81,9 @@ function HomeDeclarationBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<HomeData>(INITIAL_DATA);
 
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
   // Set Tanggal Hari Ini saat Mount
   useEffect(() => {
     setData(prev => ({ 
@@ -88,12 +93,12 @@ function HomeDeclarationBuilder() {
   }, []);
 
   // --- HANDLERS ---
-  const handleDataChange = (field: keyof HomeData, val: any) => {
+  const handleDataChange = (field: keyof HomeData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
@@ -101,11 +106,11 @@ function HomeDeclarationBuilder() {
   // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Formal (Materai + RT/RW)
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Sederhana (Pribadi)
         </button>
@@ -114,10 +119,12 @@ function HomeDeclarationBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
+    // FIX TIMEZONE DATE FORMATTER
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
         } catch { return dateString; }
     };
 
@@ -133,7 +140,7 @@ function HomeDeclarationBuilder() {
            <div className="space-y-4 text-justify px-1">
               <p>Saya yang bertanda tangan di bawah ini:</p>
               
-              <div className="ml-4 space-y-1">
+              <div className="ml-4 space-y-1 break-inside-avoid">
                  <table className="w-full text-[10.5pt]">
                     <tbody>
                        <tr><td className="w-36 font-bold align-top">Nama Lengkap</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.name}</td></tr>
@@ -145,7 +152,7 @@ function HomeDeclarationBuilder() {
                  </table>
               </div>
 
-              <div className="space-y-3 pt-2">
+              <div className="space-y-3 pt-2 break-inside-avoid">
                  <p>Dengan ini menyatakan dengan sesungguhnya bahwa:</p>
                  <div className="bg-slate-100 p-4 border border-slate-300 rounded text-center">
                     <p className="font-black text-slate-800 uppercase tracking-wide text-sm">SAMPAI SAAT INI SAYA BELUM MEMILIKI RUMAH</p>
@@ -156,17 +163,17 @@ function HomeDeclarationBuilder() {
                  </p>
               </div>
 
-              <div className="bg-white p-3 border border-dashed border-black italic text-sm">
+              <div className="bg-white p-3 border border-dashed border-black italic text-sm break-inside-avoid">
                  Tujuan Penggunaan: <strong>{data.purpose}</strong>
               </div>
 
-              <p className="indent-12">
+              <p className="indent-12 break-inside-avoid">
                  Demikian pernyataan ini saya buat dengan sebenarnya, penuh kesadaran, dan tanpa paksaan dari pihak manapun. Apabila di kemudian hari pernyataan ini tidak benar, saya bersedia mengembalikan seluruh fasilitas subsidi yang telah saya terima dan dituntut sesuai hukum yang berlaku.
               </p>
            </div>
 
            {/* TANDA TANGAN (Compact Group) */}
-           <div className="mt-10" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-10 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <p className="text-right mb-6">{data.city}, {formatDate(data.date)}</p>
               
               <div className="flex justify-between items-end">
@@ -199,7 +206,7 @@ function HomeDeclarationBuilder() {
            <div className="space-y-6">
               <p>Saya yang bertanda tangan di bawah ini:</p>
 
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 grid gap-2 text-sm">
+              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 grid gap-2 text-sm break-inside-avoid">
                  <div className="grid grid-cols-[120px_10px_1fr]">
                     <span className="font-bold text-slate-500">Nama Lengkap</span><span>:</span><span className="font-black uppercase">{data.name}</span>
                  </div>
@@ -214,7 +221,7 @@ function HomeDeclarationBuilder() {
                  </div>
               </div>
 
-              <div className="space-y-4 py-2">
+              <div className="space-y-4 py-2 break-inside-avoid">
                  <p className="font-bold text-slate-700 border-l-4 border-emerald-500 pl-3">MENYATAKAN BAHWA:</p>
                  <div className="bg-white border-2 border-slate-100 p-6 rounded-xl text-center shadow-sm">
                     <p className="text-[10pt] font-bold text-slate-400 uppercase mb-2">Status Kepemilikan Properti</p>
@@ -225,12 +232,12 @@ function HomeDeclarationBuilder() {
                  </p>
               </div>
 
-              <p className="italic text-slate-500 text-sm border-t border-dashed border-slate-300 pt-4">
+              <p className="italic text-slate-500 text-sm border-t border-dashed border-slate-300 pt-4 break-inside-avoid">
                  Surat ini dibuat untuk keperluan: <strong>{data.purpose}</strong>
               </p>
            </div>
 
-           <div className="mt-12 flex justify-end" style={{ pageBreakInside: 'avoid' }}>
+           <div className="mt-12 flex justify-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="text-center w-64">
                  <p className="text-xs mb-20 font-bold uppercase tracking-widest">{data.city}, {formatDate(data.date)}</p>
                  <p className="font-black text-sm uppercase border-b-2 border-slate-900 inline-block pb-1">{data.name}</p>
@@ -256,7 +263,7 @@ function HomeDeclarationBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -289,7 +296,13 @@ function HomeDeclarationBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -354,6 +367,9 @@ function HomeDeclarationBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
