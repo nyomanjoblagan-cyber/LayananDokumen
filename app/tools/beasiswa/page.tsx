@@ -2,9 +2,9 @@
 
 /**
  * FILE: BeasiswaPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Permohonan Beasiswa
- * FIX: Menambahkan menu pilihan template untuk tampilan Mobile
+ * FIX: Menambahkan menu pilihan template untuk tampilan Mobile & Monetization Injection
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -14,6 +14,9 @@ import {
   CheckSquare, ArrowLeftCircle, Edit3, Eye, Building2, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
+
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface Attachments {
@@ -116,6 +119,9 @@ function ScholarshipBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<ScholarshipData>(INITIAL_DATA);
 
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
   // Set Tanggal Hari Ini saat Mount
   useEffect(() => {
     setData(prev => ({ 
@@ -125,7 +131,7 @@ function ScholarshipBuilder() {
   }, []);
 
   // --- HANDLERS ---
-  const handleDataChange = (field: keyof ScholarshipData, val: any) => {
+  const handleDataChange = (field: keyof ScholarshipData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
@@ -137,7 +143,7 @@ function ScholarshipBuilder() {
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
     }
   };
@@ -145,11 +151,11 @@ function ScholarshipBuilder() {
   // --- TEMPLATE MENU COMPONENT (Agar Rapi) ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Formal (Resmi)
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Modern (Clean)
         </button>
@@ -158,11 +164,13 @@ function ScholarshipBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
-    // Format Tanggal
+    // FIX TIMEZONE DATE FORMATTER
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+            // Append T00:00:00 untuk mencegah UTC offset bug
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
         } catch { return dateString; }
     };
 
@@ -183,12 +191,12 @@ function ScholarshipBuilder() {
       return (
         <div className="font-serif text-[11pt] text-black leading-[1.6]">
            
-           {/* 1. TANGGAL DI POJOK KANAN ATAS (Supaya tidak tabrakan) */}
+           {/* 1. TANGGAL DI POJOK KANAN ATAS */}
            <div className="flex justify-end mb-4">
               <div>{data.city}, {formatDate(data.date)}</div>
            </div>
 
-           {/* 2. BLOK LAMPIRAN & PERIHAL (Di Kiri) */}
+           {/* 2. BLOK LAMPIRAN & PERIHAL */}
            <div className="mb-8 w-full">
               <table className="w-full">
                  <tbody>
@@ -199,7 +207,7 @@ function ScholarshipBuilder() {
            </div>
 
            {/* 3. TUJUAN SURAT */}
-           <div className="mb-8">
+           <div className="mb-8 break-inside-avoid">
               <p>Yth. <strong>{data.targetName}</strong></p>
               {data.targetDept && <p>{data.targetDept}</p>}
               <p>{data.targetAddress}</p>
@@ -210,7 +218,7 @@ function ScholarshipBuilder() {
               <p className="mb-4">Dengan hormat,</p>
               <p className="mb-4">Saya yang bertanda tangan di bawah ini, mahasiswa:</p>
               
-              <div className="ml-6 mb-6">
+              <div className="ml-6 mb-6 break-inside-avoid">
                  <table className="w-full text-[11pt]">
                     <tbody>
                        <tr><td className="w-[160px] align-top">Nama Lengkap</td><td className="w-4 align-top">:</td><td className="font-bold uppercase align-top">{data.name}</td></tr>
@@ -225,36 +233,36 @@ function ScholarshipBuilder() {
                  </table>
               </div>
 
-              <p className="mb-4">
+              <p className="mb-4 break-inside-avoid">
                  Bersama surat ini, saya bermaksud mengajukan permohonan untuk mendapatkan <strong>{data.scholarshipName}</strong>. 
                  Adapun alasan saya mengajukan beasiswa ini adalah:
               </p>
               
-              <div className="bg-slate-50/50 p-4 border-l-4 border-slate-400 mb-6 text-justify italic ml-4">
+              <div className="bg-slate-50/50 p-4 border-l-4 border-slate-400 mb-6 text-justify italic ml-4 break-inside-avoid">
                  "{data.reason}"
               </div>
 
-              <p className="mb-2">Sebagai bahan pertimbangan Bapak/Ibu, bersama ini saya lampirkan kelengkapan administrasi sebagai berikut:</p>
+              <p className="mb-2 break-inside-avoid">Sebagai bahan pertimbangan Bapak/Ibu, bersama ini saya lampirkan kelengkapan administrasi sebagai berikut:</p>
               
-              <ol className="list-decimal list-outside mb-6 ml-10 space-y-1">
+              <ol className="list-decimal list-outside mb-6 ml-10 space-y-1 break-inside-avoid">
                  {lampiranList.map((item, idx) => (
                     <li key={idx} className="pl-2">{item}</li>
                  ))}
               </ol>
 
-              <p className="mb-2">Apabila permohonan ini disetujui, dana beasiswa dapat disalurkan melalui rekening berikut:</p>
-              <div className="ml-6 mb-6 font-bold bg-slate-100/50 p-2 inline-block border border-slate-200">
+              <p className="mb-2 break-inside-avoid">Apabila permohonan ini disetujui, dana beasiswa dapat disalurkan melalui rekening berikut:</p>
+              <div className="ml-6 mb-6 font-bold bg-slate-100/50 p-2 inline-block border border-slate-200 break-inside-avoid">
                  {data.bankName} — {data.bankAcc} <br/>
                  a.n {data.bankHolder}
               </div>
 
-              <p className="mb-8 indent-12">
+              <p className="mb-8 indent-12 break-inside-avoid">
                  Demikian surat permohonan ini saya buat dengan sebenar-benarnya dan sungguh-sungguh. Besar harapan saya agar permohonan ini dapat dikabulkan. Atas perhatian dan kebijaksanaan Bapak/Ibu, saya ucapkan terima kasih.
               </p>
            </div>
 
            {/* 5. TANDA TANGAN */}
-           <div className="flex justify-end mt-10" style={{ pageBreakInside: 'avoid' }}>
+           <div className="flex justify-end mt-10 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="text-center w-64">
                  <p className="mb-24">Hormat saya,</p>
                  <p className="font-bold border-b border-black inline-block uppercase text-[11pt]">{data.name}</p>
@@ -276,13 +284,13 @@ function ScholarshipBuilder() {
               </div>
            </div>
 
-           <div className="mb-8 bg-white p-4 border-l-4 border-slate-300">
+           <div className="mb-8 bg-white p-4 border-l-4 border-slate-300 break-inside-avoid">
               <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-1">Kepada Yth.</p>
               <p className="font-bold text-lg">{data.targetName}</p>
               <p className="text-slate-600 text-sm">{data.targetDept}</p>
            </div>
 
-           <div className="grid grid-cols-2 gap-6 mb-8">
+           <div className="grid grid-cols-2 gap-6 mb-8 break-inside-avoid">
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                  <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-3 border-b pb-1">Data Mahasiswa</p>
                  <div className="space-y-1 text-sm">
@@ -303,7 +311,7 @@ function ScholarshipBuilder() {
               </div>
            </div>
 
-           <div className="mb-8">
+           <div className="mb-8 break-inside-avoid">
               <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-2">Latar Belakang Permohonan</p>
               <p className="text-justify mb-4">Dengan ini saya mengajukan permohonan beasiswa dengan alasan sebagai berikut:</p>
               <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-100 text-justify text-sm italic text-slate-700">
@@ -311,7 +319,7 @@ function ScholarshipBuilder() {
               </div>
            </div>
 
-           <div className="mb-10">
+           <div className="mb-10 break-inside-avoid">
               <p className="font-bold text-slate-400 text-[9pt] uppercase tracking-widest mb-2">Lampiran Dokumen</p>
               <div className="grid grid-cols-2 gap-2 text-sm">
                  {lampiranList.map((item, idx) => (
@@ -323,7 +331,7 @@ function ScholarshipBuilder() {
               </div>
            </div>
 
-           <div className="flex justify-end pt-8 border-t border-slate-200" style={{ pageBreakInside: 'avoid' }}>
+           <div className="flex justify-end pt-8 border-t border-slate-200 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
               <div className="text-center w-64">
                  <p className="mb-20 font-bold text-slate-500 text-xs uppercase tracking-widest">Pemohon</p>
                  <p className="font-black text-slate-900 border-b-2 border-slate-900 inline-block uppercase">{data.name}</p>
@@ -349,7 +357,7 @@ function ScholarshipBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -383,7 +391,13 @@ function ScholarshipBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -482,6 +496,9 @@ function ScholarshipBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
