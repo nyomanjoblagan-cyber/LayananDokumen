@@ -2,13 +2,16 @@
 
 /**
  * FILE: BelumMenikahPage.tsx
- * STATUS: FINAL & MOBILE READY
+ * STATUS: PRODUCTION READY (WITH MONETIZATION)
  * DESC: Generator Surat Keterangan Belum Menikah
  * FEATURES:
  * - Dynamic Status (Jejaka/Perawan/Janda/Duda)
  * - Kop Surat Otomatis
  * - Mobile Menu Fixed
  * - Strict A4 Print Layout
+ * - Timezone-Safe Date Parsing
+ * - Memory-Leak Safe Logo Upload
+ * - Integrated Ad Banner Space & Saweria Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -18,6 +21,9 @@ import {
   ArrowLeftCircle, Edit3, Eye, Landmark, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
+
+// IMPORT KOMPONEN SAKTI
+import DocumentServices from '@/components/DocumentServices';
 
 // --- 1. TYPE DEFINITIONS ---
 interface SingleStatusData {
@@ -92,39 +98,52 @@ function BelumMenikahBuilder() {
   const [logo, setLogo] = useState<string | null>(null);
   const [data, setData] = useState<SingleStatusData>(INITIAL_DATA);
 
-  // Set Tanggal Hari Ini saat Mount
+  // STATE MODAL SAWERIA
+  const [showDonation, setShowDonation] = useState(false);
+
+  // Set Tanggal Hari Ini saat Mount & Cleanup Logo
   useEffect(() => {
     setData(prev => ({ 
         ...prev, 
         tglSurat: new Date().toISOString().split('T')[0] 
     }));
-  }, []);
+
+    return () => {
+        if (logo) URL.revokeObjectURL(logo);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- HANDLERS ---
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setLogo(URL.createObjectURL(file));
+    if (file) {
+        if (logo) URL.revokeObjectURL(logo);
+        setLogo(URL.createObjectURL(file));
+    }
   };
 
-  const handleDataChange = (field: keyof SingleStatusData, val: any) => {
+  const handleDataChange = (field: keyof SingleStatusData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
   const handleReset = () => {
-    if(confirm('Reset formulir ke awal?')) {
+    if(window.confirm('Reset formulir ke awal?')) {
         setData({ ...INITIAL_DATA, tglSurat: new Date().toISOString().split('T')[0] });
-        setLogo(null);
+        if (logo) {
+            URL.revokeObjectURL(logo);
+            setLogo(null);
+        }
     }
   };
 
   // --- TEMPLATE MENU COMPONENT ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Format Dinas (Resmi)
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
             Format Modern (Simpel)
         </button>
@@ -133,10 +152,12 @@ function BelumMenikahBuilder() {
 
   // --- KONTEN SURAT ---
   const ContentInside = () => {
+    // FIX TIMEZONE DATE FORMATTER
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            return new Date(dateString).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+            const safeDate = new Date(dateString + 'T00:00:00');
+            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
         } catch { return dateString; }
     };
 
@@ -147,7 +168,7 @@ function BelumMenikahBuilder() {
            
            {/* KOP SURAT */}
            <div className="flex items-center border-b-[3px] border-double border-black pb-4 mb-6 text-center relative">
-              {logo ? <img src={logo} className="w-24 h-24 object-contain absolute left-0 top-0 grayscale" alt="Logo" /> : null}
+              {logo && <img src={logo} className="w-24 h-24 object-contain absolute left-0 top-0 grayscale" alt="Logo Instansi" />}
               <div className="flex-grow px-12">
                  <h3 className="text-[12pt] font-bold uppercase tracking-wide">PEMERINTAH KABUPATEN {data.kabupaten}</h3>
                  <h2 className="text-[14pt] font-black uppercase tracking-wider">KECAMATAN {data.kecamatan}</h2>
@@ -166,7 +187,7 @@ function BelumMenikahBuilder() {
                  Yang bertanda tangan di bawah ini Kepala Desa <strong>{data.desa}</strong>, Kecamatan {data.kecamatan}, Kabupaten {data.kabupaten}, Provinsi {data.provinsi}, dengan ini menerangkan bahwa:
               </p>
 
-              <div className="ml-6 mb-6 font-sans text-[11pt]">
+              <div className="ml-6 mb-6 font-sans text-[11pt] break-inside-avoid">
                  <table className="w-full">
                     <tbody>
                        <tr><td className="w-40 py-1 align-top">Nama Lengkap</td><td className="w-4 align-top">:</td><td className="font-bold uppercase align-top">{data.nama}</td></tr>
@@ -180,19 +201,19 @@ function BelumMenikahBuilder() {
                  </table>
               </div>
 
-              <p className="mb-4 indent-12">
+              <p className="mb-4 indent-12 break-inside-avoid">
                  Berdasarkan data yang ada pada kami serta sepengetahuan kami, nama tersebut di atas adalah benar-benar penduduk Desa {data.desa} yang berdomisili pada alamat tersebut dan sampai saat dikeluarkan surat keterangan ini yang bersangkutan berstatus:
               </p>
 
-              <div className="text-center bg-slate-50 p-3 border border-slate-300 font-black text-lg uppercase tracking-widest mb-6">
+              <div className="text-center bg-slate-50 p-3 border border-slate-300 font-black text-lg uppercase tracking-widest mb-6 break-inside-avoid">
                  {data.status.toUpperCase()} (BELUM MENIKAH)
               </div>
 
-              <p className="mb-8 indent-12">
+              <p className="mb-8 indent-12 break-inside-avoid">
                  Demikian surat keterangan ini kami buat dengan sebenarnya agar dapat dipergunakan sebagaimana mestinya dan bagi yang berkepentingan agar menjadi maklum.
               </p>
 
-              <div className="flex justify-end text-center mt-12" style={{ pageBreakInside: 'avoid' }}>
+              <div className="flex justify-end text-center mt-12 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
                  <div className="w-[50%]">
                     <p className="mb-1">{data.desa}, {formatDate(data.tglSurat)}</p>
                     <p className="font-bold uppercase mb-20">{data.jabatan}</p>
@@ -220,7 +241,7 @@ function BelumMenikahBuilder() {
            <div className="mb-6">
               <p className="mb-4">Pemerintah Desa <strong>{data.desa}</strong> dengan ini menerangkan bahwa:</p>
               
-              <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-6">
+              <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-6 break-inside-avoid">
                  <div className="grid grid-cols-[130px_10px_1fr] gap-y-2 text-sm">
                     <span className="font-bold text-slate-500">Nama</span><span>:</span><span className="font-bold uppercase">{data.nama}</span>
                     <span className="font-bold text-slate-500">NIK</span><span>:</span><span className="font-mono">{data.nik}</span>
@@ -229,20 +250,20 @@ function BelumMenikahBuilder() {
                  </div>
               </div>
 
-              <p className="mb-4 text-justify">
+              <p className="mb-4 text-justify break-inside-avoid">
                  Adalah benar warga kami dan berdasarkan catatan kependudukan yang ada, yang bersangkutan saat ini berstatus:
               </p>
 
-              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-center mb-6">
+              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-center mb-6 break-inside-avoid">
                  <p className="text-sm text-emerald-800 font-medium uppercase">Belum Pernah Kawin</p>
                  <p className="text-xl font-black text-emerald-700 uppercase mt-1">{data.status}</p>
               </div>
 
-              <p>Surat keterangan ini diberikan untuk keperluan administrasi sebagaimana mestinya.</p>
+              <p className="break-inside-avoid">Surat keterangan ini diberikan untuk keperluan administrasi sebagaimana mestinya.</p>
            </div>
 
-           <div className="mt-12 flex justify-end text-center" style={{ pageBreakInside: 'avoid' }}>
-              <div>
+           <div className="mt-12 flex justify-end text-center break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+              <div className="w-64">
                  <p className="text-xs mb-20 font-bold uppercase tracking-widest">{data.desa}, {formatDate(data.tglSurat)}</p>
                  <p className="font-black uppercase border-b-2 border-slate-900 inline-block pb-1">{data.kepalaDesa}</p>
                  <p className="text-xs font-bold text-slate-400 mt-1">{data.jabatan}</p>
@@ -267,7 +288,7 @@ function BelumMenikahBuilder() {
             .print-table thead { height: 15mm; display: table-header-group; } 
             .print-table tfoot { height: 15mm; display: table-footer-group; } 
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid; }
+            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       `}</style>
 
@@ -299,7 +320,13 @@ function BelumMenikahBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               <button 
+                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
+               >
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+               </button>
             </div>
          </div>
       </header>
@@ -322,7 +349,7 @@ function BelumMenikahBuilder() {
                          <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 bg-slate-50 shrink-0 relative overflow-hidden group">
                             {logo ? <img src={logo} className="w-full h-full object-contain p-1" alt="Logo" /> : <div className="text-[8px] text-center text-slate-400 font-bold">LOGO<br/>GARUDA</div>}
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[8px] font-bold">UBAH</div>
-                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
+                            <input type="file" id="logo-upload" aria-label="Upload Logo" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
                          </div>
                          <div className="flex-1 space-y-2">
                             <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.kabupaten} onChange={e => handleDataChange('kabupaten', e.target.value)} placeholder="Kabupaten..." />
@@ -381,6 +408,9 @@ function BelumMenikahBuilder() {
              </div>
          </div>
       </main>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
