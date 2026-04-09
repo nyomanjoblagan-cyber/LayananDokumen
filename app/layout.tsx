@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id" className="scroll-smooth">
       <head>
-        {/* --- Google Analytics GA4 (Native Script Bypass) --- */}
+        {/* --- Google Analytics GA4 --- */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q73R9SKEL"></script>
         <script
           dangerouslySetInnerHTML={{
@@ -40,13 +40,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
-        {/* --- MONETAG MULTITAG SCRIPT (Native Script Bypass) --- */}
-        <script 
-          src="https://quge5.com/88/tag.min.js" 
-          data-zone="227887" 
-          async 
-          data-cfasync="false"
-        ></script>
+        {/* --- SCRIPT IKLAN MONETAG: VIGNETTE (AMAN UX) --- */}
+        {/* Diinjeksi menggunakan dangerouslySetInnerHTML agar tidak memicu Hydration Error di Next.js */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(s){s.dataset.zone='10851846',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
+          }}
+        />
       </head>
 
       <body className="font-sans bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen">
