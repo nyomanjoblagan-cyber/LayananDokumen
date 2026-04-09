@@ -310,7 +310,7 @@ function FranchiseBuilder() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
             @page { size: A4 portrait; margin: 0; }
             .no-print { display: none !important; }
@@ -322,7 +322,7 @@ function FranchiseBuilder() {
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
             .break-inside-avoid, tr, td { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
       <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
          <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">

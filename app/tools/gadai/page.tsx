@@ -303,7 +303,7 @@ function GadaiBuilder() {
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800 overflow-x-hidden">
       
       {/* CSS PRINT FIXED */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4 portrait; margin: 0; }
           .no-print { display: none !important; }
@@ -315,7 +315,7 @@ function GadaiBuilder() {
           .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
           .break-inside-avoid, tr, td { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
       {/* HEADER NAVBAR */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans shrink-0">

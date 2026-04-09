@@ -305,7 +305,7 @@ function FinanceToolBuilder() {
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] font-sans text-slate-800">
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4 portrait; margin: 0; }
           .no-print { display: none !important; }
@@ -313,7 +313,7 @@ function FinanceToolBuilder() {
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
       {/* NAVBAR */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 h-16 shrink-0 flex items-center px-4 justify-between">

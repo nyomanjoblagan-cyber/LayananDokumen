@@ -28,7 +28,7 @@ export default function BlogIndexPage() {
 
   return (
     <main className="min-h-screen font-sans text-slate-900 bg-[#f8fafc]">
-      <style jsx global>{` html { scroll-behavior: smooth !important; } `}</style>
+      <style dangerouslySetInnerHTML={{ __html: ` html { scroll-behavior: smooth !important; } ` }} />
 
       {/* BACKGROUND GRAPHICS */}
       <div className="fixed inset-0 z-0 pointer-events-none">

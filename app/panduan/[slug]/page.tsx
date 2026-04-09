@@ -71,7 +71,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
   return (
     <main className="min-h-screen bg-[#f8fafc] font-sans pb-20">
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         html { scroll-behavior: smooth !important; }
         .prose h2, .prose h3 { color: #0f172a; font-weight: 800; margin-top: 1.5em; margin-bottom: 0.5em; }
         .prose p { margin-bottom: 1em; line-height: 1.75; }
@@ -83,7 +83,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           text-decoration: underline;
           text-underline-offset: 4px;
         }
-      `}</style>
+      ` }} />
 
       {/* HEADER NAVIGASI */}
       <header className="sticky top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">

@@ -369,7 +369,7 @@ function DebtAgreementBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4; margin: 0; } 
           body { background: white; margin: 0; padding: 0; }
@@ -378,7 +378,7 @@ function DebtAgreementBuilder() {
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
-      `}</style>
+      ` }} />
 
       {/* NAVBAR */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-800 h-16 font-sans shrink-0">
