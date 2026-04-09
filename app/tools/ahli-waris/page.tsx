@@ -381,7 +381,7 @@ function AhliWarisToolBuilder() {
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
       {/* CSS PRINT */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
             @page { size: A4 portrait; margin: 0; }
             .no-print { display: none !important; }
@@ -393,7 +393,7 @@ function AhliWarisToolBuilder() {
             .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
             .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
-      `}</style>
+      ` }} />
 
       {/* HEADER */}
       <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
