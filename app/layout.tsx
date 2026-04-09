@@ -40,11 +40,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
-        {/* --- SCRIPT IKLAN MONETAG: VIGNETTE (AMAN UX) --- */}
-        {/* Diinjeksi menggunakan dangerouslySetInnerHTML agar tidak memicu Hydration Error di Next.js */}
+        {/* --- IKLAN 1: VIGNETTE (OVERLAY AMAN) --- */}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(s){s.dataset.zone='10851846',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
+          }}
+        />
+
+        {/* --- IKLAN 2: IN-PAGE PUSH (POJOK LAYAR) --- */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(s){s.dataset.zone='10851860',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
           }}
         />
       </head>
