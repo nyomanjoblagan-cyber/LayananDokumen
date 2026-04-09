@@ -16,7 +16,7 @@ import {
   Printer, ArrowLeft, Upload, LayoutTemplate, Plus, Trash2,
   User, CreditCard, ChevronDown, Check, Edit3, Eye, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
-import Link from 'next/link'; // FIXED: Standar Next.js Link
+import Link from 'next/link'; 
 
 // IMPORT KOMPONEN SAKTI
 import DocumentServices from '@/components/DocumentServices';
@@ -406,10 +406,10 @@ function FinanceToolBuilder() {
              <DocumentContent />
           </div>
         </div>
-
-        {/* COMPONENT SERVICES (IKLAN & MODAL DONASI) */}
-        <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
       </main>
+
+      {/* COMPONENT SERVICES DIPINDAHKAN KELUAR DARI MAIN */}
+      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
 
       {/* MOBILE NAV TOGGLE */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1.5 shadow-2xl border border-white/10">
