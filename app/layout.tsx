@@ -1,17 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import Script from "next/script";
-import SaweriaBox from '@/components/SaweriaBox';
 
-const inter = Inter({ subsets: ["latin"] });
+// @ts-ignore: Bypass error TS2882 dari VS Code karena Next.js memproses CSS secara internal
+import "./globals.css"; 
+
+import SaweriaBox from '@/components/SaweriaBox';
 
 export const metadata: Metadata = {
   title: "LayananDokumen.com - Pusat Administrasi & Surat Resmi",
   description: "Platform penyusunan dokumen administratif. Gratis & Tanpa Login.",
   verification: { google: "tayBKyloVxPMxQEdM-zAI_pIqd90go0uw3KIovuWSyM" },
   other: {
-    "admaven-placement": "Bqjs8rja4", // Meta Tag Verifikasi AdMaven
+    "admaven-placement": "Bqjs8rja4", 
   },
   metadataBase: new URL('https://layanandokumen.com'),
   icons: { icon: '/logo.png', shortcut: '/logo.png', apple: '/logo.png' },
@@ -28,21 +27,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id" className="scroll-smooth">
       <head>
-        {/* Google Analytics GA4 */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-7Q73R9SKEL"
-          strategy="afterInteractive"
+        {/* --- Google Analytics GA4 (Native Script Bypass) --- */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q73R9SKEL"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-7Q73R9SKEL');
+            `,
+          }}
         />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-7Q73R9SKEL');
-          `}
-        </Script>
+
+        {/* --- MONETAG MULTITAG SCRIPT (Native Script Bypass) --- */}
+        <script 
+          src="https://quge5.com/88/tag.min.js" 
+          data-zone="227887" 
+          async 
+          data-cfasync="false"
+        ></script>
       </head>
-      <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen`}>
+
+      <body className="font-sans bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen">
         
         {/* KONTEN UTAMA */}
         <main className="flex-grow relative mt-4">
