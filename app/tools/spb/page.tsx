@@ -274,7 +274,7 @@ function PaymentOrderBuilder() {
       
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={3000} />
+         <PrintWrapper documentName="Dokumen" price={10000} />
       </div>
 
       <div id="print-only-root" className="hidden">
@@ -283,4 +283,3 @@ function PaymentOrderBuilder() {
     </div>
   );
 }
-// FORCE-HMR-UPDATE
