@@ -47,12 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
-        {/* --- IKLAN 2: IN-PAGE PUSH (POJOK LAYAR) --- */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(s){s.dataset.zone='10851860',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
-          }}
-        />
+        {/* Iklan In-Page Push dihapus atas permintaan */}
       </head>
 
       <body className="font-sans bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen">
