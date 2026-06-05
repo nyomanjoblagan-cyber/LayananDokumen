@@ -60,7 +60,7 @@ export default function DiskonPage() {
 
       {/* MAIN CONTENT */}
       <main className="max-w-6xl mx-auto p-4 md:p-8 flex-grow w-full">
-         <DiscountCalculator setShowDonation={setShowDonation} />
+         <DiscountCalculator />
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
          <PrintWrapper documentName="Dokumen" price={10000} />
@@ -72,7 +72,7 @@ export default function DiskonPage() {
   );
 }
 
-function DiscountCalculator({ setShowDonation }: { setShowDonation: (v: boolean) => void }) {
+function DiscountCalculator() {
   // --- STATE ---
   const [mode, setMode] = useState<'percent' | 'promo'>('percent');
   
@@ -260,8 +260,7 @@ function DiscountCalculator({ setShowDonation }: { setShowDonation: (v: boolean)
              <button onClick={() => {setPrice(0); setDisc1(0); setDisc2(0); setTax(0);}} className="text-xs text-slate-400 hover:text-red-500 flex items-center gap-1 font-medium transition-colors">
                 <RefreshCcw size={12}/> Reset
              </button>
-             {/* Tombol Donasi di Kalkulator sebagai pengganti Cetak */}
-             <button onClick={() => setShowDonation(true)} className="text-xs text-emerald-600 hover:underline font-bold">Donasi Kopi ☕</button>
+             {/* Tombol Donasi di Kalkulator sebagai pengganti Cetak (Dihapus) */}
            </div>
         </div>
       </div>
