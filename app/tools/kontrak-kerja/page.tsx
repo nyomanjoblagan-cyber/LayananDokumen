@@ -15,7 +15,7 @@ import {
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 export default function ContractPage() {
   return (
@@ -34,8 +34,6 @@ function ContractToolBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
-  const [showDonation, setShowDonation] = useState(false);
-
   // DATA DEFAULT
   const [data, setData] = useState({
     no: `PKWT/${new Date().getFullYear()}/${Math.floor(Math.random() * 1000)}`,
@@ -253,7 +251,7 @@ function ContractToolBuilder() {
                 </div>
               )}
             </div>
-            <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg flex items-center gap-2 transition-all">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
             </button>
           </div>
@@ -298,13 +296,18 @@ function ContractToolBuilder() {
                  <Kertas><ContentSimple /></Kertas>
                )}
             </div>
-            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-        </div>
+            </div>
       </main>
 
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans">
           <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
+      </div>
+
+      
+      {/* AREA TOMBOL MONETISASI */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen" price={3000} />
       </div>
 
       <div id="print-only-root" className="hidden">
@@ -320,3 +323,4 @@ function ContractToolBuilder() {
     </div>
   );
 }
+// FORCE-HMR-UPDATE

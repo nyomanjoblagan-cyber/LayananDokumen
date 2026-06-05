@@ -26,7 +26,7 @@ import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
 // Pastikan file ini ada di: src/components/DocumentServices.tsx
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface FranchiseData {
@@ -87,8 +87,6 @@ function FranchiseBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<FranchiseData>(INITIAL_DATA);
   const [isClient, setIsClient] = useState(false);
-  const [showDonation, setShowDonation] = useState(false);
-
   useEffect(() => {
     setIsClient(true);
     setData(prev => ({ 
@@ -341,7 +339,7 @@ function FranchiseBuilder() {
                   </button>
                   {showTemplateMenu && <TemplateMenu />}
                </div>
-               <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
+               <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"><Printer size={18}/> <span className="hidden sm:inline">Cetak</span></button>
             </div>
          </div>
       </header>
@@ -405,11 +403,15 @@ function FranchiseBuilder() {
          </div>
       </main>
 
-      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
          <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
          <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
+      </div>
+
+      
+      {/* AREA TOMBOL MONETISASI */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen" price={3000} />
       </div>
 
       <div id="print-only-root" className="hidden">
@@ -422,3 +424,4 @@ function FranchiseBuilder() {
     </div>
   );
 }
+// FORCE-HMR-UPDATE

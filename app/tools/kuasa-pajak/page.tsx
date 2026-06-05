@@ -15,7 +15,7 @@ import {
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface ProxyData {
@@ -84,8 +84,6 @@ function TaxProxyBuilder() {
   const [isClient, setIsClient] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const [data, setData] = useState<ProxyData>(INITIAL_DATA);
-  const [showDonation, setShowDonation] = useState(false);
-
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -271,7 +269,7 @@ function TaxProxyBuilder() {
                 </div>
               )}
             </div>
-            <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Print</span>
             </button>
           </div>
@@ -316,8 +314,7 @@ function TaxProxyBuilder() {
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
                 <ProxyContent />
             </div>
-            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-        </div>
+            </div>
       </main>
 
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
@@ -325,7 +322,14 @@ function TaxProxyBuilder() {
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
+      
+      {/* AREA TOMBOL MONETISASI */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen" price={3000} />
+      </div>
+
       <div id="print-only-root" className="hidden"><div className="bg-white"><ProxyContent /></div></div>
     </div>
   );
 }
+// FORCE-HMR-UPDATE

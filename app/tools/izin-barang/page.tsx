@@ -16,7 +16,7 @@ import {
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface Item {
@@ -74,8 +74,6 @@ function IzinBarangBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<GatePassData>(INITIAL_DATA);
-  const [showDonation, setShowDonation] = useState(false);
-
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -300,7 +298,7 @@ function IzinBarangBuilder() {
                 </button>
                 {showTemplateMenu && <TemplateMenu />}
              </div>
-             <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95">
+             <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95">
                 <Printer size={16}/> Cetak
              </button>
           </div>
@@ -354,8 +352,7 @@ function IzinBarangBuilder() {
            </div>
         </div>
 
-        <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-      </main>
+        </main>
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl">
@@ -363,7 +360,14 @@ function IzinBarangBuilder() {
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
+      
+      {/* AREA TOMBOL MONETISASI */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen" price={3000} />
+      </div>
+
       <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }
+// FORCE-HMR-UPDATE

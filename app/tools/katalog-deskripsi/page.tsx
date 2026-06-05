@@ -6,6 +6,7 @@
  * DESC: Katalog seluruh alat bantu administrasi dengan fitur pencarian.
  */
 
+import PrintWrapper from '@/components/PrintWrapper';
 import { 
   ArrowLeft, Search, ExternalLink, Store, Users, Gavel, 
   Landmark, Truck, GraduationCap, Stethoscope, PartyPopper, 

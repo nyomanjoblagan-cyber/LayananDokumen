@@ -15,7 +15,7 @@ import {
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface TaxResult {
@@ -49,8 +49,6 @@ export default function PphPage() {
 function PphCalculatorBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [showDonation, setShowDonation] = useState(false);
-
   // --- STATE INPUT ---
   const [salary, setSalary] = useState<number>(10000000); 
   const [allowance, setAllowance] = useState<number>(500000); 
@@ -278,8 +276,7 @@ function PphCalculatorBuilder() {
                  </p>
               </div>
 
-              <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-           </div>
+              </div>
            <div className="h-20"></div>
         </div>
       </main>

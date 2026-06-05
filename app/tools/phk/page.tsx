@@ -15,7 +15,7 @@ import {
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface TerminationData {
@@ -77,8 +77,6 @@ function TerminationLetterBuilder() {
   const [isClient, setIsClient] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [showDonation, setShowDonation] = useState(false);
-
   const [data, setData] = useState<TerminationData>(INITIAL_DATA);
 
   useEffect(() => {
@@ -275,7 +273,7 @@ function TerminationLetterBuilder() {
                 </div>
               )}
             </div>
-            <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
@@ -335,8 +333,7 @@ function TerminationLetterBuilder() {
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
                 <DocumentContent />
             </div>
-            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-        </div>
+            </div>
       </main>
 
       {/* MOBILE NAV */}
@@ -345,7 +342,14 @@ function TerminationLetterBuilder() {
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
+      
+      {/* AREA TOMBOL MONETISASI */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen" price={3000} />
+      </div>
+
       <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }
+// FORCE-HMR-UPDATE

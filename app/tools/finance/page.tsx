@@ -19,7 +19,7 @@ import {
 import Link from 'next/link'; 
 
 // IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. HELPER: TERBILANG ---
 const terbilang = (angka: number): string => {
@@ -94,8 +94,6 @@ function FinanceToolBuilder() {
   const [logo, setLogo] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<FinanceData>(INITIAL_DATA);
-  const [showDonation, setShowDonation] = useState(false);
-
   // Hydration Fix & Initial Data Loading
   useEffect(() => {
     setIsClient(true);
@@ -336,7 +334,7 @@ function FinanceToolBuilder() {
           </div>
           <div className="flex items-center gap-3">
              <button onClick={handleReset} className="p-2 text-slate-400 hover:text-red-400 transition-colors"><RotateCcw size={18}/></button>
-             <button onClick={() => { window.print(); setShowDonation(true); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg flex items-center gap-2">
+             <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg flex items-center gap-2">
                 <Printer size={16}/> Cetak
              </button>
           </div>
@@ -409,12 +407,16 @@ function FinanceToolBuilder() {
       </main>
 
       {/* COMPONENT SERVICES DIPINDAHKAN KELUAR DARI MAIN */}
-      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-
       {/* MOBILE NAV TOGGLE */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1.5 shadow-2xl border border-white/10">
           <button onClick={() => setMobileMode('editor')} className={`flex-1 rounded-xl text-xs font-black tracking-widest flex items-center justify-center gap-2 transition-all ${mobileMode === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}><Edit3 size={16}/> EDITOR</button>
           <button onClick={() => setMobileMode('preview')} className={`flex-1 rounded-xl text-xs font-black tracking-widest flex items-center justify-center gap-2 transition-all ${mobileMode === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> PREVIEW</button>
+      </div>
+
+      
+      {/* AREA TOMBOL MONETISASI */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen" price={3000} />
       </div>
 
       <div id="print-only-root" className="hidden">
@@ -423,3 +425,4 @@ function FinanceToolBuilder() {
     </div>
   );
 }
+// FORCE-HMR-UPDATE

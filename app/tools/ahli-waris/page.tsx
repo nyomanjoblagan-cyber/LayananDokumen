@@ -21,7 +21,7 @@ import {
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface Heir {
@@ -109,9 +109,6 @@ function AhliWarisToolBuilder() {
   // Menggunakan Initial Data yang aman
   const [data, setData] = useState<HeirData>(INITIAL_DATA);
   
-  // STATE MODAL SAWERIA
-  const [showDonation, setShowDonation] = useState(false);
-
   // SELF-HEALING EFFECT
   useEffect(() => {
     setData(prev => ({
@@ -426,7 +423,7 @@ function AhliWarisToolBuilder() {
 
                {/* TOMBOL CETAK & TRIGGER SAWERIA */}
                <button 
-                 onClick={() => { window.print(); setShowDonation(true); }} 
+                 onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
                >
                  <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
@@ -535,9 +532,10 @@ function AhliWarisToolBuilder() {
              </div>
          </div>
       </main>
-
-      {/* INJEKSI KOMPONEN SAKTI (IKLAN BANNER & MODAL DONASI) */}
-      <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
+      {/* AREA TOMBOL MONETISASI */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen" price={3000} />
+      </div>
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">

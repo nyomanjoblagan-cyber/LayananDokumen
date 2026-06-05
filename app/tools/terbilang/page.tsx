@@ -6,6 +6,7 @@
  * DESC: Generator Teks Terbilang Rupiah Otomatis dengan Preview Kuitansi
  */
 
+import PrintWrapper from '@/components/PrintWrapper';
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Copy, Check, Hash, Type, 

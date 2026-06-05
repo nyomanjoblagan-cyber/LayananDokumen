@@ -1,5 +1,6 @@
 'use client';
 
+import PrintWrapper from '@/components/PrintWrapper';
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Home, Percent, Calendar, 

@@ -6,6 +6,7 @@
  * DESC: Kalkulator Usia Lengkap dengan Statistik Hidup & Metafisika
  */
 
+import PrintWrapper from '@/components/PrintWrapper';
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Cake, Star, User, 

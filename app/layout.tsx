@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className="scroll-smooth">
+    <html lang="id" className="scroll-smooth" suppressHydrationWarning>
       <head>
         {/* --- Google Analytics GA4 --- */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q73R9SKEL"></script>

@@ -21,7 +21,7 @@ import {
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface CalculationResult {
@@ -34,8 +34,6 @@ interface CalculationResult {
 
 // --- 2. KOMPONEN UTAMA ---
 export default function DiskonPage() {
-  const [showDonation, setShowDonation] = useState(false);
-
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
       
@@ -63,10 +61,13 @@ export default function DiskonPage() {
       {/* MAIN CONTENT */}
       <main className="max-w-6xl mx-auto p-4 md:p-8 flex-grow w-full">
          <DiscountCalculator setShowDonation={setShowDonation} />
-         
-         {/* INJEKSI KOMPONEN SAKTI (IKLAN & MODAL DONASI) */}
-         <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-      </main>
+      {/* AREA TOMBOL MONETISASI */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen" price={3000} />
+      </div>
+
+      {/* INJEKSI KOMPONEN SAKTI (IKLAN & MODAL DONASI) */}
+         </main>
     </div>
   );
 }

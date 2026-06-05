@@ -20,7 +20,7 @@ import {
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface GadaiData {
@@ -98,8 +98,6 @@ function GadaiBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor'); 
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<GadaiData>(INITIAL_DATA);
-  const [showDonation, setShowDonation] = useState(false);
-
   // Set Tanggal Hari Ini saat Mount
   useEffect(() => {
     setIsClient(true);
@@ -338,7 +336,7 @@ function GadaiBuilder() {
               </button>
               {showTemplateMenu && <TemplateMenu />}
             </div>
-            <button onClick={() => { window.print(); setShowDonation(true); }} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
             </button>
           </div>
@@ -426,8 +424,7 @@ function GadaiBuilder() {
             </div>
             
             {/* INJEKSI KOMPONEN MONETISASI */}
-            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
-        </div>
+            </div>
 
       </main>
 
@@ -438,6 +435,12 @@ function GadaiBuilder() {
       </div>
 
       {/* PRINT PORTAL */}
+      
+      {/* AREA TOMBOL MONETISASI */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen" price={3000} />
+      </div>
+
       <div id="print-only-root" className="hidden">
          <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
             <ContentInside />
@@ -447,3 +450,4 @@ function GadaiBuilder() {
     </div>
   );
 }
+// FORCE-HMR-UPDATE
