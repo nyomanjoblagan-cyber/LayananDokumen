@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { amount, documentName } = await request.json();
+    const { price, documentName } = await request.json();
 
     const serverKey = process.env.MIDTRANS_SERVER_KEY;
     if (!serverKey) {
@@ -13,12 +13,12 @@ export async function POST(request: Request) {
     const payload = {
       transaction_details: {
         order_id: `LD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-        gross_amount: amount || 2000,
+        gross_amount: price || 3000,
       },
       item_details: [
         {
           id: 'DOC-PRINT',
-          price: amount || 2000,
+          price: price || 3000,
           quantity: 1,
           name: documentName || 'Cetak Dokumen Tanpa Watermark',
         }
