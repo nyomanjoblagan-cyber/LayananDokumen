@@ -5,14 +5,16 @@ import SeoGuide from '@/components/SeoGuide';
 import { Metadata } from 'next';
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // 1. Generate Metadata SEO secara Dinamis
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const data = TEMPLATES[params.slug];
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
+  const data = TEMPLATES[slug];
   
   if (!data) {
     return {
@@ -33,8 +35,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 // 2. Render Halaman Template & Panduan SEO
-export default function ToolPage({ params }: Props) {
-  const { slug } = params;
+export default async function ToolPage({ params }: Props) {
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
   
   // Ambil komponen dari registry untuk menghindari error build "dynamic string"
   const TemplateClient = TemplateRegistry[slug];
