@@ -1,7 +1,9 @@
 import React from 'react';
 import { Info, BookOpen, CheckCircle } from 'lucide-react';
+import RelatedTemplates from './RelatedTemplates';
 
 interface SeoGuideProps {
+  slug: string;
   data: {
     title: string;
     description: string;
@@ -9,7 +11,7 @@ interface SeoGuideProps {
   };
 }
 
-export default function SeoGuide({ data }: SeoGuideProps) {
+export default function SeoGuide({ slug, data }: SeoGuideProps) {
   if (!data) return null;
 
   return (
@@ -44,6 +46,9 @@ export default function SeoGuide({ data }: SeoGuideProps) {
             </ul>
           </div>
         </div>
+
+        {/* Jaring Laba-laba SEO / Internal Linking */}
+        <RelatedTemplates currentSlug={slug} />
       </div>
     </div>
   );

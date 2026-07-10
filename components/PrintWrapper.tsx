@@ -46,8 +46,8 @@ export default function PrintWrapper({
     iframe.style.position = 'fixed';
     iframe.style.right = '-9999px';
     iframe.style.bottom = '-9999px';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
+    iframe.style.width = '210mm';  // FIX: Harus selebar A4 agar layout grid/flex Tailwind tidak kolaps ke 0px
+    iframe.style.height = '297mm';
     iframe.style.border = '0';
     document.body.appendChild(iframe);
 
@@ -88,8 +88,10 @@ export default function PrintWrapper({
           </style>
         </head>
         <body class="bg-white">
-          <div class="${isPremiumPrint ? '' : 'print-watermark'} relative">
-            ${htmlContent}
+          <div class="${isPremiumPrint ? '' : 'print-watermark'} relative w-full h-full">
+            <div id="print-only-root" style="position: relative !important;">
+              ${htmlContent}
+            </div>
           </div>
           <script>
             window.onload = () => {

@@ -74,7 +74,7 @@ export default async function ToolPage({ params }: Props) {
       <TemplateClient />
       
       {/* Render Artikel SEO Terbuka (Disembunyikan saat di-print via class 'no-print' di dalam komponen) */}
-      <SeoGuide data={templateData} />
+      <SeoGuide slug={slug} data={templateData} />
     </>
   );
 }
