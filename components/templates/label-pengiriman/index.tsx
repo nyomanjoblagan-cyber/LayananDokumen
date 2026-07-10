@@ -247,12 +247,13 @@ function ShippingLabelBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: 105mm 148mm; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; min-width: 105mm; }
+          @page { size: A4; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 105mm; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          * { box-sizing: border-box !important; }
         }
       ` }} />
 

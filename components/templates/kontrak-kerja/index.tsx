@@ -1,16 +1,9 @@
 'use client';
 
-/**
- * FILE: ContractPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Perjanjian Kerja (PKWT) dengan Dual Template
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
- */
-
-import { useState, useRef, Suspense, useEffect } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Upload, LayoutTemplate, Briefcase, User, 
-  Scale, Plus, Trash2, DollarSign, ChevronDown, Check, Edit3, Eye, RotateCcw, ArrowLeftCircle
+  Printer, LayoutTemplate, Briefcase, User, 
+  RotateCcw, ArrowLeftCircle, Edit3, Settings, Building, CheckCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -26,299 +19,548 @@ export default function ContractPage() {
 }
 
 function ContractToolBuilder() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // --- STATE ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [logo, setLogo] = useState<string | null>(null);
-  // DATA DEFAULT
-  const [data, setData] = useState({
-    no: `PKWT/${new Date().getFullYear()}/${Math.floor(Math.random() * 1000)}`,
-    date: '',
-    city: 'Jakarta',
-    compName: 'PT. MAJU BERSAMA',
-    compAddress: 'Jl. Sudirman Kav. 50, Jakarta Selatan',
-    compRep: 'Budi Santoso',
-    compRepJob: 'Direktur Utama',
-    empName: 'Ahmad Fauzi',
-    empKtp: '3171234567890001',
-    empAddress: 'Jl. Kebon Jeruk No. 12, Jakarta Barat',
-    jobTitle: 'Staff Administrasi',
-    startDate: '',
-    endDate: '',
-    salary: 4500000,
-    allowances: [
-      { id: 1, name: 'Tunjangan Transport', amount: 'Rp 500.000 / bulan' },
-      { id: 2, name: 'Uang Makan', amount: 'Rp 25.000 / hari kehadiran' },
-    ],
-    duties: '1. Mengelola administrasi harian kantor.\n2. Membuat laporan keuangan sederhana.\n3. Melayani kebutuhan administrasi klien.',
-    workHours: 'Senin - Jumat, 08.00 - 17.00 WIB',
-  });
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  
+  // ==========================================
+  // STATE: DOKUMEN & KONTRAK
+  // ==========================================
+  const [contractType, setContractType] = useState<'PKWT' | 'PKWTT'>('PKWT');
+  const [docDate, setDocDate] = useState('');
+  const [city, setCity] = useState('Jakarta');
+  const [docNumber, setDocNumber] = useState('');
+  
+  // ==========================================
+  // STATE: PIHAK PERTAMA (PERUSAHAAN)
+  // ==========================================
+  const [compName, setCompName] = useState('PT MEGA MAJU ABADI');
+  const [compAddress, setCompAddress] = useState('Gedung Cyber 2, Lt. 10, Jl. H.R. Rasuna Said Blok X-5, Kuningan, Jakarta Selatan 12950');
+  const [compRep, setCompRep] = useState('Budi Santoso, S.E., M.B.A.');
+  const [compRepKtp, setCompRepKtp] = useState('3174001234560001');
+  const [compRepTitle, setCompRepTitle] = useState('Direktur Utama');
+  
+  // ==========================================
+  // STATE: PIHAK KEDUA (KARYAWAN)
+  // ==========================================
+  const [empName, setEmpName] = useState('Ahmad Fauzi');
+  const [empKtp, setEmpKtp] = useState('3271009876540002');
+  const [empPob, setEmpPob] = useState('Bandung');
+  const [empDob, setEmpDob] = useState('1995-08-17');
+  const [empJob, setEmpJob] = useState('Karyawan Swasta');
+  const [empAddress, setEmpAddress] = useState('Jl. Merpati Putih No. 12, RT 04/RW 02, Kebon Jeruk, Jakarta Barat');
+  
+  // ==========================================
+  // STATE: DETAIL PEKERJAAN
+  // ==========================================
+  const [jobTitle, setJobTitle] = useState('Senior Software Engineer');
+  const [department, setDepartment] = useState('Engineering & IT');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [probation, setProbation] = useState('3');
+  const [salary, setSalary] = useState<number | ''>(15000000);
+  const [workDays, setWorkDays] = useState('Senin s/d Jumat');
+  const [workHours, setWorkHours] = useState('09:00 - 18:00 WIB');
 
+  // ==========================================
+  // INITIALIZATION & EFFECT LIFECYCLES
+  // ==========================================
   useEffect(() => {
     setIsClient(true);
     const today = new Date();
     const nextYear = new Date(today);
     nextYear.setFullYear(today.getFullYear() + 1);
 
-    setData(prev => ({ 
-        ...prev, 
-        date: today.toISOString().split('T')[0],
-        startDate: today.toISOString().split('T')[0],
-        endDate: nextYear.toISOString().split('T')[0]
-    }));
+    setDocDate(today.toISOString().split('T')[0]);
+    setStartDate(today.toISOString().split('T')[0]);
+    setEndDate(nextYear.toISOString().split('T')[0]);
   }, []);
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setLogo(URL.createObjectURL(file));
-  };
+  useEffect(() => {
+    if (isClient) {
+      const typeStr = contractType === 'PKWT' ? 'PKWT' : 'PKWTT';
+      const randNo = Math.floor(100 + Math.random() * 900);
+      setDocNumber(`${randNo}/HRD-${typeStr}/${new Date().getFullYear()}`);
+    }
+  }, [contractType, isClient]);
 
-  const addAllowance = () => setData({ ...data, allowances: [...data.allowances, { id: Date.now(), name: '', amount: '' }] });
+  // ==========================================
+  // FORMATTERS
+  // ==========================================
+  const formatDateFull = (dateStr: string) => {
+    if (!dateStr) return '...';
+    try {
+      return new Date(dateStr + 'T00:00:00').toLocaleDateString('id-ID', { dateStyle: 'full' });
+    } catch { return dateStr; }
+  };
   
-  const removeAllowance = (idx: number) => {
-    const newItems = [...data.allowances];
-    newItems.splice(idx, 1);
-    setData({ ...data, allowances: newItems });
-  };
-  
-  const handleAllowanceChange = (idx: number, field: 'name' | 'amount', val: string) => {
-    const newItems = [...data.allowances];
-    // @ts-ignore
-    newItems[idx][field] = val;
-    setData({ ...data, allowances: newItems });
+  const formatDateMedium = (dateStr: string) => {
+    if (!dateStr) return '...';
+    try {
+      return new Date(dateStr + 'T00:00:00').toLocaleDateString('id-ID', { dateStyle: 'long' });
+    } catch { return dateStr; }
   };
 
-  const TEMPLATES = [
-    { id: 1, name: "Format Pasal (2 Halaman)", desc: "Legal formal, indentasi rapi & justify" },
-    { id: 2, name: "Format Ringkas (1 Halaman)", desc: "Poin-poin padat untuk UMKM" }
-  ];
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
-  const salaryFormatted = data.salary.toLocaleString('id-ID');
+  const formatRp = (amount: number | '') => {
+    if (amount === '') return '0';
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+  };
 
+  // ==========================================
+  // COMPONENT: KERTAS / WRAPPER PRINT
+  // ==========================================
   const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-    <div className={`bg-white shadow-2xl p-[20mm] mx-auto text-[#1e293b] font-serif leading-relaxed text-[11pt] relative box-border mb-8 w-[210mm] min-h-[297mm] print:w-[210mm] print:h-[297mm] print:shadow-none print:mb-0 print:p-[20mm] print:text-black print:block ${className}`}>
+    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
       {children}
     </div>
   );
 
-  const ContentPage1 = () => (
-    <div className="flex flex-col justify-between h-full">
-        <div>
-            <div className="text-center mb-8">
-                {logo && <img src={logo} className="h-16 w-auto mx-auto mb-2" alt="Logo" />}
-                <h1 className="font-bold text-xl uppercase underline tracking-wide">PERJANJIAN KERJA WAKTU TERTENTU</h1>
-                <div className="text-sm font-bold mt-1">Nomor: {data.no}</div>
-            </div>
-            <p className="mb-6 text-justify">Pada hari ini, tanggal <strong>{isClient && data.date ? new Date(data.date + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle:'full'}) : '...'}</strong>, bertempat di <strong>{data.city}</strong>, para pihak sepakat mengikatkan diri:</p>
-            <div className="ml-4 mb-8 space-y-6">
-                <div className="flex gap-4">
-                    <span className="font-bold">1.</span>
-                    <div className="flex-1">
-                        <p className="font-bold uppercase">{data.compName}</p>
-                        <p className="text-sm">{data.compAddress}</p>
-                        <p className="mt-1 italic text-xs">Diwakili oleh {data.compRep} ({data.compRepJob}) - <strong>PIHAK PERTAMA</strong>.</p>
-                    </div>
+  // ==========================================
+  // COMPONENT: KONTEN DOKUMEN KONTRAK
+  // ==========================================
+  const ContractDocument = () => (
+    <div className="flex flex-col h-full text-justify">
+       <div className="text-center mb-8 border-b-2 border-black pb-4">
+          <h1 className="font-bold text-xl uppercase tracking-wide">PERJANJIAN KERJA WAKTU {contractType === 'PKWT' ? 'TERTENTU' : 'TIDAK TERTENTU'}</h1>
+          <div className="text-sm font-bold mt-1">Nomor: {docNumber}</div>
+       </div>
+ 
+       <div className="mb-6">
+          Pada hari ini, <strong>{formatDateFull(docDate)}</strong>, bertempat di <strong>{city}</strong>, telah disepakati dan ditandatangani Perjanjian Kerja Waktu {contractType === 'PKWT' ? 'Tertentu (selanjutnya disebut "PKWT")' : 'Tidak Tertentu (selanjutnya disebut "PKWTT")'} antara:
+       </div>
+ 
+       <div className="mb-6 space-y-4">
+          {/* PIHAK PERTAMA */}
+          <div className="flex gap-4">
+             <div className="font-bold w-6">I.</div>
+             <div className="flex-1">
+                <div className="mb-2 space-y-1">
+                   <div className="flex"><div className="w-40 md:w-48">Nama Lengkap</div><div className="mr-2">:</div><div className="font-bold uppercase flex-1">{compRep}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48">NIK</div><div className="mr-2">:</div><div className="flex-1">{compRepKtp}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48">Jabatan</div><div className="mr-2">:</div><div className="flex-1">{compRepTitle}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48 align-top">Alamat Perusahaan</div><div className="mr-2 align-top">:</div><div className="flex-1">{compAddress}</div></div>
                 </div>
-                <div className="flex gap-4">
-                    <span className="font-bold">2.</span>
-                    <div className="flex-1">
-                        <p className="font-bold uppercase">{data.empName}</p>
-                        <p className="text-sm">NIK: {data.empKtp}</p>
-                        <p className="text-sm">{data.empAddress}</p>
-                        <p className="mt-1 italic text-xs">Bertindak untuk diri sendiri - <strong>PIHAK KEDUA</strong>.</p>
-                    </div>
+                <div className="text-justify mt-2">
+                   Bertindak untuk dan atas nama <strong>{compName}</strong>, selanjutnya dalam perjanjian ini disebut sebagai <strong>PIHAK PERTAMA</strong>.
                 </div>
-            </div>
-            <div className="space-y-6 text-justify">
-                <div>
-                    <div className="text-center font-bold mb-2 uppercase">PASAL 1: MASA KERJA</div>
-                    <p>Bekerja sebagai <strong>{data.jobTitle}</strong> mulai <strong>{isClient && data.startDate ? new Date(data.startDate + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle: 'long'}) : '...'}</strong> hingga <strong>{isClient && data.endDate ? new Date(data.endDate + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle: 'long'}) : '...'}</strong>.</p>
+             </div>
+          </div>
+ 
+          {/* PIHAK KEDUA */}
+          <div className="flex gap-4">
+             <div className="font-bold w-6">II.</div>
+             <div className="flex-1">
+                <div className="mb-2 space-y-1">
+                   <div className="flex"><div className="w-40 md:w-48">Nama Lengkap</div><div className="mr-2">:</div><div className="font-bold uppercase flex-1">{empName}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48">NIK</div><div className="mr-2">:</div><div className="flex-1">{empKtp}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48">Tempat, Tgl Lahir</div><div className="mr-2">:</div><div className="flex-1">{empPob}, {formatDateMedium(empDob)}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48">Pekerjaan</div><div className="mr-2">:</div><div className="flex-1">{empJob}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48 align-top">Alamat (Sesuai KTP)</div><div className="mr-2 align-top">:</div><div className="flex-1">{empAddress}</div></div>
                 </div>
-                <div>
-                    <div className="text-center font-bold mb-2 uppercase">PASAL 2: TUGAS</div>
-                    <p className="whitespace-pre-line text-sm pl-4 border-l-2 border-slate-200">{data.duties}</p>
+                <div className="text-justify mt-2">
+                   Bertindak untuk dan atas nama diri sendiri, selanjutnya dalam perjanjian ini disebut sebagai <strong>PIHAK KEDUA</strong>.
                 </div>
-            </div>
-        </div>
-        <div className="text-right text-[10px] text-slate-400 italic">Halaman 1 dari 2</div>
+             </div>
+          </div>
+       </div>
+ 
+       <div className="mb-8">
+          PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut sebagai <strong>"Para Pihak"</strong>. Para Pihak dengan ini sepakat untuk mengikatkan diri dalam Perjanjian ini dengan tunduk pada ketentuan perundang-undangan di bidang ketenagakerjaan Republik Indonesia serta syarat dan ketentuan di bawah ini:
+       </div>
+ 
+       {/* PASAL 1: MASA KERJA & JABATAN */}
+       <div className="mb-6">
+          <div className="text-center font-bold mb-3 uppercase">
+             PASAL 1<br/>MASA KERJA DAN PENEMPATAN
+          </div>
+          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
+             <li className="pl-2">
+                Perjanjian ini berlaku terhitung sejak tanggal <strong>{formatDateMedium(startDate)}</strong>. 
+                {contractType === 'PKWT' ? (
+                   <> Dan disepakati berlangsung selama masa PKWT yang akan berakhir pada tanggal <strong>{formatDateMedium(endDate)}</strong>.</>
+                ) : (
+                   <> Perjanjian ini berlaku untuk jangka waktu tidak tertentu (pekerja tetap), dengan ketentuan PIHAK KEDUA wajib menjalani masa percobaan (probation) selama <strong>{probation} bulan</strong> pertama.</>
+                )}
+             </li>
+             <li className="pl-2">
+                PIHAK PERTAMA menempatkan dan mempekerjakan PIHAK KEDUA pada posisi/jabatan sebagai <strong>{jobTitle}</strong> di bawah naungan departemen <strong>{department}</strong>.
+             </li>
+             <li className="pl-2">
+                PIHAK KEDUA bersedia dan sepakat untuk ditempatkan, dipindahtugaskan, atau dialihkan ke bagian, departemen, atau lokasi kerja lain yang ditentukan oleh PIHAK PERTAMA sewaktu-waktu sesuai dengan kebutuhan operasional dan strategi bisnis perusahaan.
+             </li>
+          </ol>
+       </div>
+ 
+       {/* PASAL 2: HAK & KEWAJIBAN PERUSAHAAN */}
+       <div className="mb-6">
+          <div className="text-center font-bold mb-3 uppercase">
+             PASAL 2<br/>HAK DAN KEWAJIBAN PIHAK PERTAMA
+          </div>
+          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
+             <li className="pl-2">
+                PIHAK PERTAMA berhak penuh untuk menerima hasil pekerjaan, mengawasi, serta memberikan evaluasi berkala terhadap kinerja (Key Performance Indicator) PIHAK KEDUA sesuai standar perusahaan.
+             </li>
+             <li className="pl-2">
+                PIHAK PERTAMA berhak memberikan perintah, instruksi, serta teguran baik lisan maupun tulisan apabila PIHAK KEDUA dinilai tidak melaksanakan tugasnya dengan baik atau melakukan pelanggaran.
+             </li>
+             <li className="pl-2">
+                PIHAK PERTAMA berkewajiban membayarkan upah/gaji, tunjangan (jika ada), dan hak-hak kompensasi lainnya kepada PIHAK KEDUA tepat waktu sebagaimana diatur dalam Pasal 4.
+             </li>
+             <li className="pl-2">
+                PIHAK PERTAMA berkewajiban menyediakan fasilitas pendukung kerja yang memadai serta memastikan lingkungan kerja yang aman, kondusif, dan sehat bagi PIHAK KEDUA.
+             </li>
+          </ol>
+       </div>
+ 
+       {/* PASAL 3: HAK & KEWAJIBAN KARYAWAN */}
+       <div className="mb-6">
+          <div className="text-center font-bold mb-3 uppercase">
+             PASAL 3<br/>HAK DAN KEWAJIBAN PIHAK KEDUA
+          </div>
+          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
+             <li className="pl-2">
+                PIHAK KEDUA berhak menerima upah, fasilitas kerja, serta perlindungan ketenagakerjaan dari PIHAK PERTAMA sesuai ketentuan perundang-undangan dan kebijakan internal perusahaan.
+             </li>
+             <li className="pl-2">
+                PIHAK KEDUA wajib melaksanakan seluruh tugas dan tanggung jawab jabatannya dengan tingkat profesionalisme tertinggi, penuh dedikasi, integritas, dan tanggung jawab moral.
+             </li>
+             <li className="pl-2">
+                PIHAK KEDUA wajib menaati dan tunduk secara mutlak pada seluruh Peraturan Perusahaan, Standar Operasional Prosedur (SOP), Kode Etik, serta kebijakan internal lainnya yang berlaku di lingkungan PIHAK PERTAMA.
+             </li>
+             <li className="pl-2">
+                PIHAK KEDUA wajib memelihara dan merawat seluruh aset perusahaan, fasilitas kerja, dan dokumen yang berada di bawah penguasaannya, serta senantiasa menjaga nama baik (reputasi) PIHAK PERTAMA.
+             </li>
+          </ol>
+       </div>
+ 
+       {/* PASAL 4: WAKTU KERJA & PENGUPAHAN */}
+       <div className="mb-6">
+          <div className="text-center font-bold mb-3 uppercase">
+             PASAL 4<br/>WAKTU KERJA DAN PENGUPAHAN
+          </div>
+          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
+             <li className="pl-2">
+                Waktu kerja PIHAK KEDUA ditetapkan pada hari <strong>{workDays}</strong> dengan jam operasional dari pukul <strong>{workHours}</strong>, kecuali diatur lain berdasarkan kebijakan khusus perusahaan, urgensi bisnis, atau sistem shift.
+             </li>
+             <li className="pl-2">
+                Sebagai imbalan atas pelaksanaan tugas dan tanggung jawabnya, PIHAK PERTAMA akan memberikan upah pokok bulanan (Gaji) kepada PIHAK KEDUA sebesar <strong>{formatRp(salary || 0)}</strong>.
+             </li>
+             <li className="pl-2">
+                Upah tersebut di atas bersifat gross (kotor), di mana pembayarannya akan dikenakan pemotongan Pajak Penghasilan (PPh 21), iuran kewajiban BPJS Ketenagakerjaan, BPJS Kesehatan, maupun potongan sah lainnya sesuai peraturan yang berlaku.
+             </li>
+             <li className="pl-2">
+                Pembayaran upah akan dilakukan setiap akhir bulan kalender berjalan atau pada tanggal yang telah ditetapkan dalam kebijakan penggajian (payroll) melalui mekanisme transfer bank ke rekening atas nama PIHAK KEDUA.
+             </li>
+          </ol>
+       </div>
+ 
+       {/* PASAL 5: HKI (INTELECTUAL PROPERTY) */}
+       <div className="mb-6">
+          <div className="text-center font-bold mb-3 uppercase">
+             PASAL 5<br/>HAK KEKAYAAN INTELEKTUAL (HKI)
+          </div>
+          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
+             <li className="pl-2">
+                Segala bentuk karya cipta, inovasi, sistem, basis data, kode perangkat lunak, desain, formula, materi pemasaran, metode bisnis, dan/atau temuan apa pun yang diciptakan, diinisiasi, atau dikembangkan oleh PIHAK KEDUA (baik secara mandiri maupun bersama tim) selama masa hubungan kerjanya dengan PIHAK PERTAMA merupakan <strong>Hak Kekayaan Intelektual mutlak milik PIHAK PERTAMA</strong>.
+             </li>
+             <li className="pl-2">
+                PIHAK KEDUA dengan ini sepakat untuk melepaskan segala hak ekonomi dan hak klaim royalti atas karya tersebut. PIHAK KEDUA tidak diperkenankan untuk mendaftarkan, memperbanyak, melisensikan, atau mengkomersialkannya kepada pihak ketiga dengan cara apa pun tanpa izin tertulis dari PIHAK PERTAMA.
+             </li>
+             <li className="pl-2">
+                Pada saat berakhirnya masa kerja atau sewaktu-waktu apabila diminta, PIHAK KEDUA wajib menyerahkan seluruh data, kode sumber (source code), akses kredensial, master desain, dan dokumen kerja kepada manajemen PIHAK PERTAMA tanpa menahan salinan (copy) apa pun.
+             </li>
+          </ol>
+       </div>
+ 
+       {/* PASAL 6: NON-COMPETE & NDA */}
+       <div className="mb-6">
+          <div className="text-center font-bold mb-3 uppercase">
+             PASAL 6<br/>KERAHASIAAN DAN LARANGAN BERSAING
+          </div>
+          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
+             <li className="pl-2">
+                <strong>Kerahasiaan (Non-Disclosure):</strong> PIHAK KEDUA terikat kewajiban mutlak untuk menjaga kerahasiaan seluruh Informasi Rahasia (Confidential Information) perusahaan. Informasi ini mencakup, namun tidak terbatas pada, data klien/pelanggan, rahasia dagang, strategi bisnis, rencana pemasaran, sistem teknologi, dan informasi keuangan. Kewajiban kerahasiaan ini tetap mengikat dan berlaku tanpa batas waktu meskipun hubungan kerja telah berakhir.
+             </li>
+             <li className="pl-2">
+                <strong>Larangan Bersaing (Non-Compete):</strong> Selama perjanjian ini berlangsung, dan untuk jangka waktu selama <strong>1 (satu) tahun</strong> setelah berakhirnya hubungan kerja, PIHAK KEDUA dilarang, baik secara langsung maupun tidak langsung, untuk bekerja sebagai karyawan, konsultan, pengurus, maupun mendirikan atau memiliki kepentingan kepemilikan bisnis pada perusahaan kompetitor yang bergerak di bidang usaha yang sama dan sejenis dengan PIHAK PERTAMA.
+             </li>
+             <li className="pl-2">
+                <strong>Larangan Pembajakan (Non-Solicitation):</strong> Selama jangka waktu 2 (dua) tahun setelah berakhirnya hubungan kerja, PIHAK KEDUA dilarang secara sengaja untuk membujuk, merekrut, atau mempekerjakan karyawan PIHAK PERTAMA, serta dilarang membujuk klien atau mitra bisnis untuk menghentikan kerja samanya dengan PIHAK PERTAMA.
+             </li>
+             <li className="pl-2">
+                Setiap pelanggaran yang terbukti dilakukan oleh PIHAK KEDUA terhadap ketentuan Pasal ini memberikan hak hukum bagi PIHAK PERTAMA untuk menuntut ganti rugi materiil secara perdata dan/atau memproses perbuatan tersebut secara pidana.
+             </li>
+          </ol>
+       </div>
+ 
+       {/* PASAL 7: PHK */}
+       <div className="mb-6">
+          <div className="text-center font-bold mb-3 uppercase">
+             PASAL 7<br/>PEMUTUSAN HUBUNGAN KERJA (PHK)
+          </div>
+          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
+             <li className="pl-2">
+                Hubungan kerja antara Para Pihak berakhir dengan sendirinya apabila:
+                <ul className="list-[lower-alpha] pl-6 mt-1 space-y-1">
+                   {contractType === 'PKWT' ? (
+                      <li>a. Berakhirnya jangka waktu PKWT sebagaimana disepakati secara tegas pada Pasal 1 ayat (1).</li>
+                   ) : (
+                      <li>a. PIHAK KEDUA memasuki usia pensiun sesuai dengan peraturan ketenagakerjaan dan/atau kebijakan perusahaan.</li>
+                   )}
+                   <li>b. PIHAK KEDUA meninggal dunia atau tidak mampu lagi melaksanakan pekerjaan secara medis akibat cacat tetap (permanent disability).</li>
+                </ul>
+             </li>
+             <li className="pl-2">
+                PIHAK PERTAMA memiliki hak penuh dan berhak melakukan Pemutusan Hubungan Kerja (PHK) seketika terhadap PIHAK KEDUA, tanpa kewajiban membayarkan kompensasi atau pesangon, jika PIHAK KEDUA terbukti secara meyakinkan melakukan <strong>pelanggaran berat (fraud)</strong>, yang meliputi namun tidak terbatas pada: penipuan, penggelapan aset, manipulasi data, pembocoran rahasia perusahaan, tindakan asusila, konsumsi minuman keras/narkoba di lingkungan kerja, atau perbuatan pidana lainnya.
+             </li>
+             <li className="pl-2">
+                Apabila PIHAK KEDUA bermaksud mengundurkan diri dari perusahaan secara sukarela (resign), PIHAK KEDUA diwajibkan untuk mengajukan surat pemberitahuan tertulis <em>(One Month Notice)</em> kepada manajemen selambat-lambatnya <strong>30 (tiga puluh) hari kalender</strong> sebelum tanggal efektif pengunduran diri, guna memastikan serah terima pekerjaan (handover) berjalan dengan baik.
+             </li>
+          </ol>
+       </div>
+ 
+       {/* PASAL 8: PENUTUP */}
+       <div className="mb-6">
+          <div className="text-center font-bold mb-3 uppercase">
+             PASAL 8<br/>PENYELESAIAN SENGKETA DAN PENUTUP
+          </div>
+          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
+             <li className="pl-2">
+                Segala perselisihan yang mungkin timbul akibat dari penafsiran, pelaksanaan, atau pemutusan Perjanjian Kerja ini, sedapat mungkin akan diselesaikan melalui jalur musyawarah untuk mufakat antara Para Pihak (Bipartit).
+             </li>
+             <li className="pl-2">
+                Apabila penyelesaian melalui musyawarah gagal mencapai titik temu dan kesepakatan, maka Para Pihak sepakat untuk menyelesaikannya melalui instansi pemerintah yang berwenang di bidang Ketenagakerjaan sesuai wilayah domisili hukum kedudukan PIHAK PERTAMA, hingga bermuara pada Pengadilan Hubungan Industrial.
+             </li>
+             <li className="pl-2">
+                Hal-hal esensial yang belum, kurang, atau tidak cukup diatur di dalam Perjanjian ini secara mutlak akan merujuk dan tunduk pada Peraturan Perusahaan, SOP internal, serta norma-norma hukum ketenagakerjaan yang berlaku di wilayah Negara Kesatuan Republik Indonesia.
+             </li>
+             <li className="pl-2">
+                Perjanjian Kerja ini dibuat, dipahami, dan ditandatangani oleh Para Pihak dalam keadaan sadar sepenuhnya, secara sukarela tanpa adanya unsur paksaan, tekanan, intimidasi, atau pengaruh menyesatkan dari pihak mana pun. Dibuat dalam rangkap 2 (dua) dokumen fisik asli, yang masing-masing dibubuhi meterai yang cukup dan memiliki kekuatan hukum pembuktian yang sama bagi masing-masing pihak.
+             </li>
+          </ol>
+       </div>
+ 
+       {/* TANDA TANGAN */}
+       <div className="mt-12 break-inside-avoid flex justify-between text-center px-2 md:px-12">
+          <div className="w-[45%] flex flex-col items-center">
+             <div className="font-bold mb-24 uppercase">PIHAK PERTAMA</div>
+             <div className="font-bold underline uppercase">{compRep}</div>
+             <div className="text-sm">{compRepTitle}</div>
+          </div>
+          <div className="w-[45%] flex flex-col items-center">
+             <div className="font-bold mb-24 uppercase">PIHAK KEDUA</div>
+             <div className="font-bold underline uppercase">{empName}</div>
+             <div className="text-sm">Karyawan / Pekerja</div>
+          </div>
+       </div>
     </div>
   );
 
-  const ContentPage2 = () => (
-    <div className="flex flex-col justify-between h-full pt-4">
-        <div className="space-y-8">
-            <div>
-                <div className="text-center font-bold mb-3 uppercase">PASAL 3: UPAH & JAM KERJA</div>
-                <div className="space-y-2">
-                    <p>1. Gaji Pokok: <strong>Rp {salaryFormatted} / bulan</strong>.</p>
-                    <p>2. Tunjangan:</p>
-                    <ul className="list-disc ml-8 text-sm">
-                        {data.allowances.map((a, idx) => (<li key={idx}>{a.name}: {a.amount}</li>))}
-                    </ul>
-                    <p>3. Jam Kerja: {data.workHours}.</p>
-                </div>
-            </div>
-            <div>
-                <div className="text-center font-bold mb-3 uppercase">PASAL 4: PENUTUP</div>
-                <p className="text-justify text-sm">Perjanjian ini tunduk pada hukum ketenagakerjaan Republik Indonesia. Segala perselisihan akan diselesaikan secara musyawarah.</p>
-            </div>
-        </div>
-        <div>
-            <div className="flex justify-between text-center mt-20 break-inside-avoid">
-                <div className="w-1/2">
-                    <p className="mb-24 font-bold">PIHAK PERTAMA</p>
-                    <p className="font-bold underline uppercase">{data.compRep}</p>
-                </div>
-                <div className="w-1/2">
-                    <p className="mb-24 font-bold">PIHAK KEDUA</p>
-                    <p className="font-bold underline uppercase">{data.empName}</p>
-                </div>
-            </div>
-            <div className="text-right text-[10px] text-slate-400 italic mt-8">Halaman 2 dari 2</div>
-        </div>
-    </div>
-  );
-
-  const ContentSimple = () => (
-    <div className="font-sans text-sm text-justify h-full flex flex-col">
-        <div className="text-center border-b-2 border-slate-800 pb-4 mb-8">
-            <h1 className="font-black text-2xl uppercase tracking-wide">KONTRAK KERJA</h1>
-            <div className="text-slate-500 font-bold uppercase">{data.compName}</div>
-        </div>
-        <div className="space-y-4 mb-8">
-            <div className="grid grid-cols-[100px_10px_1fr] gap-1 pl-4">
-                <div className="font-bold uppercase text-[10px] text-slate-400">Pemberi Kerja</div><div>:</div><div>{data.compRep} ({data.compName})</div>
-                <div className="font-bold uppercase text-[10px] text-slate-400">Pekerja</div><div>:</div><div className="font-bold uppercase">{data.empName}</div>
-                <div className="font-bold uppercase text-[10px] text-slate-400">Jabatan</div><div>:</div><div>{data.jobTitle}</div>
-                <div className="font-bold uppercase text-[10px] text-slate-400">Gaji</div><div>:</div><div className="font-bold text-emerald-700">Rp {salaryFormatted}</div>
-                <div className="font-bold uppercase text-[10px] text-slate-400">Masa Kerja</div><div>:</div><div>{isClient && data.startDate ? new Date(data.startDate + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle:'medium'}) : '...'} s/d {isClient && data.endDate ? new Date(data.endDate + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle:'medium'}) : '...'}</div>
-            </div>
-        </div>
-        <div className="bg-slate-50 p-4 rounded-xl border mb-8 flex-grow">
-            <h3 className="font-bold mb-2 uppercase text-[10px] text-slate-500 tracking-widest">Tugas Utama:</h3>
-            <p className="whitespace-pre-line leading-relaxed text-slate-700">{data.duties}</p>
-        </div>
-        <div className="flex justify-between text-center mt-auto break-inside-avoid">
-            <div className="w-1/2 border-t pt-2 font-bold uppercase text-xs">Pemberi Kerja</div>
-            <div className="w-1/2 border-t pt-2 font-bold uppercase text-xs">Pekerja</div>
-        </div>
-    </div>
-  );
-
+  // Jika belum mount (hindari hydration mismatch)
   if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 0; }
-          body { background: white; margin: 0; padding: 0; }
+          @page { size: A4; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          .page-break { page-break-after: always; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          * { box-sizing: border-box !important; }
         }
       ` }} />
 
-      <div className="no-print bg-slate-900 text-white h-16 flex items-center px-4 justify-between sticky top-0 z-50">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2">
-              <ArrowLeftCircle size={20} className="text-emerald-400" />
-              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
-            </Link>
-            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
-               <Briefcase size={16} className="text-blue-500" /> <span>CONTRACT BUILDER</span>
-            </div>
+      {/* HEADER NAVBAR */}
+      <div className="no-print bg-slate-900 text-white h-16 flex items-center px-4 justify-between sticky top-0 z-50 shadow-md">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2">
+            <ArrowLeftCircle size={20} className="text-emerald-400" />
+            <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
+          </Link>
+          <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
+          <div className="flex items-center gap-2 text-sm font-bold text-slate-300">
+             <Briefcase size={16} className="text-blue-500" /> 
+             <span className="hidden md:inline">ENTERPRISE CONTRACT BUILDER</span>
+             <span className="inline md:hidden">KONTRAK KERJA</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
-                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
-              </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border z-50 text-slate-900 overflow-hidden">
-                  {TEMPLATES.map(t => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 hover:bg-slate-50 flex justify-between items-center ${templateId === t.id ? 'bg-blue-50 text-blue-700' : ''}`}>
-                      <span className="text-xs font-bold">{t.name}</span>
-                      {templateId === t.id && <Check size={14} />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg flex items-center gap-2 transition-all">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
-            </button>
-          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase shadow-lg flex items-center gap-2 transition-all">
+            <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
+          </button>
+        </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+        
+        {/* PANEL KIRI: EDITOR */}
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Kontrak</h2><button onClick={() => window.location.reload()} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Briefcase size={12}/> Pengusaha</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.compName} onChange={e => setData({...data, compName: e.target.value})} placeholder="Nama Perusahaan" />
-                 <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.compRep} onChange={e => setData({...data, compRep: e.target.value})} placeholder="Nama Pimpinan" />
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Karyawan</h3>
-                 <input className="w-full p-2 border rounded text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.empName} onChange={e => setData({...data, empName: e.target.value})} placeholder="Nama Karyawan" />
-                 <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.jobTitle} onChange={e => setData({...data, jobTitle: e.target.value})} placeholder="Jabatan" />
-                 <input className="w-full p-2 border rounded text-xs font-black text-emerald-600 bg-emerald-50" type="number" value={data.salary} onChange={e => setData({...data, salary: parseInt(e.target.value) || 0})} />
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <div className="flex justify-between items-center"><label className="text-[10px] font-black uppercase text-slate-400">Tunjangan</label><button onClick={addAllowance} className="bg-blue-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">+ Baru</button></div>
-                 {data.allowances.map((a, idx) => (
-                    <div key={a.id} className="flex gap-2 group animate-in slide-in-from-right-2">
-                       <input className="flex-1 p-1.5 border rounded text-xs" value={a.name} onChange={e => handleAllowanceChange(idx, 'name', e.target.value)} placeholder="Tunjangan" />
-                       <input className="flex-1 p-1.5 border rounded text-xs" value={a.amount} onChange={e => handleAllowanceChange(idx, 'amount', e.target.value)} placeholder="Rp" />
-                       <button onClick={() => removeAllowance(idx)} className="text-red-400 hover:text-red-600 transition-colors"><Trash2 size={14}/></button>
-                    </div>
-                 ))}
-              </div>
-           </div>
+          <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans shadow-sm">
+             <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Kontrak</h2>
+             <button onClick={() => window.location.reload()} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Data"><RotateCcw size={16}/></button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+             
+             {/* SECTION 1: SETTING */}
+             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-slate-50 px-4 py-3 border-b flex items-center gap-2">
+                   <Settings size={16} className="text-blue-500" />
+                   <h3 className="text-xs font-black uppercase text-slate-700 tracking-widest">Pengaturan Kontrak</h3>
+                </div>
+                <div className="p-4 space-y-4">
+                   <div>
+                      <label className="text-[10px] font-bold uppercase text-slate-500 mb-1.5 block">Jenis Kontrak</label>
+                      <div className="flex gap-2">
+                         <button onClick={() => setContractType('PKWT')} className={`flex-1 py-2 px-3 rounded-lg border text-xs font-bold transition-all flex items-center justify-center gap-2 ${contractType === 'PKWT' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
+                            PKWT <span className="text-[10px] font-normal">(Kontrak)</span> {contractType === 'PKWT' && <CheckCircle size={14} className="text-blue-500"/>}
+                         </button>
+                         <button onClick={() => setContractType('PKWTT')} className={`flex-1 py-2 px-3 rounded-lg border text-xs font-bold transition-all flex items-center justify-center gap-2 ${contractType === 'PKWTT' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
+                            PKWTT <span className="text-[10px] font-normal">(Tetap)</span> {contractType === 'PKWTT' && <CheckCircle size={14} className="text-blue-500"/>}
+                         </button>
+                      </div>
+                   </div>
+                   <div className="grid grid-cols-2 gap-3">
+                      <div>
+                         <label className="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Tanggal Dokumen</label>
+                         <input type="date" className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={docDate} onChange={e => setDocDate(e.target.value)} />
+                      </div>
+                      <div>
+                         <label className="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Kota Ttd</label>
+                         <input type="text" className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={city} onChange={e => setCity(e.target.value)} />
+                      </div>
+                   </div>
+                   <div>
+                      <label className="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Nomor Surat</label>
+                      <input type="text" className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={docNumber} onChange={e => setDocNumber(e.target.value)} />
+                   </div>
+                </div>
+             </div>
+       
+             {/* SECTION 2: PERUSAHAAN */}
+             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-slate-50 px-4 py-3 border-b flex items-center gap-2">
+                   <Building size={16} className="text-emerald-500" />
+                   <h3 className="text-xs font-black uppercase text-slate-700 tracking-widest">Pihak Pertama (Perusahaan)</h3>
+                </div>
+                <div className="p-4 space-y-3">
+                   <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Nama Perusahaan</label>
+                   <input className="w-full p-2 border rounded text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={compName} onChange={e => setCompName(e.target.value)} placeholder="PT MAJU BERSAMA" /></div>
+                   
+                   <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Alamat Perusahaan</label>
+                   <textarea className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" rows={2} value={compAddress} onChange={e => setCompAddress(e.target.value)} placeholder="Alamat lengkap..." /></div>
+                   
+                   <div className="pt-3 border-t mt-3"><h4 className="text-[10px] font-bold uppercase text-emerald-600 mb-2">Wakil Perusahaan (Pimpinan)</h4></div>
+                   <div className="grid grid-cols-2 gap-3">
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Nama Lengkap</label>
+                      <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={compRep} onChange={e => setCompRep(e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Jabatan</label>
+                      <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={compRepTitle} onChange={e => setCompRepTitle(e.target.value)} /></div>
+                   </div>
+                   <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">NIK KTP Wakil</label>
+                   <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={compRepKtp} onChange={e => setCompRepKtp(e.target.value)} /></div>
+                </div>
+             </div>
+       
+             {/* SECTION 3: KARYAWAN */}
+             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-slate-50 px-4 py-3 border-b flex items-center gap-2">
+                   <User size={16} className="text-purple-500" />
+                   <h3 className="text-xs font-black uppercase text-slate-700 tracking-widest">Pihak Kedua (Karyawan)</h3>
+                </div>
+                <div className="p-4 space-y-3">
+                   <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Nama Lengkap (Sesuai KTP)</label>
+                   <input className="w-full p-2 border rounded text-xs font-bold uppercase focus:ring-2 focus:ring-purple-500 outline-none" value={empName} onChange={e => setEmpName(e.target.value)} /></div>
+                   
+                   <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Nomor NIK KTP</label>
+                   <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={empKtp} onChange={e => setEmpKtp(e.target.value)} /></div>
+                   
+                   <div className="grid grid-cols-2 gap-3">
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Tempat Lahir</label>
+                      <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={empPob} onChange={e => setEmpPob(e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Tgl Lahir</label>
+                      <input type="date" className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={empDob} onChange={e => setEmpDob(e.target.value)} /></div>
+                   </div>
+       
+                   <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Pekerjaan</label>
+                   <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={empJob} onChange={e => setEmpJob(e.target.value)} /></div>
+       
+                   <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Alamat Sesuai KTP</label>
+                   <textarea className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-purple-500 outline-none" rows={2} value={empAddress} onChange={e => setEmpAddress(e.target.value)} /></div>
+                </div>
+             </div>
+       
+             {/* SECTION 4: DETAIL PEKERJAAN */}
+             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-slate-50 px-4 py-3 border-b flex items-center gap-2">
+                   <Briefcase size={16} className="text-orange-500" />
+                   <h3 className="text-xs font-black uppercase text-slate-700 tracking-widest">Detail Penugasan & Kompensasi</h3>
+                </div>
+                <div className="p-4 space-y-3">
+                   <div className="grid grid-cols-2 gap-3">
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Posisi / Jabatan</label>
+                      <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-orange-500 outline-none" value={jobTitle} onChange={e => setJobTitle(e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Departemen</label>
+                      <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-orange-500 outline-none" value={department} onChange={e => setDepartment(e.target.value)} /></div>
+                   </div>
+                   
+                   <div className="grid grid-cols-2 gap-3">
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Tgl Mulai Kerja</label>
+                      <input type="date" className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-orange-500 outline-none" value={startDate} onChange={e => setStartDate(e.target.value)} /></div>
+                      {contractType === 'PKWT' ? (
+                         <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Tgl Berakhir</label>
+                         <input type="date" className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-orange-500 outline-none" value={endDate} onChange={e => setEndDate(e.target.value)} /></div>
+                      ) : (
+                         <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Masa Probation</label>
+                         <div className="relative">
+                           <input type="number" className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-orange-500 outline-none pr-12" value={probation} onChange={e => setProbation(e.target.value)} />
+                           <span className="absolute right-3 top-2 text-xs text-slate-400">Bulan</span>
+                         </div></div>
+                      )}
+                   </div>
+       
+                   <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Gaji Pokok (Gross / Bulan)</label>
+                      <div className="relative">
+                         <span className="absolute left-3 top-2 text-xs font-bold text-slate-500">Rp</span>
+                         <input type="number" className="w-full p-2 pl-8 border rounded text-xs font-black text-orange-600 bg-orange-50 focus:ring-2 focus:ring-orange-500 outline-none" value={salary} onChange={e => setSalary(e.target.value ? parseInt(e.target.value) : '')} />
+                      </div>
+                   </div>
+                   
+                   <div className="grid grid-cols-2 gap-3">
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Hari Kerja</label>
+                      <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-orange-500 outline-none" value={workDays} onChange={e => setWorkDays(e.target.value)} placeholder="Senin - Jumat"/></div>
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Jam Kerja</label>
+                      <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-orange-500 outline-none" value={workHours} onChange={e => setWorkHours(e.target.value)} placeholder="09:00 - 18:00"/></div>
+                   </div>
+                </div>
+             </div>
+          </div>
         </div>
 
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
-               {templateId === 1 ? (
-                 <div className="flex flex-col gap-8">
-                    <Kertas><ContentPage1 /></Kertas>
-                    <Kertas><ContentPage2 /></Kertas>
-                 </div>
-               ) : (
-                 <Kertas><ContentSimple /></Kertas>
-               )}
-            </div>
-            </div>
+        {/* PANEL KANAN: PREVIEW DOKUMEN */}
+        <div className={`flex-1 h-full bg-slate-200/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+           <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shrink-0">
+               <Kertas><ContractDocument /></Kertas>
+           </div>
+        </div>
       </main>
-
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans">
-          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
-          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
-      </div>
-
       
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+      {/* MOBILE FLOATING ACTIONS */}
+      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/95 backdrop-blur-md rounded-2xl flex p-1.5 shadow-2xl font-sans border border-slate-700">
+          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>EDITOR KONTRAK</button>
+          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>PREVIEW CETAK</button>
       </div>
 
-      <div id="print-only-root" className="hidden">
-         {templateId === 1 ? (
-            <div className="flex flex-col">
-               <Kertas className="page-break"><ContentPage1 /></Kertas>
-               <Kertas><ContentPage2 /></Kertas>
-            </div>
-         ) : (
-            <Kertas><ContentSimple /></Kertas>
-         )}
+      {/* AREA TOMBOL MONETISASI / PRINT WRAPPER MODAL TRIGGER */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Kontrak Kerja (PKWT/PKWTT)" price={25000} />
+      </div>
+
+      {/* HIDDEN PRINT ROOT UNTUK HTML-TO-PDF ATAU NATIVE BROWSER PRINT */}
+      <div id="print-only-root" className="hidden print:block w-full bg-white relative">
+         <Kertas className="kertas-print"><ContractDocument /></Kertas>
       </div>
     </div>
   );

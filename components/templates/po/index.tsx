@@ -1,12 +1,5 @@
 'use client';
 
-/**
- * FILE: PurchaseOrderPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Purchase Order (PO) dengan kalkulasi otomatis
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
- */
-
 import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Upload, LayoutTemplate, Plus, Trash2,
@@ -16,6 +9,12 @@ import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
+
+const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+    {children}
+  </div>
+);
 
 // --- 1. TYPE DEFINITIONS ---
 interface POItem {
@@ -49,8 +48,10 @@ interface POData {
   items: POItem[];
   taxRate: number;
   
-  // Footer
+  // Terms & Footer
   notes: string;
+  termsPayment: string;
+  termsDelivery: string;
   signer: string;
   signerJob: string;
   city: string;
@@ -80,7 +81,9 @@ const INITIAL_DATA: POData = {
   ],
   
   taxRate: 11,
-  notes: '1. Mohon lampirkan Invoice & Surat Jalan saat pengiriman.\n2. Barang harus diterima sebelum jam 16.00 WIB.\n3. Pembayaran TOP 30 Hari.',
+  notes: '1. Mohon lampirkan Invoice & Surat Jalan saat pengiriman.\n2. Barang harus diterima sebelum jam 16.00 WIB.',
+  termsPayment: '30 Days After Invoice Received',
+  termsDelivery: 'DDP (Delivered Duty Paid) Gudang Cikarang',
   signer: 'BUDI SANTOSO',
   signerJob: 'Procurement Manager'
 };
@@ -103,6 +106,7 @@ function POToolBuilder() {
   const [isClient, setIsClient] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const [data, setData] = useState<POData>(INITIAL_DATA);
+  
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -168,10 +172,9 @@ function POToolBuilder() {
     };
 
     return (
-      <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif' : 'font-sans'}`}>
-        
+      <Kertas className={templateId === 1 ? 'font-serif' : 'font-sans'}>
         {/* HEADER PO */}
-        <div className="flex justify-between items-start mb-8 border-b-2 border-slate-900 pb-4 shrink-0">
+        <div className="flex justify-between items-start mb-6 border-b-2 border-slate-900 pb-4 shrink-0">
           <div className="flex items-center gap-4">
             {logo ? (
               <img src={logo} className="h-16 w-16 object-contain block" alt="Logo" />
@@ -180,89 +183,110 @@ function POToolBuilder() {
                 <Building2 size={24} />
               </div>
             )}
-            <div className="font-sans">
-              <h1 className="text-xl font-black uppercase leading-tight tracking-tighter">{data.companyName}</h1>
-              <div className="text-[8pt] text-slate-500 whitespace-pre-line leading-tight mt-1">{data.companyInfo}</div>
+            <div>
+              <h1 className="text-2xl font-black uppercase leading-tight tracking-tighter text-slate-900">{data.companyName}</h1>
+              <div className="text-[9pt] text-slate-600 whitespace-pre-line leading-tight mt-1">{data.companyInfo}</div>
             </div>
           </div>
-          <div className="text-right font-sans">
-            <h2 className={`text-4xl font-black uppercase tracking-tighter leading-none mb-1 ${templateId === 2 ? 'text-blue-700 print:text-black' : 'text-slate-900'}`}>Purchase Order</h2>
-            <div className="text-sm font-bold font-mono">NO: {data.no}</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1">{formatDateSafe(data.date)}</div>
+          <div className="text-right">
+            <h2 className={`text-3xl font-black uppercase tracking-tighter leading-none mb-1 ${templateId === 2 ? 'text-blue-800' : 'text-slate-900'}`}>PURCHASE ORDER</h2>
+            <div className="text-sm font-bold font-mono text-slate-800">{data.no}</div>
+            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Date: {formatDateSafe(data.date)}</div>
           </div>
         </div>
 
         {/* VENDOR & SHIP INFO */}
-        <div className="grid grid-cols-2 gap-8 mb-8 text-[9.5pt] shrink-0 font-sans break-inside-avoid">
-          <div className={`p-4 border-l-4 rounded-r-xl ${templateId === 2 ? 'bg-slate-50 border-blue-600' : 'bg-slate-50 border-slate-900'} print:bg-transparent print:border-2`}>
-            <div className="font-black uppercase text-[8pt] text-slate-400 mb-2 tracking-widest">Supplier Information</div>
+        <div className="grid grid-cols-2 gap-6 mb-6 text-[9.5pt] shrink-0 break-inside-avoid">
+          <div className={`p-4 border border-slate-300 rounded-lg ${templateId === 2 ? 'bg-slate-50 border-l-4 border-l-blue-600' : 'bg-transparent border-l-4 border-l-slate-900'}`}>
+            <div className="font-bold uppercase text-[8pt] text-slate-500 mb-2 tracking-widest">To (Vendor):</div>
             <div className="font-black text-slate-900 uppercase text-sm">{data.vendorName}</div>
-            <div className="font-bold text-blue-600">{data.vendorContact}</div>
-            <div className="text-slate-600 italic leading-snug mt-2">{data.vendorAddress}</div>
+            <div className="font-bold text-slate-700 mt-1">Attn: {data.vendorContact}</div>
+            <div className="text-slate-600 leading-snug mt-1">{data.vendorAddress}</div>
           </div>
-          <div className={`p-4 border-l-4 rounded-r-xl ${templateId === 2 ? 'bg-slate-50 border-blue-600' : 'bg-slate-50 border-slate-900'} print:bg-transparent print:border-2`}>
-            <div className="font-black uppercase text-[8pt] text-slate-400 mb-2 tracking-widest">Shipping Details</div>
+          <div className={`p-4 border border-slate-300 rounded-lg ${templateId === 2 ? 'bg-slate-50 border-l-4 border-l-emerald-600' : 'bg-transparent border-l-4 border-l-slate-900'}`}>
+            <div className="font-bold uppercase text-[8pt] text-slate-500 mb-2 tracking-widest">Ship To:</div>
             <div className="font-black text-slate-900 uppercase text-sm">{data.shipToName}</div>
-            <div className="text-[10px] mt-1">Delivery Via: <span className="font-black uppercase text-emerald-600">{data.shipVia}</span></div>
             <div className="text-slate-600 leading-snug mt-1">{data.shipToAddress}</div>
+            <div className="text-[10px] mt-2 font-bold text-slate-700">Delivery Via: <span className="uppercase text-emerald-600">{data.shipVia}</span></div>
           </div>
         </div>
 
         {/* TABLE ITEMS */}
-        <div className="flex-grow overflow-hidden mb-6">
-          <table className="w-full border-collapse text-[10pt] font-sans">
+        <div className="flex-grow mb-6">
+          <table className="w-full border-collapse text-[10pt]">
             <thead>
-              <tr className={`${templateId === 2 ? 'bg-blue-700 text-white' : 'bg-slate-900 text-white'} uppercase text-[8pt] font-black print:bg-transparent print:text-black border-b-2 border-black`}>
-                <th className="p-3 text-left w-12">#</th>
-                <th className="p-3 text-left">Description of Goods/Services</th>
-                <th className="p-3 text-center w-24">Quantity</th>
-                <th className="p-3 text-right w-32">Unit Price</th>
-                <th className="p-3 text-right w-40">Amount</th>
+              <tr className={`${templateId === 2 ? 'bg-blue-800 text-white border-blue-800' : 'bg-slate-900 text-white border-slate-900'} uppercase text-[8pt] font-black border`}>
+                <th className="p-2 text-center w-10 border-r border-slate-700">#</th>
+                <th className="p-2 text-left border-r border-slate-700">Description of Goods/Services</th>
+                <th className="p-2 text-center w-20 border-r border-slate-700">Qty</th>
+                <th className="p-2 text-center w-20 border-r border-slate-700">Unit</th>
+                <th className="p-2 text-right w-28 border-r border-slate-700">Unit Price</th>
+                <th className="p-2 text-right w-32">Total Amount</th>
               </tr>
             </thead>
             <tbody>
               {data.items.map((item, idx) => (
-                <tr key={idx} className="border-b border-slate-100 print:border-black break-inside-avoid">
-                  <td className="p-3 font-bold text-slate-300 print:text-black">0{idx + 1}</td>
-                  <td className="p-3 font-black text-slate-900 uppercase">{item.name}</td>
-                  <td className="p-3 text-center font-bold">{item.qty} {item.unit}</td>
-                  <td className="p-3 text-right">{item.price.toLocaleString('id-ID')}</td>
-                  <td className="p-3 text-right font-black">{(item.qty * item.price).toLocaleString('id-ID')}</td>
+                <tr key={idx} className="border-b border-x border-slate-300 break-inside-avoid">
+                  <td className="p-2 text-center text-slate-600 border-r border-slate-300">{idx + 1}</td>
+                  <td className="p-2 font-bold text-slate-900 border-r border-slate-300">{item.name}</td>
+                  <td className="p-2 text-center border-r border-slate-300">{item.qty}</td>
+                  <td className="p-2 text-center border-r border-slate-300">{item.unit}</td>
+                  <td className="p-2 text-right border-r border-slate-300">{item.price.toLocaleString('id-ID')}</td>
+                  <td className="p-2 text-right font-bold text-slate-900">{(item.qty * item.price).toLocaleString('id-ID')}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* TOTAL & FOOTER */}
-        <div className="shrink-0 mt-auto break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-          <div className="flex justify-between items-start gap-12 font-sans">
-            <div className="flex-1">
-              <div className="font-black uppercase text-[8pt] text-slate-400 tracking-widest border-b-2 border-slate-50 mb-3">Special Instructions</div>
-              <div className="text-[9pt] text-slate-600 whitespace-pre-line italic leading-relaxed print:text-black">{data.notes}</div>
-            </div>
-            <div className="w-80 space-y-2 text-[10pt]">
-              <div className="flex justify-between text-slate-400 font-bold uppercase text-[9px]"><span>Subtotal Excl. Tax</span><span className="text-slate-900">{subtotal.toLocaleString('id-ID')}</span></div>
-              <div className="flex justify-between text-slate-400 font-bold uppercase text-[9px]"><span>Value Added Tax ({data.taxRate}%)</span><span className="text-slate-900">{taxAmount.toLocaleString('id-ID')}</span></div>
-              <div className={`flex justify-between p-4 font-black text-2xl rounded-2xl ${templateId === 2 ? 'bg-blue-700 text-white' : 'bg-slate-900 text-white'} print:bg-transparent print:text-black print:border-2 print:border-black`}>
-                <span>TOTAL</span><span>{total.toLocaleString('id-ID')}</span>
+        {/* TOTALS & TERMS */}
+        <div className="grid grid-cols-12 gap-6 break-inside-avoid shrink-0">
+          <div className="col-span-7 space-y-4">
+            <div className="border border-slate-300 p-3 rounded-lg bg-slate-50">
+              <div className="font-bold uppercase text-[8pt] text-slate-500 mb-1 border-b border-slate-200 pb-1">Terms & Conditions</div>
+              <div className="grid grid-cols-3 gap-2 text-[9pt] mt-2">
+                <div className="text-slate-500 font-bold">Payment Terms:</div>
+                <div className="col-span-2 text-slate-900 font-semibold">{data.termsPayment}</div>
+                <div className="text-slate-500 font-bold">Delivery Terms:</div>
+                <div className="col-span-2 text-slate-900 font-semibold">{data.termsDelivery}</div>
+                <div className="text-slate-500 font-bold">Delivery Date:</div>
+                <div className="col-span-2 text-slate-900 font-semibold text-emerald-700">{formatDateSafe(data.deliveryDate)}</div>
               </div>
+            </div>
+            
+            <div>
+              <div className="font-bold uppercase text-[8pt] text-slate-500 mb-1">Special Notes / Instructions:</div>
+              <div className="text-[9pt] text-slate-700 whitespace-pre-line leading-relaxed">{data.notes}</div>
             </div>
           </div>
-
-          <div className="mt-12 flex justify-between items-end border-t-2 border-slate-50 pt-8 print:border-slate-900 font-sans">
-              <div className="text-[8pt] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-2">
-                <Truck size={16} className="text-emerald-500" />
-                <span>Delivery Required: {formatDateSafe(data.deliveryDate)}</span>
+          
+          <div className="col-span-5">
+            <div className="border border-slate-300 rounded-lg overflow-hidden">
+              <div className="flex justify-between p-2 border-b border-slate-200 text-[10pt]">
+                <span className="font-bold text-slate-600">Subtotal</span>
+                <span className="font-bold text-slate-900">Rp {subtotal.toLocaleString('id-ID')}</span>
               </div>
-              <div className="text-center w-64">
-                 <p className="text-[10px] font-black uppercase text-slate-300 mb-16 tracking-[0.3em]">Authorized Procurement</p>
-                 <p className="font-black underline uppercase text-base leading-none text-slate-900">{data.signer}</p>
-                 <p className="text-[10px] font-bold text-blue-600 mt-2 uppercase tracking-tighter">{data.signerJob}</p>
+              <div className="flex justify-between p-2 border-b border-slate-200 text-[10pt]">
+                <span className="font-bold text-slate-600">VAT / PPN ({data.taxRate}%)</span>
+                <span className="font-bold text-slate-900">Rp {taxAmount.toLocaleString('id-ID')}</span>
               </div>
+              <div className={`flex justify-between p-3 text-[12pt] font-black ${templateId === 2 ? 'bg-blue-800 text-white' : 'bg-slate-900 text-white'}`}>
+                <span>TOTAL</span>
+                <span>Rp {total.toLocaleString('id-ID')}</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+
+        {/* SIGNATURES */}
+        <div className="mt-12 flex justify-end shrink-0 break-inside-avoid">
+          <div className="text-center w-64">
+             <p className="text-[9pt] font-black uppercase text-slate-500 tracking-widest mb-16">Authorized Signature</p>
+             <p className="font-black underline uppercase text-[11pt] text-slate-900">{data.signer}</p>
+             <p className="text-[9pt] font-bold text-slate-600 mt-1">{data.signerJob}</p>
+          </div>
+        </div>
+      </Kertas>
     );
   };
 
@@ -271,16 +295,7 @@ function POToolBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
-          .no-print { display: none !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-        }
-      ` }} />
+      <style dangerouslySetInnerHTML={{ __html: `\n@media print {\n  @page { size: A4; margin: 15mm; } \n  body { background: white; margin: 0; padding: 0; width: 100%; }\n  .no-print { display: none !important; }\n  #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }\n  .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }\n  .break-before-auto { break-before: auto !important; page-break-before: auto !important; }\n  * { box-sizing: border-box !important; }\n}\n` }} />
 
       {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
@@ -317,6 +332,7 @@ function POToolBuilder() {
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Order Details</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+              
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Purchaser Info</h3>
                  <div className="flex items-center gap-4 py-2">
@@ -324,24 +340,48 @@ function POToolBuilder() {
                        {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <Upload size={16} className="text-slate-300" />}
                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
                     </div>
-                    <input className="flex-1 p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} placeholder="Company Name" />
+                    <div className="flex-1 space-y-2">
+                      <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} placeholder="Company Name" />
+                      <textarea className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none h-16 resize-none" value={data.companyInfo} onChange={e => handleDataChange('companyInfo', e.target.value)} placeholder="Company Info" />
+                    </div>
                  </div>
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><Truck size={12}/> Vendor & Shipping</h3>
                  <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-red-500 outline-none" value={data.vendorName} onChange={e => handleDataChange('vendorName', e.target.value)} placeholder="Supplier Name" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" value={data.shipToName} onChange={e => handleDataChange('shipToName', e.target.value)} placeholder="Ship To Warehouse" />
-                 <div className="grid grid-cols-2 gap-2">
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" value={data.vendorContact} onChange={e => handleDataChange('vendorContact', e.target.value)} placeholder="Supplier Contact (Attn)" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none h-16 resize-none" value={data.vendorAddress} onChange={e => handleDataChange('vendorAddress', e.target.value)} placeholder="Supplier Address" />
+                 
+                 <div className="border-t pt-3 mt-3"></div>
+                 
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-red-500 outline-none" value={data.shipToName} onChange={e => handleDataChange('shipToName', e.target.value)} placeholder="Ship To Name" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none h-16 resize-none" value={data.shipToAddress} onChange={e => handleDataChange('shipToAddress', e.target.value)} placeholder="Ship To Address" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" value={data.shipVia} onChange={e => handleDataChange('shipVia', e.target.value)} placeholder="Ship Via (e.g. Trucking)" />
+                 
+                 <div className="grid grid-cols-2 gap-2 mt-3 border-t pt-3">
                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none font-mono" value={data.no} onChange={e => handleDataChange('no', e.target.value)} placeholder="PO Number" />
                     <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" value={data.deliveryDate} onChange={e => handleDataChange('deliveryDate', e.target.value)} />
                  </div>
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-purple-600 border-b pb-1 tracking-widest flex items-center gap-2"><FileText size={12}/> Terms & Conditions</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.termsPayment} onChange={e => handleDataChange('termsPayment', e.target.value)} placeholder="Payment Terms (e.g., Net 30)" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.termsDelivery} onChange={e => handleDataChange('termsDelivery', e.target.value)} placeholder="Delivery Terms (e.g., DDP)" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none h-20 resize-none" value={data.notes} onChange={e => handleDataChange('notes', e.target.value)} placeholder="Special Notes/Instructions" />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-slate-600 border-b pb-1 tracking-widest flex items-center gap-2"><Edit3 size={12}/> Signatures</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-slate-500 outline-none" value={data.signer} onChange={e => handleDataChange('signer', e.target.value)} placeholder="Signer Name" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.signerJob} onChange={e => handleDataChange('signerJob', e.target.value)} placeholder="Signer Job Title" />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
                  <div className="flex justify-between items-center border-b pb-1">
                     <h3 className="text-[10px] font-black uppercase text-emerald-600 tracking-widest">Order Items</h3>
-                    <button onClick={addItem} className="text-[9px] bg-emerald-600 text-white px-2 py-0.5 rounded font-bold uppercase">+ Item</button>
+                    <button onClick={addItem} className="text-[9px] bg-emerald-600 text-white px-2 py-0.5 rounded font-bold uppercase hover:bg-emerald-500 transition-colors">+ Item</button>
                  </div>
                  {data.items.map((item, idx) => (
                     <div key={idx} className="p-3 bg-slate-50 rounded-lg border group relative animate-in slide-in-from-right-2">
@@ -364,7 +404,7 @@ function POToolBuilder() {
 
         {/* PREVIEW area */}
         <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shrink-0">
                 <DocumentContent />
             </div>
             </div>
@@ -375,7 +415,6 @@ function POToolBuilder() {
           <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
-
       
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">

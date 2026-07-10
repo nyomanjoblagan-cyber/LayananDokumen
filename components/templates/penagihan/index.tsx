@@ -1,388 +1,275 @@
-'use client';
+import React, { useState } from 'react';
 
-/**
- * FILE: CollectionPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Penagihan (Collection Letter) dengan Tone Selector
- * FIX: Menambahkan properti 'city' yang hilang pada interface CollectionData (TS 2339)
- */
+// Aturan Kertas Mutlak
+const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+    {children}
+  </div>
+);
 
-import { useState, useRef, Suspense, useEffect } from 'react';
-import { 
-  Printer, ArrowLeft, Upload, LayoutTemplate, AlertTriangle, 
-  Megaphone, ShieldAlert, Mail, ChevronDown, Check, Edit3, Eye, X,
-  Building2, CreditCard, RotateCcw, ArrowLeftCircle
-} from 'lucide-react';
-import Link from 'next/link';
+export default function PenagihanB2B() {
+  const [formData, setFormData] = useState({
+    nomorSurat: '001/FIN-COLL/VII/2026',
+    tanggalSurat: '10 Juli 2026',
+    lampiran: '1 (satu) Berkas',
+    perihal: 'Peringatan Jatuh Tempo & Penagihan Pembayaran (Somasi 1)',
+    
+    // Data Perusahaan Pengirim
+    namaPengirim: 'PT. NUSANTARA ENTERPRISE SOLUTION',
+    alamatPengirim: 'Gedung Cyber 2, Lt. 17, Jl. H. R. Rasuna Said Blok X-5 Kav. 13, Jakarta Selatan 12950',
+    teleponPengirim: '(021) 555-1234',
+    emailPengirim: 'finance@nusantara-enterprise.co.id',
 
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
+    // Data Klien / Penerima
+    namaKlien: 'PT. MAJU BERSAMA TECHNOLOGY',
+    upKlien: 'Bpk. Budi Santoso - Direktur Keuangan',
+    alamatKlien: 'Kawasan Industri Pulogadung, Jl. Rawa Bali II No. 5, Jakarta Timur 13920',
+    
+    // Rincian Tagihan
+    nomorInvoice: 'INV-2026-05-089',
+    tanggalInvoice: '15 Mei 2026',
+    jatuhTempo: '14 Juni 2026',
+    nilaiPokok: 250000000,
+    persentaseDenda: 0.1, // 0.1% per hari
+    hariKeterlambatan: 26, 
+    biayaAdmin: 500000,
+    
+    // Rekening Pembayaran
+    namaBank: 'Bank Central Asia (BCA)',
+    cabangBank: 'KCU Sudirman',
+    namaRekening: 'PT. NUSANTARA ENTERPRISE SOLUTION',
+    nomorRekening: '098-765-4321',
+    
+    // Pejabat Berwenang
+    namaPejabat: 'Andi Wijaya, S.E., M.Ak.',
+    jabatanPejabat: 'Chief Financial Officer'
+  });
 
-// --- 1. TYPE DEFINITIONS ---
-interface CollectionData {
-  no: string;
-  date: string;
-  city: string; // FIX: Menambahkan city ke interface
-  
-  // Pengirim
-  senderName: string;
-  senderInfo: string;
-  
-  // Penerima
-  receiverName: string;
-  receiverCompany: string;
-  receiverAddress: string;
-  
-  // Tagihan
-  invoiceRef: string;
-  invoiceDate: string;
-  dueDate: string;
-  amount: number;
-  daysOverdue: number;
-  
-  // Isi
-  subject: string;
-  body: string;
-  paymentInfo: string;
-  signer: string;
-  signerJob: string;
-}
+  const nilaiDenda = Math.floor(formData.nilaiPokok * (formData.persentaseDenda / 100) * formData.hariKeterlambatan);
+  const totalTagihan = formData.nilaiPokok + nilaiDenda + formData.biayaAdmin;
 
-// --- 2. DATA DEFAULT ---
-const INITIAL_DATA: CollectionData = {
-  no: `COLL/2026/${Math.floor(Math.random() * 1000)}`,
-  date: '', 
-  city: 'JAKARTA', // FIX: Inisialisasi city
-  
-  senderName: 'PT. KARYA MAJU SENTOSA',
-  senderInfo: 'Jl. Industri Raya No. 88, Cikarang\nEmail: finance@kms.com | WA: 0812-9999-7777',
-  
-  receiverName: 'BAPAK HARTONO',
-  receiverCompany: 'CV. SUMBER REJEKI',
-  receiverAddress: 'Jl. Ahmad Yani No. 45, Surabaya',
-  
-  invoiceRef: 'INV-2025-099',
-  invoiceDate: '2025-12-20',
-  dueDate: '2026-01-20',
-  amount: 15000000,
-  daysOverdue: 5,
-  
-  subject: 'Pengingat Pembayaran Invoice No. INV-2025-099',
-  body: 'Kami ingin mengingatkan dengan hormat bahwa Invoice No. INV-2025-099 telah jatuh tempo. Mungkin invoice ini terlewat dari perhatian Bapak/Ibu. Mohon konfirmasi jika pembayaran telah dilakukan.',
-  paymentInfo: 'Pembayaran dapat ditransfer ke:\nBCA 123-456-7890 a.n PT Karya Maju Sentosa',
-  signer: 'SITI AMINAH',
-  signerJob: 'Finance Manager'
-};
+  const formatRupiah = (angka: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(angka);
+  };
 
-export default function CollectionPage() {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: Number(value) }));
+  };
+
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem Penagihan...</div>}>
-      <CollectionToolBuilder />
-    </Suspense>
-  );
-}
+    <div className="min-h-screen bg-gray-100 p-8">
+      {/* ATURAN PRINT MUTLAK */}
+      <style dangerouslySetInnerHTML={{ __html: `\n@media print {\n  @page { size: A4; margin: 15mm; } \n  body { background: white; margin: 0; padding: 0; width: 100%; }\n  .no-print { display: none !important; }\n  #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }\n  .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }\n  .break-before-auto { break-before: auto !important; page-break-before: auto !important; }\n  * { box-sizing: border-box !important; }\n}\n` }} />
 
-function CollectionToolBuilder() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // --- STATE SYSTEM ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-  const [isClient, setIsClient] = useState(false);
-  const [logo, setLogo] = useState<string | null>(null);
-  const [severity, setSeverity] = useState<1 | 2 | 3>(1);
-  const [data, setData] = useState<CollectionData>(INITIAL_DATA);
-  useEffect(() => {
-    setIsClient(true);
-    const today = new Date().toISOString().split('T')[0];
-    setData(prev => ({ ...prev, date: today }));
-  }, []);
-
-  const handleDataChange = (field: keyof CollectionData, val: any) => {
-    setData(prev => ({ ...prev, [field]: val }));
-  };
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setLogo(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
-        const today = new Date().toISOString().split('T')[0];
-        setData({ ...INITIAL_DATA, date: today });
-        setLogo(null);
-        setSeverity(1);
-    }
-  };
-
-  const applyTone = (level: 1 | 2 | 3) => {
-    setSeverity(level);
-    let newSubject = '';
-    let newBody = '';
-
-    if (level === 1) {
-      newSubject = `Pengingat Pembayaran Invoice No. ${data.invoiceRef}`;
-      newBody = `Kami ingin mengingatkan dengan hormat bahwa Invoice No. ${data.invoiceRef} sebesar Rp ${data.amount.toLocaleString('id-ID')} telah jatuh tempo pada tanggal ${data.dueDate}.\n\nKami mengerti kesibukan Bapak/Ibu mungkin menyebabkan hal ini terlewat. Mohon segera melakukan pembayaran atau kirimkan bukti transfer jika sudah dibayarkan.`;
-    } else if (level === 2) {
-      newSubject = `PERINGATAN 1: Tunggakan Invoice No. ${data.invoiceRef}`;
-      newBody = `Melalui surat ini kami sampaikan bahwa pembayaran untuk Invoice No. ${data.invoiceRef} telah melewati batas waktu (Overdue) selama ${data.daysOverdue} hari.\n\nKami mohon kerjasamanya untuk segera menyelesaikan pembayaran ini guna menghindari terganggunya layanan/suplai barang dari kami. Mohon abaikan surat ini jika pembayaran telah dilakukan.`;
-    } else {
-      newSubject = `FINAL NOTICE: Penyelesaian Kewajiban Pembayaran`;
-      newBody = `SANGAT PENTING. Kami mencatat belum ada pembayaran untuk Invoice No. ${data.invoiceRef} yang sudah jatuh tempo sejak ${data.dueDate}.\n\nIni adalah peringatan terakhir sebelum kami menyerahkan masalah ini ke departemen hukum/kolektor eksternal. Kami harap itikad baik Bapak/Ibu untuk menyelesaikan kewajiban ini dalam waktu 3x24 jam sejak surat ini diterbitkan.`;
-    }
-    setData(prev => ({ ...prev, subject: newSubject, body: newBody }));
-  };
-
-  const activeTemplateName = templateId === 1 ? 'Surat Resmi' : 'Modern Notice';
-
-  const DocumentContent = () => {
-    const formatDateSafe = (dateString: string) => {
-        if(!dateString) return '...';
-        try {
-            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        } catch { return dateString; }
-    };
-
-    return (
-      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-relaxed text-[11pt] p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
+      <div className="max-w-[210mm] mx-auto mb-8 no-print bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Form Editor Surat Penagihan (B2B)</h2>
         
-        {templateId === 1 && (
-            <div className="h-full flex flex-col">
-                <div className="flex items-center gap-6 border-b-4 border-slate-800 pb-3 mb-8 shrink-0 font-sans">
-                   <div className="w-16 h-16 flex items-center justify-center shrink-0">
-                      {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <div className="w-full h-full bg-slate-100 border-2 border-dashed flex items-center justify-center text-[10px] text-slate-400">LOGO</div>}
-                   </div>
-                   <div className="flex-1 text-center">
-                      <h1 className="text-2xl font-black uppercase text-slate-900 tracking-tight leading-none mb-1">{data.senderName}</h1>
-                      <div className="text-[9pt] text-slate-500 whitespace-pre-line leading-tight">{data.senderInfo}</div>
-                   </div>
-                </div>
-
-                <div className="flex justify-between text-sm mb-8 shrink-0 font-sans">
-                   <div>
-                      <div>No: {data.no}</div>
-                      <div>Hal: <strong>{data.subject}</strong></div>
-                   </div>
-                   <div className="text-right">{data.city}, {formatDateSafe(data.date)}</div>
-                </div>
-
-                <div className="mb-8 text-sm shrink-0 font-sans">
-                   <p>Kepada Yth,</p>
-                   <p className="font-bold text-lg">{data.receiverName}</p>
-                   <p className="font-bold text-slate-600">{data.receiverCompany}</p>
-                   <p className="max-w-xs">{data.receiverAddress}</p>
-                </div>
-
-                <div className="flex-grow text-[11pt] text-justify whitespace-pre-line leading-relaxed mb-8">
-                   Dengan hormat,{"\n\n"}
-                   {data.body}
-                </div>
-
-                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8 shrink-0 print:bg-transparent print:border-black break-inside-avoid">
-                   <p className="font-bold border-b border-slate-300 pb-2 mb-3 text-xs uppercase tracking-widest text-slate-500 font-sans">Rincian Tunggakan:</p>
-                   <div className="grid grid-cols-[140px_10px_1fr] text-sm gap-y-1 font-sans">
-                      <span>Nomor Invoice</span><span>:</span><span className="font-mono font-bold">{data.invoiceRef}</span>
-                      <span>Jatuh Tempo</span><span>:</span><span className="text-red-600 font-bold">{data.dueDate}</span>
-                      <span>Total Tagihan</span><span>:</span><span className="font-black text-lg">Rp {data.amount.toLocaleString('id-ID')}</span>
-                   </div>
-                </div>
-
-                <div className="text-sm whitespace-pre-line leading-relaxed bg-blue-50 p-5 border-l-4 border-blue-500 shrink-0 print:bg-transparent print:border-black break-inside-avoid font-sans">
-                   <strong className="text-blue-800 uppercase text-[10px] tracking-widest block mb-1">Informasi Pembayaran:</strong>
-                   {data.paymentInfo}
-                </div>
-
-                <div className="shrink-0 mt-12 flex justify-end text-center break-inside-avoid font-sans">
-                   <div className="w-56">
-                      <p className="mb-20 font-bold uppercase text-[10px] tracking-widest text-slate-400">Finance Department,</p>
-                      <p className="font-bold underline uppercase text-sm font-serif">{data.signer}</p>
-                      <p className="text-[10px] uppercase font-bold text-slate-500 mt-1">{data.signerJob}</p>
-                   </div>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="space-y-3">
+            <h3 className="font-semibold text-slate-700 bg-slate-100 p-2 rounded">Header Surat</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nomor Surat</label>
+              <input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
             </div>
-        )}
-
-        {templateId === 2 && (
-            <div className="flex flex-col h-full font-sans text-[10.5pt]">
-               <div className={`h-4 w-full mb-8 shrink-0 ${severity === 1 ? 'bg-emerald-500' : severity === 2 ? 'bg-amber-500' : 'bg-red-600'} print:bg-black`}></div>
-               <div className="flex justify-between items-start mb-12 shrink-0">
-                  <div>
-                      <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-1 uppercase">
-                         {severity === 1 ? 'Payment Reminder' : severity === 2 ? 'Overdue Notice' : 'Final Demand'}
-                      </h1>
-                      <div className="text-xs text-slate-400 font-mono">Reference: {data.no}</div>
-                  </div>
-                  <div className="text-right">
-                     {logo && <img src={logo} className="h-10 w-auto ml-auto mb-2" alt="Logo" />}
-                     <div className="font-black text-slate-900 uppercase text-sm">{data.senderName}</div>
-                  </div>
-               </div>
-
-               <div className="flex gap-12 mb-12 shrink-0 break-inside-avoid">
-                  <div className="w-1/2">
-                      <h3 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-3">Bill To:</h3>
-                      <div className="font-black text-xl text-slate-900 uppercase leading-none mb-1">{data.receiverName}</div>
-                      <div className="font-bold text-slate-500 uppercase text-xs mb-2">{data.receiverCompany}</div>
-                      <div className="text-xs text-slate-400 leading-snug">{data.receiverAddress}</div>
-                  </div>
-                  <div className="w-1/2 text-right">
-                      <h3 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-3">Outstanding Amount:</h3>
-                      <div className={`text-4xl font-black ${severity === 3 ? 'text-red-600' : 'text-slate-900'} leading-none mb-2`}>
-                         Rp {data.amount.toLocaleString('id-ID')}
-                      </div>
-                      <div className="text-red-500 font-bold text-[10px] uppercase tracking-tighter">
-                         Due Date: {data.dueDate} ({data.daysOverdue} Days Past Due)
-                      </div>
-                  </div>
-               </div>
-
-               <div className="flex-grow text-[11pt] leading-relaxed whitespace-pre-line text-slate-700 mb-10 text-justify italic border-l-4 border-slate-100 pl-8">
-                  {data.body}
-               </div>
-
-               <div className="bg-slate-900 text-white p-8 rounded-3xl mb-12 shrink-0 print:bg-transparent print:text-black print:border-2 print:border-black break-inside-avoid">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-50">Settlement Instructions</h4>
-                  <div className="whitespace-pre-line text-sm font-mono leading-loose">
-                     {data.paymentInfo}
-                  </div>
-               </div>
-
-               <div className="mt-auto flex justify-between items-end shrink-0 break-inside-avoid">
-                  <div className="text-[8pt] text-slate-400 max-w-[300px] leading-tight">
-                     Please disregard this notice if payment has been settled within the last 48 hours. For inquiries, contact our finance desk.
-                  </div>
-                  <div className="text-right">
-                     <p className="text-[10pt] text-slate-400 font-bold uppercase tracking-widest mb-16">{data.city}, {formatDateSafe(data.date)}</p>
-                     <p className="font-black text-slate-900 text-xl leading-none uppercase tracking-tight">{data.signer}</p>
-                     <p className="text-[10px] text-blue-600 font-black mt-2 uppercase tracking-widest">{data.signerJob}</p>
-                  </div>
-               </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tanggal Surat</label>
+              <input type="text" name="tanggalSurat" value={formData.tanggalSurat} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
             </div>
-        )}
-      </div>
-    );
-  };
-
-  if (!isClient) return null;
-
-  return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
-          .no-print { display: none !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-        }
-      ` }} />
-
-      {/* NAVBAR */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-              <ArrowLeftCircle size={20} className="text-emerald-400" />
-              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
-            </Link>
-            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <AlertTriangle size={16} className="text-red-500" /> <span>Collection Letter Builder</span>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Perihal (Tingkat Somasi)</label>
+              <select name="perihal" value={formData.perihal} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                <option value="Peringatan Jatuh Tempo & Penagihan Pembayaran (Somasi 1)">Somasi 1 - Peringatan Pertama</option>
+                <option value="Peringatan Keras & Penagihan Pembayaran (Somasi 2)">Somasi 2 - Peringatan Keras</option>
+                <option value="Peringatan Terakhir & Rencana Langkah Hukum (Somasi 3)">Somasi 3 - Peringatan Terakhir & Hukum</option>
+              </select>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
-              </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Standard Letter {templateId === 1 && <Check size={14}/>}</button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Modern Notice {templateId === 2 && <Check size={14}/>}</button>
-                </div>
-              )}
+
+          <div className="space-y-3">
+            <h3 className="font-semibold text-slate-700 bg-slate-100 p-2 rounded">Penerima (Klien)</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nama Perusahaan Klien</label>
+              <input type="text" name="namaKlien" value={formData.namaKlien} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
             </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
-            </button>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">U.P (Penerima)</label>
+              <input type="text" name="upKlien" value={formData.upKlien} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Alamat Klien</label>
+              <textarea name="alamatKlien" value={formData.alamatKlien} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" rows={3}></textarea>
+            </div>
           </div>
-      </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        {/* SIDEBAR */}
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
-              <div className="bg-slate-900 rounded-xl p-4 space-y-3">
-                 <h3 className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2"><Megaphone size={12}/> Tone Penagihan</h3>
-                 <div className="grid grid-cols-3 gap-2">
-                    <button onClick={() => applyTone(1)} className={`py-2 rounded-lg text-[10px] font-bold border-2 transition-all ${severity === 1 ? 'bg-emerald-600 border-emerald-400 text-white' : 'bg-slate-800 border-slate-700 text-slate-500'}`}>RAMAH</button>
-                    <button onClick={() => applyTone(2)} className={`py-2 rounded-lg text-[10px] font-bold border-2 transition-all ${severity === 2 ? 'bg-amber-600 border-amber-400 text-white' : 'bg-slate-800 border-slate-700 text-slate-500'}`}>TEGAS</button>
-                    <button onClick={() => applyTone(3)} className={`py-2 rounded-lg text-[10px] font-bold border-2 transition-all ${severity === 3 ? 'bg-red-600 border-red-400 text-white' : 'bg-slate-800 border-slate-700 text-slate-500'}`}>KERAS</button>
-                 </div>
+          <div className="space-y-3">
+            <h3 className="font-semibold text-slate-700 bg-slate-100 p-2 rounded">Rincian Tunggakan</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nomor Invoice</label>
+              <input type="text" name="nomorInvoice" value={formData.nomorInvoice} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tgl Invoice</label>
+                <input type="text" name="tanggalInvoice" value={formData.tanggalInvoice} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
               </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Perusahaan</h3>
-                 <div className="flex items-center gap-4 py-2">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 overflow-hidden shrink-0">
-                       {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <Upload size={20} className="text-slate-300" />}
-                       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
-                    </div>
-                    <input className="flex-1 p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.senderName} onChange={e => handleDataChange('senderName', e.target.value)} placeholder="Nama PT" />
-                 </div>
-                 <div className="grid grid-cols-2 gap-2">
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" type="date" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                 </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Jatuh Tempo</label>
+                <input type="text" name="jatuhTempo" value={formData.jatuhTempo} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
               </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><CreditCard size={12}/> Detail Hutang</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-bold" value={data.receiverName} onChange={e => handleDataChange('receiverName', e.target.value)} placeholder="Nama Klien" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.invoiceRef} onChange={e => handleDataChange('invoiceRef', e.target.value)} placeholder="No Invoice" />
-                 <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">NOMINAL</label><input type="number" className="w-full p-2 border rounded-lg text-xs font-black text-red-600" value={data.amount} onChange={e => handleDataChange('amount', parseInt(e.target.value) || 0)} /></div>
-                    <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">JATUH TEMPO</label><input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.dueDate} onChange={e => handleDataChange('dueDate', e.target.value)} /></div>
-                 </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nilai Pokok (Rp)</label>
+              <input type="number" name="nilaiPokok" value={formData.nilaiPokok} onChange={handleNumberChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Keterlambatan (Hari)</label>
+                <input type="number" name="hariKeterlambatan" value={formData.hariKeterlambatan} onChange={handleNumberChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
               </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Edit3 size={12}/> Narasi</h3>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-32 focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed" value={data.body} onChange={e => handleDataChange('body', e.target.value)} />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-20 focus:ring-2 focus:ring-amber-500 outline-none" value={data.paymentInfo} onChange={e => handleDataChange('paymentInfo', e.target.value)} placeholder="Metode Pembayaran..." />
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Denda (%/hari)</label>
+                <input type="number" step="0.01" name="persentaseDenda" value={formData.persentaseDenda} onChange={handleNumberChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
               </div>
-           </div>
+            </div>
+          </div>
         </div>
 
-        {/* PREVIEW */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
-                <DocumentContent />
-            </div>
-            </div>
-      </main>
-
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
-          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
-          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
+        <button 
+          onClick={() => window.print()} 
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition duration-200 mt-4"
+        >
+          CETAK SURAT PENAGIHAN
+        </button>
       </div>
 
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
+      <div id="print-only-root">
+        <Kertas>
+          {/* KOP SURAT */}
+          <div className="border-b-4 border-slate-900 pb-4 mb-6 flex flex-col break-inside-avoid">
+            <h1 className="text-2xl font-bold text-center text-slate-900 tracking-wider mb-2">{formData.namaPengirim}</h1>
+            <p className="text-center text-sm text-slate-700">{formData.alamatPengirim}</p>
+            <p className="text-center text-sm text-slate-700">Telp: {formData.teleponPengirim} | Email: {formData.emailPengirim}</p>
+          </div>
 
-      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
+          {/* HEADER SURAT */}
+          <div className="flex justify-between mb-8 break-inside-avoid">
+            <div>
+              <table className="text-sm">
+                <tbody>
+                  <tr><td className="w-24 pb-1">Nomor</td><td className="w-4 pb-1">:</td><td className="pb-1 font-semibold">{formData.nomorSurat}</td></tr>
+                  <tr><td className="w-24 pb-1">Lampiran</td><td className="w-4 pb-1">:</td><td className="pb-1">{formData.lampiran}</td></tr>
+                  <tr><td className="w-24 pb-1">Perihal</td><td className="w-4 pb-1">:</td><td className="pb-1 font-bold underline">{formData.perihal}</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="text-right text-sm">
+              <p>Jakarta, {formData.tanggalSurat}</p>
+            </div>
+          </div>
+
+          {/* ALAMAT TUJUAN */}
+          <div className="mb-8 break-inside-avoid">
+            <p className="mb-2 text-sm">Kepada Yth.,</p>
+            <p className="font-bold text-md">{formData.namaKlien}</p>
+            <p className="text-sm mb-2">U.P: {formData.upKlien}</p>
+            <p className="text-sm max-w-sm leading-relaxed">{formData.alamatKlien}</p>
+          </div>
+
+          {/* ISI SURAT */}
+          <div className="text-justify text-sm leading-loose mb-8">
+            <p className="mb-4">Dengan hormat,</p>
+            <p className="mb-4">
+              Semoga kesuksesan senantiasa menyertai setiap aktivitas bisnis Bapak/Ibu. Kami mengucapkan terima kasih atas kerja sama yang terjalin baik selama ini antara <strong>{formData.namaPengirim}</strong> dengan <strong>{formData.namaKlien}</strong>.
+            </p>
+            <p className="mb-4">
+              Berdasarkan catatan keuangan dan administrasi kami, terdapat tagihan atas layanan/produk yang telah kami berikan namun <strong>belum diselesaikan pembayarannya</strong> oleh pihak {formData.namaKlien} yang telah melewati batas waktu jatuh tempo (overdue).
+            </p>
+            
+            <p className="mb-2 font-bold text-slate-800">Berikut adalah rincian tagihan yang tertunggak:</p>
+            <div className="ml-4 mb-4 bg-slate-50 p-4 border border-slate-300 rounded break-inside-avoid">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr><td className="w-48 py-1">Nomor Invoice</td><td className="w-4 py-1">:</td><td className="py-1 font-semibold">{formData.nomorInvoice}</td></tr>
+                  <tr><td className="py-1">Tanggal Invoice</td><td className="py-1">:</td><td className="py-1">{formData.tanggalInvoice}</td></tr>
+                  <tr><td className="py-1 text-red-600 font-semibold">Tanggal Jatuh Tempo</td><td className="py-1 text-red-600 font-semibold">:</td><td className="py-1 text-red-600 font-semibold">{formData.jatuhTempo}</td></tr>
+                  <tr><td className="py-1">Nilai Pokok Tagihan</td><td className="py-1">:</td><td className="py-1">{formatRupiah(formData.nilaiPokok)}</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p className="mb-4">
+              Sesuai dengan Syarat dan Ketentuan (Terms & Conditions) Perjanjian Kerjasama, keterlambatan pembayaran akan dikenakan denda sebesar <strong>{formData.persentaseDenda}% per hari</strong>. Mengingat tagihan ini telah menunggak selama <strong>{formData.hariKeterlambatan} hari</strong>, maka perhitungan kewajiban saat ini adalah sebagai berikut:
+            </p>
+
+            {/* TABEL PERHITUNGAN TOTAL */}
+            <table className="w-full mb-6 border-collapse border border-slate-800 text-sm break-inside-avoid">
+              <thead className="bg-slate-200 font-bold">
+                <tr>
+                  <th className="border border-slate-800 p-2 text-left">Deskripsi Tagihan</th>
+                  <th className="border border-slate-800 p-2 text-right w-48">Jumlah (IDR)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-slate-800 p-2">Pokok Tagihan (Invoice {formData.nomorInvoice})</td>
+                  <td className="border border-slate-800 p-2 text-right">{formatRupiah(formData.nilaiPokok)}</td>
+                </tr>
+                <tr>
+                  <td className="border border-slate-800 p-2">
+                    Denda Keterlambatan ({formData.persentaseDenda}% x {formData.hariKeterlambatan} Hari x Pokok Tagihan)
+                  </td>
+                  <td className="border border-slate-800 p-2 text-right text-red-600">{formatRupiah(nilaiDenda)}</td>
+                </tr>
+                <tr>
+                  <td className="border border-slate-800 p-2">Biaya Administrasi Penagihan</td>
+                  <td className="border border-slate-800 p-2 text-right">{formatRupiah(formData.biayaAdmin)}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr className="font-bold bg-slate-100">
+                  <td className="border border-slate-800 p-2 text-right">TOTAL KESELURUHAN YANG HARUS DIBAYARKAN</td>
+                  <td className="border border-slate-800 p-2 text-right">{formatRupiah(totalTagihan)}</td>
+                </tr>
+              </tfoot>
+            </table>
+
+            <p className="mb-4 font-semibold text-red-700">
+              Mengingat pentingnya kelancaran arus kas bisnis kami, kami meminta Bapak/Ibu untuk segera melunasi total tagihan di atas selambat-lambatnya 3 (tiga) hari kerja sejak surat ini diterima.
+            </p>
+
+            <p className="mb-2">Pembayaran dapat ditransfer ke rekening operasional perusahaan kami:</p>
+            <div className="ml-4 mb-4 border-l-4 border-slate-800 pl-4 py-1 break-inside-avoid">
+              <p className="font-bold">{formData.namaBank} - {formData.cabangBank}</p>
+              <p>Atas Nama : <span className="font-bold">{formData.namaRekening}</span></p>
+              <p>No. Rekening : <span className="font-bold text-lg tracking-widest">{formData.nomorRekening}</span></p>
+            </div>
+
+            <p className="mb-4">
+              Apabila hingga batas waktu tersebut kami belum menerima pembayaran, dengan berat hati kami akan <strong>menangguhkan layanan/kerjasama bisnis</strong> secara sepihak dan mempertimbangkan langkah-langkah penyelesaian lebih lanjut, termasuk namun tidak terbatas pada penunjukan konsultan hukum atau agensi penagihan pihak ketiga (Third Party Collection Agency).
+            </p>
+            
+            <p className="mb-8">
+              Mohon abaikan surat ini jika Bapak/Ibu telah melakukan pembayaran. Bukti transfer dapat dikirimkan ke email <strong>{formData.emailPengirim}</strong>. Demikian surat peringatan ini kami sampaikan agar menjadi perhatian serius. Atas kerja sama dan itikad baiknya, kami ucapkan terima kasih.
+            </p>
+          </div>
+
+          {/* TTD */}
+          <div className="flex justify-end break-inside-avoid">
+            <div className="text-center w-64">
+              <p className="text-sm mb-24">Hormat Kami,<br/><strong>{formData.namaPengirim}</strong></p>
+              <p className="font-bold underline text-sm">{formData.namaPejabat}</p>
+              <p className="text-sm italic">{formData.jabatanPejabat}</p>
+            </div>
+          </div>
+          
+        </Kertas>
+      </div>
     </div>
   );
 }

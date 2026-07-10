@@ -152,7 +152,7 @@ function InternshipBuilder() {
   const activeTemplateName = templateId === 1 ? 'Formal (Kampus)' : 'Profesional';
 
   const LetterContent = () => (
-    <div className="bg-white flex flex-col box-border font-serif text-black text-[11pt] leading-normal p-[25mm] print:p-0 w-[210mm] min-h-[296mm] shadow-xl print:shadow-none print:m-0 mx-auto">
+    <div className="bg-white flex flex-col box-border font-serif text-black text-[11pt] leading-normal p-[25mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-xl print:shadow-none print:m-0 mx-auto">
       
       {templateId === 1 && (
         <div className="text-[10.5pt] leading-snug flex flex-col h-full">
@@ -252,11 +252,13 @@ function InternshipBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
+          @page { size: A4; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          * { box-sizing: border-box !important; }
         }
       ` }} />
 

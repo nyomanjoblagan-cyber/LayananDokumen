@@ -3,8 +3,7 @@
 /**
  * FILE: PaklaringPage.tsx
  * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Paklaring (Certificate of Employment)
- * FIX: Perbaikan sintaks kurung kurawal pada conditional rendering (TS 1005 & 1381)
+ * DESC: Generator Surat Paklaring (Certificate of Employment) Corporate HR Enterprise-Grade
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -13,9 +12,14 @@ import {
   User, Building2, Medal, ChevronDown, Check, Trash2, Edit3, Eye, X, RotateCcw, ArrowLeftCircle
 } from 'lucide-react';
 import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
+
+// --- ATURAN KERTAS MUTLAK ---
+const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+    {children}
+  </div>
+);
 
 // --- 1. TYPE DEFINITIONS ---
 interface PaklaringData {
@@ -37,6 +41,7 @@ interface PaklaringData {
   endDate: string;
   
   // Isi
+  performance: string;
   evaluation: string;
   closing: string;
 }
@@ -59,7 +64,8 @@ const INITIAL_DATA: PaklaringData = {
   startDate: '2023-01-15',
   endDate: '2026-01-15',
   
-  evaluation: 'Selama bekerja, Saudara Ahmad Fauzi telah menunjukkan dedikasi, loyalitas, dan integritas yang tinggi terhadap perusahaan serta tidak pernah melakukan tindakan yang merugikan. Yang bersangkutan mengundurkan diri atas kemauan sendiri (Resign).',
+  performance: 'Sangat Baik',
+  evaluation: 'Yang bersangkutan mengundurkan diri atas kemauan sendiri (Resign).',
   closing: 'Kami mengucapkan terima kasih atas kontribusi yang telah diberikan dan berharap kesuksesan menyertai langkah karir Saudara di masa depan.'
 };
 
@@ -83,6 +89,7 @@ function PaklaringToolBuilder() {
   const [logo, setLogo] = useState<string | null>(null);
   const [data, setData] = useState<PaklaringData>(INITIAL_DATA);
   const [durationStr, setDurationStr] = useState('');
+  
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -129,7 +136,7 @@ function PaklaringToolBuilder() {
     }
   };
 
-  const activeTemplateName = templateId === 1 ? 'Standar HRD' : 'Modern Certificate';
+  const activeTemplateName = templateId === 1 ? 'Corporate HR' : 'Modern Certificate';
 
   const PaklaringContent = () => {
     const formatDateSafe = (dateString: string) => {
@@ -140,14 +147,12 @@ function PaklaringToolBuilder() {
     };
 
     return (
-      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-relaxed text-[11pt] p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
-        
-        {/* FIX LOGIC: Template 1 */}
+      <Kertas>
         {templateId === 1 ? (
             <div className="flex flex-col h-full">
                 <div className="flex items-center gap-4 border-b-4 border-double border-slate-800 pb-3 mb-6 shrink-0 font-sans">
                    <div className="w-16 h-16 shrink-0 flex items-center justify-center">
-                      {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <div className="font-bold text-slate-200 uppercase text-[8px] border-2 border-dashed p-2">COMPANY LOGO</div>}
+                      {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <div className="font-bold text-slate-200 uppercase text-[8px] border-2 border-dashed p-2 text-center leading-tight">COMPANY<br/>LOGO</div>}
                    </div>
                    <div className="flex-1 text-center">
                       <h1 className="text-xl font-black uppercase text-slate-900 leading-tight tracking-tight">{data.compName}</h1>
@@ -173,28 +178,35 @@ function PaklaringToolBuilder() {
                     </div>
 
                     <p className="mb-4">Menerangkan dengan sesungguhnya bahwa:</p>
-                    <div className="ml-8 mb-8 break-inside-avoid bg-slate-50 p-4 rounded-xl border border-slate-100 print:bg-transparent print:border-black">
+                    <div className="ml-8 mb-8 break-inside-avoid bg-slate-50 p-4 rounded-xl border border-slate-100 print:bg-transparent print:border-black print:p-0 print:ml-8 print:mb-6">
                        <table className="w-full leading-snug font-sans text-[10pt]">
                           <tbody>
-                             <tr><td className="w-32 py-1 uppercase text-slate-400 font-bold text-[9px]">Nama Lengkap</td><td className="w-3">:</td><td className="font-bold uppercase text-slate-900">{data.empName}</td></tr>
-                             <tr><td className="py-1 uppercase text-slate-400 font-bold text-[9px]">ID Karyawan</td><td>:</td><td className="font-mono">{data.empNik}</td></tr>
-                             <tr><td className="py-1 uppercase text-slate-400 font-bold text-[9px]">Posisi Terakhir</td><td>:</td><td className="font-bold">{data.empPosition}</td></tr>
-                             <tr><td className="py-1 uppercase text-slate-400 font-bold text-[9px]">Masa Bakti</td><td>:</td><td className="italic">{formatDateSafe(data.startDate)} s/d {formatDateSafe(data.endDate)}</td></tr>
-                             <tr><td className="py-1 uppercase text-slate-400 font-bold text-[9px]">Total Durasi</td><td>:</td><td className="font-black text-blue-700 print:text-black">{durationStr}</td></tr>
+                             <tr><td className="w-32 py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">Nama Lengkap</td><td className="w-3">:</td><td className="font-bold uppercase text-slate-900">{data.empName}</td></tr>
+                             <tr><td className="py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">ID Karyawan</td><td>:</td><td className="font-mono">{data.empNik}</td></tr>
+                             <tr><td className="py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">Posisi Terakhir</td><td>:</td><td className="font-bold">{data.empPosition}</td></tr>
+                             <tr><td className="py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">Masa Bakti</td><td>:</td><td className="italic">{formatDateSafe(data.startDate)} s/d {formatDateSafe(data.endDate)}</td></tr>
+                             <tr><td className="py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">Total Durasi</td><td>:</td><td className="font-black text-blue-700 print:text-black">{durationStr}</td></tr>
                           </tbody>
                        </table>
                     </div>
 
-                    <p className="mb-4 leading-relaxed">{data.evaluation}</p>
+                    <p className="mb-4 leading-relaxed">
+                      Selama masa baktinya, Saudara/i <strong>{data.empName}</strong> telah menunjukkan evaluasi kinerja yang <strong>{data.performance}</strong>, serta memiliki dedikasi, loyalitas, dan integritas yang tinggi terhadap perusahaan. {data.evaluation}
+                    </p>
+                    
+                    <p className="mb-4 leading-relaxed font-semibold">
+                      Kami menyatakan bahwa yang bersangkutan telah menyelesaikan seluruh kewajiban finansial, administrasi, serta telah mengembalikan seluruh aset kepada perusahaan (Clearance). Oleh karenanya, perusahaan tidak memiliki tuntutan dalam bentuk apapun di kemudian hari.
+                    </p>
+
                     <p className="mb-8 leading-relaxed">{data.closing}</p>
                 </div>
 
                 <div className="shrink-0 mt-8 flex justify-end text-center font-sans" style={{ pageBreakInside: 'avoid' }}>
                    <div className="w-72">
                       <p className="mb-1 text-xs">{data.city}, {formatDateSafe(data.date)}</p>
-                      <p className="mb-20 font-bold uppercase text-[10px] tracking-widest text-slate-400">Pimpinan Perusahaan,</p>
+                      <p className="mb-20 font-bold uppercase text-[10px] tracking-widest text-slate-400 print:text-slate-900">Pimpinan Perusahaan,</p>
                       <p className="font-bold underline uppercase text-sm font-serif">{data.signerName}</p>
-                      <p className="text-[10px] uppercase font-bold text-slate-500 mt-1">{data.signerJob}</p>
+                      <p className="text-[10px] uppercase font-bold text-slate-500 print:text-slate-900 mt-1">{data.signerJob}</p>
                    </div>
                 </div>
             </div>
@@ -212,7 +224,7 @@ function PaklaringToolBuilder() {
                 <div className="text-center mb-16 shrink-0">
                   <h1 className="text-4xl font-light text-slate-800 uppercase tracking-[0.2em] mb-2">Certificate</h1>
                   <div className="text-[10px] text-blue-600 font-black tracking-[0.4em] mb-6 uppercase">of Employment Tenureship</div>
-                  <div className="w-16 h-1 bg-blue-600 mx-auto mb-4"></div>
+                  <div className="w-16 h-1 bg-blue-600 mx-auto mb-4 print:bg-black"></div>
                   <div className="text-[9px] text-slate-400 font-mono italic">Document Ref: {data.no}</div>
                 </div>
 
@@ -221,30 +233,33 @@ function PaklaringToolBuilder() {
                   <h2 className="text-4xl font-black text-slate-900 uppercase mb-2 leading-none tracking-tight">{data.empName}</h2>
                   <div className="text-sm text-slate-500 mb-12 font-mono">Employee Registration No: {data.empNik}</div>
                   
-                  <div className="max-w-xl mx-auto space-y-8 leading-relaxed">
+                  <div className="max-w-xl mx-auto space-y-6 leading-relaxed">
                     <p className="text-slate-600 text-lg">
                       Has completed their professional service at <strong>{data.compName}</strong> as <strong>{data.empPosition}</strong>. 
                       Effectively serving from <strong>{isClient && data.startDate ? new Date(data.startDate + 'T00:00:00').toLocaleDateString('id-ID', {month:'long', year:'numeric'}) : ''}</strong> until <strong>{isClient && data.endDate ? new Date(data.endDate + 'T00:00:00').toLocaleDateString('id-ID', {month:'long', year:'numeric'}) : ''}</strong>.
                     </p>
-                    <div className="bg-slate-50 p-8 rounded-3xl border-2 border-dashed border-slate-200 text-slate-500 text-sm italic print:bg-transparent print:border-black">
-                      "{data.evaluation}"
+                    <p className="text-slate-600 text-md">
+                      The employee has demonstrated a <strong>{data.performance === 'Sangat Baik' ? 'Highly Excellent' : data.performance === 'Baik' ? 'Good' : 'Satisfactory'}</strong> performance during their tenure. {data.evaluation}
+                    </p>
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-slate-700 text-sm italic print:bg-transparent print:border-black">
+                      "We hereby certify that the employee has returned all company assets and cleared all financial and administrative obligations. The company holds no future claims against the individual."
                     </div>
                   </div>
                 </div>
 
                 <div className="shrink-0 mt-16 flex justify-between items-end border-t border-slate-100 pt-8 pb-4">
-                  <div className="text-[7pt] text-slate-400 max-w-[280px] leading-tight">
+                  <div className="text-[7pt] text-slate-400 max-w-[280px] leading-tight print:text-black">
                     This official certificate is generated by the Human Resources system. Authenticity can be verified through corporate records.
                   </div>
                   <div className="text-right">
-                    <p className="text-[9pt] text-slate-400 font-bold uppercase mb-16 tracking-widest">{data.city}, {formatDateSafe(data.date)}</p>
+                    <p className="text-[9pt] text-slate-400 font-bold uppercase mb-16 tracking-widest print:text-black">{data.city}, {formatDateSafe(data.date)}</p>
                     <p className="font-black text-slate-900 text-xl leading-none uppercase">{data.signerName}</p>
-                    <p className="text-[10px] text-blue-600 font-black mt-2 uppercase tracking-widest">{data.signerJob}</p>
+                    <p className="text-[10px] text-blue-600 font-black mt-2 uppercase tracking-widest print:text-black">{data.signerJob}</p>
                   </div>
                 </div>
             </div>
         )}
-      </div>
+      </Kertas>
     );
   };
 
@@ -253,15 +268,8 @@ function PaklaringToolBuilder() {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
-          .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-        }
-      ` }} />
+      {/* ATURAN PRINT MUTLAK */}
+      <style dangerouslySetInnerHTML={{ __html: `\n@media print {\n  @page { size: A4; margin: 15mm; } \n  body { background: white; margin: 0; padding: 0; width: 100%; }\n  .no-print { display: none !important; }\n  #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }\n  .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }\n  .break-before-auto { break-before: auto !important; page-break-before: auto !important; }\n  * { box-sizing: border-box !important; }\n}\n` }} />
 
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
@@ -281,7 +289,7 @@ function PaklaringToolBuilder() {
               </button>
               {showTemplateMenu && (
                 <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Standar HRD {templateId === 1 && <Check size={14}/>}</button>
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Corporate HR {templateId === 1 && <Check size={14}/>}</button>
                     <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Modern Certificate {templateId === 2 && <Check size={14}/>}</button>
                 </div>
               )}
@@ -307,12 +315,14 @@ function PaklaringToolBuilder() {
                     {logo && <button onClick={() => setLogo(null)} className="text-[10px] text-red-500 font-bold uppercase underline">Hapus</button>}
                  </div>
                  <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.compName} onChange={e => handleDataChange('compName', e.target.value)} placeholder="Nama PT" />
+                 <textarea className="w-full p-2 border rounded-lg text-xs resize-none focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed" value={data.compInfo} onChange={e => handleDataChange('compInfo', e.target.value)} placeholder="Alamat Perusahaan..." rows={2} />
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Karyawan</h3>
                  <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none uppercase" value={data.empName} onChange={e => handleDataChange('empName', e.target.value)} placeholder="Nama Lengkap" />
                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.empPosition} onChange={e => handleDataChange('empPosition', e.target.value)} placeholder="Jabatan Terakhir" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.empNik} onChange={e => handleDataChange('empNik', e.target.value)} placeholder="ID Karyawan / NIK" />
                  <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">MULAI</label><input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.startDate} onChange={e => handleDataChange('startDate', e.target.value)} /></div>
                     <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">AKHIR</label><input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.endDate} onChange={e => handleDataChange('endDate', e.target.value)} /></div>
@@ -320,9 +330,23 @@ function PaklaringToolBuilder() {
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Medal size={12}/> Tanda Tangan</h3>
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Medal size={12}/> Tanda Tangan & Evaluasi</h3>
                  <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none uppercase" value={data.signerName} onChange={e => handleDataChange('signerName', e.target.value)} placeholder="Nama Penandatangan" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-24 resize-none focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed" value={data.evaluation} onChange={e => handleDataChange('evaluation', e.target.value)} placeholder="Penilaian Kinerja..." />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.signerJob} onChange={e => handleDataChange('signerJob', e.target.value)} placeholder="Jabatan Penandatangan" />
+                 
+                 <div className="space-y-1">
+                   <label className="text-[9px] font-bold text-slate-400">EVALUASI KINERJA</label>
+                   <select className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none" value={data.performance} onChange={e => handleDataChange('performance', e.target.value)}>
+                     <option value="Sangat Baik">Sangat Baik</option>
+                     <option value="Baik">Baik</option>
+                     <option value="Cukup">Cukup</option>
+                   </select>
+                 </div>
+                 
+                 <div className="space-y-1">
+                   <label className="text-[9px] font-bold text-slate-400">ALASAN KELUAR / KETERANGAN</label>
+                   <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed" value={data.evaluation} onChange={e => handleDataChange('evaluation', e.target.value)} placeholder="Keterangan tambahan (cth: Resign)..." />
+                 </div>
               </div>
            </div>
         </div>

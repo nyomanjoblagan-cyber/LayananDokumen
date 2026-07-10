@@ -35,84 +35,23 @@ export default function PrintWrapper({
   }, []);
 
   const executePrint = (isPremiumPrint: boolean) => {
-    const printRoot = document.getElementById('print-only-root');
-    if (!printRoot) {
-      alert('Error: Area cetak tidak ditemukan.');
-      return;
+    // 1. Set mode (Premium/Free) ke body untuk trigger CSS watermark
+    if (isPremiumPrint) {
+      document.body.classList.remove('print-free');
+      document.body.classList.add('print-premium');
+    } else {
+      document.body.classList.remove('print-premium');
+      document.body.classList.add('print-free');
     }
-    
-    const htmlContent = printRoot.innerHTML;
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '-9999px';
-    iframe.style.bottom = '-9999px';
-    iframe.style.width = '210mm';  // FIX: Harus selebar A4 agar layout grid/flex Tailwind tidak kolaps ke 0px
-    iframe.style.height = '297mm';
-    iframe.style.border = '0';
-    document.body.appendChild(iframe);
 
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-      .map(el => el.outerHTML)
-      .join('');
-
-    const watermarkCss = isPremiumPrint ? '' : `
-      .print-watermark::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' width='400' height='400'%3E%3Ctext x='50%25' y='50%25' transform='rotate(-45 200 200)' fill='rgba(0,0,0,0.08)' font-family='sans-serif' font-size='24' font-weight='bold' letter-spacing='4' text-anchor='middle'%3ELAYANANDOKUMEN.COM%3C/text%3E%3C/svg%3E");
-          background-repeat: repeat;
-          z-index: 2147483647;
-          pointer-events: none;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-      }
-    `;
-
-    iframe.contentWindow?.document.open();
-    iframe.contentWindow?.document.write(`
-      <html>
-        <head>
-          <title>${documentName}</title>
-          ${styles}
-          <style>
-            @media print {
-              @page { size: A4; margin: 0; }
-              body { margin: 0; padding: 0; background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-              .page-break { page-break-after: always !important; }
-              ${watermarkCss}
-            }
-          </style>
-        </head>
-        <body class="bg-white">
-          <div class="${isPremiumPrint ? '' : 'print-watermark'} relative w-full h-full">
-            <div id="print-only-root" style="position: relative !important;">
-              ${htmlContent}
-            </div>
-          </div>
-          <script>
-            window.onload = () => {
-              setTimeout(() => {
-                window.focus();
-                window.print();
-              }, 500);
-            };
-          </script>
-        </body>
-      </html>
-    `);
-    iframe.contentWindow?.document.close();
-
-    setTimeout(() => {
-      if (document.body.contains(iframe)) {
-        document.body.removeChild(iframe);
-      }
-    }, 10000);
-    
+    // 2. Tutup popup modal
     setIsOpen(false);
+    
+    // 3. Eksekusi print langsung di main window (Native Print)
+    // Beri jeda 500ms agar React selesai render penutupan modal
+    setTimeout(() => {
+      window.print();
+    }, 500);
   };
 
   const handleCetakGratis = () => {
@@ -219,11 +158,62 @@ export default function PrintWrapper({
 
         {/* Script Snap Midtrans */}
         <Script 
-          src="https://app.midtrans.com/snap/snap.js" 
+          src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true' || (clientKey && !clientKey.startsWith('SB-'))
+            ? 'https://app.midtrans.com/snap/snap.js'
+            : 'https://app.sandbox.midtrans.com/snap/snap.js'}
           data-client-key={clientKey} 
           strategy="lazyOnload" 
         />
       </div>
+
+      {/* GLOBAL PRINT STYLES UNTUK NATIVE WINDOW PRINT */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { 
+            size: A4; 
+            margin: 2.54cm !important; 
+          }
+          
+          /* Override Tailwind constraints */
+          html, body, main, #print-only-root {
+            height: auto !important;
+            min-height: 100% !important;
+            overflow: visible !important;
+            max-height: none !important;
+          }
+          #print-only-root {
+            display: block !important;
+          }
+          
+          /* Typography paksa MS Word */
+          body { 
+            background: white !important; 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+            line-height: 1.5 !important;
+            color: black !important;
+          }
+          
+          /* Sembunyikan elemen UI */
+          .no-print { display: none !important; }
+          .page-break { page-break-after: always !important; break-after: page !important; }
+          
+          /* Watermark CSS murni (Hanya untuk versi Gratis) */
+          body.print-free::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' width='400' height='400'%3E%3Ctext x='50%25' y='50%25' transform='rotate(-45 200 200)' fill='rgba(0,0,0,0.08)' font-family='sans-serif' font-size='24' font-weight='bold' letter-spacing='4' text-anchor='middle'%3ELAYANANDOKUMEN.COM%3C/text%3E%3C/svg%3E");
+            background-repeat: repeat;
+            z-index: 2147483647;
+            pointer-events: none;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      ` }} />
     </div>
   );
 }

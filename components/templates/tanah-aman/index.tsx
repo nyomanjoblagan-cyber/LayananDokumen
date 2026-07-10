@@ -122,7 +122,7 @@ function LandSafetyBuilder() {
       <div className={`text-slate-900 leading-normal print:text-black ${templateId === 2 ? 'font-sans' : 'font-serif'}`}>
         
         {/* HALAMAN 1 */}
-        <div className="w-[210mm] min-h-[296mm] p-[20mm] md:p-[25mm] bg-white shadow-2xl print:shadow-none box-border flex flex-col mb-10 print:mb-0 print:break-after-page overflow-hidden relative border-b print:border-none">
+        <div className="w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 p-[20mm] md:p-[25mm] bg-white shadow-2xl print:shadow-none box-border flex flex-col mb-10 print:mb-0 print:break-after-page overflow-hidden relative border-b print:border-none">
           {/* KOP */}
           <div className={`flex items-center gap-6 border-b-4 border-double border-black pb-4 mb-8 text-center shrink-0`}>
             {logo ? (
@@ -183,7 +183,7 @@ function LandSafetyBuilder() {
         </div>
 
         {/* HALAMAN 2 */}
-        <div className="w-[210mm] min-h-[296mm] p-[20mm] md:p-[25mm] bg-white shadow-2xl print:shadow-none box-border flex flex-col relative overflow-hidden">
+        <div className="w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 p-[20mm] md:p-[25mm] bg-white shadow-2xl print:shadow-none box-border flex flex-col relative overflow-hidden">
           <div className="text-justify text-[10.5pt] space-y-8 flex-grow">
             <div className="space-y-4">
               <ol className="list-decimal ml-10 space-y-3" start={3}>
@@ -247,12 +247,13 @@ function LandSafetyBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4 portrait; margin: 0; } 
-          body { background: white !important; margin: 0 !important; padding: 0; min-width: 210mm; }
+          @page { size: A4; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          * { box-sizing: border-box !important; }
         }
       ` }} />
 

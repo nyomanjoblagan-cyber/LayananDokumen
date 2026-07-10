@@ -137,7 +137,7 @@ function DonorBuilder() {
     };
 
     return (
-      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] w-[210mm] min-h-[296mm] p-[20mm] print:p-[20mm] shadow-2xl print:shadow-none print:m-0 mx-auto overflow-hidden">
+      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 p-[20mm] print:p-[20mm] shadow-2xl print:shadow-none print:m-0 mx-auto overflow-hidden">
         
         {/* TEMPLATE 1: PMI STANDARD */}
         {templateId === 1 && (

@@ -176,15 +176,13 @@ function MedicalNoteBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: ${templateId === 1 ? 'A5' : 'A4'}; margin: 0mm !important; } 
-          html, body { margin: 0 !important; padding: 0 !important; background: white !important; }
+          @page { size: A4; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          .print-table { width: 100%; border-collapse: collapse; }
-          .print-header-space { height: ${templateId === 1 ? '10mm' : '20mm'}; } 
-          .print-footer-space { height: ${templateId === 1 ? '10mm' : '20mm'}; } 
-          .print-content-wrapper { padding: 0 ${templateId === 1 ? '10mm' : '20mm'}; width: 100%; box-sizing: border-box; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          * { box-sizing: border-box !important; }
         }
       ` }} />
 

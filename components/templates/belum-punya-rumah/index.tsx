@@ -252,15 +252,13 @@ function HomeDeclarationBuilder() {
       {/* CSS PRINT FIXED */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-            @page { size: A4 portrait; margin: 0; }
-            .no-print { display: none !important; }
-            body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 12pt; }
-            .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-            .print-table thead { height: 15mm; display: table-header-group; } 
-            .print-table tfoot { height: 15mm; display: table-footer-group; } 
-            .print-content-wrapper { padding: 0 20mm; width: 100%; box-sizing: border-box; }
-            .break-inside-avoid, tr, .keep-together { page-break-inside: avoid !important; break-inside: avoid !important; }
+          @page { size: A4; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; }
+          .no-print { display: none !important; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          * { box-sizing: border-box !important; }
         }
       ` }} />
 

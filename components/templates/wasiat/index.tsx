@@ -120,7 +120,7 @@ function WillLetterBuilder() {
       <div className={`text-slate-900 leading-normal print:text-black ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
         
         {/* HALAMAN 1 */}
-        <div className="w-[210mm] min-h-[296mm] p-[20mm] md:p-[25mm] bg-white shadow-2xl print:shadow-none box-border flex flex-col mb-10 print:mb-0 print:break-after-page overflow-hidden border-b print:border-none relative text-left">
+        <div className="w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 p-[20mm] md:p-[25mm] bg-white shadow-2xl print:shadow-none box-border flex flex-col mb-10 print:mb-0 print:break-after-page overflow-hidden border-b print:border-none relative text-left">
           <div className="text-center mb-12 shrink-0">
             <h1 className={`text-3xl font-black underline uppercase tracking-[0.3em] leading-none mb-4 text-slate-900 ${templateId === 2 ? 'no-underline tracking-tight' : ''}`}>SURAT WASIAT</h1>
             <p className="text-[10pt] font-sans font-black tracking-[0.2em] text-slate-400 print:text-black italic">"BISMILLAHIRRAHMANIRRAHIM"</p>
@@ -160,7 +160,7 @@ function WillLetterBuilder() {
         </div>
 
         {/* HALAMAN 2 */}
-        <div className="w-[210mm] min-h-[296mm] p-[20mm] md:p-[25mm] bg-white shadow-2xl print:shadow-none box-border flex flex-col relative overflow-hidden text-left">
+        <div className="w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 p-[20mm] md:p-[25mm] bg-white shadow-2xl print:shadow-none box-border flex flex-col relative overflow-hidden text-left">
           <div className="text-justify space-y-8 flex-grow">
             <div className="space-y-4">
               <p className="font-black uppercase text-[9pt] tracking-widest text-slate-400 border-b pb-1 inline-block">PASAL 4: PELAKSANA WASIAT (EXECUTOR)</p>
@@ -217,12 +217,13 @@ function WillLetterBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4 portrait; margin: 0; } 
-          body { background: white !important; margin: 0 !important; padding: 0; min-width: 210mm; }
+          @page { size: A4; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          * { box-sizing: border-box !important; }
         }
       ` }} />
 

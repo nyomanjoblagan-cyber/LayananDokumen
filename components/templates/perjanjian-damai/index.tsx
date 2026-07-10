@@ -3,14 +3,13 @@
 /**
  * FILE: PerjanjianDamaiPage.tsx
  * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Perjanjian Perdamaian (Settlement Agreement)
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
+ * DESC: Generator Surat Perjanjian Perdamaian (Settlement Agreement) - Enterprise Grade
  */
 
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  HeartHandshake, ShieldAlert, Users, Scale, CalendarDays, FileText, User, Edit3, Eye, RotateCcw, ArrowLeftCircle
+  HeartHandshake, ShieldAlert, Users, Scale, CalendarDays, FileText, User, Edit3, Eye, RotateCcw, ArrowLeftCircle, AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -25,16 +24,18 @@ interface SettlementData {
   
   // Pihak 1 (Pelaku/Penanggung)
   p1Name: string;
-  p1Age: string;
-  p1Job: string;
   p1Nik: string;
+  p1BirthPlace: string;
+  p1BirthDate: string;
+  p1Job: string;
   p1Address: string;
   
   // Pihak 2 (Korban/Penerima)
   p2Name: string;
-  p2Age: string;
-  p2Job: string;
   p2Nik: string;
+  p2BirthPlace: string;
+  p2BirthDate: string;
+  p2Job: string;
   p2Address: string;
   
   // Insiden
@@ -43,10 +44,14 @@ interface SettlementData {
   incidentDetail: string;
   
   // Kesepakatan
-  compensation: string;
+  compensationAmount: string;
   compensationText: string;
+  compensationMethod: 'Tunai' | 'Transfer Bank' | 'Cicilan';
   settlementDetail: string;
-  additionalClause: string;
+  
+  // Pelarangan & Penalti
+  penaltyAmount: string;
+  penaltyText: string;
   
   // Saksi
   witness1: string;
@@ -60,25 +65,30 @@ const INITIAL_DATA: SettlementData = {
   city: 'JAKARTA',
   
   p1Name: 'BUDI SANTOSO', 
-  p1Age: '45', 
+  p1Nik: '3171010101780001',
+  p1BirthPlace: 'Jakarta',
+  p1BirthDate: '1978-01-01',
   p1Job: 'Wiraswasta', 
-  p1Nik: '3171010101780001', 
-  p1Address: 'Jl. Merdeka No. 10, RT 01/02, Tebet, Jakarta Selatan',
+  p1Address: 'Jl. Merdeka No. 10, RT 01/02, Kelurahan Tebet Barat, Kecamatan Tebet, Jakarta Selatan',
   
   p2Name: 'ANDI WIJAYA', 
-  p2Age: '32', 
-  p2Job: 'Karyawan Swasta', 
   p2Nik: '3171020202920005',
-  p2Address: 'Jl. Sudirman No. 45, Kuningan, Jakarta Selatan',
+  p2BirthPlace: 'Bandung',
+  p2BirthDate: '1992-02-02',
+  p2Job: 'Karyawan Swasta', 
+  p2Address: 'Jl. Sudirman No. 45, RT 05/03, Kelurahan Karet, Kecamatan Setiabudi, Jakarta Selatan',
   
   incidentTitle: 'Kecelakaan Lalu Lintas',
   incidentDate: '2026-01-05',
   incidentDetail: 'Kecelakaan lalu lintas ringan di area Parkir Mal Senayan yang mengakibatkan kerusakan pada bemper depan mobil Pihak Kedua serta lecet pada pintu samping mobil Pihak Pertama.',
   
-  compensation: 'Rp 2.500.000,-',
+  compensationAmount: 'Rp 2.500.000,-',
   compensationText: 'Dua Juta Lima Ratus Ribu Rupiah',
-  settlementDetail: 'Pihak Pertama memberikan biaya ganti rugi secara tunai dan menanggung seluruh biaya perbaikan kendaraan Pihak Kedua di bengkel resmi.',
-  additionalClause: 'Kedua belah pihak saling memaafkan dan tidak akan melakukan tuntutan hukum di kemudian hari.',
+  compensationMethod: 'Tunai',
+  settlementDetail: 'Pihak Pertama menanggung seluruh biaya perbaikan kendaraan Pihak Kedua di bengkel resmi sesuai kuitansi yang terlampir.',
+  
+  penaltyAmount: 'Rp 50.000.000,-',
+  penaltyText: 'Lima Puluh Juta Rupiah',
   
   witness1: 'HENDRA SAPUTRA (Ketua RT)', 
   witness2: 'SITI AMINAH (Saksi Mata)'
@@ -100,6 +110,7 @@ function DamaiBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<SettlementData>(INITIAL_DATA);
+  
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -117,7 +128,7 @@ function DamaiBuilder() {
     }
   };
 
-  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+  const activeTemplateName = templateId === 1 ? 'Legal Formal (Draft Notaris)' : 'Compact Rapi (1 Hal)';
 
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => {
@@ -130,158 +141,278 @@ function DamaiBuilder() {
 
     return (
       <div className="flex flex-col gap-8 print:gap-0 font-serif text-slate-900 leading-normal text-[11pt]">
-        {/* TEMPLATE 1: FORMAL (2 HALAMAN) */}
+        {/* TEMPLATE 1: FORMAL (ENTERPRISE / NOTARIS GRADE) */}
         {templateId === 1 && (
           <>
             {/* HALAMAN 1 */}
-            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto mb-8 print:mb-0">
+            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto mb-8 print:mb-0">
                 <div className="text-center mb-8 pb-4 border-b-2 border-black shrink-0">
-                  <h1 className="font-black text-xl uppercase tracking-widest underline">SURAT PERJANJIAN PERDAMAIAN</h1>
+                  <h1 className="font-black text-xl uppercase tracking-widest underline">SURAT PERJANJIAN PERDAMAIAN (DADING)</h1>
                 </div>
 
                 <div className="flex-grow">
-                  <p className="mb-4 text-justify">Pada hari ini <strong>{data.day}</strong> tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:</p>
+                  <p className="mb-4 text-justify">
+                    Pada hari ini, <strong>{data.day}</strong>, tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:
+                  </p>
 
-                  <div className="ml-4 mb-4 text-sm shrink-0 break-inside-avoid">
-                    <table className="w-full leading-snug">
-                        <tbody>
-                          <tr><td className="w-24 font-bold align-top">Nama</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p1Name}</td></tr>
-                          <tr><td className="align-top">NIK</td><td className="align-top">:</td><td className="align-top font-mono">{data.p1Nik}</td></tr>
-                          <tr><td className="align-top">Pekerjaan</td><td className="align-top">:</td><td className="align-top">{data.p1Job}</td></tr>
-                          <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p1Address}</td></tr>
-                        </tbody>
-                    </table>
-                    <div className="mt-1 italic">Bertindak untuk dan atas nama pribadi, selanjutnya disebut <strong>PIHAK PERTAMA</strong>.</div>
+                  <div className="ml-4 mb-4 text-[11pt] shrink-0 break-inside-avoid">
+                    <div className="flex mb-1">
+                      <div className="w-8">1.</div>
+                      <div className="flex-1">
+                        <div className="flex"><div className="w-40 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p1Name}</div></div>
+                        <div className="flex"><div className="w-40">N I K</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.p1Nik}</div></div>
+                        <div className="flex"><div className="w-40">Tempat/Tgl Lahir</div><div className="w-4">:</div><div className="flex-1">{data.p1BirthPlace}, {formatDateSafe(data.p1BirthDate)}</div></div>
+                        <div className="flex"><div className="w-40">Pekerjaan</div><div className="w-4">:</div><div className="flex-1">{data.p1Job}</div></div>
+                        <div className="flex"><div className="w-40">Alamat Lengkap</div><div className="w-4">:</div><div className="flex-1">{data.p1Address}</div></div>
+                      </div>
+                    </div>
+                    <div className="ml-8 mt-2 italic text-justify">
+                      Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang untuk selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK PERTAMA</strong>.
+                    </div>
                   </div>
 
-                  <div className="ml-4 mb-6 text-sm shrink-0 break-inside-avoid">
-                    <table className="w-full leading-snug">
-                        <tbody>
-                          <tr><td className="w-24 font-bold align-top">Nama</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.p2Name}</td></tr>
-                          <tr><td className="align-top">NIK</td><td className="align-top">:</td><td className="align-top font-mono">{data.p2Nik}</td></tr>
-                          <tr><td className="align-top">Pekerjaan</td><td className="align-top">:</td><td className="align-top">{data.p2Job}</td></tr>
-                          <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.p2Address}</td></tr>
-                        </tbody>
-                    </table>
-                    <div className="mt-1 italic">Bertindak untuk dan atas nama pribadi, selanjutnya disebut <strong>PIHAK KEDUA</strong>.</div>
+                  <div className="ml-4 mb-6 text-[11pt] shrink-0 break-inside-avoid">
+                    <div className="flex mb-1">
+                      <div className="w-8">2.</div>
+                      <div className="flex-1">
+                        <div className="flex"><div className="w-40 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p2Name}</div></div>
+                        <div className="flex"><div className="w-40">N I K</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.p2Nik}</div></div>
+                        <div className="flex"><div className="w-40">Tempat/Tgl Lahir</div><div className="w-4">:</div><div className="flex-1">{data.p2BirthPlace}, {formatDateSafe(data.p2BirthDate)}</div></div>
+                        <div className="flex"><div className="w-40">Pekerjaan</div><div className="w-4">:</div><div className="flex-1">{data.p2Job}</div></div>
+                        <div className="flex"><div className="w-40">Alamat Lengkap</div><div className="w-4">:</div><div className="flex-1">{data.p2Address}</div></div>
+                      </div>
+                    </div>
+                    <div className="ml-8 mt-2 italic text-justify">
+                      Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang untuk selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK KEDUA</strong>.
+                    </div>
                   </div>
 
-                  <p className="mb-4 text-justify">Kedua Belah Pihak secara sadar mengakui telah terjadi peristiwa <strong>{data.incidentTitle}</strong> pada tanggal {formatDateSafe(data.incidentDate)} dengan rincian:</p>
-                  <div className="bg-slate-50 p-4 border rounded italic text-sm mb-6 print:bg-transparent print:border-black break-inside-avoid">
-                    "{data.incidentDetail}"
+                  <p className="mb-4 text-justify">
+                    PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut sebagai <strong>PARA PIHAK</strong>. PARA PIHAK dengan ini terlebih dahulu menerangkan hal-hal sebagai berikut:
+                  </p>
+
+                  <ol className="list-[lower-alpha] pl-8 mb-6 text-justify space-y-2">
+                    <li>Bahwa, pada tanggal <strong>{formatDateSafe(data.incidentDate)}</strong> telah terjadi suatu peristiwa <strong>{data.incidentTitle}</strong> antara PIHAK PERTAMA dan PIHAK KEDUA.</li>
+                    <li>Bahwa, adapun rincian atas peristiwa tersebut adalah sebagai berikut: <br/> <em>"{data.incidentDetail}"</em></li>
+                    <li>Bahwa, guna menyelesaikan perselisihan akibat peristiwa tersebut, PARA PIHAK sepakat untuk menyelesaikan permasalahan ini secara kekeluargaan melalui Perjanjian Perdamaian (Dading) sesuai dengan ketentuan Pasal 1338 jo. Pasal 1851 Kitab Undang-Undang Hukum Perdata.</li>
+                  </ol>
+
+                  <p className="mb-4 text-justify">
+                    Berdasarkan uraian tersebut di atas, PARA PIHAK dengan kesadaran penuh dan tanpa adanya paksaan dari pihak manapun, sepakat untuk mengikatkan diri dalam Perjanjian Perdamaian dengan syarat-syarat dan ketentuan sebagai berikut:
+                  </p>
+
+                  <div className="break-inside-avoid">
+                    <div className="text-center font-bold mt-4 mb-2 uppercase">PASAL 1<br/>DEFINISI DAN KETENTUAN UMUM</div>
+                    <p className="text-justify mb-2">Dalam Perjanjian Perdamaian ini, yang dimaksud dengan:</p>
+                    <ol className="list-decimal pl-8 text-justify space-y-1">
+                      <li><strong>Perjanjian Perdamaian (Dading)</strong> adalah suatu persetujuan yang dibuat oleh PARA PIHAK untuk mencegah atau mengakhiri suatu perkara yang sedang berlangsung maupun yang akan datang.</li>
+                      <li><strong>Ganti Rugi</strong> adalah kompensasi sejumlah uang atau perbaikan materiil yang diberikan oleh PIHAK PERTAMA kepada PIHAK KEDUA sebagaimana disepakati dalam Perjanjian ini.</li>
+                    </ol>
                   </div>
 
-                  <p className="mb-6 text-justify">Bahwa atas peristiwa tersebut, PARA PIHAK sepakat berdamai dengan ketentuan sebagai berikut:</p>
-
-                  <div className="mb-4 break-inside-avoid">
-                    <div className="text-center font-bold uppercase mb-2 text-sm underline">PASAL 1: KESEPAKATAN GANTI RUGI</div>
-                    <p className="text-sm text-justify">PIHAK PERTAMA bersedia memberikan ganti rugi kepada PIHAK KEDUA sebesar <strong>{data.compensation}</strong> ({data.compensationText}) sebagai bentuk tanggung jawab. {data.settlementDetail}</p>
+                  <div className="break-inside-avoid">
+                    <div className="text-center font-bold mt-6 mb-2 uppercase">PASAL 2<br/>OBJEK PERDAMAIAN</div>
+                    <ol className="list-decimal pl-8 text-justify space-y-1">
+                      <li>Objek perdamaian dalam Perjanjian ini adalah penyelesaian masalah atas perselisihan/insiden <strong>{data.incidentTitle}</strong> yang terjadi pada tanggal {formatDateSafe(data.incidentDate)}.</li>
+                      <li>PARA PIHAK secara bersama-sama mengikatkan diri bahwa penyelesaian atas objek perdamaian ini tunduk dan patuh pada ketentuan yang diatur pada pasal-pasal berikutnya.</li>
+                    </ol>
                   </div>
                 </div>
 
-                <div className="text-right mt-auto text-[10px] text-slate-300 italic">Halaman 1 dari 2</div>
+                <div className="text-right mt-auto text-[10px] text-slate-300 italic font-sans">Halaman 1 dari 3</div>
             </div>
 
             {/* HALAMAN 2 */}
-            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
-                <div className="space-y-8 text-justify pt-4 flex-grow">
+            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto mb-8 print:mb-0">
+                <div className="space-y-4 text-justify flex-grow">
                   <div className="break-inside-avoid">
-                      <div className="text-center font-bold uppercase mb-2 text-sm underline">PASAL 2: PENGHENTIAN TUNTUTAN</div>
-                      <p className="text-sm">Dengan ditandatanganinya surat ini, PIHAK KEDUA menyatakan permasalahan telah <strong>SELESAI</strong>. PIHAK KEDUA tidak akan melakukan tuntutan hukum apapun, baik Perdata maupun Pidana.</p>
-                  </div>
-                  <div className="break-inside-avoid">
-                      <div className="text-center font-bold uppercase mb-2 text-sm underline">PASAL 3: KEKELUARGAAN</div>
-                      <p className="text-sm">PARA PIHAK sepakat untuk saling memaafkan dan menjalin hubungan baik di masa depan, serta tidak akan saling mengungkit kembali permasalahan ini.</p>
+                      <div className="text-center font-bold mt-4 mb-2 uppercase">PASAL 3<br/>KESEPAKATAN DAN MEKANISME GANTI RUGI</div>
+                      <ol className="list-decimal pl-8 text-justify space-y-2">
+                        <li>
+                          PIHAK PERTAMA menyatakan kesediaannya dan mengikatkan diri untuk memberikan Ganti Rugi kepada PIHAK KEDUA berupa uang tunai sebesar <strong>{data.compensationAmount}</strong> <em>({data.compensationText})</em>.
+                        </li>
+                        <li>
+                          Ganti Rugi sebagaimana dimaksud pada Ayat 1 akan dibayarkan melalui metode <strong>{data.compensationMethod}</strong> oleh PIHAK PERTAMA kepada PIHAK KEDUA.
+                        </li>
+                        <li>
+                          Adapun rincian teknis kesepakatan ganti rugi adalah sebagai berikut:<br/>
+                          <em>"{data.settlementDetail}"</em>
+                        </li>
+                        <li>
+                          Tanda terima atas pembayaran dan/atau perbaikan materiil tersebut akan menjadi bukti sah penyelesaian kewajiban PIHAK PERTAMA dan merupakan bagian yang tidak terpisahkan dari Perjanjian ini.
+                        </li>
+                      </ol>
                   </div>
 
-                  {data.additionalClause && (
-                    <div className="break-inside-avoid">
-                      <div className="text-center font-bold uppercase mb-2 text-sm underline">PASAL 4: LAIN-LAIN</div>
-                      <p className="text-sm whitespace-pre-wrap">{data.additionalClause}</p>
-                    </div>
-                  )}
+                  <div className="break-inside-avoid">
+                      <div className="text-center font-bold mt-6 mb-2 uppercase">PASAL 4<br/>HAK DAN KEWAJIBAN PARA PIHAK</div>
+                      <ol className="list-decimal pl-8 text-justify space-y-2">
+                        <li>
+                          <strong>Hak dan Kewajiban PIHAK PERTAMA:</strong>
+                          <ul className="list-disc pl-6 mt-1 space-y-1">
+                            <li>Berkewajiban penuh untuk memenuhi seluruh kesepakatan ganti rugi dan kompensasi sebagaimana diatur dalam Pasal 3.</li>
+                            <li>Berhak mendapatkan jaminan dari PIHAK KEDUA bahwa permasalahan telah diselesaikan secara damai dan tidak akan ada tuntutan hukum lanjutan.</li>
+                          </ul>
+                        </li>
+                        <li>
+                          <strong>Hak dan Kewajiban PIHAK KEDUA:</strong>
+                          <ul className="list-disc pl-6 mt-1 space-y-1">
+                            <li>Berhak menerima ganti rugi secara utuh sebagaimana disepakati dalam Pasal 3.</li>
+                            <li>Berkewajiban untuk tidak memperpanjang permasalahan, baik secara perdata, pidana, maupun aduan administratif kepada pihak yang berwajib setelah kompensasi diterima secara penuh.</li>
+                          </ul>
+                        </li>
+                      </ol>
+                  </div>
 
-                  <p className="mt-8 text-sm italic">Demikian surat perjanjian ini dibuat dalam keadaan sadar tanpa paksaan dari pihak manapun.</p>
+                  <div className="break-inside-avoid">
+                      <div className="text-center font-bold mt-6 mb-2 uppercase">PASAL 5<br/>PELEPASAN HAK DAN PELARANGAN PENUNTUTAN</div>
+                      <ol className="list-decimal pl-8 text-justify space-y-2">
+                        <li>
+                          Dengan disepakatinya dan ditandatanganinya Perjanjian Perdamaian ini, maka PIHAK KEDUA menyatakan permasalahan hukum dan perselisihan atas insiden <strong>{data.incidentTitle}</strong> telah <strong>SELESAI</strong> secara kekeluargaan.
+                        </li>
+                        <li>
+                          PIHAK KEDUA mengikatkan diri untuk <strong>melepaskan segala haknya</strong> untuk menuntut, melaporkan, dan/atau menggugat PIHAK PERTAMA, baik di ranah hukum Pidana (Kepolisian RI) maupun Perdata (Pengadilan Negeri), baik sekarang maupun di masa yang akan datang.
+                        </li>
+                        <li>
+                          Apabila di kemudian hari terbukti PIHAK KEDUA melanggar ketentuan pelarangan penuntutan sebagaimana diatur pada Ayat 2, maka PIHAK KEDUA bersedia mencabut laporannya/gugatannya tersebut, dan wajib membayarkan <strong>Ganti Rugi Materiil</strong> kepada PIHAK PERTAMA sebesar <strong>{data.penaltyAmount}</strong> <em>({data.penaltyText})</em> secara seketika dan sekaligus.
+                        </li>
+                      </ol>
+                  </div>
+
+                  <div className="break-inside-avoid">
+                      <div className="text-center font-bold mt-6 mb-2 uppercase">PASAL 6<br/>PERNYATAAN KEKELUARGAAN</div>
+                      <p className="pl-8 text-justify">
+                        PARA PIHAK sepakat untuk memulihkan hubungan baik, saling memaafkan, dan menjaga nama baik masing-masing pihak atas peristiwa yang telah terjadi, serta berkomitmen untuk tidak menyebarluaskan, mempublikasikan, maupun memviralkan kejadian tersebut di media cetak, elektronik, maupun media sosial apapun.
+                      </p>
+                  </div>
+                </div>
+                <div className="text-right mt-auto text-[10px] text-slate-300 italic font-sans">Halaman 2 dari 3</div>
+            </div>
+
+            {/* HALAMAN 3 */}
+            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto">
+                <div className="space-y-4 text-justify flex-grow">
+                  <div className="break-inside-avoid">
+                      <div className="text-center font-bold mt-4 mb-2 uppercase">PASAL 7<br/>PENYELESAIAN SENGKETA DAN FORCE MAJEURE</div>
+                      <ol className="list-decimal pl-8 text-justify space-y-2">
+                        <li>
+                          Perjanjian ini tunduk dan ditafsirkan berdasarkan hukum Negara Kesatuan Republik Indonesia.
+                        </li>
+                        <li>
+                          Apabila di kemudian hari timbul perbedaan pendapat atau sengketa dalam pelaksanaan Perjanjian Perdamaian ini, maka PARA PIHAK sepakat untuk menyelesaikannya secara musyawarah untuk mufakat.
+                        </li>
+                        <li>
+                          Dalam hal terjadi <em>Force Majeure</em> (Keadaan Kahar) yang meliputi bencana alam, peperangan, huru-hara, atau kebijakan pemerintah yang menghalangi pelaksanaan Perjanjian ini, maka pihak yang mengalaminya terbebas dari kewajiban pelaksanaan selama keadaan kahar tersebut berlangsung, dengan syarat wajib memberitahukan kepada pihak lainnya selambatnya 7 (tujuh) hari sejak terjadinya keadaan kahar tersebut.
+                        </li>
+                      </ol>
+                  </div>
+
+                  <div className="break-inside-avoid">
+                      <div className="text-center font-bold mt-6 mb-2 uppercase">PASAL 8<br/>PENUTUP</div>
+                      <ol className="list-decimal pl-8 text-justify space-y-2">
+                        <li>
+                          Perjanjian Perdamaian (Dading) ini berlaku dan mengikat secara hukum bagi PARA PIHAK sejak ditandatangani.
+                        </li>
+                        <li>
+                          Perjanjian Perdamaian ini dibuat dalam 2 (dua) rangkap asli, masing-masing dibubuhi meterai yang cukup, dan mempunyai kekuatan pembuktian hukum yang sama bagi PIHAK PERTAMA dan PIHAK KEDUA.
+                        </li>
+                      </ol>
+                  </div>
+
+                  <p className="mt-8 text-justify indent-8">
+                    Demikian Perjanjian Perdamaian ini dibuat dan ditandatangani oleh PARA PIHAK dalam keadaan sehat jasmani dan rohani, secara sadar, tanpa adanya paksaan, tekanan, maupun tipu muslihat dari pihak manapun.
+                  </p>
                 </div>
 
                 <div className="mt-12 shrink-0 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-                  <div className="grid grid-cols-2 gap-8 text-center text-sm mb-12">
+                  <div className="grid grid-cols-2 gap-8 text-center mb-12">
                       <div>
-                          <p className="mb-2 font-bold uppercase text-[10px] text-slate-400">Pihak Pertama</p>
-                          <div className="h-24 flex flex-col justify-end">
-                            <div className="border border-slate-200 w-24 h-14 mx-auto mb-[-2.5rem] flex items-center justify-center text-[7px] text-slate-300 italic uppercase">Materai</div>
+                          <p className="mb-2 font-bold uppercase text-[10pt]">PIHAK PERTAMA</p>
+                          <div className="h-28 flex flex-col justify-end">
+                            <div className="border border-slate-400 w-28 h-16 mx-auto mb-[-2.5rem] flex items-center justify-center text-[10px] text-slate-500 italic uppercase">Meterai<br/>Rp 10.000,-</div>
                             <p className="font-bold underline uppercase relative z-10">{data.p1Name}</p>
                           </div>
                       </div>
                       <div>
-                          <p className="mb-2 font-bold uppercase text-[10px] text-slate-400">Pihak Kedua</p>
-                          <div className="h-24 flex flex-col justify-end">
-                             <p className="font-bold underline uppercase">{data.p2Name}</p>
+                          <p className="mb-2 font-bold uppercase text-[10pt]">PIHAK KEDUA</p>
+                          <div className="h-28 flex flex-col justify-end">
+                             <div className="border border-slate-400 w-28 h-16 mx-auto mb-[-2.5rem] flex items-center justify-center text-[10px] text-slate-500 italic uppercase">Meterai<br/>Rp 10.000,-</div>
+                             <p className="font-bold underline uppercase relative z-10">{data.p2Name}</p>
                           </div>
                       </div>
                   </div>
 
-                  <div className="text-center text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-4">Saksi-Saksi</div>
-                  <div className="grid grid-cols-2 gap-8 text-center text-xs">
+                  <div className="text-center text-[11pt] uppercase font-bold mb-8">SAKSI-SAKSI</div>
+                  <div className="grid grid-cols-2 gap-8 text-center text-[11pt]">
                       <div>
-                          <p className="mb-12 border-b border-slate-200 w-3/4 mx-auto"></p>
-                          <p>( {data.witness1} )</p>
+                          <p className="mb-16 border-b border-black w-3/4 mx-auto"></p>
+                          <p className="font-bold uppercase">( {data.witness1} )</p>
                       </div>
                       <div>
-                          <p className="mb-12 border-b border-slate-200 w-3/4 mx-auto"></p>
-                          <p>( {data.witness2} )</p>
+                          <p className="mb-16 border-b border-black w-3/4 mx-auto"></p>
+                          <p className="font-bold uppercase">( {data.witness2} )</p>
                       </div>
                   </div>
                 </div>
-                <div className="text-right mt-auto text-[10px] text-slate-300 italic">Halaman 2 dari 2</div>
+                <div className="text-right mt-auto text-[10px] text-slate-300 italic font-sans">Halaman 3 dari 3</div>
             </div>
           </>
         )}
 
-        {/* TEMPLATE 2: COMPACT (1 HALAMAN) */}
+        {/* TEMPLATE 2: COMPACT (1 HALAMAN) - Optional implementation retained but updated to standard formats */}
         {templateId === 2 && (
-          <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
-              <div className="text-center mb-10 border-b-4 border-slate-900 pb-2 shrink-0">
-                <h1 className="font-black text-2xl uppercase tracking-tighter">SURAT PERNYATAAN DAMAI</h1>
+          <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[10pt] p-[15mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto">
+              <div className="text-center mb-6 border-b-4 border-slate-900 pb-2 shrink-0">
+                <h1 className="font-black text-xl uppercase tracking-tighter">SURAT PERNYATAAN PERDAMAIAN</h1>
               </div>
-              <p className="mb-4 text-justify text-sm">Pada hari ini {data.day}, {formatDateSafe(data.date)}, bertempat di {data.city}, PARA PIHAK sepakat berdamai atas insiden <strong>{data.incidentTitle}</strong>:</p>
+              <p className="mb-4 text-justify">Pada hari ini, {data.day}, {formatDateSafe(data.date)}, bertempat di {data.city}, PARA PIHAK yang bertanda tangan di bawah ini:</p>
 
-              <div className="grid grid-cols-2 gap-6 mb-6 text-[9pt] shrink-0 break-inside-avoid">
-                <div className="border-l-4 border-emerald-500 p-3 bg-slate-50 rounded-r-xl print:bg-transparent print:border-2">
-                  <div className="font-black uppercase mb-1 text-emerald-700">PIHAK I</div>
-                  <b>{data.p1Name}</b><br/>{data.p1Nik}<br/>{data.p1Address}
+              <div className="flex flex-col md:flex-row gap-6 mb-6 shrink-0 break-inside-avoid">
+                <div className="flex-1 p-3 border-l-4 border-emerald-500">
+                  <div className="font-black uppercase mb-1 text-emerald-700">PIHAK I (PERTAMA)</div>
+                  <div className="font-bold">{data.p1Name}</div>
+                  <div>NIK: {data.p1Nik}</div>
+                  <div>Alamat: {data.p1Address}</div>
                 </div>
-                <div className="border-l-4 border-blue-500 p-3 bg-slate-50 rounded-r-xl print:bg-transparent print:border-2">
-                  <div className="font-black uppercase mb-1 text-blue-700">PIHAK II</div>
-                  <b>{data.p2Name}</b><br/>{data.p2Nik}<br/>{data.p2Address}
+                <div className="flex-1 p-3 border-l-4 border-blue-500">
+                  <div className="font-black uppercase mb-1 text-blue-700">PIHAK II (KEDUA)</div>
+                  <div className="font-bold">{data.p2Name}</div>
+                  <div>NIK: {data.p2Nik}</div>
+                  <div>Alamat: {data.p2Address}</div>
                 </div>
               </div>
 
-              <div className="mb-6 border-2 border-dashed border-slate-200 p-5 text-sm italic text-slate-600 bg-slate-50/50 print:bg-transparent print:border-black shrink-0 break-inside-avoid">
-                " {data.incidentDetail} "
+              <div className="mb-6 p-4 text-justify italic bg-slate-50 print:bg-transparent border border-dashed border-slate-400 shrink-0 break-inside-avoid">
+                Menerangkan bahwa PARA PIHAK telah sepakat berdamai secara kekeluargaan atas insiden: <strong>{data.incidentTitle}</strong> yang terjadi pada {formatDateSafe(data.incidentDate)}. Rincian: "{data.incidentDetail}".
               </div>
 
-              <div className="text-[11pt] text-justify space-y-6 flex-grow">
-                <p>PIHAK I memberikan ganti rugi sebesar <strong>{data.compensation}</strong>. Dengan ini permasalahan dinyatakan selesai secara kekeluargaan.</p>
-                <p>PARA PIHAK tidak akan melakukan tuntutan hukum di kemudian hari. {data.additionalClause}</p>
-                <p>Demikian surat pernyataan ini dibuat agar dapat dipergunakan semestinya.</p>
+              <div className="text-justify space-y-4 flex-grow">
+                <p>
+                  Atas kejadian tersebut, PIHAK I bersedia memberikan ganti rugi berupa uang sebesar <strong>{data.compensationAmount}</strong> ({data.compensationText}) dengan metode <strong>{data.compensationMethod}</strong>. Rincian penyelesaian: {data.settlementDetail}.
+                </p>
+                <p>
+                  Dengan ditandatanganinya surat ini, PIHAK II menyatakan menerima seluruh kompensasi dan melepaskan seluruh haknya untuk menuntut PIHAK I secara pidana maupun perdata di kemudian hari.
+                </p>
+                <p>
+                  Apabila PIHAK II melanggar ketentuan pelarangan penuntutan, maka PIHAK II bersedia membayar ganti rugi materiil sebesar <strong>{data.penaltyAmount}</strong> kepada PIHAK I.
+                </p>
+                <p>Demikian surat pernyataan perdamaian ini dibuat agar dapat dipergunakan sebagaimana mestinya.</p>
               </div>
 
               <div className="mt-12 shrink-0 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-                  <div className="flex justify-between text-center mb-16 text-sm">
+                  <div className="flex justify-between text-center mb-16 text-[10pt]">
                     <div className="w-48">
-                        <p className="mb-4 font-bold uppercase text-[10px] text-slate-300">Pihak I</p>
-                        <div className="border border-slate-200 w-20 h-12 mx-auto mb-2 flex items-center justify-center text-[8px] text-slate-300 italic">MATERAI</div>
+                        <p className="mb-4 font-bold uppercase">PIHAK PERTAMA</p>
+                        <div className="border border-slate-300 w-20 h-12 mx-auto mb-2 flex items-center justify-center text-[8px] italic">METERAI</div>
                         <p className="font-bold underline uppercase">{data.p1Name}</p>
                     </div>
                     <div className="w-48">
-                        <p className="mb-4 font-bold uppercase text-[10px] text-slate-300">Pihak II</p>
-                        <div className="h-12 mb-2"></div>
+                        <p className="mb-4 font-bold uppercase">PIHAK KEDUA</p>
+                        <div className="border border-slate-300 w-20 h-12 mx-auto mb-2 flex items-center justify-center text-[8px] italic">METERAI</div>
                         <p className="font-bold underline uppercase">{data.p2Name}</p>
                     </div>
                   </div>
-
-                  <div className="text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest border-t pt-4">Saksi: {data.witness1} & {data.witness2}</div>
+                  <div className="text-center font-bold uppercase tracking-widest border-t pt-4">Saksi-saksi: {data.witness1} & {data.witness2}</div>
               </div>
           </div>
         )}
@@ -296,12 +427,13 @@ function DamaiBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4 portrait; margin: 0; } 
-          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
+          @page { size: A4; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          * { box-sizing: border-box !important; }
         }
       ` }} />
 
@@ -314,7 +446,7 @@ function DamaiBuilder() {
             </Link>
             <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <HeartHandshake size={16} className="text-emerald-500" /> <span>Settlement Builder</span>
+               <HeartHandshake size={16} className="text-emerald-500" /> <span>Dading Editor</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -323,8 +455,8 @@ function DamaiBuilder() {
                 <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
               </button>
               {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Legal Formal (2 Hal) {templateId === 1 && <Check size={14}/>}</button>
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Legal Formal (3 Hal) {templateId === 1 && <Check size={14}/>}</button>
                     <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Compact Rapi (1 Hal) {templateId === 2 && <Check size={14}/>}</button>
                 </div>
               )}
@@ -338,34 +470,172 @@ function DamaiBuilder() {
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Legal</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans">
+             <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Formulir Legal</h2>
+             <button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button>
+           </div>
+           
            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+              
+              {/* Form Data Surat */}
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Pihak Pertama</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} placeholder="Nama Lengkap" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.p1Nik} onChange={e => handleDataChange('p1Nik', e.target.value)} placeholder="NIK" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} placeholder="Alamat Lengkap" />
+                 <h3 className="text-[10px] font-black uppercase text-slate-500 border-b pb-1 tracking-widest flex items-center gap-2"><CalendarDays size={12}/> Data Surat</h3>
+                 <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 mb-1 block">Hari</label>
+                      <input className="w-full p-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500" value={data.day} onChange={e => handleDataChange('day', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 mb-1 block">Tanggal</label>
+                      <input type="date" className="w-full p-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                    </div>
+                 </div>
+                 <div>
+                    <label className="text-[10px] font-bold text-slate-500 mb-1 block">Kota Tempat Perjanjian Ditandatangani</label>
+                    <input className="w-full p-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
+                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Pihak Kedua</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} placeholder="Nama Lengkap" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.p2Nik} onChange={e => handleDataChange('p2Nik', e.target.value)} placeholder="NIK" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} placeholder="Alamat Lengkap" />
+              {/* Form Pihak Pertama */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 border-l-4 border-l-emerald-500">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Pihak Pertama (Penanggung / Pelaku)</h3>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Nama Lengkap Sesuai KTP</label>
+                   <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} placeholder="Nama Lengkap" />
+                 </div>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Nomor Induk Kependudukan (NIK)</label>
+                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.p1Nik} onChange={e => handleDataChange('p1Nik', e.target.value)} placeholder="16 Digit NIK" />
+                 </div>
+                 <div className="grid grid-cols-2 gap-3">
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Tempat Lahir</label>
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p1BirthPlace} onChange={e => handleDataChange('p1BirthPlace', e.target.value)} />
+                   </div>
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Tanggal Lahir</label>
+                     <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p1BirthDate} onChange={e => handleDataChange('p1BirthDate', e.target.value)} />
+                   </div>
+                 </div>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Pekerjaan</label>
+                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p1Job} onChange={e => handleDataChange('p1Job', e.target.value)} placeholder="Pekerjaan" />
+                 </div>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Alamat Lengkap KTP</label>
+                   <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} placeholder="Jalan, RT/RW, Kelurahan, Kecamatan..." />
+                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><ShieldAlert size={12}/> Detail Insiden</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-red-500 outline-none" value={data.incidentTitle} onChange={e => handleDataChange('incidentTitle', e.target.value)} placeholder="Judul Masalah" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-24 resize-none focus:ring-2 focus:ring-red-500 outline-none leading-relaxed" value={data.incidentDetail} onChange={e => handleDataChange('incidentDetail', e.target.value)} placeholder="Kronologi Singkat..." />
-                 <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.incidentDate} onChange={e => handleDataChange('incidentDate', e.target.value)} />
+              {/* Form Pihak Kedua */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 border-l-4 border-l-blue-500">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Pihak Kedua (Korban / Penerima)</h3>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Nama Lengkap Sesuai KTP</label>
+                   <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} placeholder="Nama Lengkap" />
+                 </div>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Nomor Induk Kependudukan (NIK)</label>
+                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.p2Nik} onChange={e => handleDataChange('p2Nik', e.target.value)} placeholder="16 Digit NIK" />
+                 </div>
+                 <div className="grid grid-cols-2 gap-3">
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Tempat Lahir</label>
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.p2BirthPlace} onChange={e => handleDataChange('p2BirthPlace', e.target.value)} />
+                   </div>
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Tanggal Lahir</label>
+                     <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.p2BirthDate} onChange={e => handleDataChange('p2BirthDate', e.target.value)} />
+                   </div>
+                 </div>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Pekerjaan</label>
+                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.p2Job} onChange={e => handleDataChange('p2Job', e.target.value)} placeholder="Pekerjaan" />
+                 </div>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Alamat Lengkap KTP</label>
+                   <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} placeholder="Jalan, RT/RW, Kelurahan, Kecamatan..." />
+                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Scale size={12}/> Kesepakatan Damai</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-black text-amber-600 focus:ring-2 focus:ring-amber-500 outline-none" value={data.compensation} onChange={e => handleDataChange('compensation', e.target.value)} placeholder="Nominal Ganti Rugi" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-amber-500 outline-none" value={data.settlementDetail} onChange={e => handleDataChange('settlementDetail', e.target.value)} placeholder="Cara Penyelesaian..." />
+              {/* Form Insiden & Kesepakatan */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 border-l-4 border-l-amber-500">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><ShieldAlert size={12}/> Objek Perdamaian & Insiden</h3>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Judul Insiden</label>
+                   <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none" value={data.incidentTitle} onChange={e => handleDataChange('incidentTitle', e.target.value)} placeholder="Contoh: Kecelakaan Lalu Lintas" />
+                 </div>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Tanggal Kejadian</label>
+                   <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.incidentDate} onChange={e => handleDataChange('incidentDate', e.target.value)} />
+                 </div>
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Detail Kronologi (Singkat & Jelas)</label>
+                   <textarea className="w-full p-2 border rounded-lg text-xs h-24 resize-none focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed" value={data.incidentDetail} onChange={e => handleDataChange('incidentDetail', e.target.value)} placeholder="Tuliskan kronologi singkat..." />
+                 </div>
               </div>
+
+              {/* Form Kesepakatan Ganti Rugi */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 border-l-4 border-l-indigo-500">
+                 <h3 className="text-[10px] font-black uppercase text-indigo-600 border-b pb-1 tracking-widest flex items-center gap-2"><Scale size={12}/> Kesepakatan Ganti Rugi</h3>
+                 
+                 <div className="grid grid-cols-2 gap-3">
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Nominal (Angka)</label>
+                     <input className="w-full p-2 border rounded-lg text-xs font-black text-indigo-700 focus:ring-2 focus:ring-indigo-500 outline-none" value={data.compensationAmount} onChange={e => handleDataChange('compensationAmount', e.target.value)} placeholder="Rp 5.000.000,-" />
+                   </div>
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Metode Pembayaran</label>
+                     <select className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none bg-white" value={data.compensationMethod} onChange={e => handleDataChange('compensationMethod', e.target.value as any)}>
+                       <option value="Tunai">Tunai / Cash</option>
+                       <option value="Transfer Bank">Transfer Bank</option>
+                       <option value="Cicilan">Cicilan Bertahap</option>
+                     </select>
+                   </div>
+                 </div>
+                 
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Nominal Terbilang</label>
+                   <input className="w-full p-2 border rounded-lg text-xs italic focus:ring-2 focus:ring-indigo-500 outline-none" value={data.compensationText} onChange={e => handleDataChange('compensationText', e.target.value)} placeholder="Lima Juta Rupiah" />
+                 </div>
+
+                 <div>
+                   <label className="text-[10px] font-bold text-slate-500 mb-1 block">Rincian Teknis & Syarat</label>
+                   <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-indigo-500 outline-none" value={data.settlementDetail} onChange={e => handleDataChange('settlementDetail', e.target.value)} placeholder="Jelaskan bila ada perbaikan bengkel, cicilan tanggal berapa, dll..." />
+                 </div>
+              </div>
+
+              {/* Pelarangan Penuntutan & Penalti */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 border-l-4 border-l-red-500">
+                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><AlertTriangle size={12}/> Klausul Pelarangan Penuntutan</h3>
+                 <p className="text-[10px] text-slate-500 leading-snug">Menetapkan Ganti Rugi Materiil (Denda) apabila Pihak Kedua mengingkari janji perdamaian dan tetap menuntut secara hukum.</p>
+                 <div className="grid grid-cols-2 gap-3">
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Penalti Denda (Angka)</label>
+                     <input className="w-full p-2 border rounded-lg text-xs font-black text-red-700 focus:ring-2 focus:ring-red-500 outline-none" value={data.penaltyAmount} onChange={e => handleDataChange('penaltyAmount', e.target.value)} placeholder="Rp 50.000.000,-" />
+                   </div>
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Terbilang (Denda)</label>
+                     <input className="w-full p-2 border rounded-lg text-xs italic focus:ring-2 focus:ring-red-500 outline-none" value={data.penaltyText} onChange={e => handleDataChange('penaltyText', e.target.value)} placeholder="Lima Puluh Juta Rupiah" />
+                   </div>
+                 </div>
+              </div>
+
+              {/* Saksi */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-slate-500 border-b pb-1 tracking-widest flex items-center gap-2"><Users size={12}/> Data Saksi</h3>
+                 <div className="grid grid-cols-2 gap-3">
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Saksi 1</label>
+                     <input className="w-full p-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-500" value={data.witness1} onChange={e => handleDataChange('witness1', e.target.value)} />
+                   </div>
+                   <div>
+                     <label className="text-[10px] font-bold text-slate-500 mb-1 block">Saksi 2</label>
+                     <input className="w-full p-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-500" value={data.witness2} onChange={e => handleDataChange('witness2', e.target.value)} />
+                   </div>
+                 </div>
+              </div>
+
            </div>
         </div>
 
@@ -374,7 +644,7 @@ function DamaiBuilder() {
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
                 <DocumentContent />
             </div>
-            </div>
+        </div>
       </main>
 
       {/* MOBILE NAV */}
@@ -386,7 +656,7 @@ function DamaiBuilder() {
       
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+         <PrintWrapper documentName="Perjanjian_Perdamaian" price={25000} />
       </div>
 
       <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
