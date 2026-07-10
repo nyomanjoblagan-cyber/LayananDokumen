@@ -70,13 +70,11 @@ export default async function ToolPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       
-      <div className="flex flex-col min-h-screen">
-        {/* Render Form Klien (Unik per template) */}
-        <TemplateClient />
-        
-        {/* Render Artikel SEO Terbuka (Disembunyikan saat di-print via class 'no-print' di dalam komponen) */}
-        <SeoGuide data={templateData} />
-      </div>
+      {/* Render Form Klien (Unik per template) */}
+      <TemplateClient />
+      
+      {/* Render Artikel SEO Terbuka (Disembunyikan saat di-print via class 'no-print' di dalam komponen) */}
+      <SeoGuide data={templateData} />
     </>
   );
 }
