@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import { 
   Building2, 
   MapPin, 
@@ -71,10 +70,9 @@ export default function ResignTemplate() {
     isReturnAssetsAgreed: true,
   });
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-    documentTitle: `Surat_Pengunduran_Diri_${data.namaKaryawan.replace(/\s+/g, '_')}_${data.tanggalSurat}`,
-  });
+  const handlePrint = () => {
+    window.print();
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;

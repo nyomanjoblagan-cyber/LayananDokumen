@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { useReactToPrint } from "react-to-print";
 import { Printer, FileText, Plus, Trash2 } from "lucide-react";
 
 const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
@@ -64,10 +63,9 @@ export default function SuratTugas() {
     ]
   });
 
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    documentTitle: `Surat_Tugas_${data.penerimaTugas.nama.replace(/\s+/g, '_')}`,
-  });
+  const handlePrint = () => {
+    window.print();
+  };
 
   const addBiaya = () => {
     setData({

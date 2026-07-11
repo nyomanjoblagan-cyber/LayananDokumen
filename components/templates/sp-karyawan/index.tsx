@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import { 
   Building2, 
   MapPin, 
@@ -98,10 +97,9 @@ export default function SpKaryawanTemplate() {
     jabatanAtasan: 'Head of Sales',
   });
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-    documentTitle: `SP_${data.tingkatSp}_${data.namaKaryawan.replace(/\s+/g, '_')}_${data.tanggalSurat}`,
-  });
+  const handlePrint = () => {
+    window.print();
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
