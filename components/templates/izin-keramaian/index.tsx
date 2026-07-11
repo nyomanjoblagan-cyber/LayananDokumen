@@ -1,239 +1,211 @@
 'use client';
 
-/**
- * FILE: IzinKeramaianPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Izin Keramaian (Polisi / Lingkungan)
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
- */
-
 import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  PartyPopper, Music, Trophy, User, CalendarDays,
-  Edit3, Eye, ShieldAlert, RotateCcw, ArrowLeftCircle
+  Printer, ArrowLeftCircle, BookOpen, Edit3, RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
 
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
-
-// --- 1. TYPE DEFINITIONS ---
-interface PermitData {
-  city: string;
-  date: string;
-  policeStation: string;
-  policeAddress: string;
-  name: string;
-  umur: string;
-  job: string;
-  address: string;
-  phone: string;
-  nik: string;
+interface IzinKeramaianData {
+  letterCity: string;
+  letterDate: string;
+  recipientTitle: string;
+  recipientLocation: string;
+  
+  applicantName: string;
+  applicantAge: string;
+  applicantJob: string;
+  applicantAddress: string;
+  applicantPhone: string;
+  
   eventName: string;
+  eventDay: string;
   eventDate: string;
-  eventTime: string;
-  eventPlace: string;
-  eventEnt: string;
-  audience: string;
-  closing: string;
+  eventTimeStart: string;
+  eventTimeEnd: string;
+  eventLocation: string;
+  entertainmentType: string;
+  crowdEstimate: string;
+  
+  villageHead: string;
 }
 
-// --- 2. DATA DEFAULT ---
-const INITIAL_DATA: PermitData = {
-  city: 'DEPOK',
-  date: '', 
-  policeStation: 'KAPOLSEK CILODONG',
-  policeAddress: 'Jl. Raya Jakarta-Bogor No. KM 39',
-  name: 'BUDI SANTOSO',
-  umur: '45',
-  job: 'Wiraswasta',
-  address: 'Jl. H. Dimun Raya RT 01/04, Cilodong',
-  phone: '0812-3456-7890',
-  nik: '3276010101800001',
-  eventName: 'RESEPSI PERNIKAHAN (PUTRI KAMI)',
-  eventDate: '', 
-  eventTime: '08.00 s/d 17.00 WIB',
-  eventPlace: 'Halaman Rumah (Alamat sda)',
-  eventEnt: 'Musik Organ Tunggal & Sound System',
-  audience: '+/- 200 Tamu Undangan',
-  closing: 'Besar harapan kami agar Bapak dapat memberikan izin keramaian demi kelancaran acara tersebut. Kami siap menjaga ketertiban dan keamanan selama acara berlangsung.'
+const INITIAL_DATA: IzinKeramaianData = {
+  letterCity: 'Sleman',
+  letterDate: '2026-07-15',
+  recipientTitle: 'Kepala Kepolisian Sektor (Kapolsek) Ngaglik',
+  recipientLocation: 'Sleman',
+  
+  applicantName: 'BUDI SANTOSO',
+  applicantAge: '35 Tahun',
+  applicantJob: 'Wiraswasta',
+  applicantAddress: 'Desa Sardonoharjo, Kec. Ngaglik, Kab. Sleman',
+  applicantPhone: '081234567890',
+  
+  eventName: 'Pentas Seni Budaya dan Dangdut',
+  eventDay: 'Sabtu',
+  eventDate: '2026-07-25',
+  eventTimeStart: '19:00',
+  eventTimeEnd: '23:30',
+  eventLocation: 'Lapangan Desa Sardonoharjo',
+  entertainmentType: 'Panggung Prajurit & Orkes Dangdut',
+  crowdEstimate: '500 Orang',
+  
+  villageHead: 'H. Sudirman, S.E.'
 };
 
 export default function IzinKeramaianPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium">Memuat Editor Perizinan...</div>}>
-      <CrowdPermitBuilder />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Legal Editor...</div>}>
+      <IzinKeramaianBuilder />
     </Suspense>
   );
 }
 
-function CrowdPermitBuilder() {
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+function IzinKeramaianBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PermitData>(INITIAL_DATA);
+  const [data, setData] = useState<IzinKeramaianData>(INITIAL_DATA);
+  const [activeTab, setActiveTab] = useState<'pemohon' | 'acara' | 'pengaturan'>('pemohon');
+
   useEffect(() => {
     setIsClient(true);
-    const today = new Date();
-    const nextMonth = new Date();
-    nextMonth.setDate(nextMonth.getDate() + 30);
-    
-    setData(prev => ({ 
-        ...prev, 
-        date: today.toISOString().split('T')[0],
-        eventDate: nextMonth.toISOString().split('T')[0]
-    }));
   }, []);
 
-  const handleDataChange = (field: keyof PermitData, val: any) => {
+  const handleDataChange = (field: keyof IzinKeramaianData, val: any) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
-  const applyPreset = (type: 'wedding' | 'concert' | 'sport') => {
-    if (type === 'wedding') {
-        setData(prev => ({
-            ...prev,
-            eventName: 'RESEPSI PERNIKAHAN',
-            eventEnt: 'Organ Tunggal / Akustik',
-            audience: '+/- 300 Tamu Undangan',
-            closing: 'Kami selaku tuan rumah menjamin kegiatan akan berjalan tertib dan mematuhi batas waktu yang ditentukan.'
-        }));
-    } else if (type === 'concert') {
-        setData(prev => ({
-            ...prev,
-            policeStation: 'KAPOLRES METRO DEPOK',
-            eventName: 'PENTAS SENI PEMUDA',
-            eventEnt: 'Band Lokal & Guest Star',
-            audience: '+/- 1000 Penonton',
-            closing: 'Panitia telah berkoordinasi dengan keamanan lingkungan dan siap mematuhi protokol kepolisian.'
-        }));
-    } else if (type === 'sport') {
-        setData(prev => ({
-            ...prev,
-            eventName: 'TURNAMEN FUTSAL ANTAR RW',
-            eventEnt: 'Pertandingan Olahraga',
-            audience: 'Peserta & Suporter Warga',
-            eventPlace: 'Lapangan Futsal RW 04',
-            closing: 'Kami menjamin sportivitas dan keamanan selama pertandingan berlangsung.'
-        }));
-    }
-  };
-
   const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
-        const today = new Date();
-        const nextMonth = new Date();
-        nextMonth.setDate(nextMonth.getDate() + 30);
-        setData({ 
-            ...INITIAL_DATA, 
-            date: today.toISOString().split('T')[0], 
-            eventDate: nextMonth.toISOString().split('T')[0] 
-        });
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua perubahan akan hilang.')) {
+        setData({ ...INITIAL_DATA });
     }
   };
 
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Surat Permohonan (Polisi)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Izin Lingkungan (Warga)
-        </button>
+  const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[12pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+      {children}
     </div>
   );
 
   const DocumentContent = () => {
     const formatDateSafe = (dateString: string) => {
-      if(!dateString) return '...';
-      return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+        if(!dateString) return '...';
+        return new Date(dateString).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
     };
 
     return (
-      <div className="bg-white mx-auto flex flex-col box-border font-serif text-slate-900 leading-snug text-[11pt] p-[25mm] print:p-0" 
-           style={{ width: '210mm', minHeight: '296mm' }}>
-        
-        {templateId === 1 ? (
-            <div className="flex flex-col h-full">
-                <div className="text-right mb-4">
-                    {data.city}, {formatDateSafe(data.date)}
-                </div>
-                <div className="mb-4">
-                    <div className="flex"><div className="w-[80px]">Perihal</div><div className="font-bold underline">: Permohonan Izin Keramaian</div></div>
-                    <div className="flex"><div className="w-[80px]">Lampiran</div><div>: 1 (Satu) Berkas</div></div>
-                </div>
-                <div className="mb-6">
-                    <p>Kepada Yth,</p>
-                    <p className="font-bold uppercase">{data.policeStation}</p>
-                    <p>Di Tempat</p>
-                </div>
-                <div className="flex-grow space-y-2 text-justify">
-                    <p>Dengan hormat,</p>
-                    <p>Yang bertanda tangan di bawah ini:</p>
-                    <div className="ml-6 mb-4 text-[11pt]">
-                        <table className="w-full leading-snug">
-                            <tbody>
-                                <tr><td className="w-32 align-top">Nama Lengkap</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.name}</td></tr>
-                                <tr><td className="align-top">NIK</td><td className="align-top">:</td><td className="align-top">{data.nik}</td></tr>
-                                <tr><td className="align-top">Pekerjaan</td><td className="align-top">:</td><td className="align-top">{data.job}</td></tr>
-                                <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.address}</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <p>Mengajukan permohonan izin keramaian untuk kegiatan:</p>
-                    <div className="ml-6 mb-4 text-[11pt]">
-                        <table className="w-full leading-snug">
-                            <tbody>
-                                <tr><td className="w-32 align-top">Nama Acara</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.eventName}</td></tr>
-                                <tr><td className="align-top">Hari / Tanggal</td><td className="align-top">:</td><td className="align-top">{formatDateSafe(data.eventDate)}</td></tr>
-                                <tr><td className="align-top">Waktu</td><td className="align-top">:</td><td className="align-top">{data.eventTime}</td></tr>
-                                <tr><td className="align-top">Tempat</td><td className="align-top">:</td><td className="align-top">{data.eventPlace}</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <p className="indent-8">{data.closing}</p>
-                </div>
-                <div className="flex justify-end text-center mt-8 mb-10" style={{ pageBreakInside: 'avoid' }}>
-                    <div className="w-64"><p className="mb-20 font-bold">Hormat Kami,</p><p className="font-bold underline uppercase">{data.name}</p></div>
-                </div>
-            </div>
-        ) : (
-            <div className="flex flex-col h-full">
-                <div className="text-center mb-6 border-b-2 border-black pb-2">
-                    <h2 className="text-xl font-bold uppercase underline tracking-widest">SURAT IZIN LINGKUNGAN</h2>
-                </div>
-                <p className="mb-4 text-justify">Kami warga menyatakan <strong>TIDAK KEBERATAN</strong> atas kegiatan:</p>
-                <div className="bg-slate-50 border border-slate-300 p-3 mb-4 text-sm rounded">
-                    <p>Acara: <b>{data.eventName}</b></p>
-                    <p>Tanggal: <b>{formatDateSafe(data.eventDate)}</b></p>
-                    <p>Tuan Rumah: <b>{data.name}</b></p>
-                </div>
-                <table className="w-full border-collapse border border-black text-sm mb-6">
-                    <thead><tr className="bg-slate-100">
-                      <th className="border border-black py-1 w-12">No</th>
-                      <th className="border border-black py-1">Nama Tetangga</th>
-                      <th className="border border-black py-1 w-32">Paraf</th>
-                    </tr></thead>
-                    <tbody>
-                        {[1, 2, 3, 4, 5, 6].map((num) => (
-                            <tr key={num} className="h-10">
-                                <td className="border border-black text-center">{num}.</td>
-                                <td className="border border-black px-2"></td>
-                                <td className="border border-black px-2 text-[9px] text-slate-300 align-bottom">{num}.</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <div className="flex justify-between text-center mt-auto text-sm" style={{ pageBreakInside: 'avoid' }}>
-                    <div className="w-48"><p className="mb-16">Mengetahui,<br/>Ketua RT</p><p className="border-b border-black"></p></div>
-                    <div className="w-48"><p className="mb-16">Mengetahui,<br/>Ketua RW</p><p className="border-b border-black"></p></div>
-                </div>
-            </div>
-        )}
+      <div className="flex flex-col gap-8 print:gap-0">
+          <Kertas className="print:w-full print:min-w-0">
+              {/* KOP / TANGGAL */}
+              <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <p>Nomor<span className="inline-block w-8 text-center">:</span>-</p>
+                    <p>Lampiran<span className="inline-block w-4 text-center">:</span>-</p>
+                    <p>Perihal<span className="inline-block w-6 text-center">:</span><strong>Permohonan Izin Keramaian</strong></p>
+                  </div>
+                  <div className="text-right">
+                      {data.letterCity}, {formatDateSafe(data.letterDate)}
+                  </div>
+              </div>
+              
+              {/* TUJUAN SURAT */}
+              <div className="mb-8 text-justify">
+                  <p>Kepada Yth,</p>
+                  <p className="font-bold">{data.recipientTitle}</p>
+                  <p>Di -</p>
+                  <p className="indent-8">{data.recipientLocation}</p>
+              </div>
+
+              {/* SALAM PEMBUKA & IDENTITAS */}
+              <div className="mb-4 text-justify">
+                  <p className="mb-4">Dengan hormat,</p>
+                  <p className="mb-4">Yang bertanda tangan di bawah ini:</p>
+              </div>
+
+              <div className="flex flex-row mb-6 text-justify break-inside-avoid">
+                  <div className="ml-8 flex-1">
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">Nama Lengkap</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div className="font-bold uppercase">{data.applicantName}</div>
+                      </div>
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">Umur</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div>{data.applicantAge}</div>
+                      </div>
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">Pekerjaan</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div>{data.applicantJob}</div>
+                      </div>
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">Alamat</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div>{data.applicantAddress}</div>
+                      </div>
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">No. Telepon / HP</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div>{data.applicantPhone}</div>
+                      </div>
+                  </div>
+              </div>
+
+              {/* ISI SURAT / ACARA */}
+              <div className="mb-4 text-justify">
+                  <p className="mb-4">Dengan ini mengajukan permohonan izin keramaian untuk menyelenggarakan acara <strong>{data.eventName}</strong>, yang akan dilaksanakan pada:</p>
+              </div>
+
+              <div className="flex flex-row mb-6 text-justify break-inside-avoid">
+                  <div className="ml-8 flex-1">
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">Hari / Tanggal</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div className="font-bold">{data.eventDay}, {formatDateSafe(data.eventDate)}</div>
+                      </div>
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">Waktu Pelaksanaan</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div>Pukul {data.eventTimeStart} s/d {data.eventTimeEnd} WIB</div>
+                      </div>
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">Tempat / Lokasi</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div>{data.eventLocation}</div>
+                      </div>
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">Jenis Hiburan</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div>{data.entertainmentType}</div>
+                      </div>
+                      <div className="flex flex-row mb-1">
+                          <div className="w-56 shrink-0">Estimasi Jumlah Massa</div>
+                          <div className="w-4 shrink-0">:</div>
+                          <div>{data.crowdEstimate}</div>
+                      </div>
+                  </div>
+              </div>
+
+              <div className="mb-8 text-justify">
+                  <p className="mb-2">Sebagai penanggung jawab acara, kami bersedia mematuhi segala peraturan dan ketentuan hukum yang berlaku, serta senantiasa berkoordinasi dengan pihak berwajib guna menjaga ketertiban, kebersihan, dan keamanan selama acara berlangsung.</p>
+                  <p>Demikian surat permohonan izin keramaian ini kami sampaikan. Atas perhatian dan kebijakan Bapak/Ibu, kami ucapkan terima kasih.</p>
+              </div>
+
+              {/* TANDA TANGAN */}
+              <div className="grid grid-cols-2 gap-8 text-center mt-12 break-inside-avoid pb-12">
+                  <div>
+                      <p className="mb-20">Mengetahui,<br/>Kepala Desa / Lurah</p>
+                      <p className="font-bold underline uppercase">{data.villageHead}</p>
+                  </div>
+                  <div>
+                      <p className="mb-20">Hormat Kami,<br/>Pemohon / Penanggung Jawab</p>
+                      <p className="font-bold underline uppercase">{data.applicantName}</p>
+                  </div>
+              </div>
+
+          </Kertas>
       </div>
     );
   };
@@ -257,71 +229,160 @@ function CrowdPermitBuilder() {
 
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors group">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
               <ArrowLeftCircle size={20} className="text-emerald-400" />
               <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
-               <ShieldAlert size={16} /> <span>CROWD PERMIT BUILDER</span>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
+               <BookOpen size={16} className="text-emerald-500" /> <span>Surat Izin Keramaian</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
-                <LayoutTemplate size={14} className="text-blue-400" /> {templateId === 1 ? 'Polisi' : 'Warga'} <ChevronDown size={12} />
-              </button>
-              {showTemplateMenu && <TemplateMenu />}
-            </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
-              <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 grid grid-cols-3 gap-2">
-                <button onClick={() => applyPreset('wedding')} className="bg-white p-2 rounded text-[9px] font-bold shadow-sm">HAJATAN</button>
-                <button onClick={() => applyPreset('concert')} className="bg-white p-2 rounded text-[9px] font-bold shadow-sm">KONSER</button>
-                <button onClick={() => applyPreset('sport')} className="bg-white p-2 rounded text-[9px] font-bold shadow-sm">LOMBA</button>
-              </div>
-              <div className="space-y-4">
-                <input className="w-full p-2 border rounded-lg text-sm" value={data.name} onChange={e => handleDataChange('name', e.target.value)} placeholder="Nama Lengkap" />
-                <div className="grid grid-cols-2 gap-3">
-                  <input className="w-full p-2 border rounded-lg text-sm" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} placeholder="NIK" />
-                  <input className="w-full p-2 border rounded-lg text-sm" value={data.umur} onChange={e => handleDataChange('umur', e.target.value)} placeholder="Umur" />
+        
+        {/* PANEL KIRI: FORM EDITOR */}
+        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50">
+              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Pengaturan Dokumen</h2>
+              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
+           </div>
+           
+           {/* TAB NAVIGATION */}
+           <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase">
+              <button onClick={() => setActiveTab('pemohon')} className={`flex-1 py-3 border-r ${activeTab === 'pemohon' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Pemohon</button>
+              <button onClick={() => setActiveTab('acara')} className={`flex-1 py-3 border-r ${activeTab === 'acara' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Acara</button>
+              <button onClick={() => setActiveTab('pengaturan')} className={`flex-1 py-3 ${activeTab === 'pengaturan' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Pengaturan</button>
+           </div>
+
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+              
+              {activeTab === 'pemohon' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4">Identitas Pemohon</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.applicantName} onChange={e => handleDataChange('applicantName', e.target.value)} placeholder="Contoh: BUDI SANTOSO" />
                 </div>
-                <textarea className="w-full p-2 border rounded-lg text-xs h-16" value={data.address} onChange={e => handleDataChange('address', e.target.value)} placeholder="Alamat" />
-              </div>
-              <div className="border-t pt-4 space-y-4">
-                <input className="w-full p-2 border rounded-lg text-sm font-bold uppercase" value={data.eventName} onChange={e => handleDataChange('eventName', e.target.value)} placeholder="Nama Acara" />
-                <div className="grid grid-cols-2 gap-3">
-                  <input type="date" className="w-full p-2 border rounded-lg text-sm" value={data.eventDate} onChange={e => handleDataChange('eventDate', e.target.value)} />
-                  <input className="w-full p-2 border rounded-lg text-sm" value={data.eventTime} onChange={e => handleDataChange('eventTime', e.target.value)} placeholder="Waktu (08.00 - Selesai)" />
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Umur</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.applicantAge} onChange={e => handleDataChange('applicantAge', e.target.value)} placeholder="Contoh: 35 Tahun" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Pekerjaan</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.applicantJob} onChange={e => handleDataChange('applicantJob', e.target.value)} placeholder="Contoh: Wiraswasta" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Lengkap</label>
+                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-20" value={data.applicantAddress} onChange={e => handleDataChange('applicantAddress', e.target.value)} placeholder="Alamat lengkap pemohon" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">No. Telepon / HP</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.applicantPhone} onChange={e => handleDataChange('applicantPhone', e.target.value)} placeholder="Contoh: 081234567890" />
                 </div>
               </div>
+              )}
+
+              {activeTab === 'acara' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-emerald-600 border-b pb-1 mb-4">Detail Acara</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Acara</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.eventName} onChange={e => handleDataChange('eventName', e.target.value)} placeholder="Contoh: Pentas Seni Budaya dan Dangdut" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Hari Pelaksanaan</label>
+                    <select className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" value={data.eventDay} onChange={e => handleDataChange('eventDay', e.target.value)}>
+                        <option value="Senin">Senin</option><option value="Selasa">Selasa</option>
+                        <option value="Rabu">Rabu</option><option value="Kamis">Kamis</option>
+                        <option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option><option value="Minggu">Minggu</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal</label>
+                    <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.eventDate} onChange={e => handleDataChange('eventDate', e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Waktu Mulai</label>
+                    <input type="time" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.eventTimeStart} onChange={e => handleDataChange('eventTimeStart', e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Waktu Selesai</label>
+                    <input type="time" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.eventTimeEnd} onChange={e => handleDataChange('eventTimeEnd', e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat / Lokasi</label>
+                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-16" value={data.eventLocation} onChange={e => handleDataChange('eventLocation', e.target.value)} placeholder="Lokasi fisik acara" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Hiburan</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.entertainmentType} onChange={e => handleDataChange('entertainmentType', e.target.value)} placeholder="Contoh: Orkes Dangdut, Kuda Lumping, dll." />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Estimasi Jumlah Massa</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.crowdEstimate} onChange={e => handleDataChange('crowdEstimate', e.target.value)} placeholder="Contoh: 500 Orang" />
+                </div>
+              </div>
+              )}
+
+              {activeTab === 'pengaturan' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-purple-600 border-b pb-1 mb-4">Pengaturan Surat</h3>
+                
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+                  <h4 className="text-[10px] font-bold text-slate-700 uppercase">Penerima Surat (Tujuan)</h4>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Ditujukan Kepada</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.recipientTitle} onChange={e => handleDataChange('recipientTitle', e.target.value)} placeholder="Contoh: Kepala Kepolisian Sektor (Kapolsek) Ngaglik" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Di (Lokasi Penerima)</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.recipientLocation} onChange={e => handleDataChange('recipientLocation', e.target.value)} placeholder="Contoh: Sleman" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Kota Surat</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.letterCity} onChange={e => handleDataChange('letterCity', e.target.value)} placeholder="Contoh: Sleman" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Surat</label>
+                    <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.letterDate} onChange={e => handleDataChange('letterDate', e.target.value)} />
+                  </div>
+                </div>
+                
+                <div className="pt-2 border-t mt-4">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Mengetahui Kepala Desa/Lurah</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1 font-bold" value={data.villageHead} onChange={e => handleDataChange('villageHead', e.target.value)} placeholder="Nama Kepala Desa / Lurah" />
+                </div>
+              </div>
+              )}
+
            </div>
         </div>
 
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+        {/* PANEL KANAN: LIVE PREVIEW DOKUMEN */}
+        <div className={`flex-1 h-full bg-slate-200/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
                 <DocumentContent />
             </div>
-            </div>
+        </div>
       </main>
 
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans">
           <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
-      </div>
-
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
       </div>
 
       <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
