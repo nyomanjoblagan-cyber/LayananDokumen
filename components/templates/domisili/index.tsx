@@ -1,283 +1,246 @@
 'use client';
 
-/**
- * FILE: DomisiliPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
- * DESC: Generator Surat Keterangan Domisili
- * FEATURES:
- * - Dual Template (RT/RW vs Kelurahan)
- * - Kop Surat Otomatis
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
- * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
- */
-
-import { useState, useRef, Suspense, useEffect } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Upload, ChevronDown, Check, LayoutTemplate, MapPin, 
-  User, Building2, ArrowLeftCircle, Edit3, Eye, RotateCcw
+  Printer, RotateCcw, Edit3, ArrowLeftCircle, BookOpen 
 } from 'lucide-react';
 import Link from 'next/link';
 
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
-
-// --- 1. TYPE DEFINITIONS ---
 interface DomisiliData {
-  no: string;
-  date: string;
+  jenisDomisili: 'Warga' | 'Perusahaan';
+  nomorSurat: string;
+  tanggalSurat: string;
   
-  // Wilayah
-  rt: string;
-  rw: string;
-  village: string;
-  district: string;
-  city: string;
-  address_office: string;
+  // Pemerintah Desa
+  kadesName: string;
+  desa: string;
+  kecamatan: string;
+  kabupaten: string;
   
-  // Pemohon
-  name: string;
+  // Data Warga / Penanggung Jawab
+  namaPemohon: string;
   nik: string;
-  ttl: string;
-  gender: string;
-  religion: string;
-  job: string;
-  status: string;
-  citizenship: string;
-  address: string;
+  tempatLahir: string;
+  tanggalLahir: string;
+  jenisKelamin: string;
+  agama: string;
+  pekerjaan: string;
+  alamatPemohon: string;
   
-  // Pejabat
-  nameRT: string;
-  nameRW: string;
-  lurahName: string;
-  lurahNIP: string;
+  // Data Perusahaan
+  namaPerusahaan: string;
+  aktaPendirian: string;
+  npwpPerusahaan: string;
+  bidangUsaha: string;
+  alamatPerusahaan: string;
+
+  // Lainnya
+  keperluan: string;
 }
 
-// --- 2. DATA DEFAULT ---
 const INITIAL_DATA: DomisiliData = {
-  no: '470 / 015 / 02.005 / 2026',
-  date: '', // Diisi useEffect
+  jenisDomisili: 'Warga',
+  nomorSurat: '470/   /2026',
+  tanggalSurat: '2026-07-11',
+  kadesName: 'BUDI SANTOSO',
+  desa: 'Sardonoharjo',
+  kecamatan: 'Ngaglik',
+  kabupaten: 'Sleman',
   
-  rt: '005',
-  rw: '002',
-  village: 'KELURAHAN JATIMULYA',
-  district: 'KECAMATAN CILODONG',
-  city: 'KOTA DEPOK',
-  address_office: 'Jl. H. Dimun Raya BBM No. 10', 
+  namaPemohon: 'ANDI PRATAMA',
+  nik: '3404010101900001',
+  tempatLahir: 'Sleman',
+  tanggalLahir: '1990-05-15',
+  jenisKelamin: 'Laki-laki',
+  agama: 'Islam',
+  pekerjaan: 'Wiraswasta',
+  alamatPemohon: 'Jl. Kaliurang KM 10, RT 01 RW 02, Sardonoharjo, Ngaglik, Sleman',
   
-  name: 'SURYADI',
-  nik: '3276010203950004',
-  ttl: 'Depok, 02 Maret 1995',
-  gender: 'Laki-laki',
-  religion: 'Islam',
-  job: 'Karyawan Swasta',
-  status: 'Kawin',
-  citizenship: 'WNI',
-  address: 'Kp. Sawah RT 005 RW 002, Jatimulya, Cilodong, Depok',
+  namaPerusahaan: 'PT MAJU JAYA ABADI',
+  aktaPendirian: 'No. 12 Tanggal 5 Mei 2020 Notaris Anita, S.H.',
+  npwpPerusahaan: '01.234.567.8-901.000',
+  bidangUsaha: 'Perdagangan Umum',
+  alamatPerusahaan: 'Jl. Palagan Tentara Pelajar KM 8, Sleman',
   
-  nameRT: 'Bambang S.',
-  nameRW: 'H. Maman',
-  
-  lurahName: 'Drs. AWAN SETIAWAN, MM',
-  lurahNIP: 'NIP. 19700505 199803 1 008'
+  keperluan: 'Persyaratan administrasi pembukaan rekening bank'
 };
 
-// --- 3. KOMPONEN UTAMA ---
 export default function DomisiliPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem Administrasi...</div>}>
-      <DomisiliToolBuilder />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Legal Editor...</div>}>
+      <DomisiliBuilder />
     </Suspense>
   );
 }
 
-function DomisiliToolBuilder() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // --- STATE SYSTEM ---
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [logo, setLogo] = useState<string | null>(null);
+function DomisiliBuilder() {
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<DomisiliData>(INITIAL_DATA);
-  // Set Tanggal Hari Ini saat Mount & Cleanup Logo
+  const [activeTab, setActiveTab] = useState<'surat' | 'pemohon' | 'perusahaan' | 'lainnya'>('surat');
+
   useEffect(() => {
-    setData(prev => ({ 
-        ...prev, 
-        date: new Date().toISOString().split('T')[0] 
-    }));
+    setIsClient(true);
+  }, []);
 
-    return () => {
-        if (logo) URL.revokeObjectURL(logo);
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // --- HANDLERS ---
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-        if (logo) URL.revokeObjectURL(logo);
-        setLogo(URL.createObjectURL(file));
-    }
-  };
-
-  const handleDataChange = (field: keyof DomisiliData, val: string) => {
+  const handleDataChange = (field: keyof DomisiliData, val: any) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
-        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
-        if (logo) {
-            URL.revokeObjectURL(logo);
-            setLogo(null);
-        }
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua perubahan akan hilang.')) {
+        setData({ ...INITIAL_DATA });
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Pengantar RT/RW
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Kelurahan
-        </button>
+  const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+      {children}
     </div>
   );
 
-  // --- KONTEN SURAT ---
-  const ContentInside = () => {
-    const formatDate = (dateString: string) => {
+  const DocumentContent = () => {
+    const formatDateSafe = (dateString: string) => {
         if(!dateString) return '...';
-        try {
-            const safeDate = new Date(dateString + 'T00:00:00');
-            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
-        } catch { return dateString; }
+        return new Date(dateString).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
     };
 
-    if (templateId === 1) {
-      // --- TEMPLATE 1: PENGANTAR RT/RW (SIMPLE) ---
-      return (
-        <div className="font-serif text-[11pt] leading-relaxed text-slate-900 h-full flex flex-col">
-           <div className="text-center mb-8">
-              <h2 className="text-lg font-bold uppercase tracking-wide">PENGURUS RT {data.rt} RW {data.rw}</h2>
-              <h1 className="text-xl font-black uppercase tracking-wider">{data.village}</h1>
-              <div className="text-sm uppercase">{data.district} - {data.city}</div>
-           </div>
-
-           <div className="text-center mb-8 border-t-4 border-double border-black pt-4">
-              <h2 className="font-bold text-lg uppercase underline">SURAT KETERANGAN DOMISILI</h2>
-              <div className="text-sm font-bold">Nomor: {data.no}</div>
-           </div>
-
-           <p className="mb-4 text-justify">Yang bertanda tangan di bawah ini, Ketua RT {data.rt} / RW {data.rw} {data.village} {data.district} {data.city}, menerangkan bahwa:</p>
-           
-           <div className="ml-4 mb-4 break-inside-avoid">
-              <table className="w-full leading-snug">
-                 <tbody>
-                    <tr><td className="w-40 py-1">Nama Lengkap</td><td className="w-3 py-1">:</td><td className="font-bold py-1 uppercase">{data.name}</td></tr>
-                    <tr><td className="py-1">NIK</td><td className="py-1">:</td><td className="py-1">{data.nik}</td></tr>
-                    <tr><td className="py-1">Jenis Kelamin</td><td className="py-1">:</td><td className="py-1">{data.gender}</td></tr>
-                    <tr><td className="py-1">Tempat/Tgl. Lahir</td><td className="py-1">:</td><td className="py-1">{data.ttl}</td></tr>
-                    <tr><td className="py-1">Agama</td><td className="py-1">:</td><td className="py-1">{data.religion}</td></tr>
-                    <tr><td className="py-1">Status Perkawinan</td><td className="py-1">:</td><td className="py-1">{data.status}</td></tr>
-                    <tr><td className="py-1">Pekerjaan</td><td className="py-1">:</td><td className="py-1">{data.job}</td></tr>
-                    <tr><td className="py-1 align-top">Alamat</td><td className="py-1 align-top">:</td><td className="py-1 align-top">{data.address}</td></tr>
-                 </tbody>
-              </table>
-           </div>
-
-           <p className="mb-4 text-justify break-inside-avoid">
-              Adalah benar warga kami yang berdomisili di alamat tersebut di atas. Surat keterangan ini dibuat untuk keperluan administrasi dan sebagai tanda bukti diri.
-           </p>
-
-           <p className="mb-8 text-justify break-inside-avoid">
-              Demikian surat keterangan ini kami buat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.
-           </p>
-
-           <div className="flex justify-between text-center mt-auto break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="w-48">
-                 <p className="mb-20 font-bold">Ketua RT {data.rt}</p>
-                 <p className="font-bold underline uppercase">{data.nameRT}</p>
+    return (
+      <div className="flex flex-col gap-8 print:gap-0">
+          <Kertas>
+              {/* KOP SURAT */}
+              <div className="text-center border-b-[4px] border-black pb-4 mb-8">
+                  <h1 className="font-bold text-xl uppercase tracking-wider">PEMERINTAH KABUPATEN {data.kabupaten}</h1>
+                  <h2 className="font-bold text-xl uppercase tracking-wider">KECAMATAN {data.kecamatan}</h2>
+                  <h3 className="font-bold text-2xl uppercase tracking-widest">DESA {data.desa}</h3>
+                  <p className="text-sm mt-1">Alamat: Kantor Kepala Desa {data.desa}, Kec. {data.kecamatan}, Kab. {data.kabupaten}</p>
               </div>
-              <div className="w-48">
-                 <p className="mb-1">{data.city.replace('KOTA ','').replace('KABUPATEN ','')}, {formatDate(data.date)}</p>
-                 <p className="mb-20 font-bold">Ketua RW {data.rw}</p>
-                 <p className="font-bold underline uppercase">{data.nameRW}</p>
+              
+              {/* JUDUL SURAT */}
+              <div className="text-center mb-10">
+                  <h1 className="font-bold text-xl uppercase underline">
+                      SURAT KETERANGAN DOMISILI {data.jenisDomisili === 'Perusahaan' ? 'PERUSAHAAN' : 'WARGA'}
+                  </h1>
+                  <p>Nomor: {data.nomorSurat}</p>
               </div>
-           </div>
-        </div>
-      );
-    } else {
-      // --- TEMPLATE 2: FORMAT KELURAHAN (RESMI) ---
-      return (
-        <div className="font-serif text-[11pt] leading-relaxed text-slate-900 h-full flex flex-col">
-           <div className="text-center border-b-4 border-double border-black pb-3 mb-6 relative">
-              {logo && (
-                 <img src={logo} className="h-20 w-auto object-contain absolute left-0 top-0 print:left-4 grayscale" alt="logo" />
+              
+              {/* ISI SURAT */}
+              <div className="mb-6 text-justify">
+                  <p>
+                      Yang bertanda tangan di bawah ini Kepala Desa {data.desa}, Kecamatan {data.kecamatan}, Kabupaten {data.kabupaten}, menerangkan dengan sebenarnya bahwa:
+                  </p>
+              </div>
+
+              {/* IDENTITAS */}
+              <div className="ml-8 mb-6 break-inside-avoid">
+                  <div className="flex flex-row mb-1">
+                      <div className="w-48 shrink-0">Nama Lengkap</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div className="font-bold uppercase">{data.namaPemohon}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-48 shrink-0">NIK</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.nik}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-48 shrink-0">Tempat, Tanggal Lahir</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.tempatLahir}, {formatDateSafe(data.tanggalLahir)}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-48 shrink-0">Jenis Kelamin</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.jenisKelamin}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-48 shrink-0">Agama</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.agama}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-48 shrink-0">Pekerjaan</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.pekerjaan}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-48 shrink-0">Alamat</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.alamatPemohon}</div>
+                  </div>
+              </div>
+
+              {data.jenisDomisili === 'Perusahaan' && (
+                  <>
+                      <div className="mb-6 text-justify">
+                          <p>Adalah benar Penanggung Jawab / Direktur dari Perusahaan:</p>
+                      </div>
+                      <div className="ml-8 mb-6 break-inside-avoid">
+                          <div className="flex flex-row mb-1">
+                              <div className="w-48 shrink-0">Nama Perusahaan</div>
+                              <div className="w-4 shrink-0">:</div>
+                              <div className="font-bold uppercase">{data.namaPerusahaan}</div>
+                          </div>
+                          <div className="flex flex-row mb-1">
+                              <div className="w-48 shrink-0">Akta Pendirian</div>
+                              <div className="w-4 shrink-0">:</div>
+                              <div>{data.aktaPendirian}</div>
+                          </div>
+                          <div className="flex flex-row mb-1">
+                              <div className="w-48 shrink-0">NPWP Perusahaan</div>
+                              <div className="w-4 shrink-0">:</div>
+                              <div>{data.npwpPerusahaan}</div>
+                          </div>
+                          <div className="flex flex-row mb-1">
+                              <div className="w-48 shrink-0">Bidang Usaha</div>
+                              <div className="w-4 shrink-0">:</div>
+                              <div>{data.bidangUsaha}</div>
+                          </div>
+                          <div className="flex flex-row mb-1">
+                              <div className="w-48 shrink-0">Alamat Perusahaan</div>
+                              <div className="w-4 shrink-0">:</div>
+                              <div>{data.alamatPerusahaan}</div>
+                          </div>
+                      </div>
+                      <div className="mb-6 text-justify">
+                          <p>Berdasarkan data dan sepengetahuan kami, perusahaan tersebut di atas benar-benar berdomisili / berkedudukan dan melakukan kegiatan usahanya di alamat tersebut.</p>
+                      </div>
+                  </>
               )}
-              <div className="px-10">
-                 <h3 className="text-lg uppercase tracking-wide font-bold leading-tight">{data.city}</h3>
-                 <h2 className="text-xl uppercase tracking-wider font-black leading-tight">{data.district}</h2>
-                 <h1 className="text-2xl uppercase tracking-widest font-black leading-tight">{data.village}</h1>
-                 <div className="text-sm italic mt-1">{data.address_office}</div>
+
+              {data.jenisDomisili === 'Warga' && (
+                  <div className="mb-6 text-justify">
+                      <p>Orang tersebut di atas adalah benar-benar warga yang saat ini berdomisili dan bertempat tinggal di wilayah Desa {data.desa}, Kecamatan {data.kecamatan}, Kabupaten {data.kabupaten}.</p>
+                  </div>
+              )}
+
+              <div className="mb-6 text-justify">
+                  <p>Surat Keterangan Domisili ini dibuat untuk keperluan: <strong>{data.keperluan}</strong>.</p>
               </div>
-           </div>
-
-           <div className="text-center mb-6">
-              <h2 className="font-bold text-lg uppercase underline">SURAT KETERANGAN DOMISILI</h2>
-              <div className="text-sm font-bold">Nomor: {data.no}</div>
-           </div>
-
-           <p className="mb-4 text-justify">Yang bertanda tangan di bawah ini, Kepala {data.village.replace('KELURAHAN ', 'Kelurahan ').replace('DESA ', 'Desa ')} {data.district.replace('KECAMATAN ', 'Kecamatan ')} {data.city}, menerangkan dengan sebenarnya bahwa:</p>
-           
-           <div className="ml-4 mb-6 break-inside-avoid">
-              <table className="w-full leading-snug">
-                 <tbody>
-                    <tr><td className="w-40 py-1">Nama Lengkap</td><td className="w-3 py-1">:</td><td className="font-bold py-1 uppercase">{data.name}</td></tr>
-                    <tr><td className="py-1">NIK</td><td className="py-1">:</td><td className="py-1">{data.nik}</td></tr>
-                    <tr><td className="py-1">Tempat/Tgl. Lahir</td><td className="py-1">:</td><td className="py-1">{data.ttl}</td></tr>
-                    <tr><td className="py-1">Jenis Kelamin</td><td className="py-1">:</td><td className="py-1">{data.gender}</td></tr>
-                    <tr><td className="py-1">Kewarganegaraan</td><td className="py-1">:</td><td className="py-1">{data.citizenship}</td></tr>
-                    <tr><td className="py-1">Agama</td><td className="py-1">:</td><td className="py-1">{data.religion}</td></tr>
-                    <tr><td className="py-1">Status Perkawinan</td><td className="py-1">:</td><td className="py-1">{data.status}</td></tr>
-                    <tr><td className="py-1">Pekerjaan</td><td className="py-1">:</td><td className="py-1">{data.job}</td></tr>
-                    <tr><td className="py-1 align-top">Alamat</td><td className="py-1 align-top">:</td><td className="py-1 align-top">{data.address}</td></tr>
-                 </tbody>
-              </table>
-           </div>
-
-           <p className="mb-4 text-justify break-inside-avoid">
-              Orang tersebut di atas adalah benar-benar warga penduduk {data.village} {data.district} {data.city} dan berdomisili pada alamat tersebut di atas.
-           </p>
-
-           <p className="mb-8 text-justify break-inside-avoid">
-              Demikian Surat Keterangan Domisili ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
-           </p>
-
-           <div className="flex justify-end text-center mt-auto break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="w-72">
-                 <p className="mb-1">Dikeluarkan di: {data.city.replace('KOTA ','').replace('KABUPATEN ','')}</p>
-                 <p className="mb-4">Pada Tanggal: {formatDate(data.date)}</p>
-                 <p className="font-bold mb-20 uppercase">LURAH {data.village.replace('KELURAHAN ','')}</p>
-                 <p className="font-bold underline uppercase">{data.lurahName}</p>
-                 <p className="text-sm">{data.lurahNIP}</p>
+              
+              <div className="mb-12 text-justify">
+                  <p>Demikian Surat Keterangan ini dibuat dengan sesungguhnya untuk dapat dipergunakan sebagaimana mestinya.</p>
               </div>
-           </div>
-        </div>
-      );
-    }
+
+              {/* TANDA TANGAN */}
+              <div className="flex justify-end text-center mt-12 break-inside-avoid pb-12">
+                  <div className="w-64">
+                      <p className="mb-1">{data.desa}, {formatDateSafe(data.tanggalSurat)}</p>
+                      <p className="mb-20 font-bold uppercase">KEPALA DESA {data.desa}</p>
+                      <p className="font-bold underline uppercase">{data.kadesName}</p>
+                  </div>
+              </div>
+
+          </Kertas>
+      </div>
+    );
   };
 
+  if (!isClient) return null;
+
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
-      {/* CSS PRINT FIXED */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4; margin: 15mm; } 
@@ -290,134 +253,196 @@ function DomisiliToolBuilder() {
         }
       ` }} />
 
-      {/* HEADER NAVY */}
-      <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
-         <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
-            <div className="flex items-center gap-4">
-               <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-800 rounded-full transition-all group">
-                  <ArrowLeftCircle size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors"/>
-                  <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
-               </Link>
-               <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Keterangan Domisili <span className="text-emerald-400">Generator</span></h1></div>
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
+               <BookOpen size={16} className="text-emerald-500" /> <span>Legal Draft - Domisili</span>
             </div>
-            <div className="flex items-center gap-3">
-               <div className="hidden md:flex relative">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
-                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Pengantar RT/RW' : 'Format Kelurahan'}</span><ChevronDown size={14} className="text-slate-500"/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-               <div className="relative md:hidden">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
-                    Template <ChevronDown size={14}/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-               <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95">
-                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
-               </button>
-            </div>
-         </div>
-      </header>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
+            </button>
+          </div>
+      </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Surat</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><MapPin size={12}/> Data Wilayah</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="flex gap-4 items-center">
-                         <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 bg-slate-50 shrink-0 relative overflow-hidden group">
-                            {logo ? <img src={logo} className="w-full h-full object-contain p-1 grayscale" alt="Logo" /> : <div className="text-[8px] text-center text-slate-400 font-bold">LOGO<br/>GARUDA</div>}
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[8px] font-bold">UBAH</div>
-                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
-                         </div>
-                         <div className="flex-1 space-y-2">
-                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.district} onChange={e => handleDataChange('district', e.target.value)} placeholder="Kecamatan..." />
-                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.village} onChange={e => handleDataChange('village', e.target.value)} placeholder="Desa/Kelurahan..." />
-                         </div>
-                      </div>
-                      <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota/Kabupaten..." />
-                      <div className="grid grid-cols-2 gap-3">
-                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.rt} onChange={e => handleDataChange('rt', e.target.value)} placeholder="RT" />
-                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" value={data.rw} onChange={e => handleDataChange('rw', e.target.value)} placeholder="RW" />
-                      </div>
-                      {templateId === 2 && <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address_office} onChange={e => handleDataChange('address_office', e.target.value)} placeholder="Alamat Kantor Desa..." />}
-                  </div>
-               </div>
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><User size={12}/> Data Pemohon</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.name} onChange={e => handleDataChange('name', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kewarganegaraan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.citizenship} onChange={e => handleDataChange('citizenship', e.target.value)} /></div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">TTL</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.ttl} onChange={e => handleDataChange('ttl', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pekerjaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.job} onChange={e => handleDataChange('job', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} /></div>
-                  </div>
-               </div>
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Pejabat Penandatangan</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      {templateId === 1 ? (
-                         <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ketua RT</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nameRT} onChange={e => handleDataChange('nameRT', e.target.value)} /></div>
-                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ketua RW</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nameRW} onChange={e => handleDataChange('nameRW', e.target.value)} /></div>
-                         </div>
-                      ) : (
-                         <div className="space-y-3">
-                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lurah/Kades</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.lurahName} onChange={e => handleDataChange('lurahName', e.target.value)} /></div>
-                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.lurahNIP} onChange={e => handleDataChange('lurahNIP', e.target.value)} /></div>
-                         </div>
-                      )}
-                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-dashed border-slate-200">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">No. Surat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.no} onChange={e => handleDataChange('no', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Surat</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
-                      </div>
-                  </div>
-               </div>
-               <div className="h-20 md:hidden"></div>
-            </div>
-         </div>
+      {/* MOBILE TAB NAV UNTUK PREVIEW/EDITOR (opsional, ditaruh di bawah atau sembunyi) */}
+      <div className="no-print md:hidden flex border-b bg-white">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-sm font-bold ${mobileView === 'editor' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500'}`}>Editor</button>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-sm font-bold ${mobileView === 'preview' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-500'}`}>Preview</button>
+      </div>
 
-         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
-             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0">
-                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
-                      <ContentInside />
-                   </div>
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative">
+        
+        {/* PANEL KIRI: FORM EDITOR */}
+        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50">
+              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Pengaturan Dokumen</h2>
+              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
+           </div>
+           
+           {/* TAB NAVIGATION */}
+           <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase">
+              <button onClick={() => setActiveTab('surat')} className={`flex-1 py-3 border-r ${activeTab === 'surat' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Surat</button>
+              <button onClick={() => setActiveTab('pemohon')} className={`flex-1 py-3 border-r ${activeTab === 'pemohon' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Pemohon</button>
+              {data.jenisDomisili === 'Perusahaan' && (
+                <button onClick={() => setActiveTab('perusahaan')} className={`flex-1 py-3 border-r ${activeTab === 'perusahaan' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Perusahaan</button>
+              )}
+              <button onClick={() => setActiveTab('lainnya')} className={`flex-1 py-3 ${activeTab === 'lainnya' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Keperluan</button>
+           </div>
+
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+              
+              {activeTab === 'surat' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4">Informasi Surat</h3>
+                
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Domisili</label>
+                  <select 
+                    className="w-full p-2 border rounded-lg text-sm mt-1 bg-white font-bold text-blue-600" 
+                    value={data.jenisDomisili} 
+                    onChange={e => handleDataChange('jenisDomisili', e.target.value)}
+                  >
+                      <option value="Warga">Domisili Warga / Pribadi</option>
+                      <option value="Perusahaan">Domisili Perusahaan / Usaha</option>
+                  </select>
                 </div>
-             </div>
-         </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Surat</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.nomorSurat} onChange={e => handleDataChange('nomorSurat', e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Surat</label>
+                  <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.tanggalSurat} onChange={e => handleDataChange('tanggalSurat', e.target.value)} />
+                </div>
+                
+                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4 mt-6">Pemerintah Desa</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Kepala Desa</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.kadesName} onChange={e => handleDataChange('kadesName', e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Desa</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.desa} onChange={e => handleDataChange('desa', e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Kecamatan</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.kecamatan} onChange={e => handleDataChange('kecamatan', e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Kabupaten</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.kabupaten} onChange={e => handleDataChange('kabupaten', e.target.value)} />
+                </div>
+              </div>
+              )}
+
+              {activeTab === 'pemohon' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-emerald-600 border-b pb-1 mb-4">
+                  Identitas {data.jenisDomisili === 'Perusahaan' ? 'Direktur / Penanggung Jawab' : 'Pemohon'}
+                </h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap Sesuai KTP</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.namaPemohon} onChange={e => handleDataChange('namaPemohon', e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Induk Kependudukan (NIK)</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} maxLength={16} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Lahir</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.tempatLahir} onChange={e => handleDataChange('tempatLahir', e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Lahir</label>
+                    <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.tanggalLahir} onChange={e => handleDataChange('tanggalLahir', e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Kelamin</label>
+                    <select className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" value={data.jenisKelamin} onChange={e => handleDataChange('jenisKelamin', e.target.value)}>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Agama</label>
+                    <select className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" value={data.agama} onChange={e => handleDataChange('agama', e.target.value)}>
+                        <option value="Islam">Islam</option>
+                        <option value="Kristen">Kristen</option>
+                        <option value="Katolik">Katolik</option>
+                        <option value="Hindu">Hindu</option>
+                        <option value="Buddha">Buddha</option>
+                        <option value="Konghucu">Konghucu</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Pekerjaan</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.pekerjaan} onChange={e => handleDataChange('pekerjaan', e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Lengkap</label>
+                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-20" value={data.alamatPemohon} onChange={e => handleDataChange('alamatPemohon', e.target.value)} />
+                </div>
+              </div>
+              )}
+
+              {activeTab === 'perusahaan' && data.jenisDomisili === 'Perusahaan' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-purple-600 border-b pb-1 mb-4">Data Perusahaan</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama PT / CV / Usaha</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.namaPerusahaan} onChange={e => handleDataChange('namaPerusahaan', e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Akta Pendirian</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.aktaPendirian} onChange={e => handleDataChange('aktaPendirian', e.target.value)} placeholder="Contoh: No. 12 Tanggal 5 Mei 2020 Notaris..." />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">NPWP Perusahaan</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.npwpPerusahaan} onChange={e => handleDataChange('npwpPerusahaan', e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Bidang Usaha</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.bidangUsaha} onChange={e => handleDataChange('bidangUsaha', e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Perusahaan</label>
+                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-20" value={data.alamatPerusahaan} onChange={e => handleDataChange('alamatPerusahaan', e.target.value)} />
+                </div>
+              </div>
+              )}
+
+              {activeTab === 'lainnya' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-amber-600 border-b pb-1 mb-4">Keperluan</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Keperluan Pembuatan Surat</label>
+                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-24" value={data.keperluan} onChange={e => handleDataChange('keperluan', e.target.value)} placeholder="Contoh: Persyaratan administrasi pembukaan rekening bank" />
+                </div>
+              </div>
+              )}
+
+           </div>
+        </div>
+
+        {/* PANEL KANAN: PREVIEW DOKUMEN */}
+        <div className="flex-1 bg-slate-200 overflow-y-auto relative p-4 md:p-8 custom-scrollbar">
+           <DocumentContent />
+        </div>
       </main>
-      
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
-         <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
-      </div>
-
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
-
-      <div id="print-only-root" className="hidden">
-         <table className="print-table">
-            <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
-            <tbody><tr><td><div className="print-content-wrapper"><ContentInside /></div></td></tr></tbody>
-            <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
-         </table>
-      </div>
     </div>
   );
 }

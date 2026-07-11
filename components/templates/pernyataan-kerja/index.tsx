@@ -2,7 +2,7 @@
 
 import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, Edit3, RotateCcw, FileText, LayoutTemplate, ArrowLeftCircle, Briefcase
+  Printer, Edit3, RotateCcw, FileText, ArrowLeftCircle, Briefcase
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -64,6 +64,7 @@ function PernyataanBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<PernyataanData>(INITIAL_DATA);
+  const [activeTab, setActiveTab] = useState<'karyawan' | 'pekerjaan' | 'lainnya'>('karyawan');
 
   useEffect(() => {
     setIsClient(true);
@@ -192,104 +193,68 @@ function PernyataanBuilder() {
         }
       ` }} />
 
-      {/* HEADER NAV */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
               <ArrowLeftCircle size={20} className="text-emerald-400" />
               <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
                <Briefcase size={16} className="text-blue-500" /> <span>Pernyataan Kerja Builder</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
-              <LayoutTemplate size={14} className="text-blue-400" /> Template HRD
-            </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+            <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans shadow-sm">
-             <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Legal</h2>
-             <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Formulir"><RotateCcw size={16}/></button>
+        
+        {/* PANEL KIRI: FORM EDITOR */}
+        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50">
+              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Pengaturan Dokumen</h2>
+              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
            </div>
            
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans bg-slate-50/50">
+           {/* TAB NAVIGATION */}
+           <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase">
+              <button onClick={() => setActiveTab('karyawan')} className={`flex-1 py-3 border-r ${activeTab === 'karyawan' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Karyawan</button>
+              <button onClick={() => setActiveTab('pekerjaan')} className={`flex-1 py-3 border-r ${activeTab === 'pekerjaan' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Pekerjaan</button>
+              <button onClick={() => setActiveTab('lainnya')} className={`flex-1 py-3 ${activeTab === 'lainnya' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Lainnya</button>
+           </div>
+
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
               
-              {/* DATA SURAT */}
-              <div className="space-y-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <h3 className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 border-b pb-2"><FileText size={14}/> Info Penandatanganan</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Kota Tempat TTD</label>
-                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Misal: Jakarta" />
-                  </div>
-                  <div>
-                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Tanggal</label>
-                    <input type="date" className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                  </div>
-                </div>
-              </div>
-
-              {/* DATA PERUSAHAAN & KONTRAK */}
-              <div className="space-y-4 bg-white p-4 rounded-xl border border-purple-100 shadow-sm">
-                <h3 className="text-[10px] font-black uppercase text-purple-600 border-b border-purple-100 pb-2">Informasi Pekerjaan</h3>
-                
+              {activeTab === 'karyawan' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4">Identitas Karyawan (Pembuat Pernyataan)</h3>
                 <div>
-                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nama Perusahaan / Institusi</label>
-                  <input className="w-full p-2 border border-slate-300 rounded-lg text-xs font-bold focus:ring-2 focus:ring-purple-500 outline-none" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} placeholder="Misal: PT Teknologi Inovasi Nusantara" />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1 uppercase" value={data.empName} onChange={e => handleDataChange('empName', e.target.value)} placeholder="Sesuai KTP" />
                 </div>
                 <div>
-                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Posisi / Jabatan Pekerjaan</label>
-                  <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.position} onChange={e => handleDataChange('position', e.target.value)} placeholder="Misal: Software Engineer" />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Induk Kependudukan (NIK)</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1 font-mono" value={data.empNik} onChange={e => handleDataChange('empNik', e.target.value)} placeholder="16 Digit NIK" maxLength={16} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Masa Kontrak</label>
-                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.contractDuration} onChange={e => handleDataChange('contractDuration', e.target.value)} placeholder="Misal: 1 (Satu) Tahun" />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Lahir</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.empPob} onChange={e => handleDataChange('empPob', e.target.value)} placeholder="Kota Lahir" />
                   </div>
                   <div>
-                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nilai Penalti (Jika Resign)</label>
-                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.penaltyAmount} onChange={e => handleDataChange('penaltyAmount', e.target.value)} placeholder="Misal: Rp 10.000.000" />
-                  </div>
-                </div>
-              </div>
-
-              {/* DATA KARYAWAN */}
-              <div className="space-y-4 bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
-                <h3 className="text-[10px] font-black uppercase text-blue-600 border-b border-blue-100 pb-2">Identitas Karyawan (Pembuat Pernyataan)</h3>
-                
-                <div>
-                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nama Lengkap</label>
-                  <input className="w-full p-2 border border-slate-300 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.empName} onChange={e => handleDataChange('empName', e.target.value)} placeholder="Sesuai KTP" />
-                </div>
-                <div>
-                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nomor Induk Kependudukan (NIK)</label>
-                  <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.empNik} onChange={e => handleDataChange('empNik', e.target.value)} placeholder="16 Digit NIK" maxLength={16} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Tempat Lahir</label>
-                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.empPob} onChange={e => handleDataChange('empPob', e.target.value)} placeholder="Kota Lahir" />
-                  </div>
-                  <div>
-                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Tgl Lahir</label>
-                    <input type="date" className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.empDob} onChange={e => handleDataChange('empDob', e.target.value)} />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tgl Lahir</label>
+                    <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.empDob} onChange={e => handleDataChange('empDob', e.target.value)} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jenis Kelamin</label>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Kelamin</label>
                     <select 
-                      className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                      className="w-full p-2 border rounded-lg text-sm mt-1 bg-white"
                       value={data.empGender}
                       onChange={e => handleDataChange('empGender', e.target.value as any)}
                     >
@@ -298,15 +263,57 @@ function PernyataanBuilder() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Agama</label>
-                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.empReligion} onChange={e => handleDataChange('empReligion', e.target.value)} placeholder="Agama" />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Agama</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.empReligion} onChange={e => handleDataChange('empReligion', e.target.value)} placeholder="Agama" />
                   </div>
                 </div>
                 <div>
-                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Alamat Lengkap (Sesuai KTP)</label>
-                  <textarea className="w-full p-2 border border-slate-300 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.empAddress} onChange={e => handleDataChange('empAddress', e.target.value)} placeholder="Jalan, RT/RW, Kel, Kec..." />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Lengkap (Sesuai KTP)</label>
+                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-16 resize-none" value={data.empAddress} onChange={e => handleDataChange('empAddress', e.target.value)} placeholder="Jalan, RT/RW, Kel, Kec..." />
                 </div>
               </div>
+              )}
+
+              {activeTab === 'pekerjaan' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-purple-600 border-b pb-1 mb-4">Informasi Pekerjaan</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Perusahaan / Institusi</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1 font-bold" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} placeholder="Misal: PT Teknologi Inovasi Nusantara" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Posisi / Jabatan Pekerjaan</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.position} onChange={e => handleDataChange('position', e.target.value)} placeholder="Misal: Software Engineer" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Masa Kontrak</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.contractDuration} onChange={e => handleDataChange('contractDuration', e.target.value)} placeholder="Misal: 1 (Satu) Tahun" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nilai Penalti (Jika Resign)</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.penaltyAmount} onChange={e => handleDataChange('penaltyAmount', e.target.value)} placeholder="Misal: Rp 10.000.000" />
+                  </div>
+                </div>
+              </div>
+              )}
+
+              {activeTab === 'lainnya' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-emerald-600 border-b pb-1 mb-4">Info Penandatanganan</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Kota Tempat TTD</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Misal: Jakarta" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal</label>
+                    <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                  </div>
+                </div>
+              </div>
+              )}
+
            </div>
         </div>
 

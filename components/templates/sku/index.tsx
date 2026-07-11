@@ -1,233 +1,259 @@
 'use client';
 
-/**
- * FILE: SKUPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Keterangan Usaha (SKU)
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
- */
-
-import { useState, useRef, Suspense, useEffect } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Upload, LayoutTemplate, Building2, 
-  User, MapPin, FileBadge, Store, ChevronDown, Check, Edit3, Eye, ImagePlus, X, RotateCcw, ArrowLeftCircle
+  Printer, ArrowLeft, RotateCcw, ArrowLeftCircle, BookOpen, Edit3 
 } from 'lucide-react';
 import Link from 'next/link';
 
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
-
 // --- 1. TYPE DEFINITIONS ---
-interface SKUData {
-  govLevel: string;
-  district: string;
-  village: string;
-  address_office: string;
-  city: string;
+interface SkuData {
+  letterNumber: string;
+  villageName: string;
+  subDistrictName: string;
+  districtName: string;
   
-  no: string;
-  date: string;
-  
-  // Pemilik
-  name: string;
-  nik: string;
-  ttl: string;
-  gender: string;
-  religion: string;
-  job: string;
-  address: string;
-  
-  // Usaha
+  ownerName: string;
+  ownerNik: string;
+  ownerPob: string;
+  ownerDob: string;
+  ownerGender: string;
+  ownerReligion: string;
+  ownerJob: string;
+  ownerAddress: string;
+
   businessName: string;
   businessType: string;
   businessAddress: string;
-  since: string;
-  purpose: string;
-  
-  // Pejabat
-  signerName: string;
-  signerNIP: string;
-  signerTitle: string;
+  businessYear: string;
+  monthlyIncome: number;
+
+  issueDate: string;
+  officialName: string;
+  officialPosition: string;
+  officialNip: string;
 }
 
 // --- 2. DATA DEFAULT ---
-const INITIAL_DATA: SKUData = {
-  govLevel: 'PEMERINTAH KABUPATEN BOGOR',
-  district: 'KECAMATAN CIBINONG',
-  village: 'KELURAHAN PAKANSARI',
-  address_office: 'Jl. Raya Cikaret No. 1, Cibinong - 16915',
-  city: 'CIBINONG',
+const INITIAL_DATA: SkuData = {
+  letterNumber: '400/012/SKU/2026',
+  villageName: 'Sardonoharjo',
+  subDistrictName: 'Ngaglik',
+  districtName: 'Sleman',
   
-  no: '503 / 125 / Ekbang / 2026',
-  date: '', 
-  
-  name: 'BUDI SANTOSO',
-  nik: '3201021205900001',
-  ttl: 'Bogor, 12 Mei 1990',
-  gender: 'Laki-laki',
-  religion: 'Islam',
-  job: 'Wiraswasta',
-  address: 'Kp. Curug RT 02 RW 05, Pakansari, Cibinong',
-  
-  businessName: 'WARUNG SEMBAKO "BERKAH"',
-  businessType: 'Perdagangan Eceran / Kelontong',
-  businessAddress: 'Jl. Raya Jakarta-Bogor KM 45 (Depan Pabrik Garmen)',
-  since: '2020',
-  purpose: 'Persyaratan Administrasi Pengajuan Kredit Usaha Rakyat (KUR) Bank BRI',
-  
-  signerName: 'Drs. H. ASEP SAEPUDIN, M.Si',
-  signerNIP: 'NIP. 19750817 200003 1 005',
-  signerTitle: 'LURAH PAKANSARI'
+  ownerName: 'BAMBANG SUDARSO',
+  ownerNik: '3404010101740001',
+  ownerPob: 'Sleman',
+  ownerDob: '1974-05-12',
+  ownerGender: 'Laki-laki',
+  ownerReligion: 'Islam',
+  ownerJob: 'Wiraswasta',
+  ownerAddress: 'Jl. Kaliurang KM 10, RT 05 RW 02, Sardonoharjo, Ngaglik, Sleman',
+
+  businessName: 'Toko Kelontong Berkah',
+  businessType: 'Perdagangan / Sembako',
+  businessAddress: 'Pasar Gentan Blok A No. 12, Sardonoharjo, Ngaglik, Sleman',
+  businessYear: '2015',
+  monthlyIncome: 15000000,
+
+  issueDate: '2026-07-11',
+  officialName: 'H. AHMAD FAISAL, S.E.',
+  officialPosition: 'Kepala Desa',
+  officialNip: '19700101 199803 1 005',
 };
 
-export default function SKUPage() {
+// --- HELPER FUNCTION UNTUK TERBILANG ---
+function terbilang(angka: number): string {
+    const huruf = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+    let hasil = "";
+    if (angka < 12) {
+        hasil = huruf[angka];
+    } else if (angka < 20) {
+        hasil = terbilang(angka - 10) + " Belas";
+    } else if (angka < 100) {
+        hasil = terbilang(Math.floor(angka / 10)) + " Puluh " + terbilang(angka % 10);
+    } else if (angka < 200) {
+        hasil = "Seratus " + terbilang(angka - 100);
+    } else if (angka < 1000) {
+        hasil = terbilang(Math.floor(angka / 100)) + " Ratus " + terbilang(angka % 100);
+    } else if (angka < 2000) {
+        hasil = "Seribu " + terbilang(angka - 1000);
+    } else if (angka < 1000000) {
+        hasil = terbilang(Math.floor(angka / 1000)) + " Ribu " + terbilang(angka % 1000);
+    } else if (angka < 1000000000) {
+        hasil = terbilang(Math.floor(angka / 1000000)) + " Juta " + terbilang(angka % 1000000);
+    } else if (angka < 1000000000000) {
+        hasil = terbilang(Math.floor(angka / 1000000000)) + " Miliar " + terbilang(angka % 1000000000);
+    } else if (angka < 1000000000000000) {
+        hasil = terbilang(Math.floor(angka / 1000000000000)) + " Triliun " + terbilang(angka % 1000000000000);
+    }
+    return hasil.trim();
+}
+
+// --- 3. KOMPONEN UTAMA ---
+export default function SkuPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs bg-slate-50">Memuat Editor SKU...</div>}>
-      <SKUToolBuilder />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Formulir SKU...</div>}>
+      <SkuBuilder />
     </Suspense>
   );
 }
 
-function SKUToolBuilder() {
-  // --- STATE SYSTEM ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+function SkuBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [logo, setLogo] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [data, setData] = useState<SKUData>(INITIAL_DATA);
+  const [data, setData] = useState<SkuData>(INITIAL_DATA);
+  const [activeTab, setActiveTab] = useState<'pemilik' | 'usaha' | 'surat'>('pemilik');
 
   useEffect(() => {
     setIsClient(true);
-    const today = new Date().toISOString().split('T')[0];
-    setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  const handleDataChange = (field: keyof SKUData, val: string) => {
+  const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+  
+  const handleDataChange = (field: keyof SkuData, val: any) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setLogo(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
-        const today = new Date().toISOString().split('T')[0];
-        setData({ ...INITIAL_DATA, date: today });
-        setLogo(null);
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua perubahan akan hilang.')) {
+        setData({ ...INITIAL_DATA });
     }
   };
 
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Formal (Kelurahan/Desa)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Ringkas (Modern)
-        </button>
+  const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+      {children}
     </div>
   );
-
-  const activeTemplateName = templateId === 1 ? 'Format Formal' : 'Format Ringkas';
 
   const DocumentContent = () => {
     const formatDateSafe = (dateString: string) => {
         if(!dateString) return '...';
-        try {
-            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
-        } catch { return dateString; }
+        return new Date(dateString).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
     };
 
     return (
-      <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
-        
-        {/* KOP SURAT */}
-        {templateId === 1 ? (
-          <div className="flex items-center border-b-4 border-double border-slate-900 pb-3 mb-6 shrink-0 text-center relative font-sans">
-            {logo ? (
-              <img src={logo} alt="Logo" className="w-20 h-20 object-contain absolute left-0 top-0" />
-            ) : (
-              <div className="w-20 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 absolute left-0 top-0 print:hidden">
-                 <Building2 size={32} />
+      <div className="flex flex-col gap-8 print:gap-0">
+          <Kertas>
+              {/* KOP SURAT */}
+              <div className="text-center mb-8 pb-4 border-b-[4px] border-black border-double flex flex-col items-center">
+                  <h1 className="font-bold text-xl uppercase tracking-wider">PEMERINTAH KABUPATEN {data.districtName.toUpperCase()}</h1>
+                  <h2 className="font-bold text-lg uppercase tracking-wider">KECAMATAN {data.subDistrictName.toUpperCase()}</h2>
+                  <h3 className="font-black text-2xl uppercase tracking-widest">DESA {data.villageName.toUpperCase()}</h3>
               </div>
-            )}
-            <div className="flex-grow px-20">
-               <h3 className="text-[11pt] font-bold uppercase leading-tight text-slate-700">{data.govLevel}</h3>
-               <h2 className="text-[13pt] font-black uppercase leading-tight text-slate-900">{data.district}</h2>
-               <h1 className="text-[18pt] font-black uppercase leading-tight tracking-[0.2em] text-slate-900">{data.village}</h1>
-               <p className="text-[8.5pt] mt-1 italic text-slate-500 print:text-black leading-tight">{data.address_office}</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex justify-between items-start mb-8 border-b-2 border-slate-900 pb-4 shrink-0 font-sans">
-            <div>
-              <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">SKU</h1>
-              <p className="text-[8pt] text-slate-400 font-bold mt-1 tracking-widest uppercase">Business Certificate</p>
-            </div>
-            <div className="text-right">
-               <p className="text-[10pt] font-black uppercase text-slate-900">{data.village}</p>
-               <p className="text-[8pt] font-mono text-slate-500">{data.no}</p>
-            </div>
-          </div>
-        )}
-
-        {/* JUDUL */}
-        <div className="text-center mb-8 shrink-0 leading-tight font-sans">
-          <h2 className="text-xl font-black underline uppercase decoration-1 underline-offset-8 tracking-widest">SURAT KETERANGAN USAHA</h2>
-          {templateId === 1 && <p className="text-[10pt] mt-3 font-bold text-slate-400 print:text-black">Nomor: {data.no}</p>}
-        </div>
-
-        {/* BODY SURAT */}
-        <div className="flex-grow space-y-6 overflow-hidden text-justify leading-relaxed">
-          <p>Yang bertanda tangan di bawah ini, Kepala <strong>{data.village}</strong> <strong>{data.district}</strong> <strong>{data.govLevel.replace('PEMERINTAH ','')}</strong>, dengan ini menerangkan bahwa:</p>
-          
-          <div className="ml-8 space-y-1.5 font-sans text-[10pt] border-l-4 border-slate-100 pl-8 py-1 break-inside-avoid print:border-slate-300 italic">
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>Nama Lengkap</span><span>:</span><span className="font-bold text-slate-900 uppercase tracking-tight">{data.name}</span></div>
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>NIK / KTP</span><span>:</span><span className="font-mono">{data.nik}</span></div>
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>Tempat, Tgl Lahir</span><span>:</span><span>{data.ttl}</span></div>
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>Pekerjaan</span><span>:</span><span>{data.job}</span></div>
-              <div className="grid grid-cols-[160px_10px_1fr] align-top"><span>Alamat Domisili</span><span>:</span><span>{data.address}</span></div>
-          </div>
-
-          <p>Adalah benar yang bersangkutan penduduk yang berdomisili di wilayah kami dan berdasarkan pengamatan serta data yang ada, benar memiliki unit usaha sebagai berikut:</p>
-
-          <div className="bg-slate-50 p-6 rounded-2xl border-l-4 border-emerald-500 print:bg-transparent print:border-2 print:border-black break-inside-avoid">
-              <div className="space-y-2">
-                <div className="grid grid-cols-[150px_10px_1fr]"><span>Nama Usaha</span><span>:</span><span className="font-black uppercase text-blue-800 print:text-black text-[11pt] tracking-tight">{data.businessName}</span></div>
-                <div className="grid grid-cols-[150px_10px_1fr]"><span>Bidang / Jenis</span><span>:</span><span className="font-bold">{data.businessType}</span></div>
-                <div className="grid grid-cols-[150px_10px_1fr]"><span>Mulai Berdiri</span><span>:</span><span>Sejak Tahun {data.since}</span></div>
-                <div className="grid grid-cols-[150px_10px_1fr] align-top"><span>Alamat Lokasi</span><span>:</span><span className="italic leading-snug">"{data.businessAddress}"</span></div>
+              
+              {/* JUDUL SURAT */}
+              <div className="text-center mb-10">
+                  <h1 className="font-bold text-xl uppercase tracking-wider underline">SURAT KETERANGAN USAHA</h1>
+                  <p className="text-sm">Nomor: {data.letterNumber}</p>
               </div>
-          </div>
 
-          <p className="leading-relaxed border-t pt-4 border-slate-50 print:border-black font-sans">Surat keterangan ini diberikan atas permohonan yang bersangkutan untuk dipergunakan sebagai:<br/><strong className="italic text-blue-700 print:text-black">"{data.purpose}"</strong></p>
-
-          <p>Demikian surat keterangan ini kami buat dengan sebenarnya agar dapat dipergunakan sebagaimana mestinya.</p>
-        </div>
-
-        {/* TANDA TANGAN */}
-        <div className="shrink-0 mt-8 pt-8 border-t-2 border-slate-50 print:border-black break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-           <div className="flex justify-end text-center font-sans">
-              <div className="w-80 flex flex-col h-44">
-                 <p className="text-[10pt] mb-1 font-bold text-slate-400">{data.city}, {formatDateSafe(data.date)}</p>
-                 <p className="uppercase text-[8.5pt] font-black text-slate-300 tracking-widest mb-1">{data.signerTitle},</p>
-                 <div className="mt-auto">
-                    <p className="font-black underline uppercase tracking-tight leading-none text-[11pt] text-slate-900">{data.signerName}</p>
-                    <p className="text-[9pt] font-bold text-blue-600 mt-1 uppercase tracking-tighter">{data.signerNIP}</p>
-                 </div>
+              {/* PEMBUKA */}
+              <div className="mb-6 text-justify">
+                  <p>
+                      Yang bertanda tangan di bawah ini Kepala Desa {data.villageName}, Kecamatan {data.subDistrictName}, Kabupaten {data.districtName}, dengan ini menerangkan bahwa:
+                  </p>
               </div>
-           </div>
-        </div>
+
+              {/* IDENTITAS PEMILIK */}
+              <div className="ml-8 mb-6 text-justify break-inside-avoid">
+                  <div className="flex flex-row mb-1">
+                      <div className="w-56 shrink-0">Nama Lengkap</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div className="font-bold uppercase">{data.ownerName}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-56 shrink-0">NIK</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.ownerNik}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-56 shrink-0">Tempat, Tanggal Lahir</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.ownerPob}, {formatDateSafe(data.ownerDob)}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-56 shrink-0">Jenis Kelamin</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.ownerGender}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-56 shrink-0">Agama</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.ownerReligion}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-56 shrink-0">Pekerjaan</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.ownerJob}</div>
+                  </div>
+                  <div className="flex flex-row mb-1 align-top">
+                      <div className="w-56 shrink-0">Alamat</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.ownerAddress}</div>
+                  </div>
+              </div>
+
+              {/* KETERANGAN USAHA */}
+              <div className="mb-6 text-justify">
+                  <p>Adalah benar penduduk yang berdomisili di Desa {data.villageName}, dan nama tersebut di atas benar-benar memiliki usaha:</p>
+              </div>
+
+              <div className="ml-8 mb-6 text-justify break-inside-avoid">
+                  <div className="flex flex-row mb-1">
+                      <div className="w-56 shrink-0">Nama Usaha</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div className="font-bold uppercase">{data.businessName}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-56 shrink-0">Bidang / Jenis Usaha</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.businessType}</div>
+                  </div>
+                  <div className="flex flex-row mb-1">
+                      <div className="w-56 shrink-0">Tahun Berdiri</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.businessYear}</div>
+                  </div>
+                  <div className="flex flex-row mb-1 align-top">
+                      <div className="w-56 shrink-0">Alamat Usaha</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>{data.businessAddress}</div>
+                  </div>
+                  <div className="flex flex-row mb-1 align-top">
+                      <div className="w-56 shrink-0">Kapasitas Pendapatan Bulanan</div>
+                      <div className="w-4 shrink-0">:</div>
+                      <div>
+                          {formatRupiah(data.monthlyIncome)} <br />
+                          <em>({terbilang(data.monthlyIncome)} Rupiah)</em>
+                      </div>
+                  </div>
+              </div>
+
+              {/* PENUTUP DAN KLAUSUL */}
+              <div className="mb-6 text-justify">
+                  <p>
+                      <strong>Klausul Penegas:</strong> Surat Keterangan Usaha ini diterbitkan dan dibuat khusus untuk digunakan sebagai <strong>Persyaratan Administrasi / Pengajuan Pinjaman</strong>.
+                  </p>
+              </div>
+              <div className="mb-12 text-justify">
+                  <p>
+                      Demikian Surat Keterangan Usaha ini dibuat dengan sebenar-benarnya berdasarkan peninjauan langsung di lapangan, untuk dapat dipergunakan sebagaimana mestinya oleh pihak yang berkepentingan.
+                  </p>
+              </div>
+
+              {/* TANDA TANGAN */}
+              <div className="flex justify-end text-center mt-12 break-inside-avoid pb-12">
+                  <div className="w-72">
+                      <p className="mb-1">{data.villageName}, {formatDateSafe(data.issueDate)}</p>
+                      <p className="mb-24 font-bold">{data.officialPosition} {data.villageName}</p>
+                      <p className="font-bold underline uppercase">{data.officialName}</p>
+                      {data.officialNip && <p>NIP. {data.officialNip}</p>}
+                  </div>
+              </div>
+
+          </Kertas>
       </div>
     );
   };
@@ -249,105 +275,192 @@ function SKUToolBuilder() {
         }
       ` }} />
 
-      {/* NAVBAR */}
-      <div className="no-print bg-slate-900 text-white h-16 sticky top-0 z-50 border-b border-slate-700 flex items-center px-4 justify-between font-sans">
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
               <ArrowLeftCircle size={20} className="text-emerald-400" />
               <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 hidden md:block mx-2"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-400 uppercase tracking-tighter italic font-sans">
-               <Store size={16} /> <span>SKU Official Builder</span>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
+               <BookOpen size={16} className="text-emerald-500" /> <span>Surat Keterangan Usaha (SKU)</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="relative font-sans">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-bold transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" />
-                <span className="hidden sm:inline">{activeTemplateName}</span>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-transform' : ''} />
-              </button>
-              {showTemplateMenu && <TemplateMenu />}
-            </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all flex items-center gap-2">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak SKU</span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor SKU</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Wilayah</h3>
-                 <div className="flex items-center gap-4 py-2">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 overflow-hidden shrink-0">
-                       {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <ImagePlus size={20} className="text-slate-300" />}
-                       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
+        
+        {/* PANEL KIRI: FORM EDITOR */}
+        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50">
+              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Pengaturan Dokumen</h2>
+              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
+           </div>
+           
+           {/* TAB NAVIGATION */}
+           <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase">
+              <button onClick={() => setActiveTab('pemilik')} className={`flex-1 py-3 border-r ${activeTab === 'pemilik' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Pemilik</button>
+              <button onClick={() => setActiveTab('usaha')} className={`flex-1 py-3 border-r ${activeTab === 'usaha' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Usaha</button>
+              <button onClick={() => setActiveTab('surat')} className={`flex-1 py-3 ${activeTab === 'surat' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Surat</button>
+           </div>
+
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+              
+              {activeTab === 'pemilik' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4">Identitas Pemilik Usaha</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap Sesuai KTP</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.ownerName} onChange={e => handleDataChange('ownerName', e.target.value)} placeholder="Contoh: BAMBANG SUDARSO" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Induk Kependudukan (NIK)</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.ownerNik} onChange={e => handleDataChange('ownerNik', e.target.value)} placeholder="16 Digit NIK" maxLength={16} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Lahir</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.ownerPob} onChange={e => handleDataChange('ownerPob', e.target.value)} placeholder="Kota Lahir" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Lahir</label>
+                    <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.ownerDob} onChange={e => handleDataChange('ownerDob', e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Kelamin</label>
+                    <select className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" value={data.ownerGender} onChange={e => handleDataChange('ownerGender', e.target.value)}>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Agama</label>
+                    <select className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" value={data.ownerReligion} onChange={e => handleDataChange('ownerReligion', e.target.value)}>
+                        <option value="Islam">Islam</option>
+                        <option value="Kristen Protestan">Kristen Protestan</option>
+                        <option value="Katolik">Katolik</option>
+                        <option value="Hindu">Hindu</option>
+                        <option value="Buddha">Buddha</option>
+                        <option value="Konghucu">Konghucu</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Pekerjaan</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.ownerJob} onChange={e => handleDataChange('ownerJob', e.target.value)} placeholder="Contoh: Wiraswasta" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Lengkap</label>
+                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-20" value={data.ownerAddress} onChange={e => handleDataChange('ownerAddress', e.target.value)} placeholder="Alamat sesuai KTP" />
+                </div>
+              </div>
+              )}
+
+              {activeTab === 'usaha' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-emerald-600 border-b pb-1 mb-4">Detail Usaha</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Usaha</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.businessName} onChange={e => handleDataChange('businessName', e.target.value)} placeholder="Contoh: Toko Kelontong Berkah" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Bidang / Jenis Usaha</label>
+                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.businessType} onChange={e => handleDataChange('businessType', e.target.value)} placeholder="Contoh: Perdagangan / Sembako" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Tahun Berdiri</label>
+                  <input type="number" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.businessYear} onChange={e => handleDataChange('businessYear', e.target.value)} placeholder="Contoh: 2015" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Usaha</label>
+                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-20" value={data.businessAddress} onChange={e => handleDataChange('businessAddress', e.target.value)} placeholder="Alamat lokasi usaha beroperasi" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Kapasitas Pendapatan Bulanan (Rp)</label>
+                  <input type="number" className="w-full p-3 border rounded-lg text-lg font-black mt-1 text-emerald-700 bg-emerald-50" value={data.monthlyIncome} onChange={e => handleDataChange('monthlyIncome', parseInt(e.target.value) || 0)} placeholder="Pendapatan Bulanan" />
+                  <p className="text-[10px] mt-1 text-slate-500">{terbilang(data.monthlyIncome)} Rupiah</p>
+                </div>
+              </div>
+              )}
+
+              {activeTab === 'surat' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-purple-600 border-b pb-1 mb-4">Administrasi Surat & Pejabat</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Surat</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.letterNumber} onChange={e => handleDataChange('letterNumber', e.target.value)} placeholder="Contoh: 400/012/SKU/2026" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Kabupaten</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.districtName} onChange={e => handleDataChange('districtName', e.target.value)} placeholder="Sleman" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Kecamatan</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.subDistrictName} onChange={e => handleDataChange('subDistrictName', e.target.value)} placeholder="Ngaglik" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Desa</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.villageName} onChange={e => handleDataChange('villageName', e.target.value)} placeholder="Sardonoharjo" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Dikeluarkan</label>
+                  <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.issueDate} onChange={e => handleDataChange('issueDate', e.target.value)} />
+                </div>
+                <div className="pt-2 border-t mt-4">
+                  <h4 className="text-[10px] font-bold text-purple-700 uppercase mb-3">Penandatangan (Kepala Desa)</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap & Gelar</label>
+                      <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.officialName} onChange={e => handleDataChange('officialName', e.target.value)} placeholder="H. AHMAD FAISAL, S.E." />
                     </div>
-                    <input className="flex-1 p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.village} onChange={e => handleDataChange('village', e.target.value)} placeholder="Nama Kelurahan" />
-                 </div>
-                 <div className="grid grid-cols-2 gap-3">
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.district} onChange={e => handleDataChange('district', e.target.value)} placeholder="Kecamatan" />
-                 </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan</label>
+                      <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.officialPosition} onChange={e => handleDataChange('officialPosition', e.target.value)} placeholder="Kepala Desa" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">NIP (Opsional)</label>
+                      <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.officialNip} onChange={e => handleDataChange('officialNip', e.target.value)} placeholder="Kosongkan jika bukan PNS" />
+                    </div>
+                  </div>
+                </div>
               </div>
+              )}
+           </div>
 
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Identitas Pemilik</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.name} onChange={e => handleDataChange('name', e.target.value)} placeholder="Nama Lengkap" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} placeholder="NIK" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.ttl} onChange={e => handleDataChange('ttl', e.target.value)} placeholder="Tempat, Tgl Lahir" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} placeholder="Alamat Sesuai KTP" />
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-400 border-b pb-1 tracking-widest flex items-center gap-2"><Store size={12}/> Informasi Usaha</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-black uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.businessName} onChange={e => handleDataChange('businessName', e.target.value)} placeholder="Nama Usaha" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.businessType} onChange={e => handleDataChange('businessType', e.target.value)} placeholder="Bidang Usaha" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.since} onChange={e => handleDataChange('since', e.target.value)} placeholder="Tahun Berdiri" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.businessAddress} onChange={e => handleDataChange('businessAddress', e.target.value)} placeholder="Lokasi Usaha" />
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 pb-10">
-                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 tracking-widest flex items-center gap-2"><FileBadge size={12}/> Otoritas & Administrasi</h3>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-slate-500 outline-none leading-relaxed" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} placeholder="Tujuan Pembuatan SKU..." />
-                 <div className="grid grid-cols-2 gap-3 pt-2">
-                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none font-bold" value={data.signerName} onChange={e => handleDataChange('signerName', e.target.value)} placeholder="Nama Pejabat" />
-                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.signerTitle} onChange={e => handleDataChange('signerTitle', e.target.value)} placeholder="Jabatan" />
-                 </div>
-                 <div className="grid grid-cols-2 gap-3">
-                   <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-slate-500 outline-none font-mono" value={data.no} onChange={e => handleDataChange('no', e.target.value)} placeholder="No. Surat" />
-                   <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                 </div>
-              </div>
+           {/* Mobile View Toggle */}
+           <div className="p-4 border-t bg-white md:hidden flex gap-2 z-20">
+              <button onClick={() => setMobileView('preview')} className="flex-1 bg-slate-900 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md active:scale-95 transition-transform">
+                Lihat Dokumen
+              </button>
            </div>
         </div>
 
-        {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
-                <DocumentContent />
-            </div>
-            </div>
+        {/* PANEL KANAN: PREVIEW DOKUMEN */}
+        <div className={`flex-1 bg-slate-500 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:block' : 'block'}`}>
+           <div className="md:hidden sticky top-0 bg-slate-800 text-white p-3 flex justify-between items-center z-50 shadow-md">
+             <button onClick={() => setMobileView('editor')} className="flex items-center gap-2 text-xs font-bold uppercase">
+               <ArrowLeft size={16} /> Kembali ke Editor
+             </button>
+             <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-emerald-500 px-3 py-1.5 rounded flex items-center gap-2 text-xs font-bold uppercase active:scale-95 transition-transform">
+               <Printer size={14} /> Cetak
+             </button>
+           </div>
+
+           <div className="p-4 md:p-8 min-h-max flex justify-center w-full" id="print-only-root">
+               <DocumentContent />
+           </div>
+        </div>
+
       </main>
-
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-bold font-sans">
-          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
-          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
-      </div>
-
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
-
-      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }
