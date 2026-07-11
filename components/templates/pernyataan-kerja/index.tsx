@@ -1,16 +1,8 @@
 'use client';
 
-/**
- * FILE: BebasKontrakPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Pernyataan Bebas Kontrak / Tidak Terikat Kerja
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
- */
-
 import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, ShieldCheck, UserCircle2, 
-  Briefcase, CalendarDays, FileText, LayoutTemplate, ChevronDown, Check, Edit3, Eye, RotateCcw, ArrowLeftCircle
+  Printer, Edit3, RotateCcw, FileText, LayoutTemplate, ArrowLeftCircle, Briefcase
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -18,56 +10,68 @@ import Link from 'next/link';
 import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
-interface ContractData {
+interface PernyataanData {
+  // Data Pribadi Pegawai
+  empName: string;
+  empNik: string;
+  empPob: string;
+  empDob: string;
+  empGender: 'Laki-laki' | 'Perempuan';
+  empReligion: string;
+  empAddress: string;
+  
+  // Data Pekerjaan
+  companyName: string;
+  position: string;
+  contractDuration: string;
+  penaltyAmount: string;
+  
+  // Penandatanganan
   city: string;
   date: string;
-  name: string;
-  nik: string;
-  placeBirth: string;
-  dateBirth: string;
-  address: string;
-  targetCompany: string;
-  position: string;
-  lastCompany: string;
 }
 
 // --- 2. DATA DEFAULT ---
-const INITIAL_DATA: ContractData = {
-  city: 'JAKARTA',
-  date: '', 
-  name: 'RIZKY RAMADHAN',
-  nik: '3171010101980005',
-  placeBirth: 'Jakarta',
-  dateBirth: '1998-05-12',
-  address: 'Jl. Tebet Dalam IV No. 15, Jakarta Selatan',
-  targetCompany: 'PT. TEKNOLOGI MAJU INDONESIA',
-  position: 'Full Stack Developer',
-  lastCompany: 'PT. SOLUSI DIGITAL LAMA',
+const INITIAL_DATA: PernyataanData = {
+  empName: 'Ahmad Faisal',
+  empNik: '3201123456780001',
+  empPob: 'Bandung',
+  empDob: '1995-08-15',
+  empGender: 'Laki-laki',
+  empReligion: 'Islam',
+  empAddress: 'Jl. Merdeka No. 45, RT 01 RW 02, Kelurahan Citarum, Kecamatan Bandung Wetan, Kota Bandung, Jawa Barat',
+  
+  companyName: 'PT Teknologi Inovasi Nusantara',
+  position: 'Software Engineer',
+  contractDuration: '1 (Satu) Tahun',
+  penaltyAmount: 'Rp 10.000.000 (Sepuluh Juta Rupiah)',
+  
+  city: 'Jakarta',
+  date: '',
 };
 
 // --- 3. KOMPONEN UTAMA ---
-export default function BebasKontrakPage() {
+export default function PernyataanKerjaPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs bg-slate-50">Loading Editor...</div>}>
-      <ContractFreeBuilder />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Legal Editor...</div>}>
+      <PernyataanBuilder />
     </Suspense>
   );
 }
 
-function ContractFreeBuilder() {
+function PernyataanBuilder() {
   // --- STATE SYSTEM ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<ContractData>(INITIAL_DATA);
+  const [data, setData] = useState<PernyataanData>(INITIAL_DATA);
+
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
     setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  const handleDataChange = (field: keyof ContractData, val: any) => {
+  const handleDataChange = (field: keyof PernyataanData, val: any) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
@@ -78,103 +82,95 @@ function ContractFreeBuilder() {
     }
   };
 
-  const activeTemplateName = templateId === 1 ? 'Klasik Formal' : 'Modern Clean';
-
   const DocumentContent = () => {
     const formatDateSafe = (dateString: string) => {
-        if(!dateString) return '...';
-        try {
-            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle: 'long'});
-        } catch { return dateString; }
+      if(!dateString) return '...';
+      try {
+        return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+      } catch { return dateString; }
     };
 
     return (
-      <div className={`bg-white flex flex-col box-border text-slate-900 leading-relaxed p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
-        
-        {templateId === 1 ? (
-          <div className="flex flex-col h-full">
-            <div className="text-center mb-10 pb-4 border-b-2 border-black shrink-0">
-              <h1 className="font-black text-xl uppercase tracking-tighter underline underline-offset-8 decoration-2">SURAT PERNYATAAN BEBAS KONTRAK</h1>
+      <div className="bg-white flex flex-col box-border font-serif text-black leading-relaxed text-[11pt] p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto relative">
+        <div className="flex flex-col h-full">
+            <div className="text-center mb-8 pb-4 shrink-0">
+              <h1 className="font-black text-xl uppercase tracking-widest underline leading-none mb-1">SURAT PERNYATAAN</h1>
+              <h2 className="font-bold text-sm uppercase">KESANGGUPAN DAN PENEMPATAN KERJA</h2>
             </div>
 
-            <div className="flex-grow space-y-6">
-              <p>Saya yang bertanda tangan di bawah ini:</p>
-              <div className="ml-8 space-y-2 font-sans text-[10pt] border-l-4 border-slate-100 pl-6 italic">
-                 <div className="grid grid-cols-[160px_10px_1fr]"><span>Nama Lengkap</span><span>:</span><span className="font-bold uppercase tracking-tight">{data.name}</span></div>
-                 <div className="grid grid-cols-[160px_10px_1fr]"><span>NIK</span><span>:</span><span className="font-mono">{data.nik}</span></div>
-                 <div className="grid grid-cols-[160px_10px_1fr]"><span>Tempat, Tgl Lahir</span><span>:</span><span>{data.placeBirth}, {formatDateSafe(data.dateBirth)}</span></div>
-                 <div className="grid grid-cols-[160px_10px_1fr] align-top"><span>Alamat Domisili</span><span>:</span><span>{data.address}</span></div>
+            <div className="flex-grow">
+              <p className="mb-4 text-justify">Saya yang bertanda tangan di bawah ini:</p>
+
+              <div className="mb-6 break-inside-avoid pl-4">
+                <div className="flex mb-1"><div className="w-48">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.empName}</div></div>
+                <div className="flex mb-1"><div className="w-48">Nomor Induk Kependudukan</div><div className="w-4">:</div><div className="flex-1">{data.empNik}</div></div>
+                <div className="flex mb-1"><div className="w-48">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.empPob}, {formatDateSafe(data.empDob)}</div></div>
+                <div className="flex mb-1"><div className="w-48">Jenis Kelamin</div><div className="w-4">:</div><div className="flex-1">{data.empGender}</div></div>
+                <div className="flex mb-1"><div className="w-48">Agama</div><div className="w-4">:</div><div className="flex-1">{data.empReligion}</div></div>
+                <div className="flex mb-1"><div className="w-48">Alamat Lengkap (KTP)</div><div className="w-4">:</div><div className="flex-1">{data.empAddress}</div></div>
               </div>
 
-              <div className="space-y-4 text-justify">
-                <p>Menyatakan dengan sesungguhnya bahwa sampai saat surat ini dibuat, saya <strong>TIDAK SEDANG TERIKAT KONTRAK KERJA</strong> atau memiliki hubungan hukum ketenagakerjaan dengan instansi, organisasi, maupun perusahaan manapun.</p>
-                <p>Pernyataan ini saya buat sehubungan dengan proses seleksi/penerimaan kerja di <strong>{data.targetCompany}</strong> untuk posisi <strong>{data.position}</strong>. Saya juga menjamin bahwa seluruh tanggung jawab administratif di perusahaan sebelumnya (<strong>{data.lastCompany}</strong>) telah diselesaikan dengan baik.</p>
-                <p>Apabila di kemudian hari pernyataan ini terbukti tidak benar, saya bersedia menerima segala konsekuensi hukum maupun sanksi administratif sesuai dengan peraturan yang berlaku di <strong>{data.targetCompany}</strong>.</p>
+              <p className="mb-4 text-justify">
+                Berkenaan dengan proses penerimaan saya sebagai karyawan untuk posisi <strong>{data.position}</strong> di perusahaan <strong>{data.companyName}</strong>, dengan masa kontrak selama <strong>{data.contractDuration}</strong>, maka dengan ini saya menyatakan dengan sesungguhnya bahwa saya:
+              </p>
+
+              <div className="space-y-4 mb-6">
+                <div className="flex">
+                  <div className="w-8 text-right pr-3 font-bold">1.</div>
+                  <div className="flex-1 text-justify">
+                    <strong>Bersedia ditempatkan di mana saja</strong>, baik di kantor pusat, kantor cabang, proyek, maupun lokasi operasional lainnya dari <strong>{data.companyName}</strong> yang tersebar di seluruh wilayah Negara Kesatuan Republik Indonesia, sesuai dengan kebutuhan dan instruksi manajemen perusahaan.
+                  </div>
+                </div>
+                
+                <div className="flex">
+                  <div className="w-8 text-right pr-3 font-bold">2.</div>
+                  <div className="flex-1 text-justify">
+                    <strong>Bebas dari Narkoba</strong>, tidak pernah dan tidak akan pernah terlibat dalam penggunaan, kepemilikan, peredaran, maupun penyalahgunaan Narkotika, Psikotropika, dan Zat Adiktif lainnya (NAPZA) dalam bentuk apa pun. Saya bersedia untuk dilakukan tes urine atau pemeriksaan medis sewaktu-waktu oleh perusahaan.
+                  </div>
+                </div>
+
+                <div className="flex">
+                  <div className="w-8 text-right pr-3 font-bold">3.</div>
+                  <div className="flex-1 text-justify">
+                    <strong>Bersedia membayar penalti atau ganti rugi</strong> sebesar <strong>{data.penaltyAmount}</strong> kepada perusahaan secara tunai dan seketika, apabila saya mengundurkan diri (resign) atau melakukan pelanggaran berat yang mengakibatkan pemutusan hubungan kerja sebelum masa kontrak saya berakhir.
+                  </div>
+                </div>
+
+                <div className="flex">
+                  <div className="w-8 text-right pr-3 font-bold">4.</div>
+                  <div className="flex-1 text-justify">
+                    <strong>Mematuhi kerahasiaan perusahaan (Non-Disclosure Agreement)</strong>, dengan tidak membocorkan informasi, data operasional, dokumen keuangan, strategi bisnis, daftar klien, maupun rahasia dagang milik perusahaan kepada pihak ketiga mana pun, baik selama saya masih berstatus karyawan maupun setelah hubungan kerja berakhir.
+                  </div>
+                </div>
+
+                <div className="flex">
+                  <div className="w-8 text-right pr-3 font-bold">5.</div>
+                  <div className="flex-1 text-justify">
+                    Bersedia tunduk dan patuh pada seluruh Peraturan Perusahaan, Standar Operasional Prosedur (SOP), serta arahan dari atasan demi menjaga nama baik dan kelancaran operasional perusahaan.
+                  </div>
+                </div>
               </div>
+
+              <p className="mb-4 text-justify">
+                Demikian Surat Pernyataan Kesanggupan dan Penempatan Kerja ini saya buat dengan keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya unsur paksaan, tekanan, atau pengaruh dari pihak mana pun.
+              </p>
               
-              <p>Demikian surat pernyataan ini saya buat dengan sebenar-benarnya untuk dipergunakan sebagaimana mestinya.</p>
+              <p className="text-justify mb-8">
+                Apabila di kemudian hari terbukti bahwa pernyataan ini tidak benar atau saya melanggar komitmen di atas, saya bersedia menerima sanksi berupa Pemutusan Hubungan Kerja (PHK) secara tidak hormat, serta diproses secara hukum sesuai dengan peraturan perundang-undangan yang berlaku.
+              </p>
             </div>
 
-            <div className="shrink-0 mt-12 flex justify-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-               <div className="text-center w-64 font-sans">
-                  <p className="text-xs mb-4">{data.city}, {formatDateSafe(data.date)}</p>
-                  <div className="border border-slate-200 w-24 h-16 mx-auto mb-2 flex items-center justify-center text-[7pt] text-slate-300 italic uppercase">Materai 10.000</div>
-                  <p className="font-bold underline uppercase text-sm font-serif tracking-tight">{data.name}</p>
-                  <p className="text-[9pt] text-slate-400 font-bold uppercase tracking-widest mt-1">Pembuat Pernyataan</p>
-               </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col h-full font-sans">
-            <div className="flex justify-between items-start mb-12 border-t-[10px] border-blue-600 pt-8 shrink-0">
-              <div>
-                <h1 className="text-4xl font-black text-slate-900 tracking-tighter leading-none">STATUS CLEARANCE</h1>
-                <p className="text-[10px] font-black tracking-[0.4em] text-blue-600 uppercase mt-2">Professional Availability Declaration</p>
-              </div>
-              <div className="text-right text-[9pt] font-bold text-slate-300 uppercase tracking-widest">
-                 <p className="font-mono">NO: BC-{new Date().getFullYear()}-{data.nik.slice(-4)}</p>
-                 <p className="mt-1">{data.city}, {formatDateSafe(data.date)}</p>
-              </div>
-            </div>
-
-            <div className="flex-grow space-y-12">
-              <div className="grid grid-cols-2 gap-10 break-inside-avoid">
-                <div className="space-y-4">
-                  <label className="text-[9px] font-black text-slate-300 uppercase tracking-widest border-b-2 border-slate-50 block pb-1">Declarer Profile</label>
-                  <div>
-                    <p className="text-xl font-black uppercase text-slate-900 leading-tight">{data.name}</p>
-                    <p className="text-xs text-slate-500 font-mono mt-1">Government ID: {data.nik}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5 uppercase">{data.placeBirth}, {formatDateSafe(data.dateBirth)}</p>
+            <div className="flex justify-end text-center mt-12 mb-8 break-inside-avoid">
+              <div className="w-1/2 md:w-1/3">
+                  <p className="mb-2">{data.city}, {formatDateSafe(data.date)}</p>
+                  <p className="mb-2 font-bold">Yang Membuat Pernyataan,</p>
+                  <div className="h-24 flex flex-col justify-end items-center relative">
+                    <div className="border border-slate-300 w-20 h-12 mb-[-1.5rem] flex items-center justify-center text-[8px] text-slate-400 italic uppercase z-0 bg-white">Meterai 10.000</div>
+                    <p className="font-bold underline uppercase relative z-10">{data.empName}</p>
                   </div>
-                </div>
-                <div className="space-y-4">
-                  <label className="text-[9px] font-black text-slate-300 uppercase tracking-widest border-b-2 border-slate-50 block pb-1">Application Target</label>
-                  <div>
-                    <p className="text-sm font-black uppercase text-blue-700 leading-tight">{data.targetCompany}</p>
-                    <p className="text-xs text-slate-500 mt-1 font-bold">Assigned Role: {data.position}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-slate-900 text-white p-10 rounded-[2rem] print:bg-transparent print:text-black print:border-2 print:border-black break-inside-avoid">
-                <p className="text-[12pt] italic leading-relaxed font-serif text-justify">
-                  "I hereby formally declare that as of this date, I am <b>completely free from any active employment contracts</b> or legal bindings with any third-party organizations, including my previous engagement at <b>{data.lastCompany}</b>. I am fully authorized and available to commence work immediately and accept all legal liabilities should this declaration be proven false."
-                </p>
               </div>
             </div>
-
-            <div className="shrink-0 pt-10 border-t-2 border-slate-50 flex justify-between items-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="flex items-center gap-3 text-blue-600 print:text-black">
-                <ShieldCheck size={32} />
-                <span className="text-[8px] font-black uppercase tracking-widest leading-tight">Verified<br/>Independent<br/>Status</span>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] font-black uppercase text-slate-300 mb-16 tracking-[0.2em]">Authorized Signature</p>
-                <p className="text-2xl font-black text-slate-900 uppercase underline decoration-4 decoration-blue-600 underline-offset-8">{data.name}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     );
   };
@@ -196,7 +192,7 @@ function ContractFreeBuilder() {
         }
       ` }} />
 
-      {/* NAVBAR */}
+      {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
@@ -205,23 +201,15 @@ function ContractFreeBuilder() {
             </Link>
             <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <ShieldCheck size={16} className="text-blue-500" /> <span>Clearance Builder</span>
+               <Briefcase size={16} className="text-blue-500" /> <span>Pernyataan Kerja Builder</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
-              </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Klasik Formal {templateId === 1 && <Check size={14}/>}</button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Modern Clean {templateId === 2 && <Check size={14}/>}</button>
-                </div>
-              )}
+            <div className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
+              <LayoutTemplate size={14} className="text-blue-400" /> Template HRD
             </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
       </div>
@@ -229,50 +217,116 @@ function ContractFreeBuilder() {
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Data</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Identitas</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.name} onChange={e => handleDataChange('name', e.target.value)} placeholder="Nama Lengkap" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} placeholder="NIK" />
-                 <div className="grid grid-cols-2 gap-3">
-                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.placeBirth} onChange={e => handleDataChange('placeBirth', e.target.value)} placeholder="Tempat Lahir" />
-                   <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.dateBirth} onChange={e => handleDataChange('dateBirth', e.target.value)} />
-                 </div>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} placeholder="Alamat Domisili" />
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans shadow-sm">
+             <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Legal</h2>
+             <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Formulir"><RotateCcw size={16}/></button>
+           </div>
+           
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans bg-slate-50/50">
+              
+              {/* DATA SURAT */}
+              <div className="space-y-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 border-b pb-2"><FileText size={14}/> Info Penandatanganan</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Kota Tempat TTD</label>
+                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Misal: Jakarta" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Tanggal</label>
+                    <input type="date" className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                  </div>
+                </div>
               </div>
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><Briefcase size={12}/> Info Pekerjaan</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.targetCompany} onChange={e => handleDataChange('targetCompany', e.target.value)} placeholder="Perusahaan Baru" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.position} onChange={e => handleDataChange('position', e.target.value)} placeholder="Posisi Dilamar" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.lastCompany} onChange={e => handleDataChange('lastCompany', e.target.value)} placeholder="Perusahaan Terakhir" />
+
+              {/* DATA PERUSAHAAN & KONTRAK */}
+              <div className="space-y-4 bg-white p-4 rounded-xl border border-purple-100 shadow-sm">
+                <h3 className="text-[10px] font-black uppercase text-purple-600 border-b border-purple-100 pb-2">Informasi Pekerjaan</h3>
+                
+                <div>
+                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nama Perusahaan / Institusi</label>
+                  <input className="w-full p-2 border border-slate-300 rounded-lg text-xs font-bold focus:ring-2 focus:ring-purple-500 outline-none" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} placeholder="Misal: PT Teknologi Inovasi Nusantara" />
+                </div>
+                <div>
+                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Posisi / Jabatan Pekerjaan</label>
+                  <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.position} onChange={e => handleDataChange('position', e.target.value)} placeholder="Misal: Software Engineer" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Masa Kontrak</label>
+                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.contractDuration} onChange={e => handleDataChange('contractDuration', e.target.value)} placeholder="Misal: 1 (Satu) Tahun" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nilai Penalti (Jika Resign)</label>
+                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.penaltyAmount} onChange={e => handleDataChange('penaltyAmount', e.target.value)} placeholder="Misal: Rp 10.000.000" />
+                  </div>
+                </div>
               </div>
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 tracking-widest flex items-center gap-2"><FileText size={12}/> Lokasi TTD</h3>
-                 <div className="grid grid-cols-2 gap-3">
-                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
-                   <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                 </div>
+
+              {/* DATA KARYAWAN */}
+              <div className="space-y-4 bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
+                <h3 className="text-[10px] font-black uppercase text-blue-600 border-b border-blue-100 pb-2">Identitas Karyawan (Pembuat Pernyataan)</h3>
+                
+                <div>
+                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nama Lengkap</label>
+                  <input className="w-full p-2 border border-slate-300 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.empName} onChange={e => handleDataChange('empName', e.target.value)} placeholder="Sesuai KTP" />
+                </div>
+                <div>
+                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nomor Induk Kependudukan (NIK)</label>
+                  <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.empNik} onChange={e => handleDataChange('empNik', e.target.value)} placeholder="16 Digit NIK" maxLength={16} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Tempat Lahir</label>
+                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.empPob} onChange={e => handleDataChange('empPob', e.target.value)} placeholder="Kota Lahir" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Tgl Lahir</label>
+                    <input type="date" className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.empDob} onChange={e => handleDataChange('empDob', e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jenis Kelamin</label>
+                    <select 
+                      className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                      value={data.empGender}
+                      onChange={e => handleDataChange('empGender', e.target.value as any)}
+                    >
+                      <option value="Laki-laki">Laki-laki</option>
+                      <option value="Perempuan">Perempuan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Agama</label>
+                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.empReligion} onChange={e => handleDataChange('empReligion', e.target.value)} placeholder="Agama" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Alamat Lengkap (Sesuai KTP)</label>
+                  <textarea className="w-full p-2 border border-slate-300 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.empAddress} onChange={e => handleDataChange('empAddress', e.target.value)} placeholder="Jalan, RT/RW, Kel, Kec..." />
+                </div>
               </div>
            </div>
         </div>
 
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
+        {/* PREVIEW AREA */}
+        <div className={`flex-1 h-full bg-slate-200/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
                 <DocumentContent />
             </div>
-            </div>
+        </div>
       </main>
 
+      {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
           <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
-
       
       {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 mt-10 md:mt-0">
+         <PrintWrapper documentName="Surat_Pernyataan_Kerja" price={15000} />
       </div>
 
       <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>

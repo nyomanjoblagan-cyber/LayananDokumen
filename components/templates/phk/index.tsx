@@ -1,356 +1,429 @@
-'use client';
+"use client";
 
-/**
- * FILE: SuratPHKPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Pemutusan Hubungan Kerja (PHK) Profesional
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
- */
+import React, { useState, useRef } from "react";
+import { Printer, FileText, Building2, User, FileWarning, DollarSign } from "lucide-react";
 
-import { useState, Suspense, useEffect, useRef } from 'react';
-import { 
-  Printer, ArrowLeft, Building2, UserCircle2, 
-  Scale, LayoutTemplate, ChevronDown, ImagePlus, X, PenTool, Edit3, Eye, Check, RotateCcw, ArrowLeftCircle
-} from 'lucide-react';
-import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
-
-// --- 1. TYPE DEFINITIONS ---
-interface TerminationData {
-  city: string;
-  date: string;
-  docNo: string;
-  
-  // Perusahaan
-  companyName: string;
-  companyAddress: string;
-  authorityName: string;
-  authorityJob: string;
-  
-  // Karyawan
-  employeeName: string;
-  employeeId: string;
-  position: string;
-  lastWorkDate: string;
-  
-  // Isi
-  reason: string;
-  compensationInfo: string;
-}
-
-// --- 2. DATA DEFAULT ---
-const INITIAL_DATA: TerminationData = {
-  city: 'JAKARTA',
-  date: '', 
-  docNo: 'SK-PHK/MKT/2026/012',
-  
-  companyName: 'PT. SINAR JAYA TEKNOLOGI',
-  companyAddress: 'Gedung Grha Mandiri Lt. 15, Menteng\nJakarta Pusat, 10310\nTelp: (021) 555-1234',
-  
-  authorityName: 'HENDRA KUSUMA, S.H.',
-  authorityJob: 'Human Resources Manager',
-  
-  employeeName: 'AHMAD SUBARDI',
-  employeeId: 'EMP-2022-045',
-  position: 'Senior Marketing Executive',
-  lastWorkDate: '2026-01-31',
-  
-  reason: 'Efisiensi Perusahaan dikarenakan perubahan strategi bisnis dan kondisi ekonomi yang terdampak secara global, sehingga diperlukan reorganisasi struktur organisasi.',
-  compensationInfo: 'Uang Pesangon, Uang Penghargaan Masa Kerja, dan Uang Penggantian Hak sesuai dengan ketentuan PP No. 35 Tahun 2021.'
+// Komponen Kertas untuk Preview dan Print
+const Kertas = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="bg-gray-200 p-4 md:p-8 min-h-screen flex justify-center print:p-0 print:bg-white print:min-h-0">
+      <div className="bg-white shadow-xl w-full max-w-[210mm] min-h-[297mm] p-[20mm] print:shadow-none print:w-full print:max-w-none print:m-0 print:p-0 text-black">
+        <style type="text/css" media="print">
+          {`
+            @page { size: A4 portrait; margin: 20mm; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @media print {
+              .print-hidden { display: none !important; }
+              .print-visible { display: block !important; }
+              .page-break { page-break-before: always; }
+            }
+          `}
+        </style>
+        {children}
+      </div>
+    </div>
+  );
 };
 
-export default function SuratPHKPage() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs bg-slate-50">Memuat Editor...</div>}>
-      <TerminationLetterBuilder />
-    </Suspense>
-  );
-}
+export default function SuratPHKTemplate() {
+  const [formData, setFormData] = useState({
+    // Data Perusahaan
+    namaPerusahaan: "PT Contoh Perusahaan Maju",
+    alamatPerusahaan: "Jl. Sudirman No. 123, Jakarta",
+    namaPimpinan: "Budi Santoso",
+    jabatanPimpinan: "Direktur Utama",
+    
+    // Data Karyawan
+    namaKaryawan: "Ahmad Fauzi",
+    nikKaryawan: "123456789",
+    jabatanKaryawan: "Staff Marketing",
+    alamatKaryawan: "Jl. Merdeka No. 45, Jakarta",
+    
+    // Detail Surat
+    nomorSurat: "001/HRD/PHK/2026",
+    tanggalSurat: "11 Juli 2026",
+    tempatSurat: "Jakarta",
+    tanggalEfektif: "11 Agustus 2026",
+    
+    // Alasan PHK
+    alasanPHK: "Efisiensi",
+    detailAlasan: "Perusahaan mengalami kerugian secara terus menerus selama 2 tahun terakhir sehingga perlu dilakukan efisiensi operasional.",
+    
+    // Rincian Pesangon
+    uangPesangon: 10000000,
+    uangPenghargaanMasaKerja: 5000000,
+    uangPenggantianHak: 1500000,
+  });
 
-function TerminationLetterBuilder() {
-  // --- STATE SYSTEM ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-  const [isClient, setIsClient] = useState(false);
-  const [logo, setLogo] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [data, setData] = useState<TerminationData>(INITIAL_DATA);
+  const printRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setIsClient(true);
-    const today = new Date().toISOString().split('T')[0];
-    setData(prev => ({ ...prev, date: today }));
-  }, []);
-
-  const handleDataChange = (field: keyof TerminationData, val: any) => {
-    setData(prev => ({ ...prev, [field]: val }));
+  const handlePrint = () => {
+    window.print();
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setLogo(reader.result as string);
-      reader.readAsDataURL(file);
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
-        const today = new Date().toISOString().split('T')[0];
-        setData({ ...INITIAL_DATA, date: today });
-        setLogo(null);
-    }
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const numValue = parseInt(value.replace(/[^0-9]/g, "")) || 0;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: numValue,
+    }));
   };
 
-  const activeTemplateName = templateId === 1 ? 'Formal Korporat' : 'Modern Clean';
-
-  const DocumentContent = () => {
-    const formatDateSafe = (dateString: string) => {
-        if(!dateString) return '...';
-        try {
-            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle: 'long'});
-        } catch { return dateString; }
-    };
-
-    return (
-      <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
-        
-        {templateId === 1 ? (
-          <div className="flex flex-col h-full">
-              <div className="flex items-start gap-6 border-b-2 border-slate-900 pb-4 mb-8 shrink-0">
-                  {logo ? (
-                    <img src={logo} alt="Logo" className="w-16 h-16 object-contain shrink-0" />
-                  ) : (
-                    <div className="w-16 h-16 bg-slate-50 rounded flex items-center justify-center border-2 border-dashed border-slate-200 text-slate-300 shrink-0 print:hidden">
-                      <Building2 size={28} />
-                    </div>
-                  )}
-                  <div className="flex-grow text-center font-sans">
-                     <h1 className="text-xl font-black uppercase tracking-tighter leading-none mb-1">{data.companyName}</h1>
-                     <div className="text-[8.5pt] text-slate-500 whitespace-pre-line leading-tight italic print:text-black">
-                        {data.companyAddress}
-                     </div>
-                  </div>
-              </div>
-
-              <div className="text-center mb-8 shrink-0 leading-tight">
-                  <h2 className="text-lg font-black underline uppercase decoration-1 underline-offset-8 tracking-widest">SURAT PEMBERITAHUAN PHK</h2>
-                  <p className="text-[9pt] font-sans mt-3 italic uppercase tracking-widest text-slate-400 print:text-black">Nomor: {data.docNo}</p>
-              </div>
-
-              <div className="space-y-6 flex-grow text-justify">
-                  <p>Kepada Yth,<br/><span className="font-bold text-lg">Bapak/Ibu {data.employeeName}</span><br/>Di Tempat</p>
-                  <p>Dengan hormat,</p>
-                  <p className="leading-relaxed">Segenap Manajemen <strong>{data.companyName}</strong> mengucapkan terima kasih yang sebesar-besarnya atas segala dedikasi dan kontribusi Saudara selama masa kerja. Namun, dikarenakan kebijakan strategis berupa <strong>{data.reason}</strong>, dengan sangat berat hati kami informasikan pengakhiran hubungan kerja terhadap:</p>
-
-                  <div className="ml-8 mb-4 space-y-1.5 font-sans text-[10pt] border-l-4 border-slate-100 pl-6 italic py-1 break-inside-avoid">
-                      <div className="grid grid-cols-[140px_10px_1fr]"><span>ID Karyawan</span><span>:</span><span className="font-mono font-bold">{data.employeeId}</span></div>
-                      <div className="grid grid-cols-[140px_10px_1fr]"><span>Jabatan</span><span>:</span><span>{data.position}</span></div>
-                      <div className="grid grid-cols-[140px_10px_1fr]"><span>Tanggal Efektif</span><span>:</span><span className="font-bold text-red-600 print:text-black underline">{formatDateSafe(data.lastWorkDate)}</span></div>
-                  </div>
-
-                  <p className="leading-relaxed">Terkait hal tersebut, perusahaan berkomitmen untuk menyelesaikan seluruh hak finansial Saudara yang meliputi <strong>{data.compensationInfo}</strong> sesuai dengan regulasi ketenagakerjaan yang berlaku (PP No. 35 Tahun 2021).</p>
-                  <p>Demikian surat ini kami sampaikan, semoga kesuksesan menyertai langkah karier Saudara di masa mendatang.</p>
-              </div>
-
-              <div className="shrink-0 mt-10 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-                   <div className="grid grid-cols-2 gap-8 text-center font-sans">
-                      <div className="flex flex-col h-36">
-                         <p className="uppercase text-[8pt] font-black text-slate-300 tracking-widest mb-1">Manajemen,</p>
-                         <div className="mt-auto">
-                            <p className="font-bold underline uppercase tracking-tight text-[10pt]">{data.authorityName}</p>
-                            <p className="text-[8pt] font-bold text-blue-600 mt-1 uppercase">{data.authorityJob}</p>
-                         </div>
-                      </div>
-                      <div className="flex flex-col h-36">
-                         <p className="text-[9pt] font-bold text-slate-400 mb-1">{data.city}, {formatDateSafe(data.date)}</p>
-                         <p className="uppercase text-[8pt] font-black text-slate-300 tracking-widest">Karyawan,</p>
-                         <div className="mt-auto">
-                            <p className="font-bold underline uppercase tracking-tight text-[10pt]">{data.employeeName}</p>
-                            <p className="text-[8pt] italic mt-1 uppercase text-slate-400">Tanda Terima</p>
-                         </div>
-                      </div>
-                   </div>
-              </div>
-          </div>
-        ) : (
-          <div className="flex flex-col h-full font-sans">
-              <div className="flex justify-between items-start mb-12 border-l-8 border-slate-900 pl-8 py-3 shrink-0">
-                  <div>
-                      <h1 className="text-2xl font-black uppercase tracking-tighter leading-none text-slate-900">{data.companyName}</h1>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] mt-2">Termination Notice</p>
-                  </div>
-                  <div className="text-right text-[8pt] font-mono text-slate-400">
-                      <p>REF: {data.docNo}</p>
-                      <p className="mt-1">{formatDateSafe(data.date)}</p>
-                  </div>
-              </div>
-
-              <div className="flex-grow space-y-8 text-justify leading-relaxed">
-                  <h2 className="text-2xl font-black text-slate-900 border-b-2 border-slate-100 pb-4">Employment Separation Notice</h2>
-                  
-                  <p>Dear <strong>{data.employeeName}</strong>,</p>
-                  <p>This letter serves as official notification regarding your employment status with <strong>{data.companyName}</strong>.</p>
-                  
-                  <div className="bg-slate-900 text-white p-8 rounded-[2rem] print:bg-transparent print:text-black print:border-2 print:border-black break-inside-avoid">
-                      <div className="grid grid-cols-2 gap-8 text-sm mb-6 uppercase tracking-widest font-bold">
-                         <div>
-                            <p className="text-slate-500 text-[9px] mb-2">Assigned Role</p>
-                            <p className="text-base">{data.position}</p>
-                         </div>
-                         <div className="text-right">
-                            <p className="text-slate-500 text-[9px] mb-2">Effective Date</p>
-                            <p className="text-base text-red-400 print:text-black">{formatDateSafe(data.lastWorkDate)}</p>
-                         </div>
-                      </div>
-                      <div className="border-t border-white/10 pt-6">
-                         <p className="text-slate-500 text-[9px] mb-2 uppercase tracking-widest font-bold">Primary Reason</p>
-                         <p className="italic text-sm leading-relaxed">"{data.reason}"</p>
-                      </div>
-                  </div>
-
-                  <p>The company will fulfill all financial obligations and statutory requirements including <strong>{data.compensationInfo}</strong>, processed in accordance with national labor regulations.</p>
-                  <p>We appreciate your service and wish you success in your future professional endeavors.</p>
-              </div>
-
-              <div className="mt-16 pt-10 border-t-2 border-slate-100 flex justify-between items-end shrink-0 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-                  <div>
-                      <p className="text-[10px] font-black uppercase text-slate-300 mb-16 tracking-widest">Employee Acknowledgment</p>
-                      <p className="font-black uppercase border-b-4 border-slate-900 inline-block pb-1 text-lg">{data.employeeName}</p>
-                  </div>
-                  <div className="text-right">
-                      <p className="text-[10px] font-black uppercase text-slate-300 mb-16 tracking-widest">Authorized Management</p>
-                      <p className="font-black uppercase border-b-4 border-slate-900 inline-block pb-1 text-lg">{data.authorityName}</p>
-                      <p className="text-[9px] font-bold text-blue-600 mt-2 uppercase tracking-widest">{data.authorityJob}</p>
-                  </div>
-              </div>
-          </div>
-        )}
-      </div>
-    );
+  const formatRupiah = (angka: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(angka);
   };
 
-  if (!isClient) return null;
+  const totalPesangon = formData.uangPesangon + formData.uangPenghargaanMasaKerja + formData.uangPenggantianHak;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
-          .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
-          * { box-sizing: border-box !important; }
-        }
-      ` }} />
-
-      {/* NAVBAR */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-              <ArrowLeftCircle size={20} className="text-emerald-400" />
-              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
-            </Link>
-            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-red-400 uppercase tracking-tighter italic">
-               <PenTool size={16} /> <span>Termination Letter Builder</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
-              </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Formal Korporat {templateId === 1 && <Check size={14}/>}</button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Modern Clean {templateId === 2 && <Check size={14}/>}</button>
-                </div>
-              )}
-            </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
-            </button>
-          </div>
-      </div>
-
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor PHK</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Kop Perusahaan</h3>
-                 <div className="flex items-center gap-4 py-2">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 overflow-hidden shrink-0">
-                       {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <ImagePlus size={20} className="text-slate-300" />}
-                       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
-                    </div>
-                    <input className="flex-1 p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} placeholder="Nama PT" />
-                 </div>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.companyAddress} onChange={e => handleDataChange('companyAddress', e.target.value)} placeholder="Alamat Lengkap PT" />
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Karyawan</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.employeeName} onChange={e => handleDataChange('employeeName', e.target.value)} placeholder="Nama Lengkap Karyawan" />
-                 <div className="grid grid-cols-2 gap-3">
-                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.employeeId} onChange={e => handleDataChange('employeeId', e.target.value)} placeholder="ID Karyawan" />
-                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.position} onChange={e => handleDataChange('position', e.target.value)} placeholder="Jabatan" />
-                 </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><Scale size={12}/> Detail PHK</h3>
-                 <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-slate-400">TANGGAL BERAKHIR KERJA</label>
-                    <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" value={data.lastWorkDate} onChange={e => handleDataChange('lastWorkDate', e.target.value)} />
-                 </div>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-24 resize-none focus:ring-2 focus:ring-red-500 outline-none leading-relaxed" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)} placeholder="Alasan PHK secara detail..." />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-red-500 outline-none" value={data.compensationInfo} onChange={e => handleDataChange('compensationInfo', e.target.value)} placeholder="Info Kompensasi..." />
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 tracking-widest flex items-center gap-2"><PenTool size={12}/> Otoritas TTD</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.authorityName} onChange={e => handleDataChange('authorityName', e.target.value)} placeholder="Nama Manager HRD" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.authorityJob} onChange={e => handleDataChange('authorityJob', e.target.value)} placeholder="Jabatan" />
-                 <div className="grid grid-cols-2 gap-3">
-                   <input className="w-full p-2 border rounded-lg text-xs uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
-                   <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                 </div>
-                 <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-slate-500 outline-none font-mono" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="No. Surat" />
-              </div>
-           </div>
+    <div className="flex flex-col lg:flex-row h-screen bg-gray-50 overflow-hidden font-sans">
+      {/* Left Panel - Form Inputs (Hidden on Print) */}
+      <div className="w-full lg:w-1/3 xl:w-2/5 h-full overflow-y-auto border-r border-gray-200 bg-white shadow-lg z-10 print-hidden flex flex-col">
+        <div className="p-6 bg-blue-600 text-white sticky top-0 z-20 shadow-md">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <FileWarning className="w-6 h-6" />
+            Generator Surat PHK
+          </h1>
+          <p className="text-blue-100 mt-1 text-sm">Isi formulir di bawah untuk memperbarui dokumen secara langsung.</p>
         </div>
 
-        {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
-                <DocumentContent />
+        <div className="p-6 space-y-8 flex-1">
+          {/* Section 1: Data Perusahaan */}
+          <section className="space-y-4">
+            <h2 className="text-lg font-bold text-gray-800 border-b pb-2 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-blue-600" />
+              Data Perusahaan
+            </h2>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nama Perusahaan</label>
+                <input type="text" name="namaPerusahaan" value={formData.namaPerusahaan} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Alamat Perusahaan</label>
+                <textarea name="alamatPerusahaan" value={formData.alamatPerusahaan} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" rows={2} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nama Pimpinan</label>
+                  <input type="text" name="namaPimpinan" value={formData.namaPimpinan} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Jabatan Pimpinan</label>
+                  <input type="text" name="jabatanPimpinan" value={formData.jabatanPimpinan} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
             </div>
-            </div>
-      </main>
+          </section>
 
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
-          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
-          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
+          {/* Section 2: Data Karyawan */}
+          <section className="space-y-4">
+            <h2 className="text-lg font-bold text-gray-800 border-b pb-2 flex items-center gap-2">
+              <User className="w-5 h-5 text-blue-600" />
+              Data Karyawan
+            </h2>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nama Karyawan</label>
+                  <input type="text" name="namaKaryawan" value={formData.namaKaryawan} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">NIK</label>
+                  <input type="text" name="nikKaryawan" value={formData.nikKaryawan} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Jabatan Karyawan</label>
+                <input type="text" name="jabatanKaryawan" value={formData.jabatanKaryawan} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Alamat Karyawan</label>
+                <textarea name="alamatKaryawan" value={formData.alamatKaryawan} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" rows={2} />
+              </div>
+            </div>
+          </section>
+
+          {/* Section 3: Detail PHK */}
+          <section className="space-y-4">
+            <h2 className="text-lg font-bold text-gray-800 border-b pb-2 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600" />
+              Detail PHK
+            </h2>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Surat</label>
+                  <input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Efektif PHK</label>
+                  <input type="text" name="tanggalEfektif" value={formData.tanggalEfektif} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Alasan PHK</label>
+                <select name="alasanPHK" value={formData.alasanPHK} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  <option value="Efisiensi">Efisiensi</option>
+                  <option value="Pelanggaran Berat">Pelanggaran Berat</option>
+                  <option value="Perubahan Status Perusahaan">Perubahan Status Perusahaan</option>
+                  <option value="Penutupan Perusahaan">Penutupan Perusahaan</option>
+                  <option value="Sakit Berkepanjangan">Sakit Berkepanjangan</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Detail Penjelasan Alasan</label>
+                <textarea name="detailAlasan" value={formData.detailAlasan} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" rows={3} placeholder="Jelaskan alasan secara spesifik..." />
+              </div>
+            </div>
+          </section>
+
+          {/* Section 4: Rincian Pesangon */}
+          <section className="space-y-4">
+            <h2 className="text-lg font-bold text-gray-800 border-b pb-2 flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-blue-600" />
+              Rincian Pesangon & Hak
+            </h2>
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+              <p className="text-sm text-yellow-800">Sesuai ketentuan UU Ketenagakerjaan / Cipta Kerja, mohon pastikan besaran hak telah dihitung dengan benar.</p>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Uang Pesangon (UP)</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">Rp</span>
+                  <input type="text" name="uangPesangon" value={formData.uangPesangon.toLocaleString('id-ID')} onChange={handleNumberChange} className="w-full pl-10 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Uang Penghargaan Masa Kerja (UPMK)</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">Rp</span>
+                  <input type="text" name="uangPenghargaanMasaKerja" value={formData.uangPenghargaanMasaKerja.toLocaleString('id-ID')} onChange={handleNumberChange} className="w-full pl-10 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Uang Penggantian Hak (UPH)</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">Rp</span>
+                  <input type="text" name="uangPenggantianHak" value={formData.uangPenggantianHak.toLocaleString('id-ID')} onChange={handleNumberChange} className="w-full pl-10 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
+              <div className="pt-3 mt-3 border-t border-gray-200">
+                <div className="flex justify-between items-center font-bold text-gray-900">
+                  <span>Total Diterima</span>
+                  <span className="text-blue-700">{formatRupiah(totalPesangon)}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          {/* Section 5: Tanda Tangan */}
+          <section className="space-y-4">
+            <h2 className="text-lg font-bold text-gray-800 border-b pb-2">Penandatanganan</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tempat</label>
+                <input type="text" name="tempatSurat" value={formData.tempatSurat} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Surat</label>
+                <input type="text" name="tanggalSurat" value={formData.tanggalSurat} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div className="p-6 bg-gray-50 border-t border-gray-200 sticky bottom-0 z-20">
+          <button onClick={handlePrint} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 flex items-center justify-center gap-2">
+            <Printer className="w-5 h-5" />
+            Cetak Surat PHK
+          </button>
+        </div>
       </div>
 
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
+      {/* Right Panel - Live Preview (Printable Area) */}
+      <div className="w-full lg:w-2/3 xl:w-3/5 h-full overflow-y-auto print:w-full print:overflow-visible">
+        <Kertas>
+          <div ref={printRef} className="text-black font-serif text-[12pt] leading-normal mx-auto max-w-4xl">
+            {/* Header/Kop Surat (Opsional, biasa dicetak di kertas ber-kop) */}
+            <div className="text-center mb-8 pb-4 border-b-2 border-black">
+              <h1 className="font-bold text-[16pt] uppercase tracking-wide">{formData.namaPerusahaan}</h1>
+              <p className="text-[11pt]">{formData.alamatPerusahaan}</p>
+            </div>
 
-      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
+            {/* Judul Surat */}
+            <div className="text-center mb-8">
+              <h2 className="font-bold text-[14pt] uppercase underline decoration-2 underline-offset-4">
+                SURAT KEPUTUSAN
+              </h2>
+              <p className="mt-1">Nomor: {formData.nomorSurat}</p>
+              <p className="mt-1 font-bold">Tentang</p>
+              <p className="font-bold uppercase">Pemutusan Hubungan Kerja (PHK)</p>
+            </div>
+
+            {/* Mukadimah */}
+            <div className="mb-6 space-y-4 text-justify">
+              <p>Direksi {formData.namaPerusahaan}, setelah:</p>
+              <div className="flex gap-4">
+                <div className="font-bold min-w-[100px]">Menimbang</div>
+                <div>
+                  <ol className="list-[lower-alpha] pl-5 m-0 space-y-1">
+                    <li>Bahwa dengan alasan <strong>{formData.alasanPHK}</strong>, perusahaan mengambil keputusan sulit ini.</li>
+                    <li>Bahwa {formData.detailAlasan}</li>
+                    <li>Bahwa oleh karena itu, perlu diterbitkan Surat Keputusan tentang Pemutusan Hubungan Kerja (PHK).</li>
+                  </ol>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="font-bold min-w-[100px]">Mengingat</div>
+                <div>
+                  <ol className="list-decimal pl-5 m-0 space-y-1">
+                    <li>Undang-Undang Nomor 13 Tahun 2003 tentang Ketenagakerjaan.</li>
+                    <li>Undang-Undang Nomor 6 Tahun 2023 tentang Penetapan Peraturan Pemerintah Pengganti Undang-Undang Nomor 2 Tahun 2022 tentang Cipta Kerja menjadi Undang-Undang.</li>
+                    <li>Peraturan Pemerintah Nomor 35 Tahun 2021 tentang Perjanjian Kerja Waktu Tertentu, Alih Daya, Waktu Kerja dan Waktu Istirahat, dan Pemutusan Hubungan Kerja.</li>
+                    <li>Peraturan Perusahaan / Perjanjian Kerja Bersama {formData.namaPerusahaan}.</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center font-bold mb-4 uppercase">
+              Memutuskan
+            </div>
+
+            <div className="mb-6 space-y-4 text-justify">
+              <div className="flex gap-4">
+                <div className="font-bold min-w-[100px]">Menetapkan</div>
+                <div></div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="font-bold min-w-[100px]">KESATU</div>
+                <div>
+                  <p>Memutuskan Hubungan Kerja (PHK) dengan pekerja:</p>
+                  <table className="w-full mt-2 mb-2">
+                    <tbody>
+                      <tr>
+                        <td className="w-40 align-top">Nama</td>
+                        <td className="w-4 align-top">:</td>
+                        <td><strong>{formData.namaKaryawan}</strong></td>
+                      </tr>
+                      <tr>
+                        <td className="align-top">NIK</td>
+                        <td className="align-top">:</td>
+                        <td>{formData.nikKaryawan}</td>
+                      </tr>
+                      <tr>
+                        <td className="align-top">Jabatan</td>
+                        <td className="align-top">:</td>
+                        <td>{formData.jabatanKaryawan}</td>
+                      </tr>
+                      <tr>
+                        <td className="align-top">Alamat</td>
+                        <td className="align-top">:</td>
+                        <td>{formData.alamatKaryawan}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="font-bold min-w-[100px]">KEDUA</div>
+                <div>
+                  <p>Pemutusan Hubungan Kerja tersebut terhitung mulai tanggal <strong>{formData.tanggalEfektif}</strong>.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="font-bold min-w-[100px]">KETIGA</div>
+                <div className="w-full">
+                  <p className="mb-2">Memberikan hak-hak pekerja akibat Pemutusan Hubungan Kerja (PHK) sesuai dengan ketentuan perundang-undangan yang berlaku, dengan rincian sebagai berikut:</p>
+                  
+                  <table className="w-full border-collapse border border-black mb-2 mt-2">
+                    <thead>
+                      <tr>
+                        <th className="border border-black p-2 bg-gray-100 w-12 text-center">No</th>
+                        <th className="border border-black p-2 bg-gray-100 text-left">Komponen</th>
+                        <th className="border border-black p-2 bg-gray-100 text-right w-48">Jumlah</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-black p-2 text-center">1</td>
+                        <td className="border border-black p-2">Uang Pesangon</td>
+                        <td className="border border-black p-2 text-right">{formatRupiah(formData.uangPesangon)}</td>
+                      </tr>
+                      <tr>
+                        <td className="border border-black p-2 text-center">2</td>
+                        <td className="border border-black p-2">Uang Penghargaan Masa Kerja</td>
+                        <td className="border border-black p-2 text-right">{formatRupiah(formData.uangPenghargaanMasaKerja)}</td>
+                      </tr>
+                      <tr>
+                        <td className="border border-black p-2 text-center">3</td>
+                        <td className="border border-black p-2">Uang Penggantian Hak</td>
+                        <td className="border border-black p-2 text-right">{formatRupiah(formData.uangPenggantianHak)}</td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colSpan={2} className="border border-black p-2 text-right font-bold bg-gray-50">TOTAL</td>
+                        <td className="border border-black p-2 text-right font-bold bg-gray-50">{formatRupiah(totalPesangon)}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="font-bold min-w-[100px]">KEEMPAT</div>
+                <div>
+                  <p>Mewajibkan pekerja untuk mengembalikan seluruh fasilitas dan inventaris milik perusahaan yang berada dalam penguasaan pekerja, serta melakukan serah terima pekerjaan selambat-lambatnya pada tanggal efektif PHK.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="font-bold min-w-[100px]">KELIMA</div>
+                <div>
+                  <p>Surat Keputusan ini berlaku sejak tanggal ditetapkan. Apabila dikemudian hari terdapat kekeliruan dalam keputusan ini, akan diadakan perbaikan sebagaimana mestinya.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer / Tanda Tangan */}
+            <div className="mt-12 flex justify-between">
+              <div className="text-center w-64 mt-6">
+                <p className="mb-24">Telah diterima dan dibaca pada<br/>Tanggal: ___________________<br/><br/>Pekerja,</p>
+                <p className="font-bold underline decoration-1 underline-offset-4">{formData.namaKaryawan}</p>
+              </div>
+              <div className="text-center w-64">
+                <p className="mb-1">Ditetapkan di {formData.tempatSurat}</p>
+                <p className="mb-24">Pada tanggal {formData.tanggalSurat}</p>
+                <p className="font-bold underline decoration-1 underline-offset-4">{formData.namaPimpinan}</p>
+                <p>{formData.jabatanPimpinan}</p>
+              </div>
+            </div>
+
+          </div>
+        </Kertas>
+      </div>
     </div>
   );
 }

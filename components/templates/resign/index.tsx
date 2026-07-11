@@ -1,199 +1,103 @@
-'use client';
+"use client";
 
-/**
- * FILE: ResignPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Pengunduran Diri (Resignation Letter)
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
- */
-
-import { useState, useRef, Suspense, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import { 
-  Printer, ArrowLeft, LayoutTemplate, 
-  User, Building2, Calendar, PenTool, HeartHandshake, Briefcase, ChevronDown, Check, Edit3, Eye, RotateCcw, ArrowLeftCircle
+  Building2, 
+  MapPin, 
+  Printer, 
+  FileText,
+  User,
+  Calendar,
+  CheckSquare,
+  AlertTriangle
 } from 'lucide-react';
-import Link from 'next/link';
+import { format, addMonths } from 'date-fns';
+import { id } from 'date-fns/locale';
 
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
+const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+    {children}
+  </div>
+);
 
-// --- 1. TYPE DEFINITIONS ---
 interface ResignData {
-  city: string;
-  signDate: string;
-  lastDate: string;
-  
-  // Karyawan
-  empName: string;
-  empPosition: string;
-  empDept: string;
-  
-  // Atasan
-  managerName: string;
-  managerTitle: string;
-  
-  // Perusahaan
   companyName: string;
+  companyCity: string;
   companyAddress: string;
   
-  // Isi Surat
-  opening: string;
-  reason: string;
-  handover: string;
-  closing: string;
+  tanggalSurat: string;
+  
+  penerima: string;
+  jabatanPenerima: string;
+  
+  namaKaryawan: string;
+  nik: string;
+  jabatan: string;
+  departemen: string;
+  
+  tanggalEfektif: string;
+  alasan: string;
+  
+  isHandoverAgreed: boolean;
+  isReturnAssetsAgreed: boolean;
 }
 
-// --- 2. DATA DEFAULT ---
-const INITIAL_DATA: ResignData = {
-  city: 'JAKARTA',
-  signDate: '', 
-  lastDate: '', 
+export default function ResignTemplate() {
+  const printRef = useRef<HTMLDivElement>(null);
   
-  empName: 'AHMAD FAUZI',
-  empPosition: 'Senior Marketing Executive',
-  empDept: 'Divisi Pemasaran',
-  
-  managerName: 'BAPAK BUDI SANTOSO',
-  managerTitle: 'HRD Manager',
-  
-  companyName: 'PT. MAJU MUNDUR SEJAHTERA',
-  companyAddress: 'Gedung Cyber, Jl. Rasuna Said, Jakarta',
-  
-  opening: 'Melalui surat ini, saya bermaksud untuk menyampaikan permohonan pengunduran diri saya dari jabatan Senior Marketing Executive di PT. Maju Mundur SEJAHTERA.',
-  reason: 'Keputusan ini saya ambil setelah pertimbangan matang untuk melanjutkan pengembangan karir saya di tempat yang baru. Saya ingin mengucapkan terima kasih yang sebesar-besarnya atas kesempatan dan kepercayaan yang telah diberikan selama saya bekerja di sini.',
-  handover: 'Saya akan tetap melaksanakan tugas dan tanggung jawab saya hingga hari terakhir bekerja. Saya juga berkomitmen untuk membantu proses transisi dan serah terima pekerjaan kepada rekan yang menggantikan agar operasional tetap berjalan lancar.',
-  closing: 'Saya memohon maaf jika ada kesalahan yang pernah saya perbuat selama bekerja. Semoga PT. Maju Mundur SEJAHTERA semakin sukses dan berkembang di masa depan.'
-};
+  const today = new Date();
+  const nextMonth = addMonths(today, 1);
 
-export default function ResignPage() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs bg-slate-50">Memuat Editor Surat...</div>}>
-      <ResignToolBuilder />
-    </Suspense>
-  );
-}
-
-function ResignToolBuilder() {
-  // --- STATE SYSTEM ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-  const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<ResignData>(INITIAL_DATA);
-  useEffect(() => {
-    setIsClient(true);
-    const today = new Date();
-    const oneMonth = new Date(new Date().setDate(today.getDate() + 30));
+  const [data, setData] = useState<ResignData>({
+    companyName: 'PT INDONESIA MAJU SEJAHTERA',
+    companyCity: 'Jakarta',
+    companyAddress: 'Jl. Jenderal Sudirman Kav. 45, Jakarta Selatan 12920',
     
-    setData(prev => ({ 
-        ...prev, 
-        signDate: today.toISOString().split('T')[0],
-        lastDate: oneMonth.toISOString().split('T')[0]
-    }));
-  }, []);
+    tanggalSurat: format(today, 'yyyy-MM-dd'),
+    
+    penerima: 'HR Manager',
+    jabatanPenerima: 'HRD Department',
+    
+    namaKaryawan: 'Budi Santoso',
+    nik: 'EMP-2021-045',
+    jabatan: 'Senior Software Engineer',
+    departemen: 'Information Technology',
+    
+    tanggalEfektif: format(nextMonth, 'yyyy-MM-dd'),
+    alasan: 'mengambil kesempatan karir di tempat lain',
+    
+    isHandoverAgreed: true,
+    isReturnAssetsAgreed: true,
+  });
 
-  const handleDataChange = (field: keyof ResignData, val: any) => {
-    setData(prev => ({ ...prev, [field]: val }));
-  };
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    documentTitle: `Surat_Pengunduran_Diri_${data.namaKaryawan.replace(/\s+/g, '_')}_${data.tanggalSurat}`,
+  });
 
-  const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
-        const today = new Date();
-        const oneMonth = new Date(new Date().setDate(today.getDate() + 30));
-        setData({ 
-            ...INITIAL_DATA, 
-            signDate: today.toISOString().split('T')[0],
-            lastDate: oneMonth.toISOString().split('T')[0]
-        });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const applyReason = (type: 'standard' | 'career' | 'personal') => {
-    if (type === 'standard') {
-      setData(prev => ({
-        ...prev,
-        opening: `Melalui surat ini, saya bermaksud menyampaikan pengunduran diri saya sebagai ${prev.empPosition} di ${prev.companyName}.`,
-        reason: `Saya mengucapkan terima kasih yang tulus atas kesempatan kerja yang telah diberikan kepada saya selama ini. Saya telah belajar banyak hal dan bangga bisa menjadi bagian dari perusahaan ini.`,
-        handover: `Sesuai ketentuan One Month Notice, saya akan tetap bekerja secara profesional hingga tanggal efektif pengunduran diri saya.`
-      }));
-    } else if (type === 'career') {
-      setData(prev => ({
-        ...prev,
-        opening: `Dengan hormat, bersama surat ini saya mengajukan pengunduran diri dari posisi ${prev.empPosition} di ${prev.companyName}.`,
-        reason: `Keputusan berat ini saya ambil karena saya telah menerima penawaran kesempatan karir baru yang sejalan dengan rencana pengembangan profesional saya kedepan. Terima kasih atas bimbingan Bapak/Ibu selama ini yang sangat berharga bagi karir saya.`,
-        handover: `Saya berkomitmen penuh untuk menyelesaikan seluruh tanggungan pekerjaan dan membantu proses handover kepada pengganti saya sebelum hari terakhir saya bekerja.`
-      }));
-    } else if (type === 'personal') {
-      setData(prev => ({
-        ...prev,
-        opening: `Saya yang bertanda tangan di bawah ini, ${prev.empName}, bermaksud mengajukan pengunduran diri dari ${prev.companyName}.`,
-        reason: `Adapun alasan pengunduran diri ini dikarenakan adanya urusan pribadi/keluarga yang mengharuskan saya untuk tidak lagi dapat bekerja secara penuh waktu. Saya sangat berterima kasih atas pengertian dan dukungan perusahaan selama ini.`,
-        handover: `Saya akan memastikan seluruh tugas saya diserahterimakan dengan baik agar tidak mengganggu kinerja tim yang saya tinggalkan.`
-      }));
+  const formatDateIndo = (dateStr: string) => {
+    if (!dateStr) return '';
+    try {
+      return format(new Date(dateStr), 'd MMMM yyyy', { locale: id });
+    } catch (e) {
+      return dateStr;
     }
   };
-
-  const activeTemplateName = templateId === 1 ? 'Formal Standard' : 'Modern Direct';
-
-  const DocumentContent = () => {
-    const formatDateSafe = (dateString: string) => {
-        if(!dateString) return '...';
-        try {
-            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        } catch { return dateString; }
-    };
-
-    return (
-      <div className={`bg-white flex flex-col box-border text-slate-900 leading-relaxed p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
-        
-        {/* TANGGAL & PERIHAL */}
-        <div className="text-right mb-10 shrink-0 font-sans text-[10pt]">
-          <p>{data.city}, {formatDateSafe(data.signDate)}</p>
-        </div>
-
-        <div className="mb-10 shrink-0 text-left font-sans">
-          <p className="font-bold">Perihal: <span className="underline decoration-2 underline-offset-4">Pengunduran Diri</span></p>
-          <div className="mt-6 leading-snug">
-            <p>Kepada Yth,</p>
-            <p className="font-black text-slate-900 uppercase tracking-tight">{data.managerName}</p>
-            <p className="font-bold text-slate-500">{data.managerTitle} - {data.companyName}</p>
-            <p className="text-xs italic text-slate-400 mt-1">{data.companyAddress}</p>
-          </div>
-        </div>
-
-        {/* ISI SURAT */}
-        <div className="flex-grow space-y-6 text-justify overflow-hidden leading-relaxed">
-          <p>Dengan hormat,</p>
-          <p className="whitespace-pre-line">{data.opening}</p>
-          
-          <div className="bg-slate-50 p-6 rounded-2xl border-l-4 border-emerald-500 italic font-medium print:bg-transparent print:border-2 print:border-black break-inside-avoid">
-            "Terhitung sejak tanggal <b className="text-emerald-700 print:text-black">{formatDateSafe(data.lastDate)}</b>, saya sudah tidak lagi menjadi bagian dari perusahaan."
-          </div>
-
-          <p className="whitespace-pre-line">{data.reason}</p>
-          <p className="whitespace-pre-line">{data.handover}</p>
-          <p className="whitespace-pre-line">{data.closing}</p>
-        </div>
-
-        {/* TANDA TANGAN */}
-        <div className="shrink-0 mt-12 pt-10 border-t-2 border-slate-100 print:border-black break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-          <div className="flex justify-end text-center">
-            <div className="w-72 font-sans">
-              <p className="mb-20 font-black uppercase text-[9px] text-slate-300 tracking-[0.3em] print:text-black">Hormat Saya,</p>
-              <p className="font-black underline uppercase text-[11pt] tracking-tighter text-slate-900 leading-none">{data.empName}</p>
-              <p className="text-[9pt] font-bold text-blue-600 mt-1 uppercase tracking-widest">{data.empPosition}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      
+    <div className="flex h-screen bg-slate-100 overflow-hidden font-sans">
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4; margin: 15mm; } 
@@ -206,100 +110,350 @@ function ResignToolBuilder() {
         }
       ` }} />
 
-      {/* NAVBAR */}
-      <div className="no-print bg-slate-900 text-white h-16 sticky top-0 z-50 border-b border-slate-700 flex items-center px-4 justify-between font-sans">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-              <ArrowLeftCircle size={20} className="text-emerald-400" />
-              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
-            </Link>
-            <div className="h-6 w-px bg-slate-700 hidden md:block mx-2"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-400 uppercase tracking-tighter italic">
-               <HeartHandshake size={16} /> <span>Resignation Builder</span>
+      {/* Left Panel - Dynamic Form */}
+      <div className="w-1/2 h-full overflow-y-auto border-r border-slate-200 bg-white flex flex-col no-print shadow-[4px_0_24px_rgba(0,0,0,0.02)] relative z-10">
+        <div className="p-6 border-b border-slate-100 bg-slate-50/50 sticky top-0 z-20 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <FileText className="w-6 h-6 text-rose-500" />
+                Generator Pengunduran Diri (Resign)
+              </h2>
+              <p className="text-sm text-slate-500 mt-1">Isi form untuk membuat Surat Pengunduran Diri sesuai protokol perusahaan</p>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
+            <div className="flex gap-2">
+              <button 
+                onClick={handlePrint}
+                className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors shadow-sm font-medium text-sm"
+              >
+                <Printer className="w-4 h-4" />
+                Cetak PDF
               </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Formal Standard {templateId === 1 && <Check size={14}/>}</button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Modern Direct {templateId === 2 && <Check size={14}/>}</button>
-                </div>
-              )}
             </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak Surat</span>
-            </button>
           </div>
-      </div>
-
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Resign</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
-              <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 space-y-3">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-800 flex items-center gap-2"><Check size={12}/> Alasan Cepat</h3>
-                 <div className="grid grid-cols-3 gap-2">
-                    <button onClick={() => applyReason('standard')} className="bg-white p-2 rounded-lg text-[9px] font-black shadow-sm hover:bg-emerald-600 hover:text-white transition-all">STANDARD</button>
-                    <button onClick={() => applyReason('career')} className="bg-white p-2 rounded-lg text-[9px] font-black shadow-sm hover:bg-emerald-600 hover:text-white transition-all">CAREER</button>
-                    <button onClick={() => applyReason('personal')} className="bg-white p-2 rounded-lg text-[9px] font-black shadow-sm hover:bg-emerald-600 hover:text-white transition-all">PERSONAL</button>
-                 </div>
-              </div>
-
-              <div className="space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Data Diri</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.empName} onChange={e => handleDataChange('empName', e.target.value)} placeholder="Nama Lengkap" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.empPosition} onChange={e => handleDataChange('empPosition', e.target.value)} placeholder="Jabatan Saat Ini" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
-              </div>
-
-              <div className="space-y-4 border-t pt-4">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Tujuan Surat</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none" value={data.managerName} onChange={e => handleDataChange('managerName', e.target.value)} placeholder="Nama Manager/HRD" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} placeholder="Nama Perusahaan" />
-              </div>
-
-              <div className="space-y-4 border-t pt-4">
-                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><Calendar size={12}/> Tanggal Resign</h3>
-                 <div className="space-y-1">
-                    <label className="text-[9px] font-black text-slate-400">HARI TERAKHIR BEKERJA</label>
-                    <input type="date" className="w-full p-2 border rounded-lg text-xs font-black focus:ring-2 focus:ring-red-500 outline-none" value={data.lastDate} onChange={e => handleDataChange('lastDate', e.target.value)} />
-                 </div>
-              </div>
-
-              <div className="space-y-4 border-t pt-4">
-                 <h3 className="text-[10px] font-black uppercase text-slate-400 border-b pb-1 tracking-widest flex items-center gap-2"><PenTool size={12}/> Narasi Surat</h3>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-32 focus:ring-2 focus:ring-slate-500 outline-none leading-relaxed" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)} placeholder="Alasan & Ucapan Terima Kasih..." />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-20 focus:ring-2 focus:ring-slate-500 outline-none leading-relaxed" value={data.handover} onChange={e => handleDataChange('handover', e.target.value)} placeholder="Proses Handover..." />
-              </div>
-           </div>
         </div>
 
-        {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
-                <DocumentContent />
+        <div className="p-6 space-y-8">
+          {/* Section: Document & Company Info */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
+              <Building2 className="w-5 h-5 text-slate-500" />
+              <h3 className="font-semibold text-slate-700">Informasi Perusahaan & Tanggal</h3>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Nama Perusahaan</label>
+                <input
+                  type="text"
+                  name="companyName"
+                  value={data.companyName}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Kota Penulisan Surat</label>
+                <input
+                  type="text"
+                  name="companyCity"
+                  value={data.companyCity}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Alamat Perusahaan</label>
+                <input
+                  type="text"
+                  name="companyAddress"
+                  value={data.companyAddress}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Tanggal Surat</label>
+                <input
+                  type="date"
+                  name="tanggalSurat"
+                  value={data.tanggalSurat}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
             </div>
-      </main>
+          </section>
 
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
-          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
-          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
+          {/* Section: Penerima Surat */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
+              <User className="w-5 h-5 text-slate-500" />
+              <h3 className="font-semibold text-slate-700">Penerima Surat (Tujuan)</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Nama/Jabatan Penerima</label>
+                <input
+                  type="text"
+                  name="penerima"
+                  value={data.penerima}
+                  onChange={handleInputChange}
+                  placeholder="Contoh: Bapak Hendro / HR Manager"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Departemen Penerima</label>
+                <input
+                  type="text"
+                  name="jabatanPenerima"
+                  value={data.jabatanPenerima}
+                  onChange={handleInputChange}
+                  placeholder="Contoh: HRD Department"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Section: Employee Data */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
+              <User className="w-5 h-5 text-slate-500" />
+              <h3 className="font-semibold text-slate-700">Data Karyawan</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Nama Lengkap</label>
+                <input
+                  type="text"
+                  name="namaKaryawan"
+                  value={data.namaKaryawan}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">NIK / ID Karyawan</label>
+                <input
+                  type="text"
+                  name="nik"
+                  value={data.nik}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Jabatan</label>
+                <input
+                  type="text"
+                  name="jabatan"
+                  value={data.jabatan}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Departemen</label>
+                <input
+                  type="text"
+                  name="departemen"
+                  value={data.departemen}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Section: Resign Details */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
+              <Calendar className="w-5 h-5 text-slate-500" />
+              <h3 className="font-semibold text-slate-700">Detail Pengunduran Diri</h3>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                  Tanggal Efektif Resign
+                  <span className="text-xs text-rose-500 font-normal bg-rose-50 px-2 py-0.5 rounded-full">
+                    Aturan: One Month Notice (30 Hari)
+                  </span>
+                </label>
+                <input
+                  type="date"
+                  name="tanggalEfektif"
+                  value={data.tanggalEfektif}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Alasan Pengunduran Diri</label>
+                <textarea
+                  name="alasan"
+                  value={data.alasan}
+                  onChange={handleInputChange}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm resize-y"
+                  placeholder="Contoh: mendapatkan kesempatan karir di tempat lain..."
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Section: Protocols */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
+              <CheckSquare className="w-5 h-5 text-slate-500" />
+              <h3 className="font-semibold text-slate-700">Protokol Kewajiban (Liability & Handover)</h3>
+            </div>
+            <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isHandoverAgreed"
+                  checked={data.isHandoverAgreed}
+                  onChange={handleInputChange}
+                  className="mt-1 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
+                />
+                <span className="text-sm text-slate-700">
+                  <strong className="block text-slate-900 mb-0.5">Komitmen Serah Terima Tugas (Handover)</strong>
+                  Karyawan sepakat untuk menyelesaikan serah terima seluruh tugas dan tanggung jawab kepada pengganti atau atasan langsung.
+                </span>
+              </label>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isReturnAssetsAgreed"
+                  checked={data.isReturnAssetsAgreed}
+                  onChange={handleInputChange}
+                  className="mt-1 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
+                />
+                <span className="text-sm text-slate-700">
+                  <strong className="block text-slate-900 mb-0.5">Pengembalian Aset Perusahaan</strong>
+                  Karyawan sepakat untuk mengembalikan seluruh aset perusahaan (Laptop, ID Card, dll) dalam keadaan baik sebelum hari terakhir bekerja.
+                </span>
+              </label>
+            </div>
+          </section>
+        </div>
       </div>
 
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
+      {/* Right Panel - Live Preview */}
+      <div className="w-1/2 h-full overflow-y-auto bg-slate-400 p-8 print:p-0 print:w-full print:bg-white print:overflow-visible flex justify-center">
+        <div id="print-only-root" className="w-full flex justify-center print:block">
+          <div ref={printRef}>
+            <Kertas>
+              {/* Tempat & Tanggal */}
+              <div className="text-right mb-8">
+                <p>{data.companyCity}, {formatDateIndo(data.tanggalSurat)}</p>
+              </div>
 
-      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
+              {/* Tujuan Surat */}
+              <div className="mb-10 space-y-1">
+                <p>Kepada Yth.,</p>
+                <p className="font-bold">{data.penerima}</p>
+                <p>{data.jabatanPenerima}</p>
+                <p className="font-bold">{data.companyName}</p>
+                <p>{data.companyAddress}</p>
+              </div>
+
+              {/* Perihal */}
+              <div className="mb-8">
+                <p><strong>Perihal:</strong> Surat Pengunduran Diri Karyawan</p>
+              </div>
+
+              {/* Isi Surat */}
+              <div className="space-y-4 text-justify">
+                <p>Dengan hormat,</p>
+                
+                <p>Yang bertanda tangan di bawah ini:</p>
+
+                <div className="ml-4 md:ml-8 mb-4">
+                  <table className="w-full">
+                    <tbody>
+                      <tr>
+                        <td className="w-32 py-1 align-top">Nama</td>
+                        <td className="w-4 py-1 align-top">:</td>
+                        <td className="py-1 align-top font-bold">{data.namaKaryawan}</td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 align-top">NIK</td>
+                        <td className="py-1 align-top">:</td>
+                        <td className="py-1 align-top">{data.nik}</td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 align-top">Jabatan</td>
+                        <td className="py-1 align-top">:</td>
+                        <td className="py-1 align-top">{data.jabatan}</td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 align-top">Departemen</td>
+                        <td className="py-1 align-top">:</td>
+                        <td className="py-1 align-top">{data.departemen}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>
+                  Melalui surat ini, saya bermaksud menyampaikan permohonan pengunduran diri saya dari <span className="font-bold">{data.companyName}</span> sebagai <span className="font-bold">{data.jabatan}</span>. Sesuai dengan ketentuan dan peraturan perusahaan yang mensyaratkan <span className="font-bold italic">One Month Notice</span> (Pemberitahuan 30 Hari), maka pengunduran diri ini akan terhitung efektif pada tanggal <span className="font-bold">{formatDateIndo(data.tanggalEfektif)}</span>.
+                </p>
+
+                <p>
+                  Adapun keputusan pengunduran diri ini saya ambil karena alasan {data.alasan}.
+                </p>
+
+                <p>
+                  Saya mengucapkan terima kasih yang sebesar-besarnya atas kesempatan, kepercayaan, serta pengalaman berharga yang telah diberikan kepada saya selama bekerja di <span className="font-bold">{data.companyName}</span>. Saya sangat bersyukur dapat menjadi bagian dari perusahaan ini dan belajar banyak hal.
+                </p>
+
+                {(data.isHandoverAgreed || data.isReturnAssetsAgreed) && (
+                  <>
+                    <p>
+                      Sebagai bentuk tanggung jawab saya sampai dengan hari terakhir bekerja, saya menyatakan komitmen sebagai berikut:
+                    </p>
+                    <ul className="list-disc pl-8 space-y-1 mb-4">
+                      {data.isHandoverAgreed && (
+                        <li>
+                          Saya bersedia melakukan proses <strong>Serah Terima Tugas (Handover)</strong> seluruh pekerjaan dan tanggung jawab saya kepada rekan yang ditunjuk dengan sebaik-baiknya.
+                        </li>
+                      )}
+                      {data.isReturnAssetsAgreed && (
+                        <li>
+                          Saya bersedia untuk <strong>mengembalikan seluruh aset dan fasilitas perusahaan</strong> (termasuk namun tidak terbatas pada laptop, ID Card, seragam, dll) yang berada di bawah tanggung jawab saya dalam keadaan baik.
+                        </li>
+                      )}
+                    </ul>
+                  </>
+                )}
+
+                <p>
+                  Saya juga memohon maaf yang sebesar-besarnya apabila selama bekerja terdapat kesalahan, kekeliruan, maupun ucapan saya yang kurang berkenan di hati manajemen dan rekan-rekan kerja sekalian.
+                </p>
+
+                <p>
+                  Saya berharap <span className="font-bold">{data.companyName}</span> dapat terus berkembang dan semakin sukses di masa yang akan datang.
+                </p>
+
+                <p className="mb-12">
+                  Demikian surat pengunduran diri ini saya buat dengan penuh kesadaran dan tanpa paksaan dari pihak manapun. Atas perhatian dan pengertian Bapak/Ibu, saya ucapkan terima kasih.
+                </p>
+
+                {/* Signatures */}
+                <div className="flex justify-between mt-12 pt-8 break-inside-avoid">
+                  <div className="w-1/2 text-left">
+                    <p className="mb-24">Hormat saya,</p>
+                    <p className="font-bold underline">{data.namaKaryawan}</p>
+                    <p>{data.nik}</p>
+                  </div>
+                </div>
+              </div>
+            </Kertas>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

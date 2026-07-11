@@ -1,376 +1,268 @@
-'use client';
+"use client";
 
-/**
- * FILE: PaklaringPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Paklaring (Certificate of Employment) Corporate HR Enterprise-Grade
- */
+import React, { useState, useRef } from "react";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 
-import { useState, useRef, Suspense, useEffect } from 'react';
-import { 
-  Printer, ArrowLeft, Upload, LayoutTemplate, Briefcase, 
-  User, Building2, Medal, ChevronDown, Check, Trash2, Edit3, Eye, X, RotateCcw, ArrowLeftCircle
-} from 'lucide-react';
-import Link from 'next/link';
-import PrintWrapper from '@/components/PrintWrapper';
+interface PaklaringData {
+  kopSurat: {
+    namaPerusahaan: string;
+    alamat: string;
+    kontak: string;
+  };
+  nomorSurat: string;
+  tanggalSurat: string;
+  karyawan: {
+    nama: string;
+    nik: string;
+    jabatanTerakhir: string;
+    tanggalMulai: string;
+    tanggalSelesai: string;
+  };
+  evaluasiKinerja: "Sangat Baik" | "Baik" | "Cukup";
+  penandatangan: {
+    nama: string;
+    jabatan: string;
+  };
+}
 
-// --- ATURAN KERTAS MUTLAK ---
+const DEFAULT_DATA: PaklaringData = {
+  kopSurat: {
+    namaPerusahaan: "PT MAJU MUNDUR SEJAHTERA",
+    alamat: "Jl. Sudirman No. 123, Jakarta Pusat 10220",
+    kontak: "Telp: (021) 1234567 | Email: info@majumundur.com",
+  },
+  nomorSurat: "123/HRD-MMS/VIII/2026",
+  tanggalSurat: new Date().toISOString().split("T")[0],
+  karyawan: {
+    nama: "Budi Santoso",
+    nik: "1234567890",
+    jabatanTerakhir: "Senior Software Engineer",
+    tanggalMulai: "2020-01-01",
+    tanggalSelesai: "2026-07-01",
+  },
+  evaluasiKinerja: "Sangat Baik",
+  penandatangan: {
+    nama: "Joko Anwar",
+    jabatan: "HR Director",
+  },
+};
+
 const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
   <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
     {children}
   </div>
 );
 
-// --- 1. TYPE DEFINITIONS ---
-interface PaklaringData {
-  no: string;
-  date: string;
-  city: string;
-  
-  // Perusahaan
-  compName: string;
-  compInfo: string;
-  signerName: string;
-  signerJob: string;
-  
-  // Karyawan
-  empName: string;
-  empNik: string;
-  empPosition: string;
-  startDate: string;
-  endDate: string;
-  
-  // Isi
-  performance: string;
-  evaluation: string;
-  closing: string;
-}
+export default function PaklaringTemplate() {
+  const [data, setData] = useState<PaklaringData>(DEFAULT_DATA);
+  const printRef = useRef<HTMLDivElement>(null);
 
-// --- 2. DATA DEFAULT ---
-const INITIAL_DATA: PaklaringData = {
-  no: `SKK/HRD/${new Date().getFullYear()}/045`,
-  date: '', 
-  city: 'JAKARTA',
-  
-  compName: 'PT. TEKNOLOGI MAJU BERSAMA',
-  compInfo: 'Gedung Cyber 2, Lt. 15\nJl. H.R. Rasuna Said, Jakarta Selatan',
-  
-  signerName: 'SISKA AMELIA',
-  signerJob: 'HRD Manager',
-  
-  empName: 'AHMAD FAUZI',
-  empNik: '20200512',
-  empPosition: 'Senior Graphic Designer',
-  startDate: '2023-01-15',
-  endDate: '2026-01-15',
-  
-  performance: 'Sangat Baik',
-  evaluation: 'Yang bersangkutan mengundurkan diri atas kemauan sendiri (Resign).',
-  closing: 'Kami mengucapkan terima kasih atas kontribusi yang telah diberikan dan berharap kesuksesan menyertai langkah karir Saudara di masa depan.'
-};
-
-// --- 3. KOMPONEN UTAMA ---
-export default function PaklaringPage() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem HRD...</div>}>
-      <PaklaringToolBuilder />
-    </Suspense>
-  );
-}
-
-function PaklaringToolBuilder() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // --- STATE SYSTEM ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-  const [isClient, setIsClient] = useState(false);
-  const [logo, setLogo] = useState<string | null>(null);
-  const [data, setData] = useState<PaklaringData>(INITIAL_DATA);
-  const [durationStr, setDurationStr] = useState('');
-  
-  useEffect(() => {
-    setIsClient(true);
-    const today = new Date().toISOString().split('T')[0];
-    setData(prev => ({ ...prev, date: today }));
-  }, []);
-
-  useEffect(() => {
-    const start = new Date(data.startDate);
-    const end = new Date(data.endDate);
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) return;
-
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    const years = Math.floor(diffDays / 365);
-    const months = Math.floor((diffDays % 365) / 30);
-    
-    let str = '';
-    if (years > 0) str += `${years} Tahun `;
-    if (months > 0) str += `${months} Bulan`;
-    if (str === '') str = 'Kurang dari 1 bulan';
-    
-    setDurationStr(str);
-  }, [data.startDate, data.endDate]);
-
-  const handleDataChange = (field: keyof PaklaringData, val: any) => {
-    setData(prev => ({ ...prev, [field]: val }));
+  const handlePrint = () => {
+    window.print();
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setLogo(reader.result as string);
-      reader.readAsDataURL(file);
+  const handleInputChange = (section: keyof PaklaringData, field: string, value: string) => {
+    setData((prev) => {
+      const targetSection = prev[section];
+      if (typeof targetSection === "object" && targetSection !== null) {
+        return { ...prev, [section]: { ...targetSection, [field]: value } };
+      } else {
+        return { ...prev, [section]: value };
+      }
+    });
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    try {
+      return format(new Date(dateString), "dd MMMM yyyy", { locale: id });
+    } catch {
+      return dateString;
     }
   };
 
-  const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
-        const today = new Date().toISOString().split('T')[0];
-        setData({ ...INITIAL_DATA, date: today });
-        setLogo(null);
-    }
-  };
-
-  const activeTemplateName = templateId === 1 ? 'Corporate HR' : 'Modern Certificate';
-
-  const PaklaringContent = () => {
-    const formatDateSafe = (dateString: string) => {
-      if(!dateString) return '...';
-      try {
-        return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-      } catch { return dateString; }
-    };
-
-    return (
-      <Kertas>
-        {templateId === 1 ? (
-            <div className="flex flex-col h-full">
-                <div className="flex items-center gap-4 border-b-4 border-double border-slate-800 pb-3 mb-6 shrink-0 font-sans">
-                   <div className="w-16 h-16 shrink-0 flex items-center justify-center">
-                      {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <div className="font-bold text-slate-200 uppercase text-[8px] border-2 border-dashed p-2 text-center leading-tight">COMPANY<br/>LOGO</div>}
-                   </div>
-                   <div className="flex-1 text-center">
-                      <h1 className="text-xl font-black uppercase text-slate-900 leading-tight tracking-tight">{data.compName}</h1>
-                      <div className="text-[8pt] text-slate-500 whitespace-pre-line leading-tight mt-1">{data.compInfo}</div>
-                   </div>
-                </div>
-
-                <div className="text-center mb-8 shrink-0">
-                   <h2 className="font-bold text-lg uppercase underline decoration-1 underline-offset-4">SURAT KETERANGAN KERJA</h2>
-                   <div className="text-sm font-bold mt-1 font-sans">Nomor: {data.no}</div>
-                </div>
-
-                <div className="flex-grow text-justify">
-                    <p className="mb-4">Yang bertanda tangan di bawah ini:</p>
-                    <div className="ml-8 mb-6 break-inside-avoid">
-                       <table className="w-full leading-snug font-sans text-[10pt]">
-                          <tbody>
-                             <tr><td className="w-32 py-1">Nama</td><td className="w-3">:</td><td className="font-bold uppercase">{data.signerName}</td></tr>
-                             <tr><td className="py-1">Jabatan</td><td>:</td><td>{data.signerJob}</td></tr>
-                             <tr><td className="py-1">Instansi</td><td>:</td><td className="uppercase">{data.compName}</td></tr>
-                          </tbody>
-                       </table>
-                    </div>
-
-                    <p className="mb-4">Menerangkan dengan sesungguhnya bahwa:</p>
-                    <div className="ml-8 mb-8 break-inside-avoid bg-slate-50 p-4 rounded-xl border border-slate-100 print:bg-transparent print:border-black print:p-0 print:ml-8 print:mb-6">
-                       <table className="w-full leading-snug font-sans text-[10pt]">
-                          <tbody>
-                             <tr><td className="w-32 py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">Nama Lengkap</td><td className="w-3">:</td><td className="font-bold uppercase text-slate-900">{data.empName}</td></tr>
-                             <tr><td className="py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">ID Karyawan</td><td>:</td><td className="font-mono">{data.empNik}</td></tr>
-                             <tr><td className="py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">Posisi Terakhir</td><td>:</td><td className="font-bold">{data.empPosition}</td></tr>
-                             <tr><td className="py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">Masa Bakti</td><td>:</td><td className="italic">{formatDateSafe(data.startDate)} s/d {formatDateSafe(data.endDate)}</td></tr>
-                             <tr><td className="py-1 uppercase text-slate-400 print:text-slate-900 font-bold text-[9px] print:text-[10pt] print:normal-case print:font-normal">Total Durasi</td><td>:</td><td className="font-black text-blue-700 print:text-black">{durationStr}</td></tr>
-                          </tbody>
-                       </table>
-                    </div>
-
-                    <p className="mb-4 leading-relaxed">
-                      Selama masa baktinya, Saudara/i <strong>{data.empName}</strong> telah menunjukkan evaluasi kinerja yang <strong>{data.performance}</strong>, serta memiliki dedikasi, loyalitas, dan integritas yang tinggi terhadap perusahaan. {data.evaluation}
-                    </p>
-                    
-                    <p className="mb-4 leading-relaxed font-semibold">
-                      Kami menyatakan bahwa yang bersangkutan telah menyelesaikan seluruh kewajiban finansial, administrasi, serta telah mengembalikan seluruh aset kepada perusahaan (Clearance). Oleh karenanya, perusahaan tidak memiliki tuntutan dalam bentuk apapun di kemudian hari.
-                    </p>
-
-                    <p className="mb-8 leading-relaxed">{data.closing}</p>
-                </div>
-
-                <div className="shrink-0 mt-8 flex justify-end text-center font-sans" style={{ pageBreakInside: 'avoid' }}>
-                   <div className="w-72">
-                      <p className="mb-1 text-xs">{data.city}, {formatDateSafe(data.date)}</p>
-                      <p className="mb-20 font-bold uppercase text-[10px] tracking-widest text-slate-400 print:text-slate-900">Pimpinan Perusahaan,</p>
-                      <p className="font-bold underline uppercase text-sm font-serif">{data.signerName}</p>
-                      <p className="text-[10px] uppercase font-bold text-slate-500 print:text-slate-900 mt-1">{data.signerJob}</p>
-                   </div>
-                </div>
-            </div>
-        ) : (
-            <div className="flex flex-col h-full font-sans text-[10pt]">
-                {/* TEMPLATE MODERN */}
-                <div className="flex justify-between items-center mb-12 border-b-2 border-slate-100 pb-6 shrink-0">
-                  {logo ? <img src={logo} className="h-12 w-auto" alt="Logo" /> : <div className="font-black text-2xl text-slate-200">LOGO</div>}
-                  <div className="text-right">
-                     <div className="font-black text-slate-900 text-xl uppercase tracking-tighter leading-none">{data.compName}</div>
-                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">HR Excellence Department</div>
-                  </div>
-                </div>
-               
-                <div className="text-center mb-16 shrink-0">
-                  <h1 className="text-4xl font-light text-slate-800 uppercase tracking-[0.2em] mb-2">Certificate</h1>
-                  <div className="text-[10px] text-blue-600 font-black tracking-[0.4em] mb-6 uppercase">of Employment Tenureship</div>
-                  <div className="w-16 h-1 bg-blue-600 mx-auto mb-4 print:bg-black"></div>
-                  <div className="text-[9px] text-slate-400 font-mono italic">Document Ref: {data.no}</div>
-                </div>
-
-                <div className="flex-grow px-12 text-center">
-                  <p className="text-slate-400 mb-6 uppercase tracking-[0.2em] text-[10px] font-bold">This document confirms that</p>
-                  <h2 className="text-4xl font-black text-slate-900 uppercase mb-2 leading-none tracking-tight">{data.empName}</h2>
-                  <div className="text-sm text-slate-500 mb-12 font-mono">Employee Registration No: {data.empNik}</div>
-                  
-                  <div className="max-w-xl mx-auto space-y-6 leading-relaxed">
-                    <p className="text-slate-600 text-lg">
-                      Has completed their professional service at <strong>{data.compName}</strong> as <strong>{data.empPosition}</strong>. 
-                      Effectively serving from <strong>{isClient && data.startDate ? new Date(data.startDate + 'T00:00:00').toLocaleDateString('id-ID', {month:'long', year:'numeric'}) : ''}</strong> until <strong>{isClient && data.endDate ? new Date(data.endDate + 'T00:00:00').toLocaleDateString('id-ID', {month:'long', year:'numeric'}) : ''}</strong>.
-                    </p>
-                    <p className="text-slate-600 text-md">
-                      The employee has demonstrated a <strong>{data.performance === 'Sangat Baik' ? 'Highly Excellent' : data.performance === 'Baik' ? 'Good' : 'Satisfactory'}</strong> performance during their tenure. {data.evaluation}
-                    </p>
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-slate-700 text-sm italic print:bg-transparent print:border-black">
-                      "We hereby certify that the employee has returned all company assets and cleared all financial and administrative obligations. The company holds no future claims against the individual."
-                    </div>
-                  </div>
-                </div>
-
-                <div className="shrink-0 mt-16 flex justify-between items-end border-t border-slate-100 pt-8 pb-4">
-                  <div className="text-[7pt] text-slate-400 max-w-[280px] leading-tight print:text-black">
-                    This official certificate is generated by the Human Resources system. Authenticity can be verified through corporate records.
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[9pt] text-slate-400 font-bold uppercase mb-16 tracking-widest print:text-black">{data.city}, {formatDateSafe(data.date)}</p>
-                    <p className="font-black text-slate-900 text-xl leading-none uppercase">{data.signerName}</p>
-                    <p className="text-[10px] text-blue-600 font-black mt-2 uppercase tracking-widest print:text-black">{data.signerJob}</p>
-                  </div>
-                </div>
-            </div>
-        )}
-      </Kertas>
-    );
-  };
-
-  if (!isClient) return null;
-
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row font-sans">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: A4; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; }
+          .no-print { display: none !important; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          * { box-sizing: border-box !important; }
+        }
+      ` }} />
       
-      {/* ATURAN PRINT MUTLAK */}
-      <style dangerouslySetInnerHTML={{ __html: `\n@media print {\n  @page { size: A4; margin: 15mm; } \n  body { background: white; margin: 0; padding: 0; width: 100%; }\n  .no-print { display: none !important; }\n  #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }\n  .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }\n  .break-before-auto { break-before: auto !important; page-break-before: auto !important; }\n  * { box-sizing: border-box !important; }\n}\n` }} />
-
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-              <ArrowLeftCircle size={20} className="text-emerald-400" />
-              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
-            </Link>
-            <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <Briefcase size={16} className="text-emerald-500" /> <span>Paklaring Builder</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
-              </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Corporate HR {templateId === 1 && <Check size={14}/>}</button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Modern Certificate {templateId === 2 && <Check size={14}/>}</button>
-                </div>
-              )}
-            </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
-              <Printer size={16} /> <span className="hidden md:inline">Print</span>
+      {/* Left Panel: Dynamic Form (no-print) */}
+      <div className="w-full md:w-1/3 bg-white border-r border-gray-200 overflow-y-auto no-print h-screen sticky top-0 custom-scrollbar">
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Form Paklaring</h2>
+          <div className="mb-6 flex gap-2">
+            <button onClick={handlePrint} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md font-medium transition-colors">
+              Cetak / Simpan PDF
             </button>
           </div>
-      </div>
-
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        {/* SIDEBAR */}
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Paklaring</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Perusahaan</h3>
-                 <div className="flex items-center gap-4 py-2">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 relative overflow-hidden shrink-0">
-                       {logo ? <img src={logo} className="w-full h-full object-contain" alt="Company Logo" /> : <Upload size={20} className="text-slate-300" />}
-                       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
-                    </div>
-                    {logo && <button onClick={() => setLogo(null)} className="text-[10px] text-red-500 font-bold uppercase underline">Hapus</button>}
-                 </div>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.compName} onChange={e => handleDataChange('compName', e.target.value)} placeholder="Nama PT" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs resize-none focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed" value={data.compInfo} onChange={e => handleDataChange('compInfo', e.target.value)} placeholder="Alamat Perusahaan..." rows={2} />
+          <div className="space-y-6">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <h3 className="font-semibold text-gray-700 mb-3 border-b pb-2">Kop Surat</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Nama Perusahaan</label>
+                  <input type="text" value={data.kopSurat.namaPerusahaan} onChange={(e) => handleInputChange("kopSurat", "namaPerusahaan", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Alamat</label>
+                  <textarea value={data.kopSurat.alamat} onChange={(e) => handleInputChange("kopSurat", "alamat", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" rows={2} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Kontak</label>
+                  <input type="text" value={data.kopSurat.kontak} onChange={(e) => handleInputChange("kopSurat", "kontak", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                </div>
               </div>
+            </div>
 
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Karyawan</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none uppercase" value={data.empName} onChange={e => handleDataChange('empName', e.target.value)} placeholder="Nama Lengkap" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.empPosition} onChange={e => handleDataChange('empPosition', e.target.value)} placeholder="Jabatan Terakhir" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.empNik} onChange={e => handleDataChange('empNik', e.target.value)} placeholder="ID Karyawan / NIK" />
-                 <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">MULAI</label><input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.startDate} onChange={e => handleDataChange('startDate', e.target.value)} /></div>
-                    <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">AKHIR</label><input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.endDate} onChange={e => handleDataChange('endDate', e.target.value)} /></div>
-                 </div>
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <h3 className="font-semibold text-gray-700 mb-3 border-b pb-2">Data Surat</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Nomor Surat</label>
+                  <input type="text" value={data.nomorSurat} onChange={(e) => handleInputChange("nomorSurat", "nomorSurat", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Tanggal Surat</label>
+                  <input type="date" value={data.tanggalSurat} onChange={(e) => handleInputChange("tanggalSurat", "tanggalSurat", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                </div>
               </div>
+            </div>
 
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Medal size={12}/> Tanda Tangan & Evaluasi</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none uppercase" value={data.signerName} onChange={e => handleDataChange('signerName', e.target.value)} placeholder="Nama Penandatangan" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.signerJob} onChange={e => handleDataChange('signerJob', e.target.value)} placeholder="Jabatan Penandatangan" />
-                 
-                 <div className="space-y-1">
-                   <label className="text-[9px] font-bold text-slate-400">EVALUASI KINERJA</label>
-                   <select className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none" value={data.performance} onChange={e => handleDataChange('performance', e.target.value)}>
-                     <option value="Sangat Baik">Sangat Baik</option>
-                     <option value="Baik">Baik</option>
-                     <option value="Cukup">Cukup</option>
-                   </select>
-                 </div>
-                 
-                 <div className="space-y-1">
-                   <label className="text-[9px] font-bold text-slate-400">ALASAN KELUAR / KETERANGAN</label>
-                   <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed" value={data.evaluation} onChange={e => handleDataChange('evaluation', e.target.value)} placeholder="Keterangan tambahan (cth: Resign)..." />
-                 </div>
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <h3 className="font-semibold text-gray-700 mb-3 border-b pb-2">Data Karyawan</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Nama Lengkap</label>
+                  <input type="text" value={data.karyawan.nama} onChange={(e) => handleInputChange("karyawan", "nama", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">NIK</label>
+                  <input type="text" value={data.karyawan.nik} onChange={(e) => handleInputChange("karyawan", "nik", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Jabatan Terakhir</label>
+                  <input type="text" value={data.karyawan.jabatanTerakhir} onChange={(e) => handleInputChange("karyawan", "jabatanTerakhir", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Tanggal Mulai</label>
+                    <input type="date" value={data.karyawan.tanggalMulai} onChange={(e) => handleInputChange("karyawan", "tanggalMulai", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Tanggal Selesai</label>
+                    <input type="date" value={data.karyawan.tanggalSelesai} onChange={(e) => handleInputChange("karyawan", "tanggalSelesai", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                  </div>
+                </div>
               </div>
-           </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <h3 className="font-semibold text-gray-700 mb-3 border-b pb-2">Evaluasi Kinerja</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Penilaian</label>
+                <select value={data.evaluasiKinerja} onChange={(e) => handleInputChange("evaluasiKinerja", "evaluasiKinerja", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                  <option value="Sangat Baik">Sangat Baik</option>
+                  <option value="Baik">Baik</option>
+                  <option value="Cukup">Cukup</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-8">
+              <h3 className="font-semibold text-gray-700 mb-3 border-b pb-2">Penandatangan</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Nama</label>
+                  <input type="text" value={data.penandatangan.nama} onChange={(e) => handleInputChange("penandatangan", "nama", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Jabatan</label>
+                  <input type="text" value={data.penandatangan.jabatan} onChange={(e) => handleInputChange("penandatangan", "jabatan", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* PREVIEW */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
-                <PaklaringContent />
-            </div>
-            </div>
-      </main>
-
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
-          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
-          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
+      {/* Right Panel: Live Preview (A4 Paper) */}
+      <div className="w-full md:w-2/3 p-4 md:p-8 overflow-y-auto print:p-0 print:w-full print:overflow-visible flex justify-center bg-gray-200 print:bg-white">
+        <div id="print-only-root" className="w-full flex justify-center print:block" ref={printRef}>
+          <Kertas>
+            <div className="text-center border-b-[3px] border-black pb-4 mb-8">
+              <h1 className="text-2xl font-bold uppercase tracking-wider">{data.kopSurat.namaPerusahaan}</h1>
+              <p className="text-sm mt-1">{data.kopSurat.alamat}</p>
+              <p className="text-sm">{data.kopSurat.kontak}</p>
+            </div>
 
-      <div id="print-only-root" className="hidden"><div className="bg-white"><PaklaringContent /></div></div>
+            <div className="text-center mb-8">
+              <h2 className="text-xl font-bold uppercase underline pb-1">Surat Keterangan Pengalaman Kerja</h2>
+              <p className="text-sm font-semibold mt-1">No: {data.nomorSurat}</p>
+            </div>
+
+            <div className="text-justify leading-relaxed">
+              <p className="mb-4">
+                Yang bertanda tangan di bawah ini, mewakili Manajemen {data.kopSurat.namaPerusahaan}, menerangkan dengan sesungguhnya bahwa:
+              </p>
+
+              <table className="w-full mb-4 ml-4">
+                <tbody>
+                  <tr>
+                    <td className="w-48 py-1">Nama</td>
+                    <td className="w-4 py-1">:</td>
+                    <td className="font-semibold">{data.karyawan.nama}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">NIK</td>
+                    <td className="py-1">:</td>
+                    <td>{data.karyawan.nik}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">Jabatan Terakhir</td>
+                    <td className="py-1">:</td>
+                    <td className="font-semibold">{data.karyawan.jabatanTerakhir}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p className="mb-4 indent-8">
+                Adalah benar pernah menjadi karyawan di {data.kopSurat.namaPerusahaan} terhitung sejak tanggal <strong>{formatDate(data.karyawan.tanggalMulai)}</strong> hingga tanggal <strong>{formatDate(data.karyawan.tanggalSelesai)}</strong>.
+              </p>
+
+              <p className="mb-4 indent-8">
+                Selama menjadi karyawan, yang bersangkutan telah menunjukkan kinerja dan dedikasi yang <strong>{data.evaluasiKinerja}</strong> kepada perusahaan. Kami mengucapkan terima kasih atas segala kontribusi yang telah diberikan selama masa kerja.
+              </p>
+
+              <p className="mb-8 indent-8 font-medium border-l-4 border-slate-800 pl-4 bg-slate-50 py-2">
+                Kami juga menyatakan bahwa yang bersangkutan telah menyelesaikan seluruh kewajiban finansial serta telah mengembalikan seluruh aset perusahaan yang berada di bawah tanggung jawabnya (Clearance).
+              </p>
+
+              <p className="mb-8">
+                Demikian surat keterangan ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya.
+              </p>
+            </div>
+
+            <div className="flex justify-end mt-12 break-inside-avoid">
+              <div className="text-center w-64">
+                <p className="mb-1">Jakarta, {formatDate(data.tanggalSurat)}</p>
+                <p className="font-bold mb-24">{data.kopSurat.namaPerusahaan}</p>
+                <p className="font-bold underline">{data.penandatangan.nama}</p>
+                <p>{data.penandatangan.jabatan}</p>
+              </div>
+            </div>
+          </Kertas>
+        </div>
+      </div>
     </div>
   );
 }
