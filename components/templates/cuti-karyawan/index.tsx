@@ -1,451 +1,390 @@
-'use client';
+"use client";
 
-/**
- * FILE: IzinCutiPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
- * DESC: Generator Surat Izin Cuti / Sakit
- * FEATURES:
- * - Auto Days Calculation (Hitung Hari Otomatis)
- * - Auto Reason Generator (Tahunan/Sakit/Hamil)
- * - Dual Template (Formal vs Modern)
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
- * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
- */
+import React, { useState, useRef } from "react";
+import { Printer } from "lucide-react";
 
-import { useState, useRef, Suspense, useMemo, useEffect } from 'react';
-import { 
-  Printer, ArrowLeft, CalendarDays, UserCircle2, 
-  Stethoscope, Baby, Palmtree, LayoutTemplate, ChevronDown, Check,
-  Info, FileText, BadgeCheck, ArrowLeftCircle, Edit3, Eye, Briefcase, RotateCcw
-} from 'lucide-react';
-import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
-
-// --- 1. TYPE DEFINITIONS ---
-interface LeaveData {
-  city: string;
-  date: string;
-  name: string;
-  empId: string;
-  position: string;
-  department: string;
-  startDate: string;
-  endDate: string;
-  reason: string;
-  substitute: string;
-  managerName: string;
-  managerJob: string;
+interface FormData {
+  namaKaryawan: string;
+  nik: string;
+  jabatan: string;
+  departemen: string;
+  jenisCuti: string;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+  lamaCuti: string;
+  alasanCuti: string;
+  delegasiTugas: string;
+  atasanLangsung: string;
+  tanggalPengajuan: string;
 }
 
-// --- 2. DATA DEFAULT ---
-const INITIAL_DATA: LeaveData = {
-  city: 'BANDUNG',
-  date: '', // Diisi useEffect
-  name: 'ANISA PUTRI',
-  empId: 'EMP-99021',
-  position: 'Senior Accounting',
-  department: 'Finance & Tax',
-  startDate: '2026-02-01',
-  endDate: '2026-02-03',
-  reason: 'Mengambil hak cuti tahunan untuk keperluan acara keluarga di luar kota.',
-  substitute: 'RENDI ARISANDI',
-  managerName: 'BAMBANG HERMAWAN',
-  managerJob: 'HR Manager'
-};
+const Kertas = React.forwardRef<HTMLDivElement, { children: React.ReactNode }>(({ children }, ref) => (
+  <div
+    ref={ref}
+    className="bg-white shadow-lg w-[210mm] min-h-[297mm] px-[20mm] py-[20mm] text-black print:w-full print:min-w-0 print:min-h-0 print:shadow-none print:m-0 mx-auto"
+  >
+    {children}
+  </div>
+));
+Kertas.displayName = "Kertas";
 
-// --- 3. KOMPONEN UTAMA ---
-export default function IzinCutiPage() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat Izin...</div>}>
-      <LeaveRequestBuilder />
-    </Suspense>
-  );
-}
+export default function SuratCutiKaryawan() {
+  const [formData, setFormData] = useState<FormData>({
+    namaKaryawan: "",
+    nik: "",
+    jabatan: "",
+    departemen: "",
+    jenisCuti: "Tahunan",
+    tanggalMulai: "",
+    tanggalSelesai: "",
+    lamaCuti: "",
+    alasanCuti: "",
+    delegasiTugas: "",
+    atasanLangsung: "",
+    tanggalPengajuan: new Date().toISOString().split("T")[0],
+  });
 
-function LeaveRequestBuilder() {
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [leaveType, setLeaveType] = useState<'Tahunan' | 'Hamil' | 'Sakit'>('Tahunan');
-  const [data, setData] = useState<LeaveData>(INITIAL_DATA);
+  const printRef = useRef<HTMLDivElement>(null);
 
-  // Set Tanggal Hari Ini saat Mount
-  useEffect(() => {
-    setData(prev => ({ 
-        ...prev, 
-        date: new Date().toISOString().split('T')[0] 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
     }));
-  }, []);
-
-  // --- LOGIC ---
-  const handleDataChange = (field: keyof LeaveData, val: string) => {
-    setData(prev => ({ ...prev, [field]: val }));
   };
 
-  // Logic Ganti Kategori & Auto Text
-  const handleCategoryChange = (type: 'Tahunan' | 'Hamil' | 'Sakit') => {
-    setLeaveType(type);
-    let newReason = '';
-    
-    if (type === 'Tahunan') {
-       newReason = 'Mengambil hak cuti tahunan untuk keperluan acara keluarga / liburan.';
-    } else if (type === 'Hamil') {
-       newReason = 'Persiapan persalinan dan pemulihan pasca melahirkan sesuai HPL dokter.';
-    } else if (type === 'Sakit') {
-       newReason = 'Kondisi kesehatan menurun (Demam/Flu) dan disarankan dokter untuk istirahat total.';
-    }
-
-    setData(prev => ({ ...prev, reason: newReason }));
+  const handlePrint = () => {
+    window.print();
   };
 
-  // Hitung Selisih Hari
-  const diffDays = useMemo(() => {
-    const start = new Date(data.startDate);
-    const end = new Date(data.endDate);
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-  }, [data.startDate, data.endDate]);
-
-  const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
-        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
-    }
-  };
-
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Klasik Korporat
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Modern Minimalis
-        </button>
-    </div>
-  );
-
-  // --- ICON HELPER ---
-  const getIcon = () => {
-    if (leaveType === 'Hamil') return <Baby size={32} />;
-    if (leaveType === 'Sakit') return <Stethoscope size={32} />;
-    return <Palmtree size={32} />;
-  };
-
-  // --- KONTEN SURAT ---
-  const ContentInside = () => {
-    // FIX TIMEZONE DATE FORMATTER
-    const formatDate = (dateString: string) => {
-        if(!dateString) return '...';
-        try {
-            // Append T00:00:00 untuk mencegah UTC offset bug
-            const safeDate = new Date(dateString + 'T00:00:00');
-            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
-        } catch { return dateString; }
-    };
-
-    if (templateId === 1) {
-      // === TEMPLATE 1: KLASIK KORPORAT ===
-      return (
-        <div className="font-serif text-[11pt] text-black leading-relaxed">
-           
-           <div className="text-right text-[11pt] mb-10">
-              <p className="font-bold">{data.city}, {formatDate(data.date)}</p>
-           </div>
-
-           <div className="mb-8 space-y-1 break-inside-avoid">
-              <p>Hal: <b>Permohonan Izin {leaveType === 'Tahunan' ? 'Cuti Tahunan' : (leaveType === 'Sakit' ? 'Sakit (Medical Leave)' : 'Cuti Melahirkan')}</b></p>
-              <div className="pt-4">
-                 <p>Kepada Yth,</p>
-                 <p className="font-bold uppercase">Bapak/Ibu {data.managerName}</p>
-                 <p>{data.managerJob}</p>
-                 <p className="font-medium">Di Tempat</p>
-              </div>
-           </div>
-
-           <div className="space-y-4 flex-grow text-justify">
-              <p>Dengan hormat,</p>
-              <p>Saya yang bertanda tangan di bawah ini:</p>
-              
-              <div className="ml-4 space-y-1 bg-slate-50 p-3 border border-slate-200 rounded text-[11pt] break-inside-avoid">
-                 <table className="w-full">
-                    <tbody>
-                       <tr><td className="w-36 align-top">Nama Lengkap</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.name}</td></tr>
-                       <tr><td className="align-top">Nomor Induk</td><td className="align-top">:</td><td className="align-top">{data.empId}</td></tr>
-                       <tr><td className="align-top">Jabatan</td><td className="align-top">:</td><td className="align-top">{data.position}</td></tr>
-                       <tr><td className="align-top">Departemen</td><td className="align-top">:</td><td className="align-top">{data.department}</td></tr>
-                    </tbody>
-                 </table>
-              </div>
-
-              <p className="break-inside-avoid">
-                 Bermaksud mengajukan permohonan <b>{leaveType === 'Sakit' ? 'IZIN SAKIT' : 'CUTI KERJA'}</b> selama <b>{diffDays} hari kerja</b>, terhitung mulai tanggal <b>{formatDate(data.startDate)}</b> sampai dengan <b>{formatDate(data.endDate)}</b>.
-              </p>
-              
-              <div className="bg-slate-50 p-3 border-l-4 border-black italic text-[11pt] text-justify rounded-r break-inside-avoid">
-                 Alasan: "{data.reason}"
-              </div>
-              
-              <p className="break-inside-avoid">
-                 Selama saya tidak berada di tempat, tanggung jawab pekerjaan sementara akan saya delegasikan kepada rekan kerja saya: <strong>{data.substitute}</strong>.
-              </p>
-              
-              <p className="break-inside-avoid">Demikian permohonan ini saya ajukan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.</p>
-           </div>
-
-           <div className="shrink-0 mt-12 grid grid-cols-2 gap-10 text-center break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="space-y-24">
-                 <p className="uppercase text-[10pt] font-bold text-slate-500">Menyetujui,</p>
-                 <div>
-                    <p className="font-bold underline uppercase">{data.managerName}</p>
-                    <p className="text-[10pt]">{data.managerJob}</p>
-                 </div>
-              </div>
-              <div className="space-y-24">
-                 <p className="uppercase text-[10pt] font-bold text-slate-500">Hormat Saya,</p>
-                 <div>
-                    <p className="font-bold underline uppercase">{data.name}</p>
-                    <p className="text-[10pt]">Pemohon</p>
-                 </div>
-              </div>
-           </div>
-        </div>
-      );
-    } else {
-      // === TEMPLATE 2: MODERN MINIMALIS ===
-      return (
-        <div className="font-sans text-[10.5pt] text-slate-900 leading-snug h-full flex flex-col pt-6">
-           
-           {/* HEADER MODERN */}
-           <div className="flex justify-between items-center mb-8 border-b-4 border-slate-900 pb-6 shrink-0">
-              <div className="flex items-center gap-4">
-                 <div className="p-3 bg-slate-900 text-white rounded-2xl shadow print:text-black print:bg-transparent print:border-2 print:border-black">
-                    {getIcon()}
-                 </div>
-                 <div>
-                    <h1 className="text-2xl font-black tracking-tighter uppercase leading-none italic">Leave Form</h1>
-                    <p className="text-[9px] font-black text-blue-600 tracking-[0.3em] uppercase mt-1">ID: {data.empId}</p>
-                 </div>
-              </div>
-              <div className="text-right">
-                 <div className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-[8pt] font-black mb-1 inline-block border border-amber-200">PENDING APPROVAL</div>
-                 <p className="text-[10px] font-bold text-slate-400 uppercase">{data.city}, {formatDate(data.date)}</p>
-              </div>
-           </div>
-
-           {/* INFO GRID */}
-           <div className="grid grid-cols-3 gap-4 mb-6 break-inside-avoid">
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                 <p className="text-[8pt] font-black text-slate-400 uppercase mb-1">Applicant</p>
-                 <p className="font-bold text-slate-900 text-sm uppercase">{data.name}</p>
-                 <p className="text-[9pt] text-slate-500">{data.position}</p>
-              </div>
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                 <p className="text-[8pt] font-black text-slate-400 uppercase mb-1">Duration</p>
-                 <p className="font-bold text-slate-900 text-sm">{diffDays} Days</p>
-                 <p className="text-[9pt] text-slate-500">{formatDate(data.startDate)} - {formatDate(data.endDate)}</p>
-              </div>
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                 <p className="text-[8pt] font-black text-slate-400 uppercase mb-1">Delegated To</p>
-                 <p className="font-bold text-slate-900 text-sm uppercase">{data.substitute}</p>
-                 <p className="text-[9pt] text-slate-500">Back-up Person</p>
-              </div>
-           </div>
-
-           <div className="flex-grow space-y-6">
-              <div className="break-inside-avoid">
-                 <h4 className="text-[9pt] font-black uppercase text-slate-300 mb-2 tracking-widest flex items-center gap-2">
-                    <FileText size={12}/> Statement of Purpose
-                 </h4>
-                 <div className="p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 text-sm italic leading-relaxed text-slate-700 text-justify">
-                    "Saya mengajukan izin <b>{leaveType}</b> dengan alasan <b>{data.reason}</b>. Saya menyadari kewajiban saya dan telah melakukan koordinasi serah terima tugas dengan tim terkait untuk memastikan produktivitas tetap terjaga selama absennya saya."
-                 </div>
-              </div>
-              <div className="flex items-start gap-2 text-slate-400 bg-slate-50/50 p-3 rounded-lg border border-slate-100 break-inside-avoid">
-                 <Info size={14} className="shrink-0 mt-0.5" />
-                 <p className="text-[9pt] leading-relaxed">Formulir ini sah jika telah ditandatangani oleh atasan langsung dan diserahkan ke HRD.</p>
-              </div>
-           </div>
-
-           <div className="shrink-0 pt-8 border-t border-slate-100 flex justify-between items-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="space-y-4">
-                 <div className="w-40 h-20 border-b-2 border-slate-200"></div>
-                 <div>
-                    <p className="text-[8pt] font-black uppercase text-slate-300 tracking-widest">Approved By</p>
-                    <p className="text-[10pt] font-bold uppercase text-slate-700">{data.managerName}</p>
-                 </div>
-              </div>
-              <div className="text-right">
-                 <p className="text-xl font-black text-slate-900 tracking-tighter uppercase leading-none border-b-2 border-blue-600 inline-block pb-1">{data.name}</p>
-                 <p className="text-[8pt] font-bold text-blue-600 uppercase tracking-widest mt-1">Applicant Signature</p>
-              </div>
-           </div>
-        </div>
-      );
-    }
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(date);
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
-      {/* CSS PRINT FIXED */}
-      <style dangerouslySetInnerHTML={{ __html: `
+    <div className="flex h-screen bg-gray-100 overflow-hidden font-sans">
+      <style>{`
         @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
-          .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
-          * { box-sizing: border-box !important; }
+          @page {
+            size: A4;
+            margin: 20mm;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            background: white;
+          }
+          /* Hide non-print elements */
+          .print-hidden {
+            display: none !important;
+          }
+          /* Ensure the preview container resets its styles for printing */
+          .print-container {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+            background: white !important;
+          }
         }
-      ` }} />
+      `}</style>
 
-      {/* HEADER NAVY */}
-      <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
-         <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
-            <div className="flex items-center gap-4">
-               <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-800 rounded-full transition-all group">
-                  <ArrowLeftCircle size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors"/>
-                  <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
-               </Link>
-               <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Surat Cuti <span className="text-emerald-400">Generator</span></h1></div>
+      {/* Left Panel: Form Inputs */}
+      <div className="w-1/2 flex flex-col h-full bg-white border-r shadow-sm z-10 print-hidden">
+        <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+          <h2 className="text-xl font-semibold text-gray-800">Form Surat Permohonan Cuti</h2>
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors text-sm font-medium"
+          >
+            <Printer size={16} />
+            Cetak Dokumen
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+          {/* Data Karyawan */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Data Karyawan</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700 block">Nama Lengkap</label>
+                <input
+                  type="text"
+                  name="namaKaryawan"
+                  value={formData.namaKaryawan}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Masukkan nama lengkap"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700 block">NIK</label>
+                <input
+                  type="text"
+                  name="nik"
+                  value={formData.nik}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Nomor Induk Karyawan"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700 block">Jabatan</label>
+                <input
+                  type="text"
+                  name="jabatan"
+                  value={formData.jabatan}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Contoh: Staff IT"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700 block">Departemen</label>
+                <input
+                  type="text"
+                  name="departemen"
+                  value={formData.departemen}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Contoh: Information Technology"
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-               {/* DESKTOP MENU */}
-               <div className="hidden md:flex relative">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
-                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Klasik Korporat' : 'Modern Minimalis'}</span><ChevronDown size={14} className="text-slate-500"/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
+          </div>
 
-               {/* MOBILE MENU TRIGGER */}
-               <div className="relative md:hidden">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
-                    Template <ChevronDown size={14}/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
-               <button 
-                 onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
-                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
-               >
-                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
-               </button>
+          {/* Detail Cuti */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Detail Cuti</h3>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700 block">Jenis Cuti</label>
+              <select
+                name="jenisCuti"
+                value={formData.jenisCuti}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              >
+                <option value="Tahunan">Cuti Tahunan</option>
+                <option value="Sakit">Cuti Sakit</option>
+                <option value="Melahirkan">Cuti Melahirkan</option>
+                <option value="Keperluan Penting">Cuti Keperluan Penting</option>
+              </select>
             </div>
-         </div>
-      </header>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700 block">Tanggal Mulai</label>
+                <input
+                  type="date"
+                  name="tanggalMulai"
+                  value={formData.tanggalMulai}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700 block">Tanggal Selesai</label>
+                <input
+                  type="date"
+                  name="tanggalSelesai"
+                  value={formData.tanggalSelesai}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700 block">Lama Cuti (Hari)</label>
+              <input
+                type="text"
+                name="lamaCuti"
+                value={formData.lamaCuti}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Misal: 3"
+              />
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700 block">Alasan Cuti</label>
+              <textarea
+                name="alasanCuti"
+                value={formData.alasanCuti}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Jelaskan alasan pengajuan cuti secara singkat"
+              />
+            </div>
+          </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-         {/* EDITOR SIDEBAR */}
-         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Cuti</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+          {/* Internal Compliance */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Kepatuhan Internal (Delegasi)</h3>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700 block">Delegasi Tugas Sementara</label>
+              <p className="text-xs text-gray-500 mb-2">Nama karyawan pengganti selama cuti untuk memastikan operasional tidak terganggu.</p>
+              <input
+                type="text"
+                name="delegasiTugas"
+                value={formData.delegasiTugas}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Nama karyawan pengganti"
+              />
+            </div>
+          </div>
+
+          {/* Pengesahan */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Data Pengesahan</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700 block">Tanggal Pengajuan</label>
+                <input
+                  type="date"
+                  name="tanggalPengajuan"
+                  value={formData.tanggalPengajuan}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700 block">Atasan Langsung</label>
+                <input
+                  type="text"
+                  name="atasanLangsung"
+                  value={formData.atasanLangsung}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Nama atasan"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel: Live Preview */}
+      <div className="w-1/2 flex flex-col bg-gray-200 overflow-y-auto p-8 print-container items-center">
+        {/* A4 Paper Container */}
+        <Kertas ref={printRef}>
+          {/* Header */}
+          <div className="text-center mb-8 border-b-2 border-black pb-4">
+            <h1 className="text-2xl font-bold uppercase tracking-wider">Surat Permohonan Cuti</h1>
+            <p className="text-sm mt-1">Formulir Kepatuhan Internal - Departemen SDM</p>
+          </div>
+
+          {/* Body */}
+          <div className="space-y-6 text-sm leading-relaxed">
+            <div className="flex justify-between">
+              <div>
+                <p>Kepada Yth,</p>
+                <p className="font-semibold">Departemen HRD / SDM</p>
+                <p>Di Tempat</p>
+              </div>
+              <div className="text-right">
+                <p>Tanggal: {formData.tanggalPengajuan ? formatDate(formData.tanggalPengajuan) : "[Tanggal]"}</p>
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
-               {/* 1. KATEGORI */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-1">Jenis Cuti</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                      {(['Tahunan', 'Hamil', 'Sakit'] as const).map(type => (
-                         <button key={type} onClick={() => handleCategoryChange(type)} className={`py-2 text-[10px] font-black rounded-lg border transition-all uppercase tracking-tighter ${leaveType === type ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}>
-                            {type}
-                         </button>
-                      ))}
-                  </div>
-               </div>
-
-               {/* 2. KARYAWAN */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><UserCircle2 size={12}/> Data Karyawan</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.name} onChange={e => handleDataChange('name', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nomor Induk (NIK)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.empId} onChange={e => handleDataChange('empId', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Departemen</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.department} onChange={e => handleDataChange('department', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jabatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.position} onChange={e => handleDataChange('position', e.target.value)} /></div>
-                  </div>
-               </div>
-
-               {/* 3. WAKTU */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><CalendarDays size={12}/> Jadwal Cuti</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Mulai Cuti</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.startDate} onChange={e => handleDataChange('startDate', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Selesai Cuti</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.endDate} onChange={e => handleDataChange('endDate', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alasan Cuti</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Delegasi Tugas (Backup)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.substitute} onChange={e => handleDataChange('substitute', e.target.value)} /></div>
-                  </div>
-               </div>
-
-               {/* 4. ATASAN */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Briefcase size={12}/> Persetujuan Atasan</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Manager/HRD</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.managerName} onChange={e => handleDataChange('managerName', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jabatan Manager</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.managerJob} onChange={e => handleDataChange('managerJob', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kota Surat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} /></div>
-                  </div>
-               </div>
-               <div className="h-20 md:hidden"></div>
+            <div>
+              <p>Dengan hormat,</p>
+              <p className="mt-2">Yang bertanda tangan di bawah ini:</p>
             </div>
-         </div>
 
-         {/* PREVIEW */}
-         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
-             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0">
-                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
-                      <ContentInside />
-                   </div>
+            <div className="pl-4 space-y-2">
+              <div className="grid grid-cols-[150px_10px_1fr]">
+                <div className="font-medium">Nama</div>
+                <div>:</div>
+                <div>{formData.namaKaryawan || "[Nama Karyawan]"}</div>
+              </div>
+              <div className="grid grid-cols-[150px_10px_1fr]">
+                <div className="font-medium">NIK</div>
+                <div>:</div>
+                <div>{formData.nik || "[NIK]"}</div>
+              </div>
+              <div className="grid grid-cols-[150px_10px_1fr]">
+                <div className="font-medium">Jabatan</div>
+                <div>:</div>
+                <div>{formData.jabatan || "[Jabatan]"}</div>
+              </div>
+              <div className="grid grid-cols-[150px_10px_1fr]">
+                <div className="font-medium">Departemen</div>
+                <div>:</div>
+                <div>{formData.departemen || "[Departemen]"}</div>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <p>
+                Bermaksud mengajukan permohonan <strong>Cuti {formData.jenisCuti}</strong> selama <strong>{formData.lamaCuti || "[X]"}</strong> hari kerja, 
+                terhitung mulai tanggal <strong>{formData.tanggalMulai ? formatDate(formData.tanggalMulai) : "[Tanggal Mulai]"}</strong> sampai dengan tanggal <strong>{formData.tanggalSelesai ? formatDate(formData.tanggalSelesai) : "[Tanggal Selesai]"}</strong>.
+              </p>
+              
+              <div className="mt-3">
+                <p className="font-medium">Alasan Cuti:</p>
+                <p className="mt-1 pl-4 border-l-2 border-gray-300 min-h-[40px] whitespace-pre-wrap">
+                  {formData.alasanCuti || "[Alasan Cuti]"}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 p-4 border border-gray-300 rounded-sm bg-gray-50 print:bg-transparent print:border-black">
+              <h4 className="font-bold mb-2">Kepatuhan Internal (Delegasi Tugas)</h4>
+              <p>
+                Selama masa cuti tersebut, untuk memastikan operasional perusahaan tetap berjalan dengan baik tanpa gangguan, seluruh tugas dan tanggung jawab pekerjaan saya akan didelegasikan sementara kepada:
+              </p>
+              <div className="mt-2 pl-4">
+                <div className="grid grid-cols-[150px_10px_1fr]">
+                  <div className="font-medium">Nama Pengganti</div>
+                  <div>:</div>
+                  <div className="font-bold underline">{formData.delegasiTugas || "[Nama Karyawan Pengganti]"}</div>
                 </div>
-             </div>
-         </div>
-      </main>
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
+              </div>
+            </div>
 
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
-         <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
-      </div>
+            <div className="mt-4">
+              <p>
+                Demikian surat permohonan cuti ini saya buat dengan sebenar-benarnya. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.
+              </p>
+            </div>
+          </div>
 
-      {/* --- PRINT PORTAL --- */}
-      <div id="print-only-root" className="hidden">
-         <table className="print-table">
-            <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
-            <tbody>
-               <tr>
-                  <td>
-                     <div className="print-content-wrapper">
-                        <ContentInside />
-                     </div>
-                  </td>
-               </tr>
-            </tbody>
-            <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
-         </table>
+          {/* Signatures */}
+          <div className="mt-12 pt-8 grid grid-cols-3 gap-4 text-center text-sm">
+            <div className="flex flex-col items-center">
+              <p className="mb-20">Pemohon,</p>
+              <div className="w-40 border-b border-black"></div>
+              <p className="mt-1 font-semibold">{formData.namaKaryawan || "(Nama Jelas)"}</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="mb-20">Menyetujui (Atasan),</p>
+              <div className="w-40 border-b border-black"></div>
+              <p className="mt-1 font-semibold">{formData.atasanLangsung || "(Nama Jelas)"}</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="mb-20">Mengetahui (HRD),</p>
+              <div className="w-40 border-b border-black"></div>
+              <p className="mt-1 font-semibold">(...................................)</p>
+            </div>
+          </div>
+        </Kertas>
       </div>
     </div>
   );
 }
-
-// FORCE-HMR-UPDATE
