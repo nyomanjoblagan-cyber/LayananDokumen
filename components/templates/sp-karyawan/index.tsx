@@ -333,9 +333,7 @@ function SPToolBuilder() {
 
             {/* PRINT WRAPPER / PAYWALL */}
             <div className="mt-8 no-print w-full max-w-[210mm] mx-auto">
-               <PrintWrapper>
-                  {null}
-               </PrintWrapper>
+               <PrintWrapper documentName="Surat_Peringatan_Karyawan" price={15000} />
             </div>
          </div>
       </main>
