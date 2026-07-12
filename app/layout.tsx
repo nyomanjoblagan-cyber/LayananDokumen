@@ -3,15 +3,10 @@ import type { Metadata, Viewport } from "next";
 // @ts-ignore: Bypass error TS2882 dari VS Code karena Next.js memproses CSS secara internal
 import "./globals.css"; 
 
-import SaweriaBox from '@/components/SaweriaBox';
-
 export const metadata: Metadata = {
   title: "LayananDokumen.com - Pusat Administrasi & Surat Resmi",
   description: "Platform penyusunan dokumen administratif. Gratis & Tanpa Login.",
   verification: { google: "tayBKyloVxPMxQEdM-zAI_pIqd90go0uw3KIovuWSyM" },
-  other: {
-    "admaven-placement": "Bqjs8rja4", 
-  },
   metadataBase: new URL('https://layanandokumen.com'),
   icons: { icon: '/logo.png', shortcut: '/logo.png', apple: '/logo.png' },
 };
@@ -40,14 +35,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
-        {/* --- IKLAN 1: VIGNETTE (OVERLAY AMAN) --- */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(s){s.dataset.zone='10851846',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
-          }}
-        />
-
-        {/* Iklan In-Page Push dihapus atas permintaan */}
       </head>
 
       <body className="font-sans bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen">
@@ -55,7 +42,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* KONTEN UTAMA */}
         <main className="flex-grow relative mt-4">
           {children}
-          <SaweriaBox />
         </main>
 
         {/* FOOTER BERSIH */}
