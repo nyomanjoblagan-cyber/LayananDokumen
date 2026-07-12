@@ -158,7 +158,7 @@ function SPToolBuilder() {
                  {isMobilePreview ? 'Edit Data' : 'Lihat Hasil'}
                </button>
                <button 
-                 onClick={() => { if(typeof window !== 'undefined') window.print(); }} 
+                 onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
                  className="bg-amber-600 hover:bg-amber-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-amber-500/30 transition-all active:scale-95"
                >
                  <Printer size={18}/> <span className="hidden sm:inline">Cetak Dokumen</span>
