@@ -329,21 +329,18 @@ function SPToolBuilder() {
                         <p className="text-[10pt] mt-1">{data.perusahaan.jabatanPimpinan}</p>
                      </div>
                   </div>
-
                </div>
-            </div>
-
-                  </div>
-               </div>
-
-               {/* PRINT WRAPPER / PAYWALL */}
-               <div className="mt-8 w-full max-w-[210mm] mx-auto">
-                  <PrintWrapper documentName="Surat_Peringatan_Karyawan" price={15000} />
-               </div>
-
-               <div className="h-20 md:hidden"></div>
             </div>
          </div>
+
+            {/* PRINT WRAPPER / PAYWALL */}
+            <div className="mt-8 w-full max-w-[210mm] mx-auto">
+               <PrintWrapper documentName="Surat_Peringatan_Karyawan" price={15000} />
+            </div>
+
+            <div className="h-20 md:hidden"></div>
+         </div>
+      </div>
       </main>
     </div>
   );
