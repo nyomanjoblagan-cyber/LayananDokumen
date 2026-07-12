@@ -132,7 +132,7 @@ function SPToolBuilder() {
           @page { size: A4; margin: 15mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: static; width: 100%; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
           * { box-sizing: border-box !important; }
         }
@@ -252,11 +252,11 @@ function SPToolBuilder() {
          </div>
 
          {/* LIVE PREVIEW AREA */}
-         <div className="no-print flex-1 bg-slate-300 relative overflow-hidden flex flex-col items-center">
-            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 w-full flex flex-col items-center">
+         <div className="flex-1 bg-slate-300 print:bg-white print:overflow-visible print:static relative overflow-hidden flex flex-col items-center">
+            <div className="flex-1 overflow-y-auto print:overflow-visible print:w-full w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 print:scale-100 print:transform-none print:w-full print:m-0 mb-[-130mm] md:mb-10 mt-2 md:mt-0 w-full flex flex-col items-center">
                   
-                  <div id="print-only-root" className="bg-white shadow-2xl relative flex-shrink-0 h-max print:shadow-none print:w-full print:min-w-0 print:min-h-0 print:h-auto" style={{ width: '210mm', minHeight: '297mm' }}>
+                  <div id="print-only-root" className="bg-white shadow-2xl relative print:static flex-shrink-0 h-max print:shadow-none print:w-full print:min-w-0 print:min-h-0 print:h-auto" style={{ width: '210mm', minHeight: '297mm' }}>
                      <div className="p-[15mm] text-black font-serif text-[11pt] leading-[1.6]">
                   
                   {/* KOP SURAT (OPSIONAL/DIBUAT MANUAL UNTUK CETAK) */}
