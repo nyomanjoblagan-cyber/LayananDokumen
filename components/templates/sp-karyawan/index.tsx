@@ -124,7 +124,7 @@ function SPToolBuilder() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
+    <div className="min-h-screen bg-slate-100 flex flex-col print:block font-sans text-slate-800">
       
       {/* CSS PRINT PARITY - NO GRID/FLEX FOR PASAL CONTENT */}
       <style dangerouslySetInnerHTML={{ __html: `
@@ -167,7 +167,7 @@ function SPToolBuilder() {
          </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative">
+      <main className="flex-grow flex flex-col md:flex-row print:block print:h-auto print:overflow-visible overflow-hidden h-[calc(100vh-64px)] relative">
          {/* EDITOR SIDEBAR */}
          <div className={`no-print w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${isMobilePreview ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
@@ -252,9 +252,9 @@ function SPToolBuilder() {
          </div>
 
          {/* LIVE PREVIEW AREA */}
-         <div className="flex-1 bg-slate-300 print:bg-white print:overflow-visible print:static relative overflow-hidden flex flex-col items-center">
-            <div className="flex-1 overflow-y-auto print:overflow-visible print:w-full w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 print:scale-100 print:transform-none print:w-full print:m-0 mb-[-130mm] md:mb-10 mt-2 md:mt-0 w-full flex flex-col items-center">
+         <div className="flex-1 bg-slate-300 print:bg-white print:overflow-visible print:static print:block relative overflow-hidden flex flex-col items-center">
+            <div className="flex-1 overflow-y-auto print:overflow-visible print:w-full print:block w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 print:scale-100 print:transform-none print:w-full print:m-0 print:block w-full flex flex-col items-center">
                   
                   <div id="print-only-root" className="bg-white shadow-2xl relative print:static flex-shrink-0 h-max print:shadow-none print:w-full print:min-w-0 print:min-h-0 print:h-auto" style={{ width: '210mm', minHeight: '297mm' }}>
                      <div className="p-[15mm] text-black font-serif text-[11pt] leading-[1.6]">
