@@ -1,238 +1,229 @@
 'use client';
 
-/**
- * FILE: SuratTugasPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Perintah Tugas (Multi-Personel)
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML & Optimasi Tabel Personel
- */
-
-import { useState, useRef, Suspense, useEffect } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Upload, LayoutTemplate, RotateCcw,
-  Trash2, ChevronDown, Eye, Edit3, X, ImagePlus,
-  MapPin, Calendar, Building2, UserCircle2, Briefcase, FileText, ArrowLeftCircle
+  Printer, ArrowLeftCircle, Edit3, RotateCcw, Truck, Plus, Trash2, FileText, BookOpen
 } from 'lucide-react';
 import Link from 'next/link';
 
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
-
 // --- 1. TYPE DEFINITIONS ---
-interface Staff {
-  name: string;
+interface SuratJalanItem {
   id: string;
-  position: string;
+  nama: string;
+  qty: number;
+  satuan: string;
 }
 
-interface TaskData {
-  compName: string;
-  compInfo: string;
-  city: string;
-  date: string;
-  no: string;
-  taskTitle: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  staffs: Staff[];
-  instruction: string;
-  signerName: string;
-  signerJob: string;
-  cc: string;
+interface SuratJalanData {
+  noSurat: string;
+  tanggal: string;
+  pengirim: string;
+  penerima: string;
+  alamatPenerima: string;
+  supir: string;
+  platKendaraan: string;
+  keterangan: string;
+  items: SuratJalanItem[];
 }
 
-// --- 2. GLOBAL CONSTANTS ---
-const TEMPLATES = [
-  { id: 1, name: "Format Corporate", desc: "Layout formal dengan tabel" },
-  { id: 2, name: "Format Modern", desc: "Desain blok kontemporer" }
-];
-
-// --- 3. DATA DEFAULT ---
-const INITIAL_DATA: TaskData = {
-  compName: 'PT. TEKNOLOGI CIPTA MANDIRI',
-  compInfo: 'Gedung Cyber Lt. 12, Jl. Kuningan Barat, Jakarta Selatan\nTelp: 021-555-0123 | Email: hrd@tcm.id',
-  city: 'Jakarta',
-  date: '', 
-  no: '045/HRD-ST/I/2026',
-  taskTitle: 'Audit Tahunan Kantor Cabang',
-  location: 'Surabaya & Malang',
-  startDate: '2026-01-15',
-  endDate: '2026-01-18',
-  staffs: [
-    { name: 'RAHMAT HIDAYAT', id: 'NIK-10293', position: 'Senior Auditor' },
-    { name: 'SISKA AMELIA', id: 'NIK-10442', position: 'Staff Keuangan' }
-  ],
-  instruction: 'Melakukan pemeriksaan laporan keuangan tahunan dan verifikasi aset fisik di kantor cabang. Seluruh biaya perjalanan dinas ditanggung oleh perusahaan.',
-  signerName: 'HENDRA WIJAYA, S.E.',
-  signerJob: 'Direktur Operasional',
-  cc: '1. Arsip HRD\n2. Departemen Keuangan' 
+// --- 2. DATA DEFAULT ---
+const INITIAL_DATA: SuratJalanData = {
+  noSurat: 'SJ-20260711-001',
+  tanggal: '2026-07-11',
+  pengirim: 'PT. MAJU BERSAMA',
+  penerima: 'TOKO SENTOSA',
+  alamatPenerima: 'Jl. Merdeka No. 45, Jakarta Selatan',
+  supir: 'Budi Santoso',
+  platKendaraan: 'B 1234 CD',
+  keterangan: 'Harap dikirim sebelum jam 17:00 WIB',
+  items: [
+    { id: '1', nama: 'Semen Portland 50kg', qty: 100, satuan: 'Sak' },
+    { id: '2', nama: 'Besi Beton 12mm', qty: 50, satuan: 'Batang' },
+  ]
 };
 
-export default function SuratTugasPage() {
+// --- 3. KOMPONEN UTAMA ---
+export default function SuratJalanPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs bg-slate-50">Memuat Editor Surat Tugas...</div>}>
-      <SuratTugasBuilder />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor...</div>}>
+      <SuratJalanBuilder />
     </Suspense>
   );
 }
 
-function SuratTugasBuilder() {
-  // --- STATE SYSTEM ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+function SuratJalanBuilder() {
   const [isClient, setIsClient] = useState(false);
-  const [logo, setLogo] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [data, setData] = useState<TaskData>(INITIAL_DATA);
+  const [data, setData] = useState<SuratJalanData>(INITIAL_DATA);
+  const [activeTab, setActiveTab] = useState<'info' | 'barang'>('info');
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
 
   useEffect(() => {
     setIsClient(true);
-    setData(prev => ({ ...prev, date: new Date().toISOString().split('T')[0] }));
   }, []);
 
-  const handleDataChange = (field: keyof TaskData, val: any) => setData({ ...data, [field]: val });
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setLogo(reader.result as string);
-      reader.readAsDataURL(file);
-    }
+  const handleDataChange = (field: keyof SuratJalanData, val: any) => {
+    setData(prev => ({ ...prev, [field]: val }));
   };
 
-  const handleStaffChange = (idx: number, field: keyof Staff, val: string) => {
-    const newStaffs = [...data.staffs];
-    newStaffs[idx][field] = val;
-    setData({ ...data, staffs: newStaffs });
+  const handleItemChange = (id: string, field: keyof SuratJalanItem, val: any) => {
+    setData(prev => ({
+      ...prev,
+      items: prev.items.map(item => item.id === id ? { ...item, [field]: val } : item)
+    }));
   };
 
-  const addStaff = () => setData({ ...data, staffs: [...data.staffs, { name: '', id: '', position: '' }] });
-  const removeStaff = (idx: number) => {
-    const temp = [...data.staffs];
-    temp.splice(idx, 1);
-    setData({ ...data, staffs: temp });
+  const addItem = () => {
+    setData(prev => ({
+      ...prev,
+      items: [...prev.items, { id: Date.now().toString(), nama: '', qty: 1, satuan: 'Pcs' }]
+    }));
+  };
+
+  const removeItem = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      items: prev.items.filter(item => item.id !== id)
+    }));
   };
 
   const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset semua data surat tugas?')) {
-        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
-        setLogo(null);
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua perubahan akan hilang.')) {
+        setData({ ...INITIAL_DATA });
     }
   };
 
-  const activeTemplateName = TEMPLATES.find(t => t.id === templateId)?.name;
+  const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] print:p-0 text-slate-900 font-sans leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+      {children}
+    </div>
+  );
 
-  // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => {
     const formatDateSafe = (dateString: string) => {
         if(!dateString) return '...';
-        try {
-            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
-        } catch { return dateString; }
+        return new Date(dateString).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
     };
 
     return (
-      <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[10.5pt]' : 'font-sans text-[10pt]'}`}>
-        
-        {/* KOP SURAT */}
-        <div className="flex items-center gap-6 border-b-4 border-double border-slate-900 pb-4 mb-8 shrink-0 text-center font-sans">
-          {logo ? (
-            <img src={logo} alt="Logo" className="w-20 h-20 object-contain shrink-0" />
-          ) : (
-            <div className="w-20 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 shrink-0 print:hidden">
-              <Building2 size={32} />
-            </div>
-          )}
-          <div className="flex-grow text-left">
-            <h1 className="text-[16pt] font-black uppercase leading-tight tracking-tighter text-slate-900">{data.compName}</h1>
-            <p className="text-[8.5pt] mt-1 italic text-slate-500 print:text-black leading-tight whitespace-pre-line">{data.compInfo}</p>
-          </div>
-        </div>
-
-        {/* JUDUL */}
-        <div className="text-center mb-8 shrink-0 leading-tight font-sans">
-          <h2 className="text-xl font-black underline uppercase decoration-2 underline-offset-8 tracking-widest text-slate-900">SURAT PERINTAH TUGAS</h2>
-          <p className="text-[10pt] mt-4 font-mono font-bold text-slate-400 print:text-black uppercase tracking-widest">Nomor: {data.no}</p>
-        </div>
-
-        {/* BODY SURAT */}
-        <div className="space-y-6 overflow-visible text-justify leading-relaxed flex-grow">
-          <p>Direksi <strong>{data.compName}</strong> dengan ini memberikan instruksi dan perintah penugasan kepada karyawan yang namanya tercantum di bawah ini:</p>
-          
-          <div className="overflow-hidden border-2 border-slate-900 rounded-xl break-inside-avoid">
-            <table className="w-full border-collapse text-[9.5pt]">
-                <thead>
-                    <tr className="bg-slate-900 text-white font-bold print:bg-transparent print:text-black print:border-b-2 print:border-black">
-                        <th className="py-3 w-12 text-center border-r border-slate-700 print:border-black">NO</th>
-                        <th className="py-3 text-left px-4 border-r border-slate-700 print:border-black">NAMA LENGKAP / NIK</th>
-                        <th className="py-3 text-left px-4">JABATAN STRUKTURAL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.staffs.map((s, i) => (
-                        <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50 print:bg-transparent border-t border-slate-100 print:border-black'}>
-                            <td className="py-3 text-center border-r border-slate-100 print:border-black font-bold">{i + 1}</td>
-                            <td className="py-3 px-4 border-r border-slate-100 print:border-black">
-                                <div className="font-black uppercase text-slate-900">{s.name || '...'}</div>
-                                <div className="text-[8pt] font-mono text-blue-600 print:text-black font-bold">{s.id || '...'}</div>
-                            </td>
-                            <td className="py-3 px-4 font-medium">{s.position || '...'}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-          </div>
-
-          <div className="space-y-4 pt-4 font-sans text-[10pt]">
-              <div className="grid grid-cols-[140px_10px_1fr] break-inside-avoid">
-                <span className="font-bold uppercase text-[8px] tracking-widest text-slate-400">Maksud Tugas</span>
-                <span>:</span>
-                <span className="font-black text-slate-900 underline decoration-blue-200 underline-offset-4 uppercase">{data.taskTitle}</span>
+      <div className="flex flex-col gap-8 print:gap-0">
+          <Kertas className="print:w-full print:min-w-0">
+              {/* HEADER SURAT JALAN */}
+              <div className="flex justify-between items-start border-b-[3px] border-black pb-4 mb-6">
+                  <div>
+                      <h1 className="font-bold text-3xl uppercase tracking-wider mb-2">SURAT JALAN</h1>
+                      <div className="text-sm">
+                          <table className="w-full text-left">
+                              <tbody>
+                                  <tr>
+                                      <td className="w-24 font-semibold py-1">No. Surat</td>
+                                      <td className="w-4 py-1">:</td>
+                                      <td className="py-1">{data.noSurat || '-'}</td>
+                                  </tr>
+                                  <tr>
+                                      <td className="w-24 font-semibold py-1">Tanggal</td>
+                                      <td className="w-4 py-1">:</td>
+                                      <td className="py-1">{formatDateSafe(data.tanggal)}</td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+                  <div className="w-72">
+                      <div className="border border-black p-3 text-sm min-h-[100px]">
+                          <p className="font-semibold mb-1 border-b border-black pb-1 inline-block">Kepada Yth:</p>
+                          <p className="font-bold uppercase mt-1">{data.penerima || '...'}</p>
+                          <p className="whitespace-pre-line mt-1">{data.alamatPenerima || '...'}</p>
+                      </div>
+                  </div>
               </div>
-              <div className="grid grid-cols-[140px_10px_1fr] break-inside-avoid">
-                <span className="font-bold uppercase text-[8px] tracking-widest text-slate-400">Lokasi Tujuan</span>
-                <span>:</span>
-                <span className="font-bold text-slate-700">{data.location}</span>
-              </div>
-              <div className="grid grid-cols-[140px_10px_1fr] break-inside-avoid">
-                <span className="font-bold uppercase text-[8px] tracking-widest text-slate-400">Waktu Pelaksanaan</span>
-                <span>:</span>
-                <span className="font-black text-emerald-700 print:text-black">
-                    {formatDateSafe(data.startDate)} s.d. {formatDateSafe(data.endDate)}
-                </span>
-              </div>
-          </div>
 
-          <div className="bg-slate-50 p-6 rounded-2xl border-l-4 border-slate-900 italic text-[10pt] leading-relaxed print:bg-transparent print:border-2 print:border-black break-inside-avoid shadow-inner print:shadow-none">
-              <p className="font-black not-italic uppercase text-[8px] tracking-[0.3em] mb-2 text-slate-400">Instruksi Khusus:</p>
-              "{data.instruction}"
-          </div>
-
-          <p>Demikian surat tugas ini diterbitkan untuk dilaksanakan dengan penuh tanggung jawab sesuai dengan kebijakan operasional perusahaan yang berlaku.</p>
-        </div>
-
-        {/* TANDA TANGAN */}
-        <div className="shrink-0 mt-8 pt-8 border-t-2 border-slate-50 print:border-black break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-            <div className="flex justify-end text-center font-sans">
-              <div className="w-80 flex flex-col h-44">
-                 <p className="text-[10pt] mb-1 font-bold text-slate-400">{data.city}, {formatDateSafe(data.date)}</p>
-                 <p className="uppercase text-[8.5pt] font-black text-slate-300 tracking-widest mb-1">{data.signerJob},</p>
-                 <div className="mt-auto">
-                    <p className="font-black underline uppercase tracking-tight leading-none text-[11pt] text-slate-900">{data.signerName}</p>
-                    <p className="text-[9pt] font-bold text-blue-600 mt-1 uppercase tracking-tighter italic">Authorized Signature</p>
-                 </div>
+              {/* KETERANGAN PENGIRIMAN */}
+              <div className="mb-6 text-sm">
+                  <table className="w-full text-left">
+                      <tbody>
+                          <tr>
+                              <td className="w-32 font-semibold py-1">Pengirim</td>
+                              <td className="w-4 py-1">:</td>
+                              <td className="py-1 font-bold uppercase">{data.pengirim || '-'}</td>
+                          </tr>
+                          <tr>
+                              <td className="w-32 font-semibold py-1">Supir</td>
+                              <td className="w-4 py-1">:</td>
+                              <td className="py-1 uppercase">{data.supir || '-'}</td>
+                          </tr>
+                          <tr>
+                              <td className="w-32 font-semibold py-1">Plat Kendaraan</td>
+                              <td className="w-4 py-1">:</td>
+                              <td className="py-1 uppercase font-semibold">{data.platKendaraan || '-'}</td>
+                          </tr>
+                          <tr>
+                              <td className="w-32 font-semibold py-1 align-top">Keterangan</td>
+                              <td className="w-4 py-1 align-top">:</td>
+                              <td className="py-1">{data.keterangan || '-'}</td>
+                          </tr>
+                      </tbody>
+                  </table>
               </div>
-            </div>
-            {data.cc && (
-               <div className="text-[8.5pt] font-sans text-slate-300 print:text-black border-t border-slate-50 pt-4 mt-6 italic">
-                  <p className="font-black uppercase text-[7pt] tracking-widest mb-1 not-italic">Tembusan Yth:</p>
-                  <span className="whitespace-pre-line leading-tight">{data.cc}</span>
-               </div>
-            )}
-        </div>
+
+              {/* DAFTAR BARANG */}
+              <div className="mb-10">
+                  <p className="mb-3 text-sm">Bersama ini kami kirimkan barang-barang sebagai berikut:</p>
+                  <table className="w-full border-collapse border border-black text-sm">
+                      <thead>
+                          <tr className="bg-slate-100 print:bg-transparent">
+                              <th className="border border-black px-3 py-2 w-12 text-center">NO</th>
+                              <th className="border border-black px-3 py-2 text-left">NAMA BARANG</th>
+                              <th className="border border-black px-3 py-2 w-24 text-center">QTY</th>
+                              <th className="border border-black px-3 py-2 w-32 text-center">SATUAN</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {data.items.length === 0 ? (
+                              <tr>
+                                  <td colSpan={4} className="border border-black px-3 py-8 text-center italic text-slate-500">Belum ada barang yang ditambahkan</td>
+                              </tr>
+                          ) : (
+                              data.items.map((item, index) => (
+                                  <tr key={item.id}>
+                                      <td className="border border-black px-3 py-2 text-center">{index + 1}</td>
+                                      <td className="border border-black px-3 py-2">{item.nama}</td>
+                                      <td className="border border-black px-3 py-2 text-center">{item.qty}</td>
+                                      <td className="border border-black px-3 py-2 text-center">{item.satuan}</td>
+                                  </tr>
+                              ))
+                          )}
+                      </tbody>
+                  </table>
+              </div>
+
+              {/* TANDA TANGAN */}
+              <div className="w-full mt-16 break-inside-avoid">
+                  <table className="w-full text-center text-sm border-collapse">
+                      <tbody>
+                          <tr>
+                              <td className="w-1/3 pb-24 align-top font-semibold">Penerima,</td>
+                              <td className="w-1/3 pb-24 align-top font-semibold">Supir,</td>
+                              <td className="w-1/3 pb-24 align-top font-semibold">Pengirim,</td>
+                          </tr>
+                          <tr>
+                              <td className="align-bottom">
+                                  <div className="border-b border-black w-48 mx-auto"></div>
+                                  <div className="mt-2 font-bold uppercase">{data.penerima}</div>
+                              </td>
+                              <td className="align-bottom">
+                                  <div className="border-b border-black w-48 mx-auto"></div>
+                                  <div className="mt-2 font-bold uppercase">{data.supir}</div>
+                                  <div className="text-xs mt-1 uppercase">({data.platKendaraan})</div>
+                              </td>
+                              <td className="align-bottom">
+                                  <div className="border-b border-black w-48 mx-auto"></div>
+                                  <div className="mt-2 font-bold uppercase">{data.pengirim}</div>
+                              </td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+          </Kertas>
       </div>
     );
   };
@@ -254,118 +245,154 @@ function SuratTugasBuilder() {
         }
       ` }} />
 
-      {/* NAVBAR */}
-      <div className="no-print bg-slate-900 text-white h-16 sticky top-0 z-50 border-b border-slate-700 flex items-center px-4 justify-between font-sans">
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
               <ArrowLeftCircle size={20} className="text-emerald-400" />
               <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 hidden md:block mx-2"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-400 uppercase tracking-tighter italic">
-               <Briefcase size={16} /> <span>Official Task Letter Builder</span>
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
+               <Truck size={16} className="text-emerald-500" /> <span>Template - Surat Jalan</span>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
-            <div className="relative text-left">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-widest border border-slate-700">
-                <LayoutTemplate size={14} className="text-blue-400" />
-                <span className="hidden sm:inline">{activeTemplateName}</span>
-                <ChevronDown size={12} className={showTemplateMenu ? 'rotate-180 transition-transform' : ''} />
-              </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden p-1">
-                  {TEMPLATES.map(t => (
-                    <button key={t.id} onClick={() => { setTemplateId(t.id); setShowTemplateMenu(false); }} className={`w-full text-left px-4 py-3 text-sm rounded-lg hover:bg-blue-50 transition-colors ${templateId === t.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}`}>
-                      <div>{t.name}</div>
-                      <div className="text-[10px] text-slate-400 font-normal">{t.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase shadow-lg active:scale-95 transition-all flex items-center gap-2">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak Surat</span>
+             <div className="md:hidden flex bg-slate-800 rounded-lg p-1">
+                <button onClick={() => setMobileView('editor')} className={`px-3 py-1 text-xs font-bold rounded ${mobileView === 'editor' ? 'bg-slate-700 text-white' : 'text-slate-400'}`}>Form</button>
+                <button onClick={() => setMobileView('preview')} className={`px-3 py-1 text-xs font-bold rounded ${mobileView === 'preview' ? 'bg-slate-700 text-white' : 'text-slate-400'}`}>Preview</button>
+             </div>
+            <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
-        {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Penugasan</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+        
+        {/* PANEL KIRI: FORM EDITOR */}
+        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50">
+              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Pengaturan Dokumen</h2>
+              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
+           </div>
+           
+           {/* TAB NAVIGATION */}
+           <div className="flex border-b bg-slate-100 text-[10px] font-bold uppercase">
+              <button onClick={() => setActiveTab('info')} className={`flex-1 py-3 border-r ${activeTab === 'info' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Informasi</button>
+              <button onClick={() => setActiveTab('barang')} className={`flex-1 py-3 ${activeTab === 'barang' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Daftar Barang</button>
+           </div>
 
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Kop Instansi</h3>
-                 <div className="flex items-center gap-4 py-2">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 overflow-hidden shrink-0">
-                       {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <ImagePlus size={20} className="text-slate-300" />}
-                       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+              
+              {activeTab === 'info' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4">Informasi Pengiriman</h3>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">No. Surat</label>
+                    <input className="w-full p-2 border rounded-lg text-sm mt-1 uppercase font-semibold" value={data.noSurat} onChange={e => handleDataChange('noSurat', e.target.value)} placeholder="Contoh: SJ-001" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Pengiriman</label>
+                    <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.tanggal} onChange={e => handleDataChange('tanggal', e.target.value)} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Pengirim</label>
+                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1 uppercase" value={data.pengirim} onChange={e => handleDataChange('pengirim', e.target.value)} placeholder="Nama Perusahaan / Toko" />
+                </div>
+
+                <div className="border-t pt-4 mt-2">
+                  <h4 className="text-[10px] font-bold text-slate-500 uppercase mb-2">Tujuan Pengiriman</h4>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Penerima</label>
+                    <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1 uppercase" value={data.penerima} onChange={e => handleDataChange('penerima', e.target.value)} placeholder="Nama Pembeli / Toko Tujuan" />
+                  </div>
+                  <div className="mt-3">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Penerima</label>
+                    <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-20" value={data.alamatPenerima} onChange={e => handleDataChange('alamatPenerima', e.target.value)} placeholder="Alamat lengkap tujuan pengiriman" />
+                  </div>
+                </div>
+
+                <div className="border-t pt-4 mt-2">
+                  <h4 className="text-[10px] font-bold text-slate-500 uppercase mb-2">Informasi Kendaraan & Supir</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Supir</label>
+                      <input className="w-full p-2 border rounded-lg text-sm mt-1 uppercase font-semibold" value={data.supir} onChange={e => handleDataChange('supir', e.target.value)} placeholder="Nama Supir" />
                     </div>
-                    <input className="flex-1 p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.compName} onChange={e => handleDataChange('compName', e.target.value)} placeholder="Nama Perusahaan" />
-                 </div>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.compInfo} onChange={e => handleDataChange('compInfo', e.target.value)} placeholder="Alamat & Kontak" />
-              </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Plat Kendaraan</label>
+                      <input className="w-full p-2 border rounded-lg text-sm mt-1 uppercase font-semibold" value={data.platKendaraan} onChange={e => handleDataChange('platKendaraan', e.target.value)} placeholder="B 1234 CD" />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Keterangan Tambahan</label>
+                    <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-16" value={data.keterangan} onChange={e => handleDataChange('keterangan', e.target.value)} placeholder="Contoh: Harap dikirim sebelum jam 17:00 WIB" />
+                  </div>
+                </div>
 
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Personel Tugas</h3>
-                 {data.staffs.map((s, idx) => (
-                    <div key={idx} className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-100 space-y-3 relative group">
-                        <button onClick={() => removeStaff(idx)} className="absolute top-3 right-3 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
-                        <input className="w-full p-2 bg-white border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={s.name} onChange={e => handleStaffChange(idx, 'name', e.target.value)} placeholder="Nama Lengkap" />
-                        <div className="grid grid-cols-2 gap-3">
-                            <input className="w-full p-2 bg-white border rounded-lg text-[10px] focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={s.id} onChange={e => handleStaffChange(idx, 'id', e.target.value)} placeholder="NIK/ID" />
-                            <input className="w-full p-2 bg-white border rounded-lg text-[10px] focus:ring-2 focus:ring-emerald-500 outline-none" value={s.position} onChange={e => handleStaffChange(idx, 'position', e.target.value)} placeholder="Jabatan" />
+              </div>
+              )}
+
+              {activeTab === 'barang' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div className="flex justify-between items-center border-b pb-1 mb-4">
+                    <h3 className="text-xs font-black uppercase text-emerald-600">Daftar Barang</h3>
+                    <button onClick={addItem} className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-emerald-200 transition-colors">
+                        <Plus size={12} /> Tambah
+                    </button>
+                </div>
+
+                <div className="space-y-3">
+                    {data.items.length === 0 && (
+                        <div className="text-center p-6 border-2 border-dashed rounded-lg text-slate-400">
+                            <FileText className="mx-auto mb-2 opacity-50" />
+                            <p className="text-xs">Belum ada barang.<br/>Klik Tambah untuk memasukkan barang.</p>
                         </div>
-                    </div>
-                 ))}
-                 <button onClick={addStaff} className="w-full py-3 border-2 border-dashed border-blue-200 rounded-2xl text-blue-600 font-black hover:bg-blue-50 text-[10px] uppercase transition-all tracking-widest">+ Tambah Personel</button>
+                    )}
+                    {data.items.map((item, idx) => (
+                        <div key={item.id} className="p-3 border rounded-lg bg-slate-50 relative group">
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onClick={() => removeItem(item.id)} className="text-red-500 hover:bg-red-100 p-1 rounded">
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+                            <div className="flex gap-2 items-center mb-2">
+                                <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">{idx + 1}</div>
+                                <div className="flex-1">
+                                    <input className="w-full p-2 border rounded text-sm font-semibold" value={item.nama} onChange={e => handleItemChange(item.id, 'nama', e.target.value)} placeholder="Nama Barang" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 pl-8">
+                                <div>
+                                    <label className="text-[9px] font-bold text-slate-500 uppercase">Qty</label>
+                                    <input type="number" className="w-full p-2 border rounded text-sm font-semibold" value={item.qty} onChange={e => handleItemChange(item.id, 'qty', parseInt(e.target.value) || 0)} placeholder="1" />
+                                </div>
+                                <div>
+                                    <label className="text-[9px] font-bold text-slate-500 uppercase">Satuan</label>
+                                    <input className="w-full p-2 border rounded text-sm" value={item.satuan} onChange={e => handleItemChange(item.id, 'satuan', e.target.value)} placeholder="Pcs, Kg, Dus" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
               </div>
+              )}
 
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 pb-10">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><FileText size={12}/> Detail Misi & Administrasi</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-black focus:ring-2 focus:ring-amber-500 outline-none uppercase" value={data.taskTitle} onChange={e => handleDataChange('taskTitle', e.target.value)} placeholder="Maksud Penugasan" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.location} onChange={e => handleDataChange('location', e.target.value)} placeholder="Lokasi Tujuan" />
-                 <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">TGL MULAI</label><input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.startDate} onChange={e => handleDataChange('startDate', e.target.value)} /></div>
-                    <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400">TGL SELESAI</label><input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.endDate} onChange={e => handleDataChange('endDate', e.target.value)} /></div>
-                 </div>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-24 resize-none focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed" value={data.instruction} onChange={e => handleDataChange('instruction', e.target.value)} placeholder="Instruksi Operasional Khusus..." />
-                 <div className="grid grid-cols-2 gap-3 pt-2 border-t">
-                    <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.signerName} onChange={e => handleDataChange('signerName', e.target.value)} placeholder="Nama Penyetuju" />
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.signerJob} onChange={e => handleDataChange('signerJob', e.target.value)} placeholder="Jabatan" />
-                 </div>
-                 <div className="grid grid-cols-2 gap-3">
-                    <input className="w-full p-2 border rounded-lg text-xs uppercase focus:ring-2 focus:ring-slate-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
-                    <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-slate-500 outline-none font-mono" value={data.no} onChange={e => handleDataChange('no', e.target.value)} placeholder="No. Surat" />
-                 </div>
-              </div>
            </div>
         </div>
 
-        {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
-                <DocumentContent />
-            </div>
-            </div>
+        {/* PANEL KANAN: PREVIEW DOKUMEN */}
+        <div className={`w-full md:flex-1 bg-slate-300 md:overflow-y-auto flex justify-center py-0 md:py-8 absolute md:relative z-0 h-full transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+          <div id="print-only-root" className="w-full flex justify-center">
+             <DocumentContent />
+          </div>
+        </div>
+
       </main>
-
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
-          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
-          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
-      </div>
-
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
-
-      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }
