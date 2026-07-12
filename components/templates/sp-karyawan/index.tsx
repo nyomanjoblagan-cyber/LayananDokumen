@@ -252,10 +252,12 @@ function SPToolBuilder() {
          </div>
 
          {/* LIVE PREVIEW AREA */}
-         <div className="flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex flex-col items-center custom-scrollbar">
-            
-            <div id="print-only-root" className="w-full max-w-[210mm] min-h-[297mm] bg-white shadow-2xl mx-auto print:shadow-none print:w-full print:min-w-0 print:min-h-0">
-               <div className="p-[15mm] text-black font-serif text-[11pt] leading-[1.6]">
+         <div className="no-print flex-1 bg-slate-300 relative overflow-hidden flex flex-col items-center">
+            <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+               <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 w-full flex flex-col items-center">
+                  
+                  <div id="print-only-root" className="bg-white shadow-2xl relative flex-shrink-0 h-max print:shadow-none print:w-full print:min-w-0 print:min-h-0 print:h-auto" style={{ width: '210mm', minHeight: '297mm' }}>
+                     <div className="p-[15mm] text-black font-serif text-[11pt] leading-[1.6]">
                   
                   {/* KOP SURAT (OPSIONAL/DIBUAT MANUAL UNTUK CETAK) */}
                   <div className="border-b-[3px] border-black pb-4 mb-8 text-center break-inside-avoid">
@@ -331,9 +333,15 @@ function SPToolBuilder() {
                </div>
             </div>
 
-            {/* PRINT WRAPPER / PAYWALL */}
-            <div className="mt-8 no-print w-full max-w-[210mm] mx-auto">
-               <PrintWrapper documentName="Surat_Peringatan_Karyawan" price={15000} />
+                  </div>
+               </div>
+
+               {/* PRINT WRAPPER / PAYWALL */}
+               <div className="mt-8 w-full max-w-[210mm] mx-auto">
+                  <PrintWrapper documentName="Surat_Peringatan_Karyawan" price={15000} />
+               </div>
+
+               <div className="h-20 md:hidden"></div>
             </div>
          </div>
       </main>
