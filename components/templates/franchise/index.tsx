@@ -453,7 +453,7 @@ function FranchiseBuilder() {
             @page { size: A4 portrait; margin: 0; }
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
+            #print-only-root { display: block !important; position: relative; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
             .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
             .print-table thead { height: 25mm; display: table-header-group; } 
             .print-table tfoot { height: 25mm; display: table-footer-group; } 

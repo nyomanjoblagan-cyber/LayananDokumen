@@ -75,7 +75,7 @@ export default function PenagihanB2B() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       {/* ATURAN PRINT MUTLAK */}
-      <style dangerouslySetInnerHTML={{ __html: `\n@media print {\n  @page { size: A4; margin: 15mm; } \n  body { background: white; margin: 0; padding: 0; width: 100%; }\n  .no-print { display: none !important; }\n  #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }\n  .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }\n  .break-before-auto { break-before: auto !important; page-break-before: auto !important; }\n  * { box-sizing: border-box !important; }\n}\n` }} />
+      <style dangerouslySetInnerHTML={{ __html: `\n@media print {\n  @page { size: A4; margin: 15mm; } \n  body { background: white; margin: 0; padding: 0; width: 100%; }\n  .no-print { display: none !important; }\n  #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }\n  .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }\n  .break-before-auto { break-before: auto !important; page-break-before: auto !important; }\n  * { box-sizing: border-box !important; }\n}\n` }} />
 
       <div className="max-w-[210mm] mx-auto mb-8 no-print bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-900">
         <h2 className="text-2xl font-bold mb-4 text-slate-800 border-b-2 border-slate-200 pb-2">Form Editor Dokumen Legal & Somasi B2B</h2>

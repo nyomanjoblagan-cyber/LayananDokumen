@@ -257,7 +257,7 @@ function B2BShippingLabelBuilder() {
           @page { size: A4; margin: 15mm; } 
           body { background: white !important; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
           .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
           * { box-sizing: border-box !important; color: black !important; }

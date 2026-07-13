@@ -482,13 +482,13 @@ function IzinBuilder() {
         @media (max-width: 768px) {
           .main-content { position: relative; }
           .sidebar { 
-            position: absolute; width: 100%; height: 100%; 
+            position: relative; width: 100%; 
             transition: transform 0.3s ease;
             transform: translateX(0);
           }
           .sidebar.hide-mobile { transform: translateX(-100%); }
           .preview-area {
-            position: absolute; width: 100%; height: 100%;
+            position: relative; width: 100%;
             transition: transform 0.3s ease;
             transform: translateX(100%);
             padding: 20px;

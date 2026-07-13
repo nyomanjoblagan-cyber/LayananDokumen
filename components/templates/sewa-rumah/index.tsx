@@ -441,7 +441,7 @@ function RentalAgreementBuilder() {
           @page { size: A4 portrait; margin: 0; } 
           body { background: white !important; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: relative; width: 210mm; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
       ` }} />
