@@ -26,8 +26,8 @@ const terbilang = (angka: number): string => {
 };
 
 // --- 2. ATURAN KERTAS MUTLAK ---
-const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+const Kertas = ({ children, className = '', w = '210mm', h = '296mm' }: { children: React.ReactNode, className?: string, w?: string, h?: string }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 print:w-full print:min-w-0 print:min-h-0 h-auto ${className}`} style={{ width: w, minHeight: h, maxWidth: '100%' }}>
     {children}
   </div>
 );
@@ -95,7 +95,7 @@ function FinanceToolBuilder() {
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [activeDocType, setActiveDocType] = useState<'invoice' | 'kuitansi'>('invoice');
+  const [activeDocType, setActiveDocType] = useState<'invoice' | 'kuitansi' | 'nota'>('invoice');
   const [mobileMode, setMobileMode] = useState<'editor' | 'preview'>('editor');
   const [logo, setLogo] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
@@ -115,6 +115,7 @@ function FinanceToolBuilder() {
     }));
 
     if (modeParam === 'kwitansi' || modeParam === 'kuitansi') setActiveDocType('kuitansi');
+    else if (modeParam === 'nota') setActiveDocType('nota');
     else setActiveDocType('invoice');
 
     return () => {
@@ -173,8 +174,9 @@ function FinanceToolBuilder() {
     } catch { return dateStr; }
   };
 
+  const dims = (activeDocType === 'nota') ? { w: '105mm', h: '148mm' } : (activeDocType === 'kuitansi') ? { w: '210mm', h: '99mm' } : { w: '210mm', h: '296mm' };
   const DocumentContent = () => (
-    <Kertas className="flex flex-col">
+    <Kertas className="flex flex-col" w={dims.w} h={dims.h}>
       {activeDocType === 'invoice' && (
         <div className="flex-1 flex flex-col font-sans text-slate-800">
           {/* HEADER */}
@@ -359,6 +361,45 @@ function FinanceToolBuilder() {
           </div>
         </div>
       )}
+
+
+      {activeDocType === 'nota' && (
+        <div className="flex-1 flex flex-col font-sans text-slate-900 print:-mt-4">
+           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-4 shrink-0">
+             <div className="flex gap-3">
+               {logo ? <img src={logo} className="w-12 h-12 object-contain grayscale" alt="logo" /> : <div className="w-12 h-12 bg-slate-200 flex items-center justify-center font-bold text-[8px] text-slate-400">LOGO</div>}
+               <div><h1 className="font-black text-lg leading-none uppercase">{data.senderName}</h1><p className="text-[8px] text-slate-500 leading-tight whitespace-pre-line mt-1">{data.senderInfo}</p></div>
+             </div>
+             <div className="text-right"><h2 className="text-2xl font-black italic text-slate-300 -mt-2">NOTA</h2><p className="font-mono text-[9px] font-bold">No: {data.no}</p></div>
+           </div>
+           <div className="flex justify-between text-[10px] mb-4">
+              <div><p className="text-slate-400 uppercase text-[8px]">Kepada:</p><p className="font-bold uppercase">{data.receiverName}</p></div>
+              <div className="text-right"><p className="text-slate-400 uppercase text-[8px]">Tanggal:</p><p className="font-bold">{formatDateSafe(data.date)}</p></div>
+           </div>
+           <table className="w-full text-[10px] border-collapse flex-grow">
+              <thead className="bg-slate-100 uppercase text-[8px] font-bold">
+                <tr><th className="border border-slate-900 p-1.5 w-[30px]">NO</th><th className="border border-slate-900 p-1.5 text-left">NAMA BARANG</th><th className="border border-slate-900 p-1.5 w-[40px]">QTY</th><th className="border border-slate-900 p-1.5 w-[70px]">HARGA</th><th className="border border-slate-900 p-1.5 w-[80px]">TOTAL</th></tr>
+              </thead>
+              <tbody>
+                {data.items.map((item, i) => (
+                  <tr key={item.id}><td className="border border-slate-900 p-1.5 text-center">{i+1}</td><td className="border border-slate-900 p-1.5 uppercase font-medium">{item.name}</td><td className="border border-slate-900 p-1.5 text-center">{item.qty}</td><td className="border border-slate-900 p-1.5 text-right">{item.price.toLocaleString('id-ID')}</td><td className="border border-slate-900 p-1.5 text-right font-bold">{(item.qty * item.price).toLocaleString('id-ID')}</td></tr>
+                ))}
+              </tbody>
+           </table>
+           <div className="mt-4 shrink-0 flex justify-end">
+              <div className="flex border-2 border-slate-900 font-black text-xs uppercase">
+                <div className="px-3 py-1.5 bg-slate-900 text-white">Grand Total</div>
+                <div className="px-4 py-1.5 bg-white min-w-[100px] text-right">Rp {total.toLocaleString('id-ID')}</div>
+              </div>
+           </div>
+           <div className="flex justify-between items-end mt-4 text-[9px] uppercase font-bold text-slate-400 px-2">
+              <div className="text-center w-24"><p className="mb-10">Penerima</p><div className="border-b border-slate-300"></div></div>
+              <p className="italic lowercase font-normal text-[8px] max-w-[100px]">{data.footerNote}</p>
+              <div className="text-center w-24"><p className="mb-10">Hormat Kami</p><p className="text-slate-900">{data.signer}</p></div>
+           </div>
+        </div>
+      )}
+
     </Kertas>
   );
 
@@ -385,12 +426,12 @@ function FinanceToolBuilder() {
              </Link>
              <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
              <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
-                {(['invoice', 'kuitansi'] as const).map((t) => (
+                {(['invoice', 'kuitansi', 'nota'] as const).map((t) => (
                   <button 
                     key={t} onClick={() => setActiveDocType(t)}
                     className={`px-5 py-1.5 rounded-md text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${activeDocType === t ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
                   >
-                    {t === 'invoice' ? <span className="flex items-center gap-1"><FileText size={14}/> Invoice</span> : <span className="flex items-center gap-1"><Landmark size={14}/> Receipt</span>}
+                    {t === 'invoice' ? <span className="flex items-center gap-1"><FileText size={14}/> Invoice</span> : t === 'kuitansi' ? <span className="flex items-center gap-1"><Landmark size={14}/> Receipt</span> : <span className="flex items-center gap-1"><FileText size={14}/> Nota</span>}
                   </button>
                 ))}
              </div>
