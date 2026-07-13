@@ -168,7 +168,7 @@ export default function ResignTemplate() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -185,7 +185,7 @@ export default function ResignTemplate() {
               <button onClick={() => setActiveTab('klausul')} className={`flex-1 py-3 ${activeTab === 'klausul' ? 'bg-white text-red-600 border-b-2 border-b-red-600' : 'text-slate-500 hover:bg-slate-200'}`}>Klausul</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
               
               {activeTab === 'pihak1' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -343,7 +343,7 @@ export default function ResignTemplate() {
         </div>
 
         {/* Right Panel - Live Preview */}
-        <div className="flex-1 h-full overflow-y-auto bg-slate-400 p-4 md:p-8 print:p-0 print:w-full print:bg-white print:overflow-visible flex justify-center print:block">
+        <div className="flex-1 h-full overflow-y-auto bg-slate-400 p-4 md:p-8 print:p-0 print:w-full print:bg-white print:overflow-visible flex justify-center print:hidden">
           <div id="print-only-root" className="w-full flex justify-center print:block print:h-auto print:static">
             <div ref={printRef}>
               <Kertas>

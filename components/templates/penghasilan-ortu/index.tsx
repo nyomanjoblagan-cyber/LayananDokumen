@@ -339,7 +339,7 @@ function PenghasilanOrtuBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-neutral-900 border-r border-neutral-800 flex flex-col h-full absolute md:relative z-10 transition-transform duration-500 ease-in-out ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -371,7 +371,7 @@ function PenghasilanOrtuBuilder() {
               </button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-6 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white relative print:static">
+           <div className="flex-1 overflow-y-auto p-6 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white relative print:static">
               
               {activeTab === 'ortu' && (
               <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -555,7 +555,7 @@ function PenghasilanOrtuBuilder() {
         </div>
 
         {/* PANEL KANAN: LIVE PREVIEW DOKUMEN */}
-        <div className={`flex-1 h-full bg-[#111111] flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static print:p-0`}>
+        <div className={`flex-1 h-full bg-[#111111] flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static print:p-0`}>
             
             {/* Desktop Preview Header */}
             <div className="no-print w-full max-w-[210mm] mb-4 flex justify-between items-center px-4 py-2 bg-neutral-800/50 rounded-xl border border-neutral-700/50 backdrop-blur-sm">

@@ -180,7 +180,7 @@ function SanctionToolBuilder() {
          </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row print:block print:h-auto print:overflow-visible overflow-hidden h-[calc(100vh-64px)] relative">
+      <main className="flex-grow flex flex-col md:flex-row print:hidden print:h-auto print:overflow-visible overflow-hidden h-[calc(100vh-64px)] relative">
          {/* EDITOR SIDEBAR */}
          <div className={`no-print w-full md:w-[480px] lg:w-[540px] bg-white border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${isMobilePreview ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 sticky top-0 z-10">
@@ -188,7 +188,7 @@ function SanctionToolBuilder() {
                 <button onClick={handleReset} title="Reset Data" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:block print:overflow-visible print:bg-white">
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:hidden print:overflow-visible print:bg-white">
                
                {/* 1. ADMINISTRASI SURAT */}
                <div className="space-y-3">
@@ -272,8 +272,8 @@ function SanctionToolBuilder() {
          </div>
 
          {/* LIVE PREVIEW AREA */}
-         <div className="flex-1 bg-slate-200 print:bg-white print:overflow-visible print:static print:block relative overflow-hidden flex flex-col items-center">
-            <div className="flex-1 overflow-y-auto print:overflow-visible print:w-full print:block w-full flex justify-center p-4 md:p-8 custom-scrollbar print:bg-white">
+         <div className="flex-1 bg-slate-200 print:bg-white print:overflow-visible print:static print:hidden relative overflow-hidden flex flex-col items-center">
+            <div className="flex-1 overflow-y-auto print:overflow-visible print:w-full print:hidden w-full flex justify-center p-4 md:p-8 custom-scrollbar print:bg-white">
                
                {/* Document Scaling Container */}
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 print:scale-100 print:transform-none print:w-full print:m-0 print:block w-full flex flex-col items-center">

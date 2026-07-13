@@ -355,7 +355,7 @@ function WithdrawalBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden print:h-auto print:overflow-visible">
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-white font-sans shadow-sm z-10">
@@ -363,7 +363,7 @@ function WithdrawalBuilder() {
              <button onClick={handleReset} className="text-slate-500 hover:text-red-600 transition-colors flex items-center gap-1 text-[10px] font-bold bg-slate-100 px-2 py-1 rounded"><RotateCcw size={12}/> RESET</button>
            </div>
            
-           <div className="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar pb-32 font-sans print:block print:overflow-visible print:bg-white">
+           <div className="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar pb-32 font-sans print:hidden print:overflow-visible print:bg-white">
               
               {/* SEGMEN 1: INFO SURAT */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -518,7 +518,7 @@ function WithdrawalBuilder() {
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-300 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static print:p-0`}>
+        <div className={`flex-1 h-full bg-slate-300 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static print:p-0`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                 <DocumentContent />
             </div>

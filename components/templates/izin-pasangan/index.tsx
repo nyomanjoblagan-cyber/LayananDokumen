@@ -301,7 +301,7 @@ function PartnerConsentBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden print:h-auto print:overflow-visible">
         {/* EDITOR */}
         <div className={`no-print w-full md:w-[480px] lg:w-[500px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform duration-300 ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-4 border-b flex justify-between items-center bg-slate-50">
@@ -313,7 +313,7 @@ function PartnerConsentBuilder() {
              </button>
            </div>
            
-           <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
+           <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
               
               {/* SECTION: KEPERLUAN */}
               <div className="space-y-4">
@@ -483,7 +483,7 @@ function PartnerConsentBuilder() {
         </div>
 
         {/* PREVIEW */}
-        <div className={`flex-1 h-full bg-slate-200/60 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static print:p-0`}>
+        <div className={`flex-1 h-full bg-slate-200/60 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static print:p-0`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.6] md:scale-[0.7] lg:scale-[0.8] xl:scale-100 mb-[-150mm] sm:mb-[-100mm] md:mb-[-50mm] xl:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block print:shadow-none">
                 <DocumentContent />
             </div>

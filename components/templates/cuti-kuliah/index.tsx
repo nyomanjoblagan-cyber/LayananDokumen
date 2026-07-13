@@ -316,7 +316,7 @@ export default function SuratCutiAkademik() {
          </div>
       </header>
 
-      <main className="flex-1 flex flex-col md:flex-row relative print:block print:h-auto print:overflow-visible">
+      <main className="flex-1 flex flex-col md:flex-row relative print:hidden print:h-auto print:overflow-visible">
          {/* EDITOR PANEL */}
          <div className={`w-full md:w-[450px] bg-white border-r border-slate-200 overflow-y-auto custom-scrollbar md:block ${activeTab === 'editor' ? 'block' : 'hidden'} print:hidden relative z-10`}>
             <div className="p-6 space-y-8">
@@ -461,8 +461,8 @@ export default function SuratCutiAkademik() {
          </div>
 
          {/* PREVIEW PANEL */}
-         <div className={`flex-1 bg-slate-200 relative overflow-hidden flex flex-col items-center md:block ${activeTab === 'preview' ? 'block' : 'hidden'} print:block print:overflow-visible print:bg-white print:static`}>
-             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:block print:overflow-visible print:bg-white print:p-0">
+         <div className={`flex-1 bg-slate-200 relative overflow-hidden flex flex-col items-center md:block ${activeTab === 'preview' ? 'block' : 'hidden'} print:hidden print:overflow-visible print:bg-white print:static`}>
+             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:hidden print:overflow-visible print:bg-white print:p-0">
                 <div className="origin-top transition-transform duration-300 transform scale-[0.6] md:scale-100 mb-[-120mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                    <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                       <ContentInside />

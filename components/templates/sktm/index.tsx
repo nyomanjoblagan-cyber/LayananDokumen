@@ -455,7 +455,7 @@ function SktmBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative print:hidden print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -472,7 +472,7 @@ function SktmBuilder() {
               <button onClick={() => setActiveTab('ketentuan')} className={`flex-1 py-3 ${activeTab === 'ketentuan' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Ketentuan SKTM</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
               
               {activeTab === 'pihak1' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -642,7 +642,7 @@ function SktmBuilder() {
         </div>
 
         {/* PANEL KANAN: LIVE PREVIEW & PDF RENDERER */}
-        <div className={`flex-1 bg-slate-500 overflow-y-auto w-full absolute md:relative z-0 ${mobileView === 'editor' ? 'hidden md:block' : 'block'} print:block print:overflow-visible print:bg-white print:static`} style={{ height: '100%' }}>
+        <div className={`flex-1 bg-slate-500 overflow-y-auto w-full absolute md:relative z-0 ${mobileView === 'editor' ? 'hidden md:block' : 'block'} print:hidden print:overflow-visible print:bg-white print:static`} style={{ height: '100%' }}>
             
             {/* INVISIBLE PRINT CONTAINER (Hanya muncul saat CTRL+P) */}
             <div id="print-only-root" className="hidden print:block bg-white w-full print:h-auto print:static">

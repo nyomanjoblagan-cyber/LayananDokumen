@@ -302,7 +302,7 @@ export default function AhliWarisTemplate() {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-            <main className="flex-1 flex flex-col md:flex-row overflow-hidden print:block print:h-auto print:overflow-visible">
+            <main className="flex-1 flex flex-col md:flex-row overflow-hidden print:hidden print:h-auto print:overflow-visible">
                 <div className={`w-full md:w-[450px] lg:w-[500px] bg-white border-r border-slate-200 flex flex-col z-10 transition-transform duration-300 ${activeTab === 'editor' ? 'translate-x-0' : '-translate-x-full absolute md:relative md:translate-x-0'} print:hidden h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] overflow-y-auto`}>
                     <div className="p-4 md:p-6 bg-slate-900 text-white sticky top-0 z-20 shadow-md">
                         <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
@@ -536,8 +536,8 @@ export default function AhliWarisTemplate() {
                     </div>
                 </div>
 
-                <div className={`flex-1 bg-slate-200 relative overflow-hidden flex flex-col items-center print:block print:overflow-visible print:bg-white print:static ${activeTab === 'preview' ? 'block' : 'hidden md:flex'}`}>
-                    <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:block print:overflow-visible print:bg-white print:p-0">
+                <div className={`flex-1 bg-slate-200 relative overflow-hidden flex flex-col items-center print:hidden print:overflow-visible print:bg-white print:static ${activeTab === 'preview' ? 'block' : 'hidden md:flex'}`}>
+                    <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:hidden print:overflow-visible print:bg-white print:p-0">
                         <div className="origin-top transition-transform duration-300 transform scale-[0.6] md:scale-100 mb-[-100mm] md:mb-10 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                             <div className="bg-white shadow-2xl mx-auto overflow-hidden relative print:shadow-none" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                                 <ContentInside />

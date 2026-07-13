@@ -430,7 +430,7 @@ function PengantarRtBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative print:hidden print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform duration-300 ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -455,7 +455,7 @@ function PengantarRtBuilder() {
               </button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
               
               {/* TAB 1: INFORMASI SURAT & WILAYAH */}
               {activeTab === 'info' && (
@@ -676,7 +676,7 @@ function PengantarRtBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW SURAT */}
-        <div className={`flex-1 bg-slate-400/20 overflow-y-auto w-full absolute md:relative inset-0 transition-transform duration-300 md:translate-x-0 ${mobileView === 'preview' ? 'translate-x-0 z-20' : 'translate-x-full z-0'} print:block print:overflow-visible print:bg-white print:static`}>
+        <div className={`flex-1 bg-slate-400/20 overflow-y-auto w-full absolute md:relative inset-0 transition-transform duration-300 md:translate-x-0 ${mobileView === 'preview' ? 'translate-x-0 z-20' : 'translate-x-full z-0'} print:hidden print:overflow-visible print:bg-white print:static`}>
            <div className="min-h-full p-4 md:p-8 flex items-start justify-center" id="print-only-root">
                <DocumentContent />
            </div>

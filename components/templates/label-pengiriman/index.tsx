@@ -288,7 +288,7 @@ function B2BShippingLabelBuilder() {
           </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] relative z-10 print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] relative z-10 print:hidden print:h-auto print:overflow-visible">
         
         {/* EDITOR SIDEBAR */}
         <div className={`no-print w-full md:w-[480px] bg-slate-900/60 backdrop-blur-xl border-r border-white/10 flex flex-col h-full absolute md:relative z-20 transition-transform duration-300 ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -308,7 +308,7 @@ function B2BShippingLabelBuilder() {
              <button onClick={() => setActiveTab('cargo')} className={`flex-1 p-3 text-center transition-colors border-b-2 ${activeTab === 'cargo' ? 'border-blue-500 text-blue-400 bg-blue-500/10' : 'border-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>Cargo</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
               
               {/* PRESETS */}
               <div className="mb-6 p-1 bg-slate-950/50 rounded-xl border border-white/5 flex gap-1">
@@ -422,7 +422,7 @@ function B2BShippingLabelBuilder() {
         </div>
 
         {/* PREVIEW CANVAS */}
-        <div className={`flex-1 h-full flex flex-col items-center justify-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
+        <div className={`flex-1 h-full flex flex-col items-center justify-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static`}>
             
             <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-[10px] font-mono text-emerald-400 flex items-center gap-2 no-print shadow-xl">
                <span className="relative flex h-2 w-2">
