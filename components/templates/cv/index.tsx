@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import { Plus, Trash2, Mail, Phone, MapPin, Briefcase, GraduationCap, Code, Printer } from 'lucide-react';
 

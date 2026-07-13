@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import { 
     Edit3, Eye, Trash2, Plus, Users, User, ShieldAlert, 
