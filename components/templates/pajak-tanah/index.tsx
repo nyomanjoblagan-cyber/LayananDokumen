@@ -2,29 +2,33 @@
 
 /**
  * FILE: PajakTanahPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Keterangan Lunas PBB / Pajak
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
+ * STATUS: PRODUCTION READY
+ * DESC: Generator Surat Keterangan PBB (Tingkat Desa/Kelurahan)
+ * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML
  */
 
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  Landmark, UserCircle2, Map, CalendarDays, Receipt, FileText, BadgeCheck, Edit3, Eye, RotateCcw, ArrowLeftCircle
+  Map, CalendarDays, Receipt, FileText, BadgeCheck, Edit3, Eye, RotateCcw, ArrowLeftCircle, UserCircle2, Landmark, Building
 } from 'lucide-react';
 import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
-interface TaxData {
-  city: string;
+interface DesaTaxData {
+  village: string;
+  district: string;
+  regency: string;
+  province: string;
+  
+  letterNumber: string;
   date: string;
   
   wpName: string;
-  wpAddress: string;
   wpNik: string;
+  wpAddress: string;
+  wpJob: string;
   
   nop: string;
   taxYear: string;
@@ -34,33 +38,43 @@ interface TaxData {
   
   taxAmount: number;
   paymentStatus: string;
-  bankName: string;
+  
+  villageHead: string;
+  villageHeadNip: string;
 }
 
 // --- 2. DATA DEFAULT ---
-const INITIAL_DATA: TaxData = {
-  city: 'SLEMAN',
+const INITIAL_DATA: DesaTaxData = {
+  village: 'SARDONOHARJO',
+  district: 'NGAGLIK',
+  regency: 'SLEMAN',
+  province: 'DAERAH ISTIMEWA YOGYAKARTA',
+  
+  letterNumber: '973/045/VIII/2025',
   date: '', 
   
   wpName: 'BAMBANG SUDARSO',
-  wpAddress: 'Jl. Kaliurang KM 10, Sardonoharjo, Ngaglik, Sleman',
   wpNik: '3404010101740001',
+  wpAddress: 'Dusun Tegalrejo RT 02 RW 05, Sardonoharjo',
+  wpJob: 'Wiraswasta',
   
   nop: '34.04.050.001.012-0345.0',
   taxYear: '2025',
   landArea: '500',
   buildingArea: '150',
-  objLocation: 'Desa Sardonoharjo, Ngaglik, Sleman',
+  objLocation: 'Jalan Kaliurang KM 10, Tegalrejo',
   
   taxAmount: 1250000,
-  paymentStatus: 'LUNAS / PAID',
-  bankName: 'BPD DIY / Bank Mandiri'
+  paymentStatus: 'LUNAS',
+  
+  villageHead: 'SUGIYANTO, S.E.',
+  villageHeadNip: '19700101 199903 1 005'
 };
 
 // --- 3. KOMPONEN UTAMA ---
 export default function PajakTanahPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem Perpajakan...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem...</div>}>
       <TaxBuilder />
     </Suspense>
   );
@@ -72,7 +86,8 @@ function TaxBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<TaxData>(INITIAL_DATA);
+  const [data, setData] = useState<DesaTaxData>(INITIAL_DATA);
+
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -81,7 +96,7 @@ function TaxBuilder() {
 
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   
-  const handleDataChange = (field: keyof TaxData, val: any) => {
+  const handleDataChange = (field: keyof DesaTaxData, val: any) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
@@ -92,7 +107,7 @@ function TaxBuilder() {
     }
   };
 
-  const activeTemplateName = templateId === 1 ? 'Formal (Surat)' : 'Slip Bayar';
+  const activeTemplateName = templateId === 1 ? 'Keterangan Lunas PBB' : 'Pengantar Balik Nama PBB';
 
   const SuratKonten = () => {
     const formatDateSafe = (dateString: string) => {
@@ -103,115 +118,115 @@ function TaxBuilder() {
     };
 
     return (
-      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-relaxed text-[11pt] p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto">
+      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-relaxed text-[11pt] p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto relative">
         
+        {/* KOP SURAT DESA (Standard for both templates) */}
+        <div className="flex items-center justify-center border-b-[3px] border-double border-black pb-4 mb-6 shrink-0 text-center">
+            <div className="absolute left-[20mm] print:left-0 top-[20mm] print:top-0 w-[20mm]">
+                {/* Garuda/Logo placeholder */}
+                <div className="w-16 h-16 border-2 border-black rounded-full flex items-center justify-center mx-auto text-xs font-bold bg-white">LOGO</div>
+            </div>
+            <div className="px-[25mm]">
+                <h2 className="font-bold text-lg uppercase leading-tight">PEMERINTAH KABUPATEN {data.regency}</h2>
+                <h2 className="font-bold text-lg uppercase leading-tight">KECAMATAN {data.district}</h2>
+                <h1 className="font-black text-2xl uppercase leading-tight tracking-wide">KANTOR KEPALA DESA {data.village}</h1>
+                <p className="text-xs mt-1">Alamat: Kantor Kepala Desa {data.village}, Kec. {data.district}, Kab. {data.regency}</p>
+            </div>
+        </div>
+
+        {/* TEMPLATE 1: SURAT KETERANGAN LUNAS PBB */}
         {templateId === 1 && (
-          <div className="flex flex-col h-full">
-              <div className="flex justify-between items-start border-b-4 border-double border-black pb-4 mb-8 shrink-0">
-                 <div className="flex gap-4 items-center">
-                    <div className="w-16 h-16 bg-slate-100 rounded flex items-center justify-center border-2 border-slate-300 print:border-black print:bg-transparent">
-                       <Landmark size={32} className="text-slate-400 print:text-black" />
-                    </div>
-                    <div className="font-sans">
-                       <h2 className="font-black text-lg leading-tight uppercase text-slate-900">Pemerintah Kabupaten {data.city}</h2>
-                       <p className="text-xs font-bold uppercase tracking-widest text-slate-500 print:text-black">Badan Pengelolaan Keuangan dan Aset Daerah</p>
-                    </div>
-                 </div>
-                 <div className="text-right font-sans">
-                    <div className="bg-emerald-600 text-white px-3 py-1 text-[10px] font-black rounded uppercase print:text-black print:border print:border-black print:bg-transparent">PBB-P2 LUNAS</div>
-                    <p className="text-[10px] mt-1 font-mono">NOP: {data.nop.substring(0,10)}...</p>
-                 </div>
-              </div>
-
+          <div className="flex flex-col h-full flex-grow">
               <div className="text-center mb-8 shrink-0">
-                 <h1 className="font-black text-lg uppercase underline decoration-2 underline-offset-4">SURAT KETERANGAN PELUNASAN PAJAK</h1>
-                 <p className="text-xs mt-1 font-sans">Nomor: REG/PBB/{data.taxYear}/{(Math.random()*1000).toFixed(0)}</p>
+                 <h1 className="font-bold text-lg uppercase underline decoration-2 underline-offset-4">SURAT KETERANGAN LUNAS PBB</h1>
+                 <p className="text-sm font-sans mt-1">Nomor: {data.letterNumber}</p>
               </div>
 
-              <div className="space-y-6 flex-grow">
-                 <p className="text-justify">Menerangkan bahwa Wajib Pajak di bawah ini telah melakukan pelunasan Pajak Bumi dan Bangunan Perdesaan dan Perkotaan (PBB-P2) sesuai data pada sistem kami:</p>
+              <div className="space-y-4 flex-grow text-justify">
+                 <p>Yang bertanda tangan di bawah ini Kepala Desa {data.village}, Kecamatan {data.district}, Kabupaten {data.regency}, menerangkan dengan sesungguhnya bahwa:</p>
                  
-                 <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4 print:bg-transparent print:border-black break-inside-avoid">
-                    <div>
-                        <h3 className="font-bold border-b border-slate-300 pb-1 text-xs uppercase text-slate-500 print:text-black font-sans mb-2">A. Identitas Wajib Pajak</h3>
-                        <div className="grid grid-cols-[160px_10px_1fr] text-sm gap-y-1">
-                           <span>Nama Wajib Pajak</span><span>:</span><span className="font-bold uppercase">{data.wpName}</span>
-                           <span>Alamat WP</span><span>:</span><span>{data.wpAddress}</span>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h3 className="font-bold border-b border-slate-300 pb-1 text-xs uppercase text-slate-500 print:text-black font-sans mb-2">B. Objek Pajak</h3>
-                        <div className="grid grid-cols-[160px_10px_1fr] text-sm font-mono gap-y-1">
-                           <span>Nomor Objek (NOP)</span><span>:</span><span className="font-bold">{data.nop}</span>
-                           <span className="font-serif">Lokasi Objek</span><span className="font-serif">:</span><span className="font-serif italic">{data.objLocation}</span>
-                           <span className="font-serif">Tahun Pajak</span><span className="font-serif">:</span><span className="font-serif font-bold">{data.taxYear}</span>
-                           <span className="font-serif">Luas Bumi/Bngn</span><span className="font-serif">:</span><span className="font-serif">{data.landArea} m² / {data.buildingArea} m²</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 className="font-bold border-b border-slate-300 pb-1 text-xs uppercase text-slate-500 print:text-black font-sans mb-2">C. Status Pembayaran</h3>
-                        <div className="grid grid-cols-[160px_10px_1fr] text-sm gap-y-1">
-                           <span>Total Bayar</span><span>:</span><span className="font-bold">{formatRupiah(data.taxAmount)}</span>
-                           <span>Status</span><span>:</span><span className="font-black text-emerald-700 print:text-black uppercase">{data.paymentStatus}</span>
-                        </div>
+                 <div className="pl-8 space-y-1 my-4">
+                    <div className="grid grid-cols-[160px_10px_1fr]">
+                       <span>Nama Lengkap</span><span>:</span><span className="font-bold">{data.wpName}</span>
+                       <span>NIK</span><span>:</span><span>{data.wpNik}</span>
+                       <span>Pekerjaan</span><span>:</span><span>{data.wpJob}</span>
+                       <span>Alamat</span><span>:</span><span>{data.wpAddress}</span>
                     </div>
                  </div>
 
-                 <p className="text-justify text-sm">Surat keterangan ini diterbitkan secara sistem untuk dipergunakan sebagai bukti pemenuhan kewajiban perpajakan atau kelengkapan administrasi lainnya yang sah.</p>
+                 <p>Adalah benar nama tersebut di atas memiliki Objek Pajak Bumi dan Bangunan (PBB) yang terletak di wilayah Desa {data.village} dengan rincian sebagai berikut:</p>
+                 
+                 <div className="pl-8 space-y-1 my-4">
+                    <div className="grid grid-cols-[160px_10px_1fr]">
+                       <span>Nomor Objek Pajak (NOP)</span><span>:</span><span className="font-bold">{data.nop}</span>
+                       <span>Letak Objek Pajak</span><span>:</span><span>{data.objLocation}</span>
+                       <span>Luas Bumi</span><span>:</span><span>{data.landArea} m²</span>
+                       <span>Luas Bangunan</span><span>:</span><span>{data.buildingArea} m²</span>
+                    </div>
+                 </div>
+
+                 <p>Berdasarkan catatan register pajak di Kantor Desa {data.village}, objek pajak tersebut di atas untuk Tahun Pajak <strong>{data.taxYear}</strong> dinyatakan <strong>TELAH LUNAS</strong> (Ketetapan sebesar {formatRupiah(data.taxAmount)}).</p>
+
+                 <p>Demikian Surat Keterangan ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagai kelengkapan persyaratan administrasi sebagaimana mestinya.</p>
               </div>
 
-              <div className="mt-12 flex justify-between items-end border-t border-slate-100 pt-8 print:border-black break-inside-avoid">
-                 <div className="text-center w-48 font-sans">
-                    <div className="p-2 border-2 border-dashed border-slate-200 rounded mb-2 print:border-black">
-                       <BadgeCheck size={32} className="mx-auto text-slate-300 print:text-black" />
-                       <p className="text-[8px] text-slate-400 uppercase font-bold">Verified Document</p>
-                    </div>
-                 </div>
-                 <div className="text-center w-64 font-sans">
-                    <p className="text-xs mb-14">{data.city}, {formatDateSafe(data.date)}</p>
-                    <p className="font-bold underline uppercase text-sm leading-none">Kepala BPKAD</p>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold">Kabupaten {data.city}</p>
+              {/* TANDA TANGAN */}
+              <div className="mt-12 flex justify-end shrink-0 break-inside-avoid">
+                 <div className="text-center w-64">
+                    <p className="mb-1 text-sm">{data.village}, {formatDateSafe(data.date)}</p>
+                    <p className="font-bold text-sm">Kepala Desa {data.village}</p>
+                    <div className="h-24"></div>
+                    <p className="font-bold underline uppercase">{data.villageHead}</p>
+                    {data.villageHeadNip && <p className="text-sm">NIP. {data.villageHeadNip}</p>}
                  </div>
               </div>
           </div>
         )}
 
+        {/* TEMPLATE 2: SURAT PENGANTAR BALIK NAMA */}
         {templateId === 2 && (
-          <div className="flex flex-col h-full font-sans text-sm p-4 border-4 border-double border-slate-200 print:border-black">
-              <div className="text-center border-b-2 border-dashed border-slate-300 pb-4 mb-6 print:border-black shrink-0">
-                 <h2 className="font-black text-xl uppercase tracking-tighter">BUKTI PEMBAYARAN PBB-P2</h2>
-                 <p className="text-[10px] font-bold text-slate-500 uppercase">{data.bankName}</p>
+          <div className="flex flex-col h-full flex-grow">
+              <div className="text-center mb-8 shrink-0">
+                 <h1 className="font-bold text-lg uppercase underline decoration-2 underline-offset-4">SURAT PENGANTAR MUTASI / BALIK NAMA PBB</h1>
+                 <p className="text-sm font-sans mt-1">Nomor: {data.letterNumber}</p>
               </div>
 
-              <div className="space-y-4 flex-grow">
-                 <div className="grid grid-cols-[120px_10px_1fr] gap-y-2">
-                    <span className="text-slate-400 font-bold uppercase text-[10px]">Nomor NOP</span><span>:</span><span className="font-mono font-bold text-lg">{data.nop}</span>
-                    <span className="text-slate-400 font-bold uppercase text-[10px]">Tahun Pajak</span><span>:</span><span className="font-bold">{data.taxYear}</span>
-                    <span className="text-slate-400 font-bold uppercase text-[10px]">Nama WP</span><span>:</span><span className="font-bold uppercase">{data.wpName}</span>
-                    <span className="text-slate-400 font-bold uppercase text-[10px]">Lokasi</span><span>:</span><span className="text-xs">{data.objLocation}</span>
-                 </div>
+              <div className="space-y-4 flex-grow text-justify">
+                 <p>Kepala Desa {data.village}, Kecamatan {data.district}, Kabupaten {data.regency}, dengan ini menerangkan bahwa:</p>
                  
-                 <div className="border-t border-dashed border-slate-300 my-6 print:border-black"></div>
-                 
-                 <div className="space-y-1">
-                    <div className="flex justify-between"><span>Tagihan Pokok</span><span>{formatRupiah(data.taxAmount)}</span></div>
-                    <div className="flex justify-between"><span>Denda / Admin</span><span>Rp 0</span></div>
-                    <div className="flex justify-between font-black text-xl border-t-2 border-slate-900 pt-2 mt-2">
-                       <span>TOTAL BAYAR</span>
-                       <span>{formatRupiah(data.taxAmount)}</span>
+                 <div className="pl-8 space-y-1 my-4">
+                    <div className="grid grid-cols-[160px_10px_1fr]">
+                       <span>Nama Pemohon</span><span>:</span><span className="font-bold">{data.wpName}</span>
+                       <span>NIK</span><span>:</span><span>{data.wpNik}</span>
+                       <span>Pekerjaan</span><span>:</span><span>{data.wpJob}</span>
+                       <span>Alamat</span><span>:</span><span>{data.wpAddress}</span>
                     </div>
                  </div>
 
-                 <div className="mt-16 text-center">
-                    <div className="inline-block border-4 border-emerald-600 text-emerald-600 px-8 py-2 font-black text-3xl uppercase rotate-[-5deg] rounded-lg opacity-80 print:text-black print:border-black">LUNAS</div>
+                 <p>Bahwa nama tersebut bermaksud mengajukan Mutasi/Balik Nama Objek Pajak Bumi dan Bangunan (PBB-P2) yang terletak di wilayah Desa {data.village}, dengan data asal (lama) sebagai berikut:</p>
+                 
+                 <div className="pl-8 space-y-1 my-4">
+                    <div className="grid grid-cols-[160px_10px_1fr]">
+                       <span>Nomor Objek Pajak (NOP)</span><span>:</span><span className="font-bold">{data.nop}</span>
+                       <span>Alamat Objek Pajak</span><span>:</span><span>{data.objLocation}</span>
+                       <span>Luas Bumi</span><span>:</span><span>{data.landArea} m²</span>
+                       <span>Luas Bangunan</span><span>:</span><span>{data.buildingArea} m²</span>
+                    </div>
                  </div>
+
+                 <p>Sebagai persyaratan tambahan, kami sampaikan bahwa tagihan PBB-P2 tahun <strong>{data.taxYear}</strong> untuk NOP tersebut statusnya adalah <strong>{data.paymentStatus}</strong>.</p>
+                 <p>Surat pengantar ini diberikan untuk keperluan kelengkapan pengajuan administrasi di Kantor BPKAD/Bapenda Kabupaten {data.regency}. Demikian surat pengantar ini dibuat agar dapat dipergunakan sebagaimana mestinya.</p>
               </div>
 
-              <div className="text-center text-[10px] mt-auto pt-6 border-t border-slate-100 print:border-black italic text-slate-400">
-                 <p>Dokumen ini adalah struk bukti pembayaran yang sah sesuai data transaksi perbankan.</p>
-                 <p className="font-mono mt-1 uppercase">{new Date().toLocaleString('id-ID')}</p>
+              {/* TANDA TANGAN */}
+              <div className="mt-12 flex justify-end shrink-0 break-inside-avoid">
+                 <div className="text-center w-64">
+                    <p className="mb-1 text-sm">{data.village}, {formatDateSafe(data.date)}</p>
+                    <p className="font-bold text-sm">Kepala Desa {data.village}</p>
+                    <div className="h-24"></div>
+                    <p className="font-bold underline uppercase">{data.villageHead}</p>
+                    {data.villageHeadNip && <p className="text-sm">NIP. {data.villageHeadNip}</p>}
+                 </div>
               </div>
           </div>
         )}
@@ -245,7 +260,7 @@ function TaxBuilder() {
             </Link>
             <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <Receipt size={16} className="text-emerald-500" /> <span>Tax Payment Builder</span>
+               <Receipt size={16} className="text-emerald-500" /> <span>Sistem PBB Desa</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -254,9 +269,9 @@ function TaxBuilder() {
                 <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
               </button>
               {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Format Surat {templateId === 1 && <Check size={14}/>}</button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Format Slip {templateId === 2 && <Check size={14}/>}</button>
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Surat Keterangan Lunas {templateId === 1 && <Check size={14}/>}</button>
+                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Pengantar Balik Nama {templateId === 2 && <Check size={14}/>}</button>
                 </div>
               )}
             </div>
@@ -270,26 +285,67 @@ function TaxBuilder() {
         {/* SIDEBAR */}
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Data</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           
            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:block print:overflow-visible print:bg-white">
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+              
+              {/* WILAYAH DESA */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-3">
+                 <h3 className="text-[10px] font-black uppercase text-slate-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building size={14}/> Identitas Desa</h3>
+                 <div className="grid grid-cols-2 gap-3">
+                    <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.village} onChange={e => handleDataChange('village', e.target.value)} placeholder="Nama Desa/Kelurahan" />
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.district} onChange={e => handleDataChange('district', e.target.value)} placeholder="Kecamatan" />
+                 </div>
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.regency} onChange={e => handleDataChange('regency', e.target.value)} placeholder="Kabupaten/Kota" />
+              </div>
+
+              {/* SURAT */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-3">
+                 <h3 className="text-[10px] font-black uppercase text-indigo-600 border-b pb-1 tracking-widest flex items-center gap-2"><FileText size={14}/> Dokumen</h3>
+                 <div className="grid grid-cols-2 gap-3">
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" value={data.letterNumber} onChange={e => handleDataChange('letterNumber', e.target.value)} placeholder="Nomor Surat" />
+                    <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                 </div>
+              </div>
+
+              {/* PEMOHON/WP */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-3">
                  <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={14}/> Wajib Pajak</h3>
                  <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none uppercase" value={data.wpName} onChange={e => handleDataChange('wpName', e.target.value)} placeholder="Nama Lengkap" />
+                 <div className="grid grid-cols-2 gap-3">
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.wpNik} onChange={e => handleDataChange('wpNik', e.target.value)} placeholder="NIK" />
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.wpJob} onChange={e => handleDataChange('wpJob', e.target.value)} placeholder="Pekerjaan" />
+                 </div>
                  <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.wpAddress} onChange={e => handleDataChange('wpAddress', e.target.value)} placeholder="Alamat WP" />
               </div>
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Map size={14}/> Objek Pajak</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-blue-500 outline-none" value={data.nop} onChange={e => handleDataChange('nop', e.target.value)} placeholder="NOP" />
+
+              {/* OBJEK PAJAK */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-3">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Map size={14}/> Objek Pajak (PBB)</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-blue-500 outline-none" value={data.nop} onChange={e => handleDataChange('nop', e.target.value)} placeholder="Nomor Objek Pajak (NOP)" />
                  <div className="grid grid-cols-2 gap-3">
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.landArea} onChange={e => handleDataChange('landArea', e.target.value)} placeholder="Luas Bumi" />
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.buildingArea} onChange={e => handleDataChange('buildingArea', e.target.value)} placeholder="Luas Bangunan" />
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.landArea} onChange={e => handleDataChange('landArea', e.target.value)} placeholder="Luas Bumi (m²)" />
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.buildingArea} onChange={e => handleDataChange('buildingArea', e.target.value)} placeholder="Luas Bngn (m²)" />
                  </div>
                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.objLocation} onChange={e => handleDataChange('objLocation', e.target.value)} placeholder="Lokasi Objek" />
               </div>
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Receipt size={14}/> Pembayaran</h3>
-                 <input type="number" className="w-full p-2 border rounded-lg text-xs font-black text-amber-600 focus:ring-2 focus:ring-amber-500 outline-none" value={data.taxAmount} onChange={e => handleDataChange('taxAmount', parseInt(e.target.value) || 0)} />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none uppercase font-bold" value={data.paymentStatus} onChange={e => handleDataChange('paymentStatus', e.target.value)} />
+
+              {/* PEMBAYARAN */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-3">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><Receipt size={14}/> Ketetapan Pajak</h3>
+                 <div className="grid grid-cols-2 gap-3">
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.taxYear} onChange={e => handleDataChange('taxYear', e.target.value)} placeholder="Tahun Pajak" />
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none uppercase font-bold" value={data.paymentStatus} onChange={e => handleDataChange('paymentStatus', e.target.value)} placeholder="Status" />
+                 </div>
+                 <input type="number" className="w-full p-2 border rounded-lg text-xs font-black text-amber-600 focus:ring-2 focus:ring-amber-500 outline-none" value={data.taxAmount} onChange={e => handleDataChange('taxAmount', parseInt(e.target.value) || 0)} placeholder="Tagihan Pokok (Rp)" />
               </div>
+
+              {/* KADES */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-3">
+                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><Landmark size={14}/> Pejabat Pengesah</h3>
+                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-red-500 outline-none" value={data.villageHead} onChange={e => handleDataChange('villageHead', e.target.value)} placeholder="Nama Kepala Desa" />
+                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" value={data.villageHeadNip} onChange={e => handleDataChange('villageHeadNip', e.target.value)} placeholder="NIP (Kosongkan jika bukan PNS)" />
+              </div>
+
            </div>
         </div>
 
@@ -310,7 +366,7 @@ function TaxBuilder() {
       
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+         <PrintWrapper documentName="Keterangan_PBB" price={10000} />
       </div>
 
       <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><SuratKonten /></div></div>
