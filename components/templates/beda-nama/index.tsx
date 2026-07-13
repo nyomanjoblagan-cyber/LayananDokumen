@@ -3,21 +3,19 @@
 /**
  * FILE: BedaNamaPage.tsx
  * STATUS: PRODUCTION READY (WITH MONETIZATION)
- * DESC: Generator Surat Pernyataan Beda Nama
+ * DESC: Generator Surat Pernyataan Beda Nama/Identitas (Standar Notaris/Legal Enterprise)
  * FEATURES:
- * - Comparison Logic (KTP vs Dokumen Lain)
- * - Strict Legal Wording (Satu Orang Yang Sama)
- * - Mobile Menu Fixed
- * - A4 Print Layout
- * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * - Standar Notaris/Enterprise dengan 8 Pasal Lengkap
+ * - ZERO CSS Grid/Table untuk teks paragraf/pasal (Full flex & margin untuk print-safe)
+ * - State Management Komprehensif
+ * - Dynamic Clauses (Alasan, Penyelesaian Sengketa)
+ * - Print-Safe Formatting
  */
 
-import { useState, useRef, Suspense, useEffect } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  UserCircle2, FileWarning, CalendarDays, FileText, Landmark, Users,
-  ArrowLeftCircle, Edit3, Eye, ShieldAlert, RotateCcw
+  Printer, ArrowLeftCircle, Edit3, Eye, UserCircle2, 
+  FileWarning, FileText, Scale, RotateCcw, ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -26,48 +24,63 @@ import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface BedaNamaData {
+  // Metadata Surat
   city: string;
   date: string;
   
   // Identitas KTP (Yang Benar)
-  nameKtp: string;
+  name: string;
   nik: string;
   placeBirth: string;
   dateBirth: string;
   job: string;
   address: string;
   
-  // Dokumen Beda (Yang Salah/Beda)
-  documentType: string; // Ijazah, KK, Paspor, Akta
-  nameOnDoc: string;
+  // Dokumen Pembanding (Yang Salah/Beda)
+  documentType: string;
+  docNumber: string;
+  wrongName: string;
+  wrongPlaceBirth: string;
+  wrongDateBirth: string;
   
-  // Keperluan
+  // Pilihan & Alasan Dinamis
+  reason: string;
   purpose: string;
+  disputeResolution: string;
   
-  // Saksi
-  witness1: string;
-  witness2: string;
+  // Saksi-Saksi
+  witness1Name: string;
+  witness1Nik: string;
+  witness2Name: string;
+  witness2Nik: string;
 }
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: BedaNamaData = {
   city: 'SLEMAN',
-  date: '', // Diisi useEffect
+  date: '', 
   
-  nameKtp: 'MUHAMMAD RIZKY RAMADHAN',
+  name: 'MUHAMMAD RIZKY RAMADHAN',
   nik: '3404010101950003',
   placeBirth: 'YOGYAKARTA',
   dateBirth: '1995-02-15',
   job: 'Karyawan Swasta',
-  address: 'Jl. Magelang KM 5, Mlati, Sleman, Yogyakarta',
+  address: 'Jl. Magelang KM 5, Mlati, Sleman, Daerah Istimewa Yogyakarta',
   
-  documentType: 'Ijazah Sarjana (S1)',
-  nameOnDoc: 'M. RIZKY RAMADHAN',
+  documentType: 'Ijazah Strata-1 (S1)',
+  docNumber: '1103.44.890/UGM/2018',
+  wrongName: 'M. RIZKY RAMADHAN',
+  wrongPlaceBirth: 'JOGJAKARTA',
+  wrongDateBirth: '1995-02-15',
   
-  purpose: 'Persyaratan pengurusan administrasi pembuatan Paspor di Kantor Imigrasi Kelas I Yogyakarta.',
+  reason: 'Kesalahan administrasi ketik oleh instansi penerbit',
+  purpose: 'Persyaratan administratif pencairan dana asuransi kesehatan',
+  disputeResolution: 'Musyawarah untuk mufakat',
   
-  witness1: 'Sudarsono (Ketua RT)',
-  witness2: 'Dwi Astuti (Ibu Kandung)'
+  witness1Name: 'Sudarsono',
+  witness1Nik: '3404010505700001',
+  witness2Name: 'Dwi Astuti',
+  witness2Nik: '3404014606720002'
 };
 
 // --- 3. KOMPONEN UTAMA ---
@@ -82,8 +95,6 @@ export default function BedaNamaPage() {
 function BedaNamaBuilder() {
   // --- STATE SYSTEM ---
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [data, setData] = useState<BedaNamaData>(INITIAL_DATA);
 
   // Set Tanggal Hari Ini saat Mount
@@ -105,177 +116,235 @@ function BedaNamaBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Materai (Formal)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Modern (Simpel)
-        </button>
-    </div>
-  );
+  // --- FORMATTER TANGGAL ---
+  const formatDate = (dateString: string) => {
+    if(!dateString) return '...';
+    try {
+        const safeDate = new Date(dateString + 'T00:00:00');
+        return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+    } catch { return dateString; }
+  };
 
-  // --- KONTEN SURAT ---
+  // --- KONTEN SURAT (AKTA PERNYATAAN BEDA IDENTITAS) ---
   const ContentInside = () => {
-    // FIX TIMEZONE DATE FORMATTER
-    const formatDate = (dateString: string) => {
-        if(!dateString) return '...';
-        try {
-            const safeDate = new Date(dateString + 'T00:00:00');
-            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
-        } catch { return dateString; }
-    };
+    return (
+      <div className="font-serif text-[11pt] leading-[1.6] text-black">
+         
+         <div className="text-center mb-8 pb-2 border-b-2 border-black">
+            <h1 className="font-black text-lg uppercase tracking-wider underline underline-offset-4">AKTA PERNYATAAN DAN KETERANGAN BEDA IDENTITAS</h1>
+            <p className="mt-1 text-sm tracking-widest font-bold">NOMOR REGISTRASI: ___/SKBI/___/{new Date().getFullYear()}</p>
+         </div>
 
-    if (templateId === 1) {
-      // === TEMPLATE 1: FORMAL MATERAI ===
-      return (
-        <div className="font-serif text-[11pt] leading-[1.6] text-black">
-           
-           <div className="text-center mb-8 pb-2 border-b-2 border-black">
-              <h1 className="font-black text-lg uppercase tracking-wider underline underline-offset-4">SURAT PERNYATAAN BEDA NAMA</h1>
-           </div>
+         <div className="text-justify px-1">
+            <p className="mb-4">Pada hari ini, tanggal <strong>{formatDate(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, saya yang bertanda tangan di bawah ini:</p>
+            
+            {/* IDENTITAS PIHAK PERTAMA (TANPA TABEL) */}
+            <div className="ml-4 mb-6 break-inside-avoid space-y-1">
+               <div className="flex">
+                  <div className="w-48 font-bold">Nama Lengkap</div>
+                  <div className="w-4">:</div>
+                  <div className="flex-1 font-bold uppercase">{data.name}</div>
+               </div>
+               <div className="flex">
+                  <div className="w-48 font-bold">Nomor Induk Kependudukan</div>
+                  <div className="w-4">:</div>
+                  <div className="flex-1 font-mono">{data.nik}</div>
+               </div>
+               <div className="flex">
+                  <div className="w-48 font-bold">Tempat, Tanggal Lahir</div>
+                  <div className="w-4">:</div>
+                  <div className="flex-1">{data.placeBirth}, {formatDate(data.dateBirth)}</div>
+               </div>
+               <div className="flex">
+                  <div className="w-48 font-bold">Pekerjaan</div>
+                  <div className="w-4">:</div>
+                  <div className="flex-1">{data.job}</div>
+               </div>
+               <div className="flex">
+                  <div className="w-48 font-bold">Alamat Lengkap</div>
+                  <div className="w-4">:</div>
+                  <div className="flex-1 leading-snug">{data.address}</div>
+               </div>
+            </div>
 
-           <div className="text-justify px-1">
-              <p className="mb-4">Saya yang bertanda tangan di bawah ini:</p>
-              
-              <div className="ml-4 mb-4 break-inside-avoid">
-                 <table className="w-full text-[11pt]">
-                    <tbody>
-                       <tr><td className="w-36 font-bold align-top">Nama</td><td className="w-3 align-top">:</td><td className="font-bold uppercase align-top">{data.nameKtp}</td></tr>
-                       <tr><td className="align-top">NIK</td><td className="align-top">:</td><td className="align-top">{data.nik}</td></tr>
-                       <tr><td className="align-top">Tempat/Tgl Lahir</td><td className="align-top">:</td><td className="align-top">{data.placeBirth}, {formatDate(data.dateBirth)}</td></tr>
-                       <tr><td className="align-top">Pekerjaan</td><td className="align-top">:</td><td className="align-top">{data.job}</td></tr>
-                       <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.address}</td></tr>
-                    </tbody>
-                 </table>
-              </div>
+            <p className="mb-6 break-inside-avoid">
+               Bertindak untuk dan atas nama diri sendiri (selanjutnya disebut sebagai <strong>"Pembuat Pernyataan"</strong>), dengan ini menyatakan dengan sadar dan sesungguhnya, serta mengikatkan diri ke dalam ketentuan-ketentuan yang dijabarkan dalam pasal-pasal berikut ini:
+            </p>
 
-              <p className="mb-4 break-inside-avoid">Dengan ini menyatakan dengan sesungguhnya bahwa:</p>
+            {/* PASAL 1 */}
+            <div className="mb-4 text-justify break-inside-avoid">
+               <p className="font-bold mb-1 text-center">PASAL 1<br/>KETERANGAN IDENTITAS UTAMA (DEFINISI)</p>
+               <div className="flex gap-2">
+                  <span>1.</span>
+                  <p>Bahwa Pembuat Pernyataan adalah subjek hukum yang sah dan cakap untuk melakukan tindakan hukum menurut peraturan perundang-undangan Republik Indonesia.</p>
+               </div>
+               <div className="flex gap-2 mt-1">
+                  <span>2.</span>
+                  <p>Bahwa identitas utama dan rujukan kebenaran data administrasi kependudukan dari Pembuat Pernyataan adalah Kartu Tanda Penduduk (KTP) dengan Nomor Induk Kependudukan (NIK) {data.nik} atas nama <strong>{data.name}</strong>.</p>
+               </div>
+            </div>
 
-              <div className="ml-2 mb-6 border-l-4 border-black pl-4 py-1 break-inside-avoid">
-                 <div className="mb-4">
-                    <p className="mb-1">1. Nama yang tertulis di <strong>KTP / Kartu Keluarga</strong> saya adalah:</p>
-                    <div className="font-black text-[12pt] uppercase tracking-wide">"{data.nameKtp}"</div>
-                 </div>
-                 <div>
-                    <p className="mb-1">2. Sedangkan nama yang tertulis di <strong>{data.documentType}</strong> adalah:</p>
-                    <div className="font-black text-[12pt] uppercase tracking-wide">"{data.nameOnDoc}"</div>
-                 </div>
-              </div>
-
-              <p className="mb-4 break-inside-avoid">
-                 Bahwa nama <strong>{data.nameKtp}</strong> dan <strong>{data.nameOnDoc}</strong> adalah nama dari <strong>SATU ORANG YANG SAMA</strong> (diri saya sendiri). Perbedaan penulisan tersebut terjadi karena kebiasaan penulisan/kesalahan administrasi dan bukan merupakan unsur kesengajaan untuk memalsukan identitas.
-              </p>
-
-              <div className="bg-slate-50 p-3 border border-slate-300 italic text-sm mb-4 break-inside-avoid">
-                 Surat pernyataan ini saya buat guna melengkapi persyaratan: <strong>{data.purpose}</strong>.
-              </div>
-
-              <p className="indent-12 break-inside-avoid">
-                 Demikian surat pernyataan ini saya buat dengan keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya paksaan dari pihak manapun. Apabila dikemudian hari ternyata pernyataan ini tidak benar, saya bersedia dituntut sesuai dengan hukum yang berlaku.
-              </p>
-           </div>
-
-           {/* TANDA TANGAN */}
-           <div className="mt-10 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <p className="text-right mb-8">{data.city}, {formatDate(data.date)}</p>
-              
-              <div className="flex justify-between items-end">
-                 <div className="text-center w-64">
-                    <p className="mb-6 font-bold uppercase text-[10pt] text-slate-500">Saksi-Saksi:</p>
-                    <div className="flex flex-col gap-8 text-left pl-4">
-                       <div>
-                          <div className="border-b border-black w-48 pb-1 text-sm font-bold">1. {data.witness1}</div>
+            {/* PASAL 2 */}
+            <div className="mb-4 text-justify break-inside-avoid">
+               <p className="font-bold mb-1 text-center mt-6">PASAL 2<br/>DOKUMEN DAN OBJEK PERBEDAAN</p>
+               <div className="flex gap-2">
+                  <span>1.</span>
+                  <p>Bahwa selain identitas utama sebagaimana dimaksud pada Pasal 1, Pembuat Pernyataan juga memiliki dan/atau memegang dokumen lain berupa <strong>{data.documentType}</strong> dengan nomor registrasi/identifikasi dokumen <strong>{data.docNumber}</strong>.</p>
+               </div>
+               <div className="flex gap-2 mt-1">
+                  <span>2.</span>
+                  <div>
+                    <p>Bahwa di dalam dokumen {data.documentType} tersebut, terdapat pencatatan data identitas yang memiliki perbedaan leksikal maupun substantif dengan identitas KTP, yakni tercatat dengan rincian sebagai berikut:</p>
+                    <div className="ml-4 mt-2 space-y-1">
+                       <div className="flex">
+                          <div className="w-48">- Nama pada Dokumen</div>
+                          <div className="w-4">:</div>
+                          <div className="flex-1 font-bold">"{data.wrongName}"</div>
                        </div>
-                       <div>
-                          <div className="border-b border-black w-48 pb-1 text-sm font-bold">2. {data.witness2}</div>
+                       <div className="flex">
+                          <div className="w-48">- Tempat Lahir</div>
+                          <div className="w-4">:</div>
+                          <div className="flex-1 font-bold">"{data.wrongPlaceBirth}"</div>
+                       </div>
+                       <div className="flex">
+                          <div className="w-48">- Tanggal Lahir</div>
+                          <div className="w-4">:</div>
+                          <div className="flex-1 font-bold">"{formatDate(data.wrongDateBirth)}"</div>
                        </div>
                     </div>
-                 </div>
+                  </div>
+               </div>
+            </div>
 
-                 <div className="text-center w-56">
-                    <p className="mb-4 font-bold uppercase text-xs">Yang Membuat Pernyataan,</p>
-                    <div className="border border-slate-400 w-24 h-14 mx-auto mb-4 flex items-center justify-center text-[8px] text-slate-400 italic bg-slate-50">
-                       MATERAI<br/>10.000
-                    </div>
-                    <p className="font-bold underline uppercase text-sm">{data.nameKtp}</p>
-                 </div>
-              </div>
-           </div>
-        </div>
-      );
-    } else {
-      // === TEMPLATE 2: MODERN SIMPLE ===
-      return (
-        <div className="font-sans text-[11pt] leading-[1.6] text-slate-900">
-           
-           <div className="border-b-2 border-emerald-500 pb-3 mb-8">
-              <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">Pernyataan Kesamaan Identitas</h1>
-              <p className="text-emerald-600 font-bold text-xs uppercase tracking-widest">Identity Clarification Statement</p>
-           </div>
+            {/* PASAL 3 */}
+            <div className="mb-4 text-justify break-inside-avoid">
+               <p className="font-bold mb-1 text-center mt-6">PASAL 3<br/>PERNYATAAN KESATUAN SUBJEK HUKUM</p>
+               <div className="flex gap-2">
+                  <span>1.</span>
+                  <p>Bahwa nama <strong>{data.name}</strong> (sesuai KTP) dan nama <strong>{data.wrongName}</strong> (sesuai {data.documentType}) beserta atribut data yang menyertainya adalah benar dan mutlak merujuk pada <strong>SATU ORANG YANG SAMA</strong>, yakni diri Pembuat Pernyataan.</p>
+               </div>
+               <div className="flex gap-2 mt-1">
+                  <span>2.</span>
+                  <p>Bahwa perbedaan penulisan data tersebut tidak menggugurkan, menghapuskan, atau membatalkan hak-hak keperdataan Pembuat Pernyataan yang timbul dan melekat pada dokumen {data.documentType} tersebut.</p>
+               </div>
+            </div>
 
-           <div className="space-y-6">
-              <p>Kepada Yth. Pihak Yang Berkepentingan,</p>
-              <p>Saya yang bertanda tangan di bawah ini:</p>
+            {/* PASAL 4 */}
+            <div className="mb-4 text-justify break-inside-avoid">
+               <p className="font-bold mb-1 text-center mt-6">PASAL 4<br/>ALASAN DAN PENYEBAB PERBEDAAN</p>
+               <div className="flex gap-2">
+                  <span>1.</span>
+                  <p>Bahwa perbedaan penulisan identitas sebagaimana diuraikan dalam Pasal 2 terjadi dikarenakan alasan berikut: <em>{data.reason}</em>.</p>
+               </div>
+               <div className="flex gap-2 mt-1">
+                  <span>2.</span>
+                  <p>Bahwa Pembuat Pernyataan tidak memiliki niat, tujuan, atau unsur kesengajaan dalam bentuk apapun untuk memalsukan identitas, mengaburkan fakta hukum, melakukan tindakan penipuan (<em>fraude</em>), atau tindak pidana lainnya.</p>
+               </div>
+            </div>
 
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 grid gap-2 text-sm break-inside-avoid">
-                 <div className="grid grid-cols-[120px_10px_1fr]">
-                    <span className="font-bold text-slate-500">Nama Lengkap</span><span>:</span><span className="font-black uppercase">{data.nameKtp}</span>
-                 </div>
-                 <div className="grid grid-cols-[120px_10px_1fr]">
-                    <span className="font-bold text-slate-500">NIK</span><span>:</span><span className="font-mono">{data.nik}</span>
-                 </div>
-                 <div className="grid grid-cols-[120px_10px_1fr]">
-                    <span className="font-bold text-slate-500">Alamat</span><span>:</span><span>{data.address}</span>
-                 </div>
-              </div>
+            {/* PASAL 5 */}
+            <div className="mb-4 text-justify break-inside-avoid">
+               <p className="font-bold mb-1 text-center mt-6">PASAL 5<br/>TUJUAN DAN PENGGUNAAN SURAT PERNYATAAN</p>
+               <div className="flex gap-2">
+                  <span>1.</span>
+                  <p>Bahwa Akta Pernyataan dan Keterangan Beda Identitas ini disusun dan ditandatangani guna memenuhi persyaratan administratif dan hukum untuk keperluan: <strong>{data.purpose}</strong>.</p>
+               </div>
+               <div className="flex gap-2 mt-1">
+                  <span>2.</span>
+                  <p>Bahwa dokumen ini merupakan alat bukti keterangan yang sah dan dapat diajukan kepada instansi pemerintah, lembaga perbankan/keuangan, instansi hukum, atau pihak swasta lainnya yang berkepentingan.</p>
+               </div>
+            </div>
 
-              <div className="space-y-4 break-inside-avoid">
-                 <p className="font-bold text-slate-700 border-l-4 border-emerald-500 pl-3">MENGKLARIFIKASI BAHWA:</p>
-                 <div className="grid grid-cols-2 gap-6">
-                    <div className="bg-white border-2 border-slate-100 p-4 rounded-xl text-center shadow-sm">
-                       <p className="text-[10pt] font-bold text-slate-400 uppercase mb-2">Nama di KTP</p>
-                       <p className="font-black text-slate-900">{data.nameKtp}</p>
-                    </div>
-                    <div className="bg-white border-2 border-red-100 p-4 rounded-xl text-center shadow-sm">
-                       <p className="text-[10pt] font-bold text-red-400 uppercase mb-2">Nama di {data.documentType}</p>
-                       <p className="font-black text-red-600">{data.nameOnDoc}</p>
-                    </div>
-                 </div>
-                 <p className="text-justify font-medium bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-emerald-900">
-                    Merupakan <u>SATU ORANG YANG SAMA</u>. Perbedaan penulisan nama tersebut tidak menggugurkan validitas kepemilikan dokumen saya.
-                 </p>
-              </div>
+            {/* PASAL 6 */}
+            <div className="mb-4 text-justify break-inside-avoid">
+               <p className="font-bold mb-1 text-center mt-6">PASAL 6<br/>TANGGUNG JAWAB HUKUM (INDEMNIFIKASI)</p>
+               <div className="flex gap-2">
+                  <span>1.</span>
+                  <p>Bahwa Pembuat Pernyataan secara mutlak membebaskan pihak-pihak terkait, termasuk namun tidak terbatas pada instansi penerima dokumen ini, dari segala macam tuntutan hukum, gugatan perdata, maupun laporan pidana apabila di kemudian hari ditemukan ketidakbenaran materiil atas akta pernyataan ini.</p>
+               </div>
+               <div className="flex gap-2 mt-1">
+                  <span>2.</span>
+                  <p>Bahwa segala kerugian yang mungkin timbul terhadap pihak ketiga akibat penggunaan dokumen beridentitas ganda ini sepenuhnya menjadi beban dan tanggung jawab pribadi Pembuat Pernyataan.</p>
+               </div>
+            </div>
 
-              <p className="italic text-slate-500 text-sm border-t border-dashed border-slate-300 pt-4 break-inside-avoid">
-                 Surat ini dibuat untuk keperluan: <strong>{data.purpose}</strong>
-              </p>
-           </div>
+            {/* PASAL 7 */}
+            <div className="mb-4 text-justify break-inside-avoid">
+               <p className="font-bold mb-1 text-center mt-6">PASAL 7<br/>KEADAAN KAHAR (FORCE MAJEURE)</p>
+               <div className="flex gap-2">
+                  <span>1.</span>
+                  <p>Bahwa Pembuat Pernyataan tidak dapat dimintai pertanggungjawaban atas cacat dokumen tambahan di kemudian hari apabila kerusakan atau kehilangan dokumen yang menjadi objek pernyataan ini diakibatkan oleh Keadaan Kahar (<em>Force Majeure</em>).</p>
+               </div>
+               <div className="flex gap-2 mt-1">
+                  <span>2.</span>
+                  <p>Keadaan Kahar yang dimaksud meliputi bencana alam (gempa bumi, banjir, kebakaran), huru-hara, kebijakan moneter/pemerintah secara nasional, dan peristiwa luar biasa lainnya di luar kendali wajar Pembuat Pernyataan.</p>
+               </div>
+            </div>
 
-           <div className="mt-12 flex justify-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="text-center w-64">
-                 <p className="text-xs mb-20 font-bold uppercase tracking-widest">{data.city}, {formatDate(data.date)}</p>
-                 <p className="font-black text-sm uppercase border-b-2 border-slate-900 inline-block pb-1">{data.nameKtp}</p>
-                 <p className="text-xs text-slate-400 mt-1">Pembuat Pernyataan</p>
-              </div>
-           </div>
-        </div>
-      );
-    }
+            {/* PASAL 8 */}
+            <div className="mb-4 text-justify break-inside-avoid">
+               <p className="font-bold mb-1 text-center mt-6">PASAL 8<br/>PENYELESAIAN SENGKETA DAN DOMISILI HUKUM</p>
+               <div className="flex gap-2">
+                  <span>1.</span>
+                  <p>Segala bentuk sengketa, perselisihan, atau perbedaan pendapat yang timbul akibat dari pelaksanaan atau penafsiran Surat Pernyataan ini akan diselesaikan mengutamakan: <strong>{data.disputeResolution}</strong>.</p>
+               </div>
+               <div className="flex gap-2 mt-1">
+                  <span>2.</span>
+                  <p>Apabila penyelesaian sebagaimana dimaksud pada ayat 1 tidak mencapai kesepakatan secara mufakat, maka Pembuat Pernyataan sepakat untuk memilih domisili hukum yang tetap dan umum di Kepaniteraan Pengadilan Negeri <strong>{data.city}</strong>.</p>
+               </div>
+            </div>
+
+            <p className="mt-8 indent-12 break-inside-avoid">
+               Demikian Akta Pernyataan dan Keterangan Beda Identitas ini dibuat pada hari ini, {formatDate(data.date)}, di {data.city}, dalam keadaan sadar, sehat jasmani dan rohani, serta dibubuhi meterai secukupnya sehingga memiliki kekuatan pembuktian yang sah di mata hukum.
+            </p>
+         </div>
+
+         {/* TANDA TANGAN */}
+         <div className="mt-12 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+            <p className="text-right mb-8">{data.city}, {formatDate(data.date)}</p>
+            
+            <div className="flex justify-between items-start mt-6">
+               <div className="text-center w-80">
+                  <p className="mb-6 font-bold uppercase text-[10pt] text-slate-700">Saksi-Saksi:</p>
+                  <div className="flex flex-col gap-10 text-left pl-4 mt-2">
+                     <div className="relative">
+                        <div className="flex items-end mb-1">
+                           <span className="w-6 font-bold">1.</span>
+                           <div className="border-b border-black w-48 pb-1 text-sm font-bold capitalize">{data.witness1Name}</div>
+                        </div>
+                        <div className="pl-6 text-[10px] text-slate-500">NIK: {data.witness1Nik}</div>
+                     </div>
+                     <div className="relative">
+                        <div className="flex items-end mb-1">
+                           <span className="w-6 font-bold">2.</span>
+                           <div className="border-b border-black w-48 pb-1 text-sm font-bold capitalize">{data.witness2Name}</div>
+                        </div>
+                        <div className="pl-6 text-[10px] text-slate-500">NIK: {data.witness2Nik}</div>
+                     </div>
+                  </div>
+               </div>
+
+               <div className="text-center w-64">
+                  <p className="mb-4 font-bold uppercase text-xs">Yang Membuat Pernyataan,</p>
+                  <div className="border border-slate-400 w-24 h-14 mx-auto mb-4 flex items-center justify-center text-[8px] text-slate-400 italic bg-slate-50">
+                     MATERAI<br/>10.000
+                  </div>
+                  <p className="font-bold underline uppercase text-sm mt-6">{data.name}</p>
+               </div>
+            </div>
+         </div>
+      </div>
+    );
   };
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* CSS PRINT FIXED */}
+      {/* CSS PRINT FIXED - NO GRID/TABLES FOR DOCUMENT CONTENT AS INSTRUCTED */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
+          @page { size: A4; margin: 20mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
@@ -293,79 +362,110 @@ function BedaNamaBuilder() {
                   <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
                </Link>
                <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Beda Nama <span className="text-emerald-400">Generator</span></h1></div>
+               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Legal <span className="text-emerald-400">Pernyataan Beda Nama</span></h1></div>
             </div>
             <div className="flex items-center gap-3">
-               {/* DESKTOP MENU */}
-               <div className="hidden md:flex relative">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
-                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Format Materai' : 'Format Modern'}</span><ChevronDown size={14} className="text-slate-500"/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* MOBILE MENU TRIGGER */}
-               <div className="relative md:hidden">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
-                    Template <ChevronDown size={14}/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
                <button 
                  onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
                >
-                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak Dokumen</span>
                </button>
             </div>
          </div>
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+         
          {/* EDITOR SIDEBAR */}
-         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+         <div className={`no-print w-full md:w-[450px] lg:w-[500px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Formulir</h2>
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Formulir Pernyataan</h2>
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:block print:overflow-visible print:bg-white">
+               
                {/* 1. IDENTITAS */}
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><UserCircle2 size={12}/> Identitas (Sesuai KTP)</h3>
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><UserCircle2 size={12}/> Pasal 1: Identitas (Sesuai KTP)</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nameKtp} onChange={e => handleDataChange('nameKtp', e.target.value)} /></div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap (KTP)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none uppercase" value={data.name} onChange={e => handleDataChange('name', e.target.value)} /></div>
                       <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Lahir</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.dateBirth} onChange={e => handleDataChange('dateBirth', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nomor Induk Kependudukan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pekerjaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.job} onChange={e => handleDataChange('job', e.target.value)} /></div>
                       </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tempat Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.placeBirth} onChange={e => handleDataChange('placeBirth', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pekerjaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.job} onChange={e => handleDataChange('job', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tempat Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.placeBirth} onChange={e => handleDataChange('placeBirth', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal Lahir</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.dateBirth} onChange={e => handleDataChange('dateBirth', e.target.value)} /></div>
+                      </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat Lengkap (Sesuai KTP)</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} /></div>
                   </div>
                </div>
 
-               {/* 2. DATA PERBEDAAN */}
+               {/* 2. DATA PERBEDAAN (OBJEK) */}
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><ShieldAlert size={12}/> Data Perbedaan</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Dokumen Pembanding</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Cth: Ijazah, KK, Akta" value={data.documentType} onChange={e => handleDataChange('documentType', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Salah/Beda (Tertulis di Dokumen)</label><input className="w-full px-3 py-2 border border-red-200 rounded-lg text-sm font-bold text-red-700 bg-red-50 focus:ring-2 focus:ring-red-500 outline-none" value={data.nameOnDoc} onChange={e => handleDataChange('nameOnDoc', e.target.value)} /></div>
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><FileWarning size={12}/> Pasal 2: Data Pada Dokumen Berbeda</h3>
+                  <div className="bg-red-50 p-4 rounded-2xl border border-red-200 shadow-sm space-y-3">
+                      <div className="grid grid-cols-[2fr_1fr] gap-3">
+                          <div className="space-y-1"><label className="text-[10px] font-bold text-red-600">Jenis Dokumen Berbeda</label><input className="w-full px-3 py-2 border border-red-200 rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" placeholder="Cth: Ijazah, Buku Nikah" value={data.documentType} onChange={e => handleDataChange('documentType', e.target.value)} /></div>
+                          <div className="space-y-1"><label className="text-[10px] font-bold text-red-600">Nomor Dokumen</label><input className="w-full px-3 py-2 border border-red-200 rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" placeholder="No Dokumen" value={data.docNumber} onChange={e => handleDataChange('docNumber', e.target.value)} /></div>
+                      </div>
+                      <div className="space-y-1"><label className="text-[10px] font-bold text-red-600">Nama (Yang Salah Tertulis di Dokumen)</label><input className="w-full px-3 py-2 border border-red-300 rounded-lg text-sm font-bold text-red-800 focus:ring-2 focus:ring-red-500 outline-none uppercase bg-white" value={data.wrongName} onChange={e => handleDataChange('wrongName', e.target.value)} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-red-600">Tempat Lahir (Salah)</label><input className="w-full px-3 py-2 border border-red-300 rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none bg-white" value={data.wrongPlaceBirth} onChange={e => handleDataChange('wrongPlaceBirth', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-red-600">Tgl Lahir (Salah)</label><input type="date" className="w-full px-3 py-2 border border-red-300 rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none bg-white" value={data.wrongDateBirth} onChange={e => handleDataChange('wrongDateBirth', e.target.value)} /></div>
+                      </div>
                   </div>
                </div>
 
-               {/* 3. KEPERLUAN & SAKSI */}
+               {/* 3. ALASAN & KEPERLUAN */}
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><FileText size={12}/> Penutup</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Untuk Keperluan</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} /></div>
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><ShieldAlert size={12}/> Pasal 4 & 5: Alasan & Keperluan</h3>
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                      <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-500">Alasan Perbedaan Terjadi</label>
+                          <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none bg-white" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)}>
+                              <option value="Kesalahan administrasi ketik oleh instansi penerbit">Kesalahan administrasi ketik oleh instansi penerbit</option>
+                              <option value="Perbedaan sistem ejaan lama dan baru (Soewandi/EYD)">Perbedaan sistem ejaan lama dan baru (Soewandi/EYD)</option>
+                              <option value="Pencantuman/penghilangan gelar akademik atau keagamaan">Pencantuman/penghilangan gelar akademik atau keagamaan</option>
+                              <option value="Penyesuaian akibat kekhilafan pelaporan data keluarga di masa lalu">Penyesuaian akibat kekhilafan pelaporan data keluarga</option>
+                          </select>
+                      </div>
+                      <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-500">Tujuan Surat Pernyataan Dibuat Untuk?</label>
+                          <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Cth: Persyaratan pengajuan kredit pemilikan rumah..." value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} />
+                      </div>
+                  </div>
+               </div>
+
+               {/* 4. SENGKETA & SAKSI */}
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Scale size={12}/> Sengketa, Saksi, & Tempat Tanggal</h3>
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                      <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-500">Penyelesaian Sengketa (Pasal 8)</label>
+                          <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none bg-white" value={data.disputeResolution} onChange={e => handleDataChange('disputeResolution', e.target.value)}>
+                              <option value="Kekeluargaan (Musyawarah untuk mufakat)">Kekeluargaan (Musyawarah untuk mufakat)</option>
+                              <option value="Mediasi hukum di luar pengadilan (Non-Litigasi)">Mediasi hukum (Non-Litigasi)</option>
+                              <option value="Arbitrase atau Pengadilan Negeri">Jalur Hukum (Litigasi)</option>
+                          </select>
+                      </div>
+                      
+                      <hr className="border-slate-100" />
+                      
                       <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Saksi 1</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness1} onChange={e => handleDataChange('witness1', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Saksi 2</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness2} onChange={e => handleDataChange('witness2', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Saksi 1</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness1Name} onChange={e => handleDataChange('witness1Name', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK Saksi 1</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness1Nik} onChange={e => handleDataChange('witness1Nik', e.target.value)} /></div>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Saksi 2</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness2Name} onChange={e => handleDataChange('witness2Name', e.target.value)} /></div>
+                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK Saksi 2</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.witness2Nik} onChange={e => handleDataChange('witness2Nik', e.target.value)} /></div>
+                      </div>
+
+                      <hr className="border-slate-100" />
+
+                      <div className="grid grid-cols-[1.5fr_1fr] gap-3">
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tempat Surat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} /></div>
                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal Surat</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
                       </div>
@@ -378,17 +478,18 @@ function BedaNamaBuilder() {
          {/* PREVIEW */}
          <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center print:block print:overflow-visible print:bg-white print:static">
              <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:block print:overflow-visible print:bg-white">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
-                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
+                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-100mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
+                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative border border-slate-300" style={{ width: '210mm', minHeight: '297mm', padding: '25mm' }}>
                       <ContentInside />
                    </div>
                 </div>
              </div>
          </div>
       </main>
+
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+         <PrintWrapper documentName="Akta_Pernyataan_Beda_Identitas" price={20000} />
       </div>
 
       {/* MOBILE NAV */}
@@ -399,12 +500,12 @@ function BedaNamaBuilder() {
 
       {/* PRINT PORTAL */}
       <div id="print-only-root" className="hidden print:h-auto print:static">
-         <table className="print-table">
+         <table className="print-table w-full">
             <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
             <tbody>
                <tr>
                   <td>
-                     <div className="print-content-wrapper">
+                     <div className="print-content-wrapper w-full">
                         <ContentInside />
                      </div>
                   </td>
@@ -417,5 +518,3 @@ function BedaNamaBuilder() {
     </div>
   );
 }
-
-// FORCE-HMR-UPDATE

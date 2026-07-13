@@ -1,442 +1,469 @@
-'use client';
+"use client";
 
-/**
- * FILE: CutiKuliahPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
- * DESC: Generator Surat Permohonan Cuti Akademik (Kuliah)
- * FEATURES:
- * - Dual Template (Surat Resmi vs Formulir)
- * - Auto Academic Year Format
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
- * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
- */
+import React, { useState, useEffect } from "react";
+import Head from "next/head";
+import {
+  FileText,
+  User,
+  Building2,
+  Calendar,
+  Eye,
+  Edit3,
+  MapPin,
+  GraduationCap
+} from "lucide-react";
+import PrintWrapper from "@/components/PrintWrapper";
 
-import { useState, useRef, Suspense, useEffect } from 'react';
-import { 
-  Printer, ArrowLeft, GraduationCap, Building2, UserCircle2, 
-  X, PenTool, ShieldCheck, CalendarClock, FileText, MapPin, 
-  LayoutTemplate, ChevronDown, Check, ArrowLeftCircle, Edit3, Eye, RotateCcw
-} from 'lucide-react';
-import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
-
-// --- 1. TYPE DEFINITIONS ---
-interface LeaveData {
-  city: string;
-  date: string;
-  
-  // Instansi
-  university: string;
-  faculty: string;
-  department: string;
-
-  // Data Mahasiswa
-  studentName: string;
-  studentId: string;
-  semester: string;
-  ipk: string;
-  address: string;
-  phone: string;
-  
-  // Detail Cuti
-  leaveDuration: string;
-  academicYear: string;
-  semesterType: string;
-  reason: string;
-
-  // Penandatangan
-  advisorName: string;
-  advisorNIP: string;
-  deanName: string;
-  deanNIP: string;
-}
-
-// --- 2. DATA DEFAULT ---
-const INITIAL_DATA: LeaveData = {
-  city: 'DENPASAR',
-  date: '', // Diisi useEffect
-  
-  university: 'UNIVERSITAS UDAYANA (UNUD)',
-  faculty: 'Fakultas Teknik',
-  department: 'Teknologi Informasi',
-
-  studentName: 'BAGUS RAMADHAN',
-  studentId: '2208561001',
-  semester: '4 (Empat)',
-  ipk: '3.75',
-  address: 'Jl. Kampus Unud, Jimbaran',
-  phone: '081234567890',
-  
-  leaveDuration: '1 (Satu) Semester',
-  academicYear: '2025/2026',
-  semesterType: 'Genap', 
-  reason: 'Fokus pada pemulihan kesehatan pasca operasi dan memerlukan waktu istirahat intensif sesuai anjuran dokter (Surat Keterangan Medis terlampir).',
-
-  advisorName: 'DR. I MADE WIRA, S.T., M.T.',
-  advisorNIP: '19800101 200501 1 001',
-  deanName: 'PROF. DR. IR. NYOMAN GEDE, M.T.',
-  deanNIP: '19700505 199503 1 002',
-};
-
-// --- 3. KOMPONEN UTAMA ---
-export default function CutiKuliahPage() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat Cuti...</div>}>
-      <LeaveBuilder />
-    </Suspense>
-  );
-}
-
-function LeaveBuilder() {
-  // --- STATE SYSTEM ---
+export default function SuratCutiAkademik() {
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [data, setData] = useState<LeaveData>(INITIAL_DATA);
+  
+  const [data, setData] = useState({
+    // Pihak Pertama (Mahasiswa)
+    pihak1Nama: "Andi Saputra",
+    pihak1NIK: "3171234567890001",
+    pihak1TTL: "Jakarta, 15 Agustus 2002",
+    pihak1Pekerjaan: "Mahasiswa",
+    pihak1Alamat: "Jl. Merdeka Raya No. 45, RT 003/RW 005, Kelurahan Kebon Melati, Kecamatan Tanah Abang, Jakarta Pusat",
+    pihak1NIM: "201011400234",
+    pihak1Prodi: "S1 Teknik Informatika",
+    pihak1Fakultas: "Fakultas Ilmu Komputer",
 
-  // Set Tanggal Hari Ini saat Mount
-  useEffect(() => {
-    setData(prev => ({ 
-        ...prev, 
-        date: new Date().toISOString().split('T')[0] 
-    }));
-  }, []);
+    // Pihak Kedua (Universitas/Fakultas)
+    pihak2Nama: "Prof. Dr. Budi Santoso, M.Kom.",
+    pihak2NIK: "197503121999031002",
+    pihak2TTL: "Bandung, 12 Maret 1975",
+    pihak2Jabatan: "Dekan Fakultas Ilmu Komputer",
+    pihak2Instansi: "Universitas Teknologi Nusantara",
+    pihak2Alamat: "Jl. Pendidikan No. 10, Kampus Terpadu, Jakarta Selatan",
 
-  // --- HANDLERS ---
-  const handleDataChange = (field: keyof LeaveData, val: string) => {
-    setData(prev => ({ ...prev, [field]: val }));
+    // Detail Cuti
+    semesterTujuan: "Ganjil",
+    tahunAkademik: "2024/2025",
+    lamaCuti: "1 (satu) Semester",
+    alasanCuti: "Kendala finansial dan keperluan penyembuhan medis secara intensif di luar kota",
+    tanggalMulai: "1 September 2024",
+    tanggalSelesai: "28 Februari 2025",
+
+    // Pengesahan
+    tempatDibuat: "Jakarta",
+    tanggalDibuat: "10 Agustus 2024",
+  });
+
+  const handleDataChange = (field: string, value: string) => {
+    setData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
-        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
-    }
-  };
+  const ContentInside = () => (
+    <div className="text-black font-serif text-[11pt] leading-snug">
+      <div className="text-center mb-6">
+         <h1 className="text-[13pt] font-bold uppercase underline">PERJANJIAN PELAKSANAAN CUTI AKADEMIK</h1>
+         <p className="text-[11pt]">Nomor: 045/UTN/CUTI/VIII/2024</p>
+      </div>
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Surat (Resmi)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Formulir (Modern)
-        </button>
+      <div className="mb-4">
+         <p className="text-justify mb-4">
+            Pada hari ini, tanggal <strong>{data.tanggalDibuat}</strong>, bertempat di <strong>{data.tempatDibuat}</strong>, yang bertanda tangan di bawah ini:
+         </p>
+
+         {/* Pihak Pertama */}
+         <div className="mb-4">
+            <p className="mb-1"><strong>1. PIHAK PERTAMA (MAHASISWA)</strong></p>
+            <div className="flex mb-1"><div className="w-[160px]">Nama Lengkap</div><div>: {data.pihak1Nama}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">NIK</div><div>: {data.pihak1NIK}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">Tempat, Tanggal Lahir</div><div>: {data.pihak1TTL}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">Pekerjaan</div><div>: {data.pihak1Pekerjaan}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">NIM</div><div>: {data.pihak1NIM}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">Program Studi</div><div>: {data.pihak1Prodi}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">Fakultas</div><div>: {data.pihak1Fakultas}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">Alamat</div><div className="flex-1 text-justify">: {data.pihak1Alamat}</div></div>
+            <p className="mt-2 text-justify">
+               Dalam hal ini bertindak untuk dan atas nama diri sendiri yang mengajukan permohonan cuti akademik, selanjutnya disebut sebagai <strong>PIHAK PERTAMA</strong>.
+            </p>
+         </div>
+
+         {/* Pihak Kedua */}
+         <div className="mb-4">
+            <p className="mb-1"><strong>2. PIHAK KEDUA (FAKULTAS / UNIVERSITAS)</strong></p>
+            <div className="flex mb-1"><div className="w-[160px]">Nama Lengkap</div><div>: {data.pihak2Nama}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">NIP / NIK</div><div>: {data.pihak2NIK}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">Tempat, Tanggal Lahir</div><div>: {data.pihak2TTL}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">Jabatan</div><div>: {data.pihak2Jabatan}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">Instansi</div><div>: {data.pihak2Instansi}</div></div>
+            <div className="flex mb-1"><div className="w-[160px]">Alamat Instansi</div><div className="flex-1 text-justify">: {data.pihak2Alamat}</div></div>
+            <p className="mt-2 text-justify">
+               Dalam hal ini bertindak dalam jabatannya tersebut, mewakili <strong>{data.pihak2Instansi}</strong>, selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong>.
+            </p>
+         </div>
+         
+         <p className="text-justify mb-4">
+            PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut sebagai <strong>PARA PIHAK</strong>. PARA PIHAK menerangkan terlebih dahulu bahwa telah bersepakat untuk mengikatkan diri dalam Perjanjian Pelaksanaan Cuti Akademik dengan syarat-syarat dan ketentuan-ketentuan sebagaimana tercantum dalam pasal-pasal berikut:
+         </p>
+      </div>
+
+      {/* Pasal 1 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 1<br/>DEFINISI DAN KETENTUAN UMUM</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">1.</span>
+               <strong>Cuti Akademik</strong> adalah status mahasiswa yang secara sah diizinkan oleh pihak universitas untuk tidak mengikuti kegiatan akademik dan non-akademik dalam jangka waktu tertentu.
+            </p>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">2.</span>
+               <strong>Semester</strong> adalah satuan waktu kegiatan akademik yang diselenggarakan oleh <strong>{data.pihak2Instansi}</strong>.
+            </p>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">3.</span>
+               <strong>Perjanjian</strong> adalah Perjanjian Pelaksanaan Cuti Akademik ini beserta seluruh lampiran dan perubahannya yang disepakati oleh PARA PIHAK.
+            </p>
+         </div>
+      </div>
+
+      {/* Pasal 2 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 2<br/>OBJEK PERJANJIAN</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">1.</span>
+               PIHAK PERTAMA mengajukan permohonan Cuti Akademik dan PIHAK KEDUA memberikan persetujuan atas permohonan tersebut untuk periode:
+            </p>
+            <div className="ml-6 mb-2">
+               <div className="flex mb-1"><div className="w-[150px]">Semester</div><div>: {data.semesterTujuan}</div></div>
+               <div className="flex mb-1"><div className="w-[150px]">Tahun Akademik</div><div>: {data.tahunAkademik}</div></div>
+               <div className="flex mb-1"><div className="w-[150px]">Lama Cuti</div><div>: {data.lamaCuti}</div></div>
+               <div className="flex mb-1"><div className="w-[150px]">Alasan Cuti</div><div className="flex-1">: {data.alasanCuti}</div></div>
+               <div className="flex mb-1"><div className="w-[150px]">Tanggal Mulai</div><div>: {data.tanggalMulai}</div></div>
+               <div className="flex mb-1"><div className="w-[150px]">Tanggal Selesai</div><div>: {data.tanggalSelesai}</div></div>
+            </div>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">2.</span>
+               Masa Cuti Akademik sebagaimana dimaksud pada Ayat 1 di atas tidak dihitung sebagai masa studi aktif PIHAK PERTAMA.
+            </p>
+         </div>
+      </div>
+
+      {/* Pasal 3 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 3<br/>HAK DAN KEWAJIBAN PIHAK PERTAMA</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">1.</span>
+               <strong>Hak PIHAK PERTAMA:</strong>
+            </p>
+            <div className="ml-6 mb-2">
+               <p className="mb-1 text-justify"><span className="inline-block w-6">a.</span>Mendapatkan Surat Keputusan atau Surat Persetujuan Cuti Akademik yang sah dari PIHAK KEDUA.</p>
+               <p className="mb-1 text-justify"><span className="inline-block w-6">b.</span>Mempertahankan statusnya sebagai mahasiswa terdaftar pada masa cuti berlangsung tanpa diwajibkan mengikuti perkuliahan.</p>
+               <p className="mb-1 text-justify"><span className="inline-block w-6">c.</span>Mengajukan permohonan pengaktifan kembali (herregistrasi) setelah masa cuti akademik berakhir.</p>
+            </div>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">2.</span>
+               <strong>Kewajiban PIHAK PERTAMA:</strong>
+            </p>
+            <div className="ml-6 mb-2">
+               <p className="mb-1 text-justify"><span className="inline-block w-6">a.</span>Melunasi seluruh biaya administrasi cuti akademik sesuai dengan ketentuan yang berlaku di <strong>{data.pihak2Instansi}</strong>.</p>
+               <p className="mb-1 text-justify"><span className="inline-block w-6">b.</span>Membebaskan PIHAK KEDUA dari segala tuntutan akademis selama masa cuti berlangsung.</p>
+               <p className="mb-1 text-justify"><span className="inline-block w-6">c.</span>Melakukan daftar ulang (herregistrasi) pada waktu yang telah ditetapkan sebelum masa perkuliahan semester berikutnya dimulai.</p>
+            </div>
+         </div>
+      </div>
+
+      {/* Pasal 4 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 4<br/>HAK DAN KEWAJIBAN PIHAK KEDUA</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">1.</span>
+               <strong>Hak PIHAK KEDUA:</strong>
+            </p>
+            <div className="ml-6 mb-2">
+               <p className="mb-1 text-justify"><span className="inline-block w-6">a.</span>Menerima pembayaran biaya administrasi cuti akademik dari PIHAK PERTAMA.</p>
+               <p className="mb-1 text-justify"><span className="inline-block w-6">b.</span>Menolak permohonan pengaktifan kembali apabila PIHAK PERTAMA melanggar ketentuan administrasi atau hukum yang berlaku.</p>
+            </div>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">2.</span>
+               <strong>Kewajiban PIHAK KEDUA:</strong>
+            </p>
+            <div className="ml-6 mb-2">
+               <p className="mb-1 text-justify"><span className="inline-block w-6">a.</span>Menerbitkan dokumen resmi tanda persetujuan Cuti Akademik untuk PIHAK PERTAMA.</p>
+               <p className="mb-1 text-justify"><span className="inline-block w-6">b.</span>Menjamin bahwa sistem informasi akademik memperbarui status PIHAK PERTAMA menjadi Cuti.</p>
+               <p className="mb-1 text-justify"><span className="inline-block w-6">c.</span>Memulihkan status aktif PIHAK PERTAMA setelah masa cuti berakhir dan prosedur herregistrasi diselesaikan.</p>
+            </div>
+         </div>
+      </div>
+
+      {/* Pasal 5 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 5<br/>BIAYA DAN ADMINISTRASI</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">1.</span>
+               Biaya administrasi yang timbul akibat pelaksanaan Cuti Akademik ini dibebankan sepenuhnya kepada PIHAK PERTAMA berdasarkan tarif yang berlaku.
+            </p>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">2.</span>
+               Selama menjalani Cuti Akademik, PIHAK PERTAMA dibebaskan dari kewajiban membayar Uang Kuliah Tunggal (UKT) atau Sumbangan Pembinaan Pendidikan (SPP) secara penuh, kecuali ditentukan lain oleh Peraturan Rektor atau kebijakan institusi yang berlaku.
+            </p>
+         </div>
+      </div>
+
+      {/* Pasal 6 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 6<br/>PROSEDUR PENGAKTIFAN KEMBALI</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">1.</span>
+               PIHAK PERTAMA wajib mengajukan permohonan pengaktifan kembali (herregistrasi) secara tertulis kepada PIHAK KEDUA selambat-lambatnya 14 (empat belas) hari kerja sebelum masa pengisian Kartu Rencana Studi (KRS) untuk semester aktif berikutnya.
+            </p>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">2.</span>
+               Apabila PIHAK PERTAMA tidak melakukan herregistrasi sampai dengan batas waktu yang ditentukan, maka PIHAK PERTAMA dapat dikategorikan sebagai mahasiswa mangkir atau mengundurkan diri sesuai dengan statuta <strong>{data.pihak2Instansi}</strong>.
+            </p>
+         </div>
+      </div>
+
+      {/* Pasal 7 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 7<br/>SANKSI</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">1.</span>
+               Apabila PIHAK PERTAMA terbukti memberikan alasan yang tidak benar, memalsukan dokumen, atau melakukan tindakan melanggar hukum selama masa cuti, PIHAK KEDUA berhak membatalkan persetujuan cuti ini dan menjatuhkan sanksi akademik yang tegas, termasuk pemecatan (Drop Out).
+            </p>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">2.</span>
+               Sanksi sebagaimana dimaksud pada Ayat 1 diberikan setelah melalui proses pemeriksaan oleh komite disiplin atau pihak berwenang di lingkungan <strong>{data.pihak2Instansi}</strong>.
+            </p>
+         </div>
+      </div>
+
+      {/* Pasal 8 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 8<br/>KEADAAN MEMAKSA (FORCE MAJEURE)</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">1.</span>
+               Yang dimaksud dengan Keadaan Memaksa (Force Majeure) adalah peristiwa di luar kekuasaan PARA PIHAK yang mengakibatkan tidak terlaksananya kewajiban dalam Perjanjian ini, seperti bencana alam, pandemi, kebakaran, perang, huru-hara, dan kebijakan pemerintah.
+            </p>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">2.</span>
+               Dalam hal terjadi Force Majeure, pihak yang mengalaminya harus memberitahukan secara tertulis kepada pihak lainnya selambat-lambatnya 7 (tujuh) hari setelah kejadian, untuk diselesaikan secara musyawarah.
+            </p>
+         </div>
+      </div>
+
+      {/* Pasal 9 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 9<br/>PENYELESAIAN SENGKETA</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">1.</span>
+               Setiap perselisihan yang timbul sebagai akibat dari penafsiran atau pelaksanaan Perjanjian ini akan diselesaikan oleh PARA PIHAK secara musyawarah untuk mufakat.
+            </p>
+            <p className="mb-2 text-justify">
+               <span className="inline-block w-6">2.</span>
+               Apabila musyawarah tidak mencapai mufakat, PARA PIHAK sepakat untuk menyelesaikannya sesuai dengan peraturan perundang-undangan yang berlaku di wilayah hukum Pengadilan Negeri setempat.
+            </p>
+         </div>
+      </div>
+      
+      {/* Pasal 10 */}
+      <div className="mb-4">
+         <h3 className="text-center font-bold mb-2">PASAL 10<br/>PENUTUP</h3>
+         <div className="ml-4">
+            <p className="mb-2 text-justify">
+               Demikian Perjanjian Pelaksanaan Cuti Akademik ini dibuat dan ditandatangani oleh PARA PIHAK dalam keadaan sadar, sehat jasmani dan rohani, tanpa ada unsur paksaan dari pihak manapun. Perjanjian ini dibuat dalam rangkap 2 (dua) yang masing-masing bermaterai cukup dan mempunyai kekuatan hukum yang mengikat.
+            </p>
+         </div>
+      </div>
+
+      {/* Tanda Tangan */}
+      <div className="mt-10 pb-10">
+         <div className="flex justify-between">
+            <div className="w-1/2 text-center">
+               <p><strong>PIHAK KEDUA</strong></p>
+               <p className="mb-24">{data.pihak2Jabatan}</p>
+               <p className="font-bold underline">{data.pihak2Nama}</p>
+               <p>NIP/NIK. {data.pihak2NIK}</p>
+            </div>
+            <div className="w-1/2 text-center">
+               <p>{data.tempatDibuat}, {data.tanggalDibuat}</p>
+               <p><strong>PIHAK PERTAMA</strong></p>
+               <p className="mb-24">{data.pihak1Pekerjaan}</p>
+               <p className="font-bold underline">{data.pihak1Nama}</p>
+               <p>NIM. {data.pihak1NIM}</p>
+            </div>
+         </div>
+      </div>
     </div>
   );
 
-  // --- KONTEN SURAT ---
-  const ContentInside = () => {
-    // FIX TIMEZONE DATE FORMATTER
-    const formatDate = (dateString: string) => {
-        if(!dateString) return '...';
-        try {
-            const safeDate = new Date(dateString + 'T00:00:00');
-            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
-        } catch { return dateString; }
-    };
-
-    if (templateId === 1) {
-      // --- TEMPLATE 1: FORMAL LETTER (Standard) ---
-      return (
-        <div className="font-serif text-[11pt] text-black leading-[1.6]">
-           
-           {/* HEADER TANGGAL */}
-           <div className="flex justify-between items-start mb-8">
-              <div>
-                 <p>Perihal: <b>Permohonan Cuti Akademik</b></p>
-                 <p>Lampiran: 1 (Satu) Berkas</p>
-              </div>
-              <div className="text-right">
-                 <p>{data.city}, {formatDate(data.date)}</p>
-              </div>
-           </div>
-
-           {/* TUJUAN */}
-           <div className="mb-8">
-              <p>Yth. <b>Bapak/Ibu Dekan {data.faculty}</b></p>
-              <p>{data.university}</p>
-              <p>Di Tempat</p>
-           </div>
-
-           <div className="space-y-4 text-justify px-1">
-              <p>Dengan hormat,</p>
-              <p>Saya yang bertanda tangan di bawah ini:</p>
-              
-              <div className="ml-6 space-y-1 break-inside-avoid">
-                 <table className="w-full text-[11pt]">
-                    <tbody>
-                       <tr><td className="w-36 align-top">Nama Lengkap</td><td className="w-4 align-top">:</td><td className="font-bold uppercase align-top">{data.studentName}</td></tr>
-                       <tr><td className="align-top">NIM</td><td className="align-top">:</td><td className="align-top">{data.studentId}</td></tr>
-                       <tr><td className="align-top">Prodi / Jurusan</td><td className="align-top">:</td><td className="align-top">{data.department}</td></tr>
-                       <tr><td className="align-top">Semester</td><td className="align-top">:</td><td className="align-top">{data.semester}</td></tr>
-                       <tr><td className="align-top">IPK Terakhir</td><td className="align-top">:</td><td className="font-bold align-top">{data.ipk}</td></tr>
-                       <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td className="align-top">{data.address}</td></tr>
-                       <tr><td className="align-top">No. HP</td><td className="align-top">:</td><td className="align-top">{data.phone}</td></tr>
-                    </tbody>
-                 </table>
-              </div>
-
-              <p className="break-inside-avoid">
-                 Dengan ini mengajukan permohonan Cuti Akademik selama <b>{data.leaveDuration}</b> pada Semester <b>{data.semesterType}</b> Tahun Akademik <b>{data.academicYear}</b>.
-              </p>
-              
-              <p className="break-inside-avoid">Adapun alasan saya mengajukan cuti akademik ini adalah:</p>
-              <div className="bg-slate-50/50 p-4 border-l-4 border-slate-400 italic text-justify rounded ml-4 break-inside-avoid">
-                 "{data.reason}"
-              </div>
-
-              <p className="break-inside-avoid">
-                 Sebagai bahan pertimbangan, saya lampirkan dokumen pendukung (KRS terakhir, Bukti Pembayaran UKT, dan Surat Keterangan Dokter/Pendukung lainnya). Saya berjanji akan aktif kuliah kembali setelah masa cuti berakhir.
-              </p>
-
-              <p className="indent-12 break-inside-avoid">Demikian surat permohonan ini saya sampaikan. Atas perhatian dan izin yang Bapak/Ibu berikan, saya ucapkan terima kasih.</p>
-           </div>
-
-           {/* TANDA TANGAN */}
-           <div className="shrink-0 mt-10 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <table className="w-full table-fixed text-[10pt]">
-                 <tbody>
-                    <tr className="text-center align-top">
-                       <td className="pb-24">Menyetujui,<br/>Dosen Pembimbing Akademik</td>
-                       <td className="pb-24">Hormat Saya,<br/>Mahasiswa Pemohon</td>
-                    </tr>
-                    <tr className="text-center font-bold align-bottom">
-                       <td>
-                          <p className="underline uppercase">{data.advisorName}</p>
-                          <p className="text-[9pt] font-normal">NIP. {data.advisorNIP}</p>
-                       </td>
-                       <td>
-                          <p className="underline uppercase">{data.studentName}</p>
-                          <p className="text-[9pt] font-normal">NIM. {data.studentId}</p>
-                       </td>
-                    </tr>
-                    <tr>
-                       <td colSpan={2} className="text-center pt-12">
-                          <p className="mb-24">Mengetahui,<br/>Dekan {data.faculty}</p>
-                          <p className="underline font-bold uppercase">{data.deanName}</p>
-                          <p className="text-[9pt]">NIP. {data.deanNIP}</p>
-                       </td>
-                    </tr>
-                 </tbody>
-              </table>
-           </div>
-        </div>
-      );
-    } else {
-      // --- TEMPLATE 2: FORMULIR (Modern) ---
-      return (
-        <div className="font-sans text-[11pt] text-slate-800 leading-snug">
-           <div className="text-center border-b-2 border-emerald-500 pb-4 mb-8">
-              <h1 className="text-xl font-black uppercase tracking-tight text-slate-900">FORMULIR PERMOHONAN CUTI AKADEMIK</h1>
-              <p className="text-sm font-bold text-emerald-600 uppercase mt-1">{data.university}</p>
-           </div>
-
-           <div className="space-y-6">
-              <div className="break-inside-avoid">
-                 <h3 className="text-xs font-black uppercase bg-slate-100 p-2 border-l-4 border-slate-900 mb-4 tracking-widest">A. Data Mahasiswa</h3>
-                 <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm px-2">
-                    <div className="space-y-2">
-                       <div className="grid grid-cols-[80px_10px_1fr]"><span>Nama</span><span>:</span><span className="font-bold uppercase">{data.studentName}</span></div>
-                       <div className="grid grid-cols-[80px_10px_1fr]"><span>NIM</span><span>:</span><span className="font-mono">{data.studentId}</span></div>
-                       <div className="grid grid-cols-[80px_10px_1fr]"><span>Fakultas</span><span>:</span><span>{data.faculty}</span></div>
-                       <div className="grid grid-cols-[80px_10px_1fr]"><span>Jurusan</span><span>:</span><span>{data.department}</span></div>
-                    </div>
-                    <div className="space-y-2">
-                       <div className="grid grid-cols-[80px_10px_1fr]"><span>Semester</span><span>:</span><span>{data.semester}</span></div>
-                       <div className="grid grid-cols-[80px_10px_1fr]"><span>IPK</span><span>:</span><span className="font-bold text-emerald-600">{data.ipk}</span></div>
-                       <div className="grid grid-cols-[80px_10px_1fr]"><span>No. HP</span><span>:</span><span>{data.phone}</span></div>
-                       <div className="grid grid-cols-[80px_10px_1fr]"><span>Alamat</span><span>:</span><span>{data.address}</span></div>
-                    </div>
-                 </div>
-              </div>
-
-              <div className="break-inside-avoid">
-                 <h3 className="text-xs font-black uppercase bg-slate-100 p-2 border-l-4 border-slate-900 mb-4 tracking-widest">B. Detail Permohonan</h3>
-                 <div className="px-2 space-y-4">
-                    <p className="text-sm">Saya mengajukan permohonan cuti akademik pada:</p>
-                    <div className="grid grid-cols-2 gap-6">
-                       <div className="border border-slate-300 p-3 rounded text-center bg-slate-50">
-                          <span className="text-xs text-slate-500 uppercase block font-bold mb-1">Tahun Akademik</span>
-                          <span className="font-black text-lg">{data.academicYear}</span>
-                       </div>
-                       <div className="border border-slate-300 p-3 rounded text-center bg-slate-50">
-                          <span className="text-xs text-slate-500 uppercase block font-bold mb-1">Semester</span>
-                          <span className="font-black text-lg uppercase">{data.semesterType}</span>
-                       </div>
-                    </div>
-                    
-                    <div>
-                        <p className="text-sm font-bold text-slate-500 mb-1 uppercase text-[9pt]">Alasan Pengajuan:</p>
-                        <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-lg italic text-sm text-justify text-slate-700">
-                           "{data.reason}"
-                        </div>
-                    </div>
-                 </div>
-              </div>
-
-              <div className="break-inside-avoid">
-                 <h3 className="text-xs font-black uppercase bg-slate-100 p-2 border-l-4 border-slate-900 mb-4 tracking-widest">C. Pernyataan</h3>
-                 <p className="px-2 text-justify text-sm italic text-slate-500 border-l-2 border-slate-300 pl-4">
-                    Saya menyatakan bahwa data di atas adalah benar. Saya bersedia menanggung segala konsekuensi akademik akibat cuti ini, termasuk perubahan masa studi saya di Universitas.
-                 </p>
-              </div>
-           </div>
-
-           <div className="mt-12 pt-6 border-t border-slate-200 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="flex justify-between text-center text-sm">
-                 <div className="w-1/3">
-                    <p className="mb-20 font-bold text-slate-500 uppercase text-[9pt]">Menyetujui,<br/>Dosen Wali</p>
-                    <p className="font-bold underline uppercase">{data.advisorName}</p>
-                    <p className="text-[10px] text-slate-400">NIP. {data.advisorNIP}</p>
-                 </div>
-                 <div className="w-1/3">
-                    <p className="mb-20 font-bold text-slate-500 uppercase text-[9pt]">Mengetahui,<br/>Dekan/Kaprodi</p>
-                    <p className="font-bold underline uppercase">{data.deanName}</p>
-                    <p className="text-[10px] text-slate-400">NIP. {data.deanNIP}</p>
-                 </div>
-                 <div className="w-1/3">
-                    <p className="mb-20 font-bold text-slate-500 uppercase text-[9pt]">{data.city}, {formatDate(data.date)}<br/>Mahasiswa</p>
-                    <p className="font-bold underline uppercase">{data.studentName}</p>
-                    <p className="text-[10px] text-slate-400">NIM. {data.studentId}</p>
-                 </div>
-              </div>
-           </div>
-        </div>
-      );
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
-      {/* CSS PRINT FIXED */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
-          .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
-          * { box-sizing: border-box !important; }
-        }
-      ` }} />
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      <Head>
+        <title>Surat Permohonan Cuti Akademik - LayananDokumen</title>
+      </Head>
 
-      {/* HEADER NAVY */}
-      <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
-         <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
-            <div className="flex items-center gap-4">
-               <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-800 rounded-full transition-all group">
-                  <ArrowLeftCircle size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors"/>
-                  <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
-               </Link>
-               <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Cuti Kuliah <span className="text-emerald-400">Generator</span></h1></div>
+      {/* HEADER */}
+      <header className="bg-white border-b border-slate-200 p-4 sticky top-0 z-40 shadow-sm flex items-center justify-between">
+         <div className="flex items-center gap-3">
+            <div className="bg-emerald-500 p-2 rounded-lg">
+               <FileText className="text-white" size={24} />
             </div>
-            <div className="flex items-center gap-3">
-               {/* DESKTOP MENU */}
-               <div className="hidden md:flex relative">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
-                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Format Surat (Resmi)' : 'Format Formulir (Modern)'}</span><ChevronDown size={14} className="text-slate-500"/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* MOBILE MENU TRIGGER */}
-               <div className="relative md:hidden">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
-                    Template <ChevronDown size={14}/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
-               <button 
-                 onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
-                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
-               >
-                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
-               </button>
+            <div>
+               <h1 className="text-xl font-black text-slate-800">Cuti Akademik</h1>
+               <p className="text-xs text-slate-500 font-medium">Perjanjian Pelaksanaan Cuti Akademik</p>
             </div>
          </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
-         {/* EDITOR SIDEBAR */}
-         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Formulir</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:block print:overflow-visible print:bg-white">
-               {/* 1. INSTANSI */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Kampus</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Universitas</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.university} onChange={e => handleDataChange('university', e.target.value)} /></div>
+      <main className="flex-1 flex flex-col md:flex-row relative print:block print:h-auto print:overflow-visible">
+         {/* EDITOR PANEL */}
+         <div className={`w-full md:w-[450px] bg-white border-r border-slate-200 overflow-y-auto custom-scrollbar md:block ${activeTab === 'editor' ? 'block' : 'hidden'} print:hidden relative z-10`}>
+            <div className="p-6 space-y-8">
+               
+               {/* 1. PIHAK PERTAMA */}
+               <div className="space-y-4">
+                  <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
+                     <User size={14}/> Pihak Pertama (Mahasiswa)
+                  </h3>
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Nama} onChange={e => handleDataChange('pihak1Nama', e.target.value)} />
+                      </div>
                       <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Fakultas</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.faculty} onChange={e => handleDataChange('faculty', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Prodi/Jurusan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.department} onChange={e => handleDataChange('department', e.target.value)} /></div>
+                         <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">NIK</label>
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1NIK} onChange={e => handleDataChange('pihak1NIK', e.target.value)} />
+                         </div>
+                         <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">NIM</label>
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1NIM} onChange={e => handleDataChange('pihak1NIM', e.target.value)} />
+                         </div>
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat, Tanggal Lahir</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1TTL} onChange={e => handleDataChange('pihak1TTL', e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Program Studi</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Prodi} onChange={e => handleDataChange('pihak1Prodi', e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Fakultas</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Fakultas} onChange={e => handleDataChange('pihak1Fakultas', e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Pekerjaan</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Pekerjaan} onChange={e => handleDataChange('pihak1Pekerjaan', e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Lengkap</label>
+                         <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm h-20 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Alamat} onChange={e => handleDataChange('pihak1Alamat', e.target.value)} />
                       </div>
                   </div>
                </div>
 
-               {/* 2. MAHASISWA */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><UserCircle2 size={12}/> Data Mahasiswa</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.studentName} onChange={e => handleDataChange('studentName', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIM</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-emerald-500 outline-none" value={data.studentId} onChange={e => handleDataChange('studentId', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">IPK</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.ipk} onChange={e => handleDataChange('ipk', e.target.value)} /></div>
+               {/* 2. PIHAK KEDUA */}
+               <div className="space-y-4">
+                  <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
+                     <Building2 size={14}/> Pihak Kedua (Universitas)
+                  </h3>
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap Pejabat</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Nama} onChange={e => handleDataChange('pihak2Nama', e.target.value)} />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Semester (cth: 4)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.semester} onChange={e => handleDataChange('semester', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">No. HP</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.phone} onChange={e => handleDataChange('phone', e.target.value)} /></div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">NIP / NIK</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2NIK} onChange={e => handleDataChange('pihak2NIK', e.target.value)} />
                       </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} /></div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat, Tanggal Lahir</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2TTL} onChange={e => handleDataChange('pihak2TTL', e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Jabatan} onChange={e => handleDataChange('pihak2Jabatan', e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Instansi (Nama Universitas)</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Instansi} onChange={e => handleDataChange('pihak2Instansi', e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Instansi</label>
+                         <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Alamat} onChange={e => handleDataChange('pihak2Alamat', e.target.value)} />
+                      </div>
                   </div>
                </div>
 
                {/* 3. DETAIL CUTI */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><CalendarClock size={12}/> Detail Cuti</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+               <div className="space-y-4">
+                  <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
+                     <GraduationCap size={14}/> Detail Cuti
+                  </h3>
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                       <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tahun Akademik</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.academicYear} onChange={e => handleDataChange('academicYear', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Semester (Ganjil/Genap)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.semesterType} onChange={e => handleDataChange('semesterType', e.target.value)} /></div>
+                         <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">Semester</label>
+                            <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white" value={data.semesterTujuan} onChange={e => handleDataChange('semesterTujuan', e.target.value)}>
+                               <option value="Ganjil">Ganjil</option>
+                               <option value="Genap">Genap</option>
+                            </select>
+                         </div>
+                         <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">Tahun Akademik</label>
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.tahunAkademik} onChange={e => handleDataChange('tahunAkademik', e.target.value)} />
+                         </div>
                       </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Durasi Cuti</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.leaveDuration} onChange={e => handleDataChange('leaveDuration', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alasan</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-20 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)} /></div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Lama Cuti</label>
+                         <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.lamaCuti} onChange={e => handleDataChange('lamaCuti', e.target.value)} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Mulai</label>
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.tanggalMulai} onChange={e => handleDataChange('tanggalMulai', e.target.value)} />
+                         </div>
+                         <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Selesai</label>
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.tanggalSelesai} onChange={e => handleDataChange('tanggalSelesai', e.target.value)} />
+                         </div>
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase">Alasan Cuti</label>
+                         <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm h-20 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.alasanCuti} onChange={e => handleDataChange('alasanCuti', e.target.value)} />
+                      </div>
                   </div>
                </div>
 
-               {/* 4. PEJABAT */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><ShieldCheck size={12}/> Dosen & Dekan</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Dosen Wali</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.advisorName} onChange={e => handleDataChange('advisorName', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP Dosen Wali</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.advisorNIP} onChange={e => handleDataChange('advisorNIP', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Dekan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.deanName} onChange={e => handleDataChange('deanName', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP Dekan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.deanNIP} onChange={e => handleDataChange('deanNIP', e.target.value)} /></div>
+               {/* 4. PENGESAHAN */}
+               <div className="space-y-4">
+                  <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
+                     <MapPin size={14}/> Waktu & Tempat
+                  </h3>
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Dibuat</label>
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.tempatDibuat} onChange={e => handleDataChange('tempatDibuat', e.target.value)} />
+                         </div>
+                         <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Dibuat</label>
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.tanggalDibuat} onChange={e => handleDataChange('tanggalDibuat', e.target.value)} />
+                         </div>
+                      </div>
                   </div>
                </div>
+
                <div className="h-20 md:hidden"></div>
             </div>
          </div>
 
-         {/* PREVIEW */}
-         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center print:block print:overflow-visible print:bg-white print:static">
-             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:block print:overflow-visible print:bg-white">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
+         {/* PREVIEW PANEL */}
+         <div className={`flex-1 bg-slate-200 relative overflow-hidden flex flex-col items-center md:block ${activeTab === 'preview' ? 'block' : 'hidden'} print:block print:overflow-visible print:bg-white print:static`}>
+             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:block print:overflow-visible print:bg-white print:p-0">
+                <div className="origin-top transition-transform duration-300 transform scale-[0.6] md:scale-100 mb-[-120mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                    <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                       <ContentInside />
                    </div>
@@ -444,20 +471,25 @@ function LeaveBuilder() {
              </div>
          </div>
       </main>
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+
+      {/* PRINT BUTTON / MONETIZATION */}
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 z-50">
+         <PrintWrapper documentName="Perjanjian Cuti Akademik" price={15000} />
       </div>
 
       {/* MOBILE NAV */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
-         <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900' : 'text-slate-400'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white' : 'text-slate-400'}`}><Eye size={16}/> Preview</button>
+         <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900' : 'text-slate-400'}`}>
+            <Edit3 size={16}/> Editor
+         </button>
+         <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white' : 'text-slate-400'}`}>
+            <Eye size={16}/> Preview
+         </button>
       </div>
 
-      {/* --- PRINT PORTAL --- */}
-      <div id="print-only-root" className="hidden print:h-auto print:static">
-         <table className="print-table">
+      {/* PRINT PORTAL */}
+      <div id="print-only-root" className="hidden print:block print:h-auto print:static">
+         <table className="print-table w-full">
             <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
             <tbody>
                <tr>
@@ -474,5 +506,3 @@ function LeaveBuilder() {
     </div>
   );
 }
-
-// FORCE-HMR-UPDATE

@@ -1,22 +1,10 @@
 'use client';
 
-/**
- * FILE: AhliWarisDesaPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
- * DESC: Generator Surat Keterangan Waris (Versi Desa/Kelurahan)
- * FEATURES: 
- * - Memory-leak safe Image Upload
- * - Timezone-safe Date Formatting
- * - Strict Print Media Break Handling
- * - Layout Tanda Tangan Hierarki
- * - Integrated Ad Banner Space & Saweria Donation Modal
- */
-
 import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, Users, Trash2, ShieldCheck, 
   Landmark, LayoutTemplate, ChevronDown, Edit3, 
-  Eye, ArrowLeftCircle, RotateCcw
+  Eye, ArrowLeftCircle, RotateCcw, FileText, Settings, UserPlus
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -24,83 +12,143 @@ import Link from 'next/link';
 import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
-interface Heir {
-  name: string;
-  age: string;
-  relation: string;
+interface Identity {
+  nama: string;
+  nik: string;
+  ttl: string;
+  pekerjaan: string;
+  alamat: string;
+  hubungan: string;
 }
 
-interface Witness {
-  name: string;
-  title: string;
+interface Pewaris {
+  nama: string;
+  nik: string;
+  tglMeninggal: string;
+  tempatMeninggal: string;
+  alamatTerakhir: string;
 }
 
-interface VillageData {
-  district: string;
-  village: string;
-  city: string;
-  villageAddress: string;
-  date: string;
-  docNo: string;
-  regKecamatan: string;
-  deceasedName: string;
-  deceasedNik: string;
-  deceasedDeathDate: string;
-  deceasedAge: string;
-  deceasedReligion: string;
-  deceasedAddress: string;
-  heirs: Heir[];
-  witnesses: Witness[];
-  villageHead: string;
-  villageHeadNip: string;
-  subDistrictHead: string;
-  subDistrictHeadNip: string;
+interface DocumentState {
+  // Kop Desa
+  kabupaten: string;
+  kecamatan: string;
+  desa: string;
+  alamatDesa: string;
+  noSuratDesa: string;
+  noRegKecamatan: string;
+  tanggalSurat: string;
+
+  // Pewaris
+  pewaris: Pewaris;
+
+  // Ahli Waris
+  pihakPertama: Identity;
+  pihakKedua: Identity;
+  ahliWarisLain: Identity[];
+
+  // Opsi Dinamis
+  metodePembagian: string;
+  penyelesaianPajak: string;
+  tanggunganHutang: string;
+
+  // Pejabat & Saksi
+  lurah: string;
+  nipLurah: string;
+  camat: string;
+  nipCamat: string;
+  saksi1: string;
+  saksi2: string;
 }
 
 // --- 2. DATA DEFAULT ---
-const INITIAL_DATA: VillageData = {
-  district: 'KECAMATAN MENTENG',
-  village: 'KELURAHAN MENTENG',
-  city: 'JAKARTA PUSAT',
-  villageAddress: 'Jl. Pegangsaan Barat No. 12, Jakarta Pusat, 10310',
-  date: '', 
-  
-  // Nomor Surat
-  docNo: '470 / 125 / 41.10.2 / 2026',
-  regKecamatan: '590 / 02 / I / 2026',
-  
-  // Data Almarhum
-  deceasedName: 'H. AHMAD JAYADI',
-  deceasedNik: '3171010101700001',
-  deceasedDeathDate: '2025-11-20',
-  deceasedAge: '65',
-  deceasedReligion: 'Islam',
-  deceasedAddress: 'Jl. Merdeka No. 45, RT 001/002, Kel. Menteng',
+const INITIAL_DATA: DocumentState = {
+  kabupaten: 'KABUPATEN BOGOR',
+  kecamatan: 'CIBINONG',
+  desa: 'KELURAHAN CIRIMEKAR',
+  alamatDesa: 'Jl. Pemda No. 10, Cibinong, Bogor 16915',
+  noSuratDesa: '470 / 123 / KEL-CRM / 2026',
+  noRegKecamatan: '590 / 045 / KEC-CBN / 2026',
+  tanggalSurat: '',
 
-  // Ahli Waris Default
-  heirs: [
-    { name: 'SITI AMINAH', age: '60', relation: 'Istri/Janda' },
-    { name: 'BUDI SETIAWAN', age: '35', relation: 'Anak Kandung' },
-    { name: 'ANI MARYANI', age: '30', relation: 'Anak Kandung' }
-  ],
+  pewaris: {
+    nama: 'H. AHMAD SYAFIUDDIN',
+    nik: '3201010101500001',
+    tglMeninggal: '2025-11-20',
+    tempatMeninggal: 'RSUD Cibinong',
+    alamatTerakhir: 'Jl. Mayor Oking No. 12, RT 01/02, Cirimekar, Cibinong'
+  },
 
-  // Saksi Default
-  witnesses: [
-      { name: 'BAPAK RT 001', title: 'Ketua RT 001' },
-      { name: 'BAPAK RW 002', title: 'Ketua RW 002' }
-  ],
+  pihakPertama: {
+    nama: 'BUDI SANTOSO',
+    nik: '3201010101800002',
+    ttl: 'Bogor, 15 Agustus 1980',
+    pekerjaan: 'Wiraswasta',
+    alamat: 'Jl. Mayor Oking No. 12, RT 01/02, Cirimekar, Cibinong',
+    hubungan: 'Anak Kandung Laki-laki'
+  },
+  pihakKedua: {
+    nama: 'SITI AMINAH',
+    nik: '3201010101850003',
+    ttl: 'Bogor, 20 Oktober 1985',
+    pekerjaan: 'Pegawai Negeri Sipil',
+    alamat: 'Jl. Mayor Oking No. 12, RT 01/02, Cirimekar, Cibinong',
+    hubungan: 'Anak Kandung Perempuan'
+  },
+  ahliWarisLain: [],
 
-  // Pejabat
-  villageHead: 'I WAYAN SUDIRTA, S.Sos',
-  villageHeadNip: '19700101 199003 1 005',
-  subDistrictHead: 'Drs. H. MULYONO, M.Si',
-  subDistrictHeadNip: '19680505 198803 1 002'
+  metodePembagian: 'dibagi_rata',
+  penyelesaianPajak: 'tanggung_renteng',
+  tanggunganHutang: 'bayar_dari_warisan',
+
+  lurah: 'Drs. H. MULYONO, M.Si',
+  nipLurah: '19700101 199003 1 005',
+  camat: 'I WAYAN SUDIRTA, S.Sos',
+  nipCamat: '19680505 198803 1 002',
+  saksi1: 'BAPAK RT 01',
+  saksi2: 'BAPAK RW 02'
 };
 
-// --- 3. KOMPONEN UTAMA ---
+// --- 3. HELPER COMPONENTS UNTUK FORM UI ---
+const Input = ({ label, value, onChange, type = 'text', placeholder = '' }: any) => (
+  <div className="space-y-1">
+    <label className="text-[10px] font-bold text-slate-500 uppercase">{label}</label>
+    <input type={type} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
+  </div>
+);
+
+const TextArea = ({ label, value, onChange, placeholder = '' }: any) => (
+  <div className="space-y-1">
+    <label className="text-[10px] font-bold text-slate-500 uppercase">{label}</label>
+    <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm h-20 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
+  </div>
+);
+
+const IdentityForm = ({ title, identity, onChange, onRemove }: any) => (
+  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative overflow-hidden group hover:border-emerald-300 transition-colors">
+     {onRemove && (
+        <button onClick={onRemove} className="absolute top-3 right-3 p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors">
+          <Trash2 size={14}/>
+        </button>
+     )}
+     <div className="text-xs font-black uppercase text-emerald-600 bg-emerald-50 inline-block px-3 py-1 rounded-md mb-2">{title}</div>
+     <Input label="Nama Lengkap" value={identity.nama} onChange={(v: string) => onChange('nama', v)} />
+     <div className="grid grid-cols-2 gap-3">
+        <Input label="NIK" value={identity.nik} onChange={(v: string) => onChange('nik', v)} />
+        <Input label="Tempat, Tgl Lahir" value={identity.ttl} onChange={(v: string) => onChange('ttl', v)} />
+     </div>
+     <div className="grid grid-cols-2 gap-3">
+        <Input label="Pekerjaan" value={identity.pekerjaan} onChange={(v: string) => onChange('pekerjaan', v)} />
+        <Input label="Hubungan dgn Pewaris" value={identity.hubungan} onChange={(v: string) => onChange('hubungan', v)} />
+     </div>
+     <TextArea label="Alamat Lengkap Sesuai KTP" value={identity.alamat} onChange={(v: string) => onChange('alamat', v)} />
+  </div>
+);
+
+// --- 4. KOMPONEN UTAMA ---
 export default function AhliWarisDesaPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat Desa...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Akta Ahli Waris...</div>}>
       <VillageHeirBuilder />
     </Suspense>
   );
@@ -109,23 +157,16 @@ export default function AhliWarisDesaPage() {
 function VillageHeirBuilder() {
   // --- STATE MANAGEMENT ---
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logo, setLogo] = useState<string | null>(null);
-
-  // Data State
-  const [data, setData] = useState<VillageData>(INITIAL_DATA);
+  const [data, setData] = useState<DocumentState>(INITIAL_DATA);
   
   // Effect: Set tanggal hari ini & Cleanup Logo Blob
   useEffect(() => {
     setData(prev => ({
       ...prev,
-      date: new Date().toISOString().split('T')[0]
+      tanggalSurat: new Date().toISOString().split('T')[0]
     }));
-
-    // Prevent memory leak on unmount
     return () => {
       if (logo) URL.revokeObjectURL(logo);
     };
@@ -135,42 +176,51 @@ function VillageHeirBuilder() {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (logo) URL.revokeObjectURL(logo); // Hapus memori blob lama
+      if (logo) URL.revokeObjectURL(logo);
       setLogo(URL.createObjectURL(file));
     }
   };
 
-  const handleDataChange = (field: keyof VillageData, val: string) => {
+  const handleDataChange = (field: keyof DocumentState, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
-  const updateHeir = (idx: number, field: keyof Heir, val: string) => {
-    const newHeirs = [...data.heirs];
-    newHeirs[idx] = { ...newHeirs[idx], [field]: val };
-    setData(prev => ({ ...prev, heirs: newHeirs }));
+  const updatePewaris = (field: keyof Pewaris, val: string) => {
+    setData(prev => ({ ...prev, pewaris: { ...prev.pewaris, [field]: val } }));
   };
 
-  const addHeir = () => {
-    setData(prev => ({ ...prev, heirs: [...prev.heirs, { name: '', age: '', relation: '' }] }));
-  };
-  
-  const removeHeir = (idx: number) => {
-    const arr = [...data.heirs]; 
-    arr.splice(idx, 1); 
-    setData(prev => ({ ...prev, heirs: arr }));
+  const updateIdentity = (target: 'pihakPertama' | 'pihakKedua', field: keyof Identity, val: string) => {
+    setData(prev => ({ ...prev, [target]: { ...prev[target], [field]: val } }));
   };
 
-  const updateWitness = (idx: number, field: keyof Witness, val: string) => {
-    const newWits = [...data.witnesses];
-    newWits[idx] = { ...newWits[idx], [field]: val };
-    setData(prev => ({ ...prev, witnesses: newWits }));
+  const updateAhliWarisLain = (index: number, field: keyof Identity, val: string) => {
+    setData(prev => {
+      const arr = [...prev.ahliWarisLain];
+      arr[index] = { ...arr[index], [field]: val };
+      return { ...prev, ahliWarisLain: arr };
+    });
+  };
+
+  const addAhliWarisLain = () => {
+    setData(prev => ({
+      ...prev,
+      ahliWarisLain: [...prev.ahliWarisLain, { nama: '', nik: '', ttl: '', pekerjaan: '', alamat: '', hubungan: '' }]
+    }));
+  };
+
+  const removeAhliWarisLain = (index: number) => {
+    setData(prev => {
+      const arr = [...prev.ahliWarisLain];
+      arr.splice(index, 1);
+      return { ...prev, ahliWarisLain: arr };
+    });
   };
 
   const handleReset = () => {
     if(window.confirm('Apakah Anda yakin ingin mereset semua data ke awal? Data yang sudah diketik akan hilang.')) {
         setData({
             ...INITIAL_DATA, 
-            date: new Date().toISOString().split('T')[0]
+            tanggalSurat: new Date().toISOString().split('T')[0]
         });
         if (logo) {
             URL.revokeObjectURL(logo);
@@ -179,201 +229,276 @@ function VillageHeirBuilder() {
     }
   };
 
-  // --- TEMPLATE MENU ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Dinas (Resmi)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Format Modern (Simpel)
-        </button>
-    </div>
-  );
+  const getPartyName = (index: number) => {
+    const names = ['PERTAMA', 'KEDUA', 'KETIGA', 'KEEMPAT', 'KELIMA', 'KEENAM', 'KETUJUH', 'KEDELAPAN', 'KESEMBILAN', 'KESEPULUH'];
+    return names[index] || `KE-${index + 1}`;
+  };
 
-  // --- KONTEN SURAT ---
+  // --- KONTEN SURAT (PRINT LAYOUT) ---
   const ContentInside = () => {
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
         try {
-            // Append T00:00:00 untuk mencegah UTC offset bug
             const safeDate = new Date(dateString + 'T00:00:00');
             return safeDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         } catch (e) { return dateString; }
     };
 
-    if (templateId === 1) {
-      // === TEMPLATE 1: DINAS RESMI ===
-      return (
-        <div className="font-serif text-[11pt] text-black leading-[1.5]">
-           {/* KOP SURAT */}
-           <div className="flex items-center border-b-[3px] border-double border-black pb-4 mb-6 text-center relative">
-              {logo && <img src={logo} className="w-24 h-24 object-contain absolute left-0 top-0 grayscale" alt="Logo Instansi" />}
-              <div className="flex-grow px-12">
-                 <h3 className="text-[12pt] font-bold uppercase tracking-wide">PEMERINTAH KABUPATEN/KOTA {data.city}</h3>
-                 <h2 className="text-[14pt] font-black uppercase tracking-wider">{data.district}</h2>
-                 <h1 className="text-[16pt] font-black uppercase underline tracking-widest">{data.village}</h1>
-                 <p className="text-[9pt] font-sans mt-1 italic">{data.villageAddress}</p>
-              </div>
-           </div>
+    // Helper komponen untuk Print agar bebas Grid/Table
+    const IdentityRow = ({ label, value }: { label: string, value: string }) => (
+      <div className="flex mb-1.5 leading-snug break-inside-avoid">
+        <div className="w-[180px] shrink-0 font-medium">{label}</div>
+        <div className="w-4 shrink-0">:</div>
+        <div className="flex-1 font-bold uppercase">{value}</div>
+      </div>
+    );
 
-           <div className="text-center mb-8">
-              <h2 className="text-[13pt] font-bold underline uppercase">SURAT KETERANGAN AHLI WARIS</h2>
-              <p className="text-[11pt]">Nomor: {data.docNo}</p>
-           </div>
+    const ClauseItem = ({ num, text }: { num: string, text: React.ReactNode }) => (
+      <div className="flex mb-3 leading-relaxed break-inside-avoid">
+        <div className="w-8 shrink-0 font-bold">{num}.</div>
+        <div className="flex-1 text-justify">{text}</div>
+      </div>
+    );
 
-           <div className="text-justify px-1">
-              <p className="mb-4 indent-12">Yang bertanda tangan di bawah ini Lurah/Kepala Desa <strong>{data.village}</strong>, Kecamatan {data.district}, {data.city}, dengan ini menerangkan bahwa pada tanggal <strong>{formatDate(data.deceasedDeathDate)}</strong> telah meninggal dunia:</p>
-              
-              <div className="ml-8 mb-6 font-sans text-[11pt] break-inside-avoid">
-                 <table className="w-full">
-                    <tbody>
-                       <tr><td className="w-[150px] align-top py-1">Nama Almarhum</td><td className="align-top py-1 px-2">:</td><td className="font-bold uppercase align-top py-1">{data.deceasedName}</td></tr>
-                       <tr><td className="align-top py-1">NIK</td><td className="align-top py-1 px-2">:</td><td className="align-top py-1">{data.deceasedNik}</td></tr>
-                       <tr><td className="align-top py-1">Umur / Agama</td><td className="align-top py-1 px-2">:</td><td className="align-top py-1">{data.deceasedAge} Tahun / {data.deceasedReligion}</td></tr>
-                       <tr><td className="align-top py-1">Alamat Terakhir</td><td className="align-top py-1 px-2">:</td><td className="align-top py-1">{data.deceasedAddress}</td></tr>
-                    </tbody>
-                 </table>
-              </div>
-
-              <p className="mb-4 indent-12 break-inside-avoid">Berdasarkan Surat Keterangan Kematian dan data kependudukan yang ada, Almarhum/ah meninggalkan Ahli Waris yang sah sebagai berikut:</p>
-
-              <table className="w-full border-collapse border border-black mb-6 font-sans text-[10pt]">
-                 <thead className="bg-slate-100 uppercase font-bold text-center">
-                    <tr>
-                       <th className="border border-black p-2 w-10">No</th>
-                       <th className="border border-black p-2 text-left">Nama Lengkap</th>
-                       <th className="border border-black p-2 w-16">Umur</th>
-                       <th className="border border-black p-2 w-32">Hubungan</th>
-                       <th className="border border-black p-2 w-40">Tanda Tangan</th>
-                    </tr>
-                 </thead>
-                 <tbody>
-                    {data.heirs.map((heir, i) => (
-                       <tr key={i} className="break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-                          <td className="border border-black p-2 text-center">{i + 1}.</td>
-                          <td className="border border-black p-2 font-bold uppercase">{heir.name}</td>
-                          <td className="border border-black p-2 text-center">{heir.age} Thn</td>
-                          <td className="border border-black p-2 text-center">{heir.relation}</td>
-                          <td className="border border-black p-2 relative text-[9pt] italic align-middle">
-                             <div className="h-8 flex items-center text-slate-800">
-                               <span className={i % 2 === 0 ? "mr-auto pl-2" : "ml-auto pr-2"}>{i + 1}. ...........</span>
-                             </div>
-                          </td>
-                       </tr>
-                    ))}
-                 </tbody>
-              </table>
-
-              <p className="indent-12 mb-4">Demikian Surat Keterangan Waris ini dibuat dengan sebenarnya dan apabila dikemudian hari keterangan ini tidak benar, maka kami para ahli waris dan saksi bersedia dituntut sesuai hukum yang berlaku.</p>
-           </div>
-
-           {/* TANDA TANGAN (Strict Break Avoid) */}
-           <div className="mt-8 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="flex justify-between items-start mb-8">
-                 <div className="w-[45%] text-center">
-                    <p className="font-bold underline mb-4 text-[10pt]">SAKSI - SAKSI :</p>
-                    <div className="space-y-8 text-left pl-8">
-                        {data.witnesses.map((w, i) => (
-                            <div key={i} className="break-inside-avoid">
-                                <div className="flex items-end gap-2 mb-1">
-                                    <span className="font-bold">{i+1}. {w.name}</span>
-                                </div>
-                                <div className="border-b border-black w-[80%] mb-1"></div>
-                                <p className="text-[9pt] italic">({w.title})</p>
-                            </div>
-                        ))}
-                    </div>
-                 </div>
-
-                 <div className="w-[45%] text-center">
-                    <p className="mb-2">{data.city.split(' ').pop()}, {formatDate(data.date)}</p>
-                    <p className="font-bold uppercase mb-20">LURAH / KEPALA DESA</p>
-                    <p className="font-bold underline uppercase text-[11pt]">{data.villageHead}</p>
-                    <p className="text-[10pt]">NIP. {data.villageHeadNip}</p>
-                 </div>
-              </div>
-
-              <div className="flex justify-center mt-4">
-                 <div className="text-center w-[50%] relative">
-                     <p className="mb-1">Mengetahui,</p>
-                     <p className="font-bold uppercase mb-20">CAMAT {data.district}</p>
-                     <p className="font-bold underline uppercase text-[11pt]">{data.subDistrictHead}</p>
-                     <p className="text-[10pt]">NIP. {data.subDistrictHeadNip}</p>
-                     <div className="mt-2 text-[9pt] italic text-slate-800">
-                         No. Reg Kecamatan: <strong>{data.regKecamatan}</strong>
-                     </div>
-                 </div>
-              </div>
-           </div>
+    const Article = ({ title, subtitle, children }: { title: string, subtitle: string, children: React.ReactNode }) => (
+      <div className="mb-6 break-inside-avoid">
+        <div className="text-center font-bold mb-4">
+          <p className="text-[12pt]">{title}</p>
+          <p className="uppercase text-[11pt]">{subtitle}</p>
         </div>
-      );
-    } else {
-      // === TEMPLATE 2: MODERN CLEAN ===
-      return (
-        <div className="font-sans text-[11pt] text-slate-800 leading-relaxed">
-           <div className="border-b-2 border-emerald-600 pb-4 mb-8 flex justify-between items-end">
-              <div>
-                 <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">SURAT KETERANGAN WARIS</h1>
-                 <p className="text-emerald-600 font-bold uppercase tracking-widest text-xs">Pemerintah {data.village}</p>
-              </div>
-              <div className="text-right"><p className="text-xs font-mono bg-slate-100 px-2 py-1 rounded">No: {data.docNo}</p></div>
-           </div>
-           
-           <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-6 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 border-b pb-1">Data Almarhum</h3>
-              <div className="grid grid-cols-[120px_1fr] gap-1.5">
-                 <span className="text-slate-500">Nama</span><span className="font-bold uppercase">{data.deceasedName}</span>
-                 <span className="text-slate-500">Tgl Wafat</span><span>{formatDate(data.deceasedDeathDate)}</span>
-                 <span className="text-slate-500">Alamat</span><span>{data.deceasedAddress}</span>
-              </div>
-           </div>
+        <div className="px-2">
+          {children}
+        </div>
+      </div>
+    );
 
-           <div className="mb-8">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 border-b pb-1 break-inside-avoid">Ahli Waris Sah</h3>
-              <div className="space-y-3">
-                 {data.heirs.map((heir, idx) => (
-                    <div key={idx} className="flex items-center justify-between bg-white border border-slate-100 p-3 rounded-lg shadow-sm break-inside-avoid">
-                       <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">{idx+1}</div>
-                          <div><p className="font-bold uppercase text-sm">{heir.name}</p><p className="text-xs text-slate-500">{heir.age} Tahun</p></div>
+    // Dynamic Texts Resolution
+    let metodeText = '';
+    if(data.metodePembagian === 'dibagi_rata') metodeText = "dibagi rata kepada seluruh ahli waris secara proporsional sesuai dengan ketentuan hukum kewarisan yang berlaku.";
+    else if(data.metodePembagian === 'kuasa_jual') metodeText = "dijual dan dicairkan terlebih dahulu, untuk kemudian hasil bersih (nett) dari pencairan atau penjualan tersebut dibagikan kepada seluruh ahli waris secara merata.";
+    else metodeText = "dikuasakan dan diserahkan pengelolaannya secara penuh kepada PIHAK PERTAMA sebagai perwakilan tunggal untuk mengurus dan membagikannya sesuai kebijaksanaan internal keluarga.";
+
+    let pajakText = '';
+    if(data.penyelesaianPajak === 'tanggung_renteng') pajakText = "ditanggung renteng (bersama-sama) oleh PARA PIHAK secara proporsional menggunakan dana pribadi sebelum proses peralihan hak kewarisan didaftarkan.";
+    else pajakText = "dipotong secara langsung dari nilai harta peninggalan (baik dari saldo tabungan maupun hasil penjualan aset) sebelum sisa bersihnya dibagikan kepada PARA PIHAK.";
+
+    let hutangText = '';
+    if(data.tanggunganHutang === 'bayar_dari_warisan') hutangText = "diselesaikan serta dibayarkan terlebih dahulu menggunakan harta peninggalan Pewaris sebelum adanya pembagian hak kepada PARA PIHAK.";
+    else hutangText = "menjadi tanggung jawab mutlak PARA PIHAK secara pribadi dan ditanggung secara proporsional, tanpa mengurangi nilai pokok harta peninggalan secara langsung.";
+
+    return (
+       <div className="font-serif text-[11pt] text-black leading-snug">
+          {/* KOP SURAT */}
+          <div className="flex items-center border-b-[3px] border-double border-black pb-4 mb-6 text-center relative break-inside-avoid">
+             {logo && <img src={logo} className="w-24 h-24 object-contain absolute left-0 top-0 grayscale" alt="Logo Instansi" />}
+             <div className="flex-grow px-12">
+                <h3 className="text-[12pt] font-bold uppercase tracking-wide">PEMERINTAH {data.kabupaten}</h3>
+                <h2 className="text-[14pt] font-black uppercase tracking-wider">KECAMATAN {data.kecamatan}</h2>
+                <h1 className="text-[16pt] font-black uppercase underline tracking-widest">{data.desa}</h1>
+                <p className="text-[10pt] font-sans mt-1 italic">{data.alamatDesa}</p>
+             </div>
+          </div>
+
+          {/* JUDUL */}
+          <div className="text-center mb-8 break-inside-avoid">
+             <h2 className="text-[14pt] font-bold underline uppercase tracking-wide">AKTA PERNYATAAN DAN KESEPAKATAN AHLI WARIS</h2>
+             <p className="text-[11pt]">Nomor Desa: {data.noSuratDesa}</p>
+             <p className="text-[11pt]">Nomor Register Kecamatan: {data.noRegKecamatan}</p>
+          </div>
+
+          {/* PEMBUKAAN */}
+          <div className="text-justify mb-4">
+             <p className="mb-4">
+               Pada hari ini, dengan penuh kesadaran dan tanpa paksaan dari pihak manapun, kami yang bertanda tangan di bawah ini:
+             </p>
+          </div>
+
+          {/* PARA PIHAK */}
+          <div className="pl-4 space-y-4 mb-6">
+             <div className="flex break-inside-avoid">
+                <div className="w-8 shrink-0 font-bold">I.</div>
+                <div className="flex-1">
+                   <IdentityRow label="Nama Lengkap" value={data.pihakPertama.nama} />
+                   <IdentityRow label="NIK" value={data.pihakPertama.nik} />
+                   <IdentityRow label="Tempat, Tgl Lahir" value={data.pihakPertama.ttl} />
+                   <IdentityRow label="Pekerjaan" value={data.pihakPertama.pekerjaan} />
+                   <IdentityRow label="Hubungan dgn Pewaris" value={data.pihakPertama.hubungan} />
+                   <IdentityRow label="Alamat Lengkap" value={data.pihakPertama.alamat} />
+                   <div className="mt-2 text-justify">
+                     Untuk selanjutnya dalam dokumen ini disebut sebagai <strong>PIHAK PERTAMA</strong>.
+                   </div>
+                </div>
+             </div>
+             <div className="flex break-inside-avoid">
+                <div className="w-8 shrink-0 font-bold">II.</div>
+                <div className="flex-1">
+                   <IdentityRow label="Nama Lengkap" value={data.pihakKedua.nama} />
+                   <IdentityRow label="NIK" value={data.pihakKedua.nik} />
+                   <IdentityRow label="Tempat, Tgl Lahir" value={data.pihakKedua.ttl} />
+                   <IdentityRow label="Pekerjaan" value={data.pihakKedua.pekerjaan} />
+                   <IdentityRow label="Hubungan dgn Pewaris" value={data.pihakKedua.hubungan} />
+                   <IdentityRow label="Alamat Lengkap" value={data.pihakKedua.alamat} />
+                   <div className="mt-2 text-justify">
+                     Untuk selanjutnya dalam dokumen ini disebut sebagai <strong>PIHAK KEDUA</strong>.
+                   </div>
+                </div>
+             </div>
+             {data.ahliWarisLain.map((ahli, idx) => {
+                const numeral = ['III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'][idx] || (idx+3).toString();
+                return (
+                 <div key={idx} className="flex break-inside-avoid mt-4">
+                    <div className="w-8 shrink-0 font-bold">{numeral}.</div>
+                    <div className="flex-1">
+                       <IdentityRow label="Nama Lengkap" value={ahli.nama} />
+                       <IdentityRow label="NIK" value={ahli.nik} />
+                       <IdentityRow label="Tempat, Tgl Lahir" value={ahli.ttl} />
+                       <IdentityRow label="Pekerjaan" value={ahli.pekerjaan} />
+                       <IdentityRow label="Hubungan dgn Pewaris" value={ahli.hubungan} />
+                       <IdentityRow label="Alamat Lengkap" value={ahli.alamat} />
+                       <div className="mt-2 text-justify">
+                         Untuk selanjutnya disebut sebagai <strong>PIHAK {getPartyName(idx + 2)}</strong>.
                        </div>
-                       <div className="text-right"><span className="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{heir.relation}</span></div>
                     </div>
-                 ))}
-              </div>
-           </div>
-           
-           <div className="mt-12 pt-8 border-t border-slate-200 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-               <div className="grid grid-cols-3 gap-4 text-center items-end">
-                   <div>
-                       <p className="text-xs font-bold text-slate-400 uppercase mb-8">Saksi - Saksi</p>
-                       <div className="space-y-4">
-                           {data.witnesses.map((w,i) => (
-                               <div key={i} className="border-b border-slate-200 pb-1 break-inside-avoid"><p className="text-xs font-bold">{w.name}</p></div>
-                           ))}
-                       </div>
-                   </div>
-                   <div>
-                       <p className="text-xs font-bold text-slate-400 uppercase mb-20">Mengetahui (Camat)</p>
-                       <p className="font-bold underline uppercase">{data.subDistrictHead}</p>
-                   </div>
-                   <div>
-                       <p className="text-xs font-bold text-slate-400 uppercase mb-20">Lurah / Kades</p>
-                       <p className="font-bold underline uppercase">{data.villageHead}</p>
-                   </div>
+                 </div>
+                )
+             })}
+          </div>
+
+          <div className="text-justify mb-6 break-inside-avoid">
+             <p className="mb-4">
+               PIHAK PERTAMA, PIHAK KEDUA{data.ahliWarisLain.length > 0 ? ' beserta pihak-pihak lainnya' : ''} secara bersama-sama selanjutnya disebut sebagai <strong>PARA PIHAK</strong> (Segenap Ahli Waris).
+             </p>
+             <p className="mb-4">
+               PARA PIHAK dengan ini menerangkan dan menyatakan dengan sumpah/janji yang sungguh-sungguh bahwa:
+             </p>
+          </div>
+
+          {/* PEWARIS */}
+          <div className="pl-4 space-y-2 mb-6 break-inside-avoid border border-black p-4">
+             <IdentityRow label="Nama Almarhum" value={data.pewaris.nama} />
+             <IdentityRow label="NIK" value={data.pewaris.nik} />
+             <IdentityRow label="Tanggal Meninggal" value={formatDate(data.pewaris.tglMeninggal)} />
+             <IdentityRow label="Tempat Meninggal" value={data.pewaris.tempatMeninggal} />
+             <IdentityRow label="Alamat Terakhir" value={data.pewaris.alamatTerakhir} />
+          </div>
+
+          <div className="text-justify mb-8 break-inside-avoid">
+             <p className="indent-8 mb-4">
+               Bahwa almarhum tersebut di atas (selanjutnya disebut <strong>Pewaris</strong>) telah meninggal dunia secara sah, dan PARA PIHAK sepakat untuk menuangkan kesepakatan kewarisan dengan syarat-syarat dan ketentuan sebagaimana tertuang dalam pasal-pasal berikut:
+             </p>
+          </div>
+
+          {/* PASAL-PASAL */}
+          <Article title="PASAL 1" subtitle="DEFINISI DAN KEDUDUKAN PARA PIHAK">
+             <ClauseItem num="1" text="Pewaris adalah individu sebagaimana identitasnya diuraikan di atas yang telah wafat dan meninggalkan ahli waris yang sah secara hukum serta harta peninggalan." />
+             <ClauseItem num="2" text="PARA PIHAK secara mutlak dan sah diakui sebagai ahli waris sedarah dan/atau karena perkawinan yang berhak penuh atas segala harta peninggalan serta wajib bertanggung jawab atas segala kewajiban yang melekat pada Pewaris semasa hidupnya." />
+             <ClauseItem num="3" text="Keterangan kewarisan ini dikuatkan, disaksikan, dan diketahui oleh Pejabat Pemerintahan setempat berdasarkan bukti-bukti kependudukan dan keterangan saksi-saksi yang sah." />
+          </Article>
+
+          <Article title="PASAL 2" subtitle="OBJEK WARISAN DAN KETERANGAN KEMATIAN">
+             <ClauseItem num="1" text={<span>Bahwa Pewaris telah meninggal dunia pada tanggal <strong>{formatDate(data.pewaris.tglMeninggal)}</strong> bertempat di <strong>{data.pewaris.tempatMeninggal}</strong>.</span>} />
+             <ClauseItem num="2" text="Bahwa adapun Objek Warisan yang ditinggalkan meliputi seluruh harta bergerak maupun tidak bergerak, tabungan, serta hak-hak lain yang bernilai ekonomis yang terdaftar atas nama Pewaris." />
+             <ClauseItem num="3" text="Bahwa Surat Keterangan ini dibuat sebagai dasar hukum formal untuk proses peralihan hak, pencairan dana perbankan, dan/atau pengurusan balik nama sertifikat hak milik atas nama Pewaris kepada Para Ahli Waris." />
+          </Article>
+
+          <Article title="PASAL 3" subtitle="HAK DAN KEWAJIBAN AHLI WARIS">
+             <ClauseItem num="1" text="PARA PIHAK selaku Ahli Waris berhak menerima secara utuh bagian dari harta peninggalan Pewaris tanpa terkecuali sesuai porsinya." />
+             <ClauseItem num="2" text="PARA PIHAK berkewajiban untuk menyelesaikan segala administrasi hukum dan menjaga keutuhan harta warisan sebelum dilakukan pembagian secara definitif." />
+             <ClauseItem num="3" text="Hak-hak pewarisan tersebut baru dapat dieksekusi secara final setelah seluruh kewajiban Pewaris telah dipenuhi sepenuhnya." />
+          </Article>
+
+          <Article title="PASAL 4" subtitle="METODE PEMBAGIAN WARISAN DAN PENYELESAIAN PAJAK">
+             <ClauseItem num="1" text={<span>Bahwa PARA PIHAK sepakat secara bulat untuk menerapkan metode penyelesaian dan pembagian warisan dengan cara: <strong>{metodeText}</strong></span>} />
+             <ClauseItem num="2" text={<span>Segala bentuk kewajiban beban Pajak Bumi dan Bangunan (PBB), Pajak Penghasilan (PPh), maupun Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB) Waris yang timbul, disepakati untuk diselesaikan dengan cara: <strong>{pajakText}</strong></span>} />
+             <ClauseItem num="3" text={<span>Apabila di kemudian hari terbukti adanya tagihan utang piutang Pewaris kepada pihak ketiga, maka penyelesaiannya disepakati akan: <strong>{hutangText}</strong></span>} />
+          </Article>
+
+          <Article title="PASAL 5" subtitle="PEMBEBASAN TUNTUTAN HUKUM (INDEMNIFIKASI)">
+             <ClauseItem num="1" text="PARA PIHAK menyatakan bahwa seluruh keterangan yang diberikan mengenai silsilah keluarga dan susunan ahli waris adalah benar dan dapat dipertanggungjawabkan di muka hukum." />
+             <ClauseItem num="2" text="Apabila di kemudian hari terdapat pihak lain yang mengaku sebagai ahli waris dan dapat membuktikan haknya secara sah di Pengadilan, maka PARA PIHAK sepenuhnya membebaskan Pejabat Desa/Kelurahan dan Kecamatan dari segala bentuk tuntutan hukum, baik perdata maupun pidana." />
+             <ClauseItem num="3" text="Segala kerugian materil maupun immateril yang timbul akibat ketidakbenaran keterangan ini sepenuhnya menjadi tanggung jawab mutlak PARA PIHAK secara tanggung renteng." />
+          </Article>
+
+          <Article title="PASAL 6" subtitle="PENYELESAIAN SENGKETA">
+             <ClauseItem num="1" text="Segala perbedaan pendapat dan/atau sengketa yang timbul dalam pelaksanaan Akta Kesepakatan ini akan diselesaikan secara musyawarah untuk mufakat secara kekeluargaan." />
+             <ClauseItem num="2" text="Apabila musyawarah mufakat tidak tercapai dalam tenggang waktu 30 (tiga puluh) hari kalender, maka PARA PIHAK sepakat untuk menyelesaikannya melalui jalur hukum yang berlaku dan memilih domisili hukum yang tetap di Kepaniteraan Pengadilan Negeri setempat." />
+          </Article>
+
+          <Article title="PASAL 7" subtitle="KETENTUAN LAIN-LAIN">
+             <ClauseItem num="1" text="Surat Pernyataan dan Kesepakatan Ahli Waris ini berlaku sah dan mengikat sejak ditandatangani oleh PARA PIHAK dan diketahui serta disahkan oleh Pejabat berwenang setempat." />
+             <ClauseItem num="2" text="Hal-hal yang belum atau tidak cukup diatur dalam kesepakatan ini akan dibicarakan lebih lanjut oleh PARA PIHAK secara musyawarah dalam adendum yang tidak terpisahkan dari dokumen ini." />
+          </Article>
+
+          <Article title="PASAL 8" subtitle="PENUTUP DAN PENGESAHAN">
+             <ClauseItem num="1" text="Demikian Surat Pernyataan dan Kesepakatan Ahli Waris ini dibuat, disetujui, dan ditandatangani oleh PARA PIHAK dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya unsur paksaan, penipuan, atau tekanan dari pihak manapun." />
+             <ClauseItem num="2" text="Dokumen ini dicetak dan ditandatangani di atas meterai yang cukup, sehingga memiliki kekuatan hukum pembuktian yang sempurna, serta diregister secara resmi di tingkat Pemerintahan Desa/Kelurahan dan Kecamatan setempat." />
+          </Article>
+
+          {/* TANDA TANGAN */}
+          <div className="mt-12 break-inside-avoid">
+             <div className="text-center mb-8">
+               <p>Dibuat dan ditandatangani di: <strong>{data.kabupaten.replace('KABUPATEN ', '').replace('KOTA ', '')}</strong></p>
+               <p>Pada tanggal: <strong>{formatDate(data.tanggalSurat)}</strong></p>
+             </div>
+             
+             <p className="font-bold text-center mb-8 underline uppercase">PARA PIHAK / AHLI WARIS</p>
+             
+             <div className="flex flex-wrap justify-center gap-y-12">
+               <div className="w-1/2 text-center px-4">
+                 <p className="font-bold mb-20">PIHAK {getPartyName(0)}</p>
+                 <p className="font-bold underline uppercase">{data.pihakPertama.nama}</p>
                </div>
-           </div>
-        </div>
-      );
-    }
+               <div className="w-1/2 text-center px-4">
+                 <p className="font-bold mb-20">PIHAK {getPartyName(1)}</p>
+                 <p className="font-bold underline uppercase">{data.pihakKedua.nama}</p>
+               </div>
+               {data.ahliWarisLain.map((ahli, idx) => (
+                 <div key={idx} className="w-1/2 text-center px-4 mt-8">
+                   <p className="font-bold mb-20">PIHAK {getPartyName(idx + 2)}</p>
+                   <p className="font-bold underline uppercase">{ahli.nama}</p>
+                 </div>
+               ))}
+             </div>
+          </div>
+
+          <div className="mt-16 break-inside-avoid">
+             <p className="font-bold text-center mb-8 underline uppercase">SAKSI - SAKSI</p>
+             <div className="flex flex-wrap justify-center gap-y-12">
+                <div className="w-1/2 text-center px-4">
+                   <p className="mb-20">Saksi I</p>
+                   <p className="font-bold underline uppercase">{data.saksi1}</p>
+                </div>
+                <div className="w-1/2 text-center px-4">
+                   <p className="mb-20">Saksi II</p>
+                   <p className="font-bold underline uppercase">{data.saksi2}</p>
+                </div>
+             </div>
+          </div>
+
+          <div className="mt-16 break-inside-avoid border-t-2 border-black pt-8">
+             <p className="text-center text-[12pt] font-bold uppercase mb-12">MENGETAHUI DAN MENGESAHKAN</p>
+             <div className="flex flex-wrap justify-between">
+               <div className="w-[45%] text-center">
+                  <p className="mb-2 font-mono text-[9pt]">Reg Kec: {data.noRegKecamatan}</p>
+                  <p className="font-bold uppercase mb-24">CAMAT {data.kecamatan}</p>
+                  <p className="font-bold underline uppercase">{data.camat}</p>
+                  <p className="text-[10pt]">NIP. {data.nipCamat}</p>
+               </div>
+               <div className="w-[45%] text-center">
+                  <p className="mb-2 font-mono text-[9pt]">Reg Desa: {data.noSuratDesa}</p>
+                  <p className="font-bold uppercase mb-24">LURAH/KEPALA DESA {data.desa.replace('KELURAHAN ', '').replace('DESA ', '')}</p>
+                  <p className="font-bold underline uppercase">{data.lurah}</p>
+                  <p className="text-[10pt]">NIP. {data.nipLurah}</p>
+               </div>
+             </div>
+          </div>
+
+       </div>
+    );
   };
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
       {/* === CSS PRINT FIXED === */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
@@ -396,32 +521,15 @@ function VillageHeirBuilder() {
                   <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
                </Link>
                <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Surat Desa <span className="text-emerald-400">Generator</span></h1></div>
+               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Akta Waris <span className="text-emerald-400">Desa</span></h1></div>
             </div>
             
             <div className="flex items-center gap-3">
-               {/* DESKTOP MENU */}
-               <div className="hidden md:flex relative">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
-                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Format Dinas' : 'Format Modern'}</span><ChevronDown size={14} className="text-slate-500"/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* MOBILE MENU TRIGGER */}
-               <div className="relative md:hidden">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
-                    Template <ChevronDown size={14}/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
                <button 
                  onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
                >
-                 <Printer size={18}/> <span className="hidden sm:inline">Cetak / PDF</span>
+                 <Printer size={18}/> <span className="hidden sm:inline">Cetak Dokumen</span>
                </button>
             </div>
          </div>
@@ -429,94 +537,115 @@ function VillageHeirBuilder() {
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
          {/* SIDEBAR EDITOR */}
-         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+         <div className={`no-print w-full md:w-[460px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Surat</h2>
+                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Akta Waris</h2>
                 <button onClick={handleReset} title="Reset Data" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:block print:overflow-visible print:bg-white">
+               
                {/* 1. KOP SURAT */}
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Landmark size={12}/> Kop Pemerintah Desa</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="flex gap-4 items-center">
-                        <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 bg-slate-50 shrink-0 relative overflow-hidden group">
-                           {logo ? <img src={logo} className="w-full h-full object-contain p-1" alt="Logo" /> : <div className="text-[8px] text-center text-slate-400 font-bold">LOGO<br/>GARUDA</div>}
-                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[8px] font-bold">UBAH</div>
-                           <input type="file" id="logo-upload" aria-label="Upload Logo" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
-                        </div>
-                        <div className="flex-1 space-y-2">
-                           <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.district} onChange={e => handleDataChange('district', e.target.value)} placeholder="Kecamatan..." />
-                           <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.village} onChange={e => handleDataChange('village', e.target.value)} placeholder="Desa/Kelurahan..." />
-                        </div>
-                     </div>
-                     <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kabupaten/Kota..." />
-                     <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.villageAddress} onChange={e => handleDataChange('villageAddress', e.target.value)} placeholder="Alamat Kantor..." />
-                  </div>
+                 <h3 className="text-[11px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Landmark size={14}/> 1. Instansi & Registrasi</h3>
+                 <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div className="flex gap-4 items-center">
+                       <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 bg-slate-50 shrink-0 relative overflow-hidden group">
+                          {logo ? <img src={logo} className="w-full h-full object-contain p-1" alt="Logo" /> : <div className="text-[8px] text-center text-slate-400 font-bold">LOGO<br/>KOP</div>}
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[8px] font-bold">UBAH</div>
+                          <input type="file" id="logo-upload" aria-label="Upload Logo" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
+                       </div>
+                       <div className="flex-1 space-y-2">
+                          <Input label="Kabupaten/Kota" value={data.kabupaten} onChange={(v: string) => handleDataChange('kabupaten', v)} />
+                          <Input label="Kecamatan" value={data.kecamatan} onChange={(v: string) => handleDataChange('kecamatan', v)} />
+                       </div>
+                    </div>
+                    <Input label="Desa/Kelurahan" value={data.desa} onChange={(v: string) => handleDataChange('desa', v)} />
+                    <TextArea label="Alamat Kantor Desa" value={data.alamatDesa} onChange={(v: string) => handleDataChange('alamatDesa', v)} />
+                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+                       <Input label="No. Surat Desa" value={data.noSuratDesa} onChange={(v: string) => handleDataChange('noSuratDesa', v)} />
+                       <Input label="No. Reg Kecamatan" value={data.noRegKecamatan} onChange={(v: string) => handleDataChange('noRegKecamatan', v)} />
+                    </div>
+                    <Input type="date" label="Tanggal Surat" value={data.tanggalSurat} onChange={(v: string) => handleDataChange('tanggalSurat', v)} />
+                 </div>
                </div>
 
-               {/* 2. DATA ALMARHUM */}
+               {/* 2. DATA PEWARIS */}
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><ShieldCheck size={12}/> Data Almarhum</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.deceasedName} onChange={e => handleDataChange('deceasedName', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.deceasedNik} onChange={e => handleDataChange('deceasedNik', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Wafat</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.deceasedDeathDate} onChange={e => handleDataChange('deceasedDeathDate', e.target.value)} /></div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Umur (Thn)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.deceasedAge} onChange={e => handleDataChange('deceasedAge', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Agama</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.deceasedReligion} onChange={e => handleDataChange('deceasedReligion', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat Terakhir</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.deceasedAddress} onChange={e => handleDataChange('deceasedAddress', e.target.value)} /></div>
-                  </div>
+                 <h3 className="text-[11px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><FileText size={14}/> 2. Data Pewaris</h3>
+                 <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                     <Input label="Nama Almarhum" value={data.pewaris.nama} onChange={(v: string) => updatePewaris('nama', v)} />
+                     <div className="grid grid-cols-2 gap-3">
+                        <Input label="NIK" value={data.pewaris.nik} onChange={(v: string) => updatePewaris('nik', v)} />
+                        <Input type="date" label="Tgl Wafat" value={data.pewaris.tglMeninggal} onChange={(v: string) => updatePewaris('tglMeninggal', v)} />
+                     </div>
+                     <Input label="Tempat Meninggal" value={data.pewaris.tempatMeninggal} onChange={(v: string) => updatePewaris('tempatMeninggal', v)} />
+                     <TextArea label="Alamat Terakhir Sesuai KTP" value={data.pewaris.alamatTerakhir} onChange={(v: string) => updatePewaris('alamatTerakhir', v)} />
+                 </div>
                </div>
 
                {/* 3. AHLI WARIS */}
                <div className="space-y-3">
-                  <div className="flex justify-between items-end px-1"><h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><Users size={12}/> Ahli Waris</h3><button onClick={addHeir} className="text-[10px] font-bold bg-white border border-emerald-200 text-emerald-600 px-3 py-1 rounded-full hover:bg-emerald-50 shadow-sm transition-all active:scale-95">+ Tambah</button></div>
-                  <div className="space-y-3">
-                     {data.heirs.map((h, idx) => (
-                        <div key={idx} className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative group hover:border-emerald-400 transition-all">
-                           <button onClick={() => removeHeir(idx)} className="absolute top-2 right-2 text-slate-300 hover:text-red-500 p-1" aria-label="Hapus Ahli Waris"><Trash2 size={14}/></button>
-                           <input className="w-full p-1.5 border-b border-slate-200 text-xs font-bold bg-transparent mb-2 focus:outline-none focus:border-emerald-500 uppercase" placeholder="Nama Lengkap..." value={h.name} onChange={e => updateHeir(idx, 'name', e.target.value)} />
-                           <div className="grid grid-cols-[80px_1fr] gap-3">
-                              <input className="w-full p-1.5 border-b border-slate-200 text-xs bg-transparent focus:outline-none focus:border-emerald-500" placeholder="Umur..." value={h.age} onChange={e => updateHeir(idx, 'age', e.target.value)} />
-                              <input className="w-full p-1.5 border-b border-slate-200 text-xs bg-transparent focus:outline-none focus:border-emerald-500" placeholder="Hubungan..." value={h.relation} onChange={e => updateHeir(idx, 'relation', e.target.value)} />
-                           </div>
-                        </div>
-                     ))}
-                  </div>
+                 <h3 className="text-[11px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Users size={14}/> 3. Para Pihak (Ahli Waris)</h3>
+                 
+                 <IdentityForm title="PIHAK PERTAMA" identity={data.pihakPertama} onChange={(field: keyof Identity, val: string) => updateIdentity('pihakPertama', field, val)} />
+                 <IdentityForm title="PIHAK KEDUA" identity={data.pihakKedua} onChange={(field: keyof Identity, val: string) => updateIdentity('pihakKedua', field, val)} />
+                 
+                 {data.ahliWarisLain.map((ahli, idx) => (
+                     <IdentityForm key={idx} title={`PIHAK ${getPartyName(idx + 2)}`} identity={ahli} onChange={(field: keyof Identity, val: string) => updateAhliWarisLain(idx, field, val)} onRemove={() => removeAhliWarisLain(idx)} />
+                 ))}
+
+                 <button onClick={addAhliWarisLain} className="w-full flex justify-center items-center gap-2 py-3 border-2 border-dashed border-emerald-300 text-emerald-600 rounded-xl hover:bg-emerald-50 font-bold text-sm transition-colors">
+                    <UserPlus size={16}/> Tambah Ahli Waris Lain
+                 </button>
                </div>
 
-               {/* 4. LEGALITAS */}
+               {/* 4. KLAUSUL DINAMIS */}
                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><LayoutTemplate size={12}/> Legalitas & Pejabat</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">No. Surat Desa</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Reg. Kecamatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.regKecamatan} onChange={e => handleDataChange('regKecamatan', e.target.value)} /></div>
-                      </div>
-                      <div className="pt-2 border-t border-dashed border-slate-200 space-y-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lurah/Kades</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.villageHead} onChange={e => handleDataChange('villageHead', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP Lurah</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.villageHeadNip} onChange={e => handleDataChange('villageHeadNip', e.target.value)} /></div>
-                      </div>
-                      <div className="pt-2 border-t border-dashed border-slate-200 space-y-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Camat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.subDistrictHead} onChange={e => handleDataChange('subDistrictHead', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIP Camat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.subDistrictHeadNip} onChange={e => handleDataChange('subDistrictHeadNip', e.target.value)} /></div>
-                      </div>
-                      
-                      <div className="pt-2 border-t border-dashed border-slate-200 space-y-2">
-                         <label className="text-[10px] font-bold text-slate-500">Saksi (RT/RW)</label>
-                         {data.witnesses.map((w, idx) => (
-                            <div key={idx} className="flex gap-2">
-                               <input className="flex-1 p-2 border border-slate-200 rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={w.name} onChange={e => updateWitness(idx, 'name', e.target.value)} placeholder="Nama Saksi" />
-                               <input className="w-24 p-2 border border-slate-200 rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={w.title} onChange={e => updateWitness(idx, 'title', e.target.value)} placeholder="Jabatan" />
-                            </div>
-                         ))}
-                      </div>
-                  </div>
+                 <h3 className="text-[11px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Settings size={14}/> 4. Pengaturan Klausul</h3>
+                 <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div>
+                       <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Metode Pembagian Warisan</label>
+                       <select className="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 outline-none focus:border-emerald-500" value={data.metodePembagian} onChange={e => handleDataChange('metodePembagian', e.target.value)}>
+                          <option value="dibagi_rata">Dibagi Rata Secara Hukum</option>
+                          <option value="kuasa_jual">Dijual dan Hasil Dibagi Rata</option>
+                          <option value="hibah_satu_pihak">Dikuasakan Penuh Ke Pihak Pertama</option>
+                       </select>
+                    </div>
+                    <div>
+                       <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Penyelesaian Pajak Waris</label>
+                       <select className="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 outline-none focus:border-emerald-500" value={data.penyelesaianPajak} onChange={e => handleDataChange('penyelesaianPajak', e.target.value)}>
+                          <option value="tanggung_renteng">Ditanggung Renteng oleh Ahli Waris</option>
+                          <option value="potong_warisan">Dipotong Langsung dari Harta</option>
+                       </select>
+                    </div>
+                    <div>
+                       <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Tanggungan Hutang Pewaris</label>
+                       <select className="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 outline-none focus:border-emerald-500" value={data.tanggunganHutang} onChange={e => handleDataChange('tanggunganHutang', e.target.value)}>
+                          <option value="bayar_dari_warisan">Dibayarkan dari Harta Peninggalan</option>
+                          <option value="tanggung_pribadi">Menjadi Tanggung Jawab Pribadi Ahli Waris</option>
+                       </select>
+                    </div>
+                 </div>
+               </div>
+
+               {/* 5. PEJABAT & SAKSI */}
+               <div className="space-y-3">
+                 <h3 className="text-[11px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><ShieldCheck size={14}/> 5. Pejabat & Saksi</h3>
+                 <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                     <div className="grid grid-cols-2 gap-3">
+                        <Input label="Nama Saksi 1" value={data.saksi1} onChange={(v: string) => handleDataChange('saksi1', v)} />
+                        <Input label="Nama Saksi 2" value={data.saksi2} onChange={(v: string) => handleDataChange('saksi2', v)} />
+                     </div>
+                     <div className="border-t border-slate-100 pt-3 grid grid-cols-2 gap-3">
+                        <Input label="Nama Lurah/Kades" value={data.lurah} onChange={(v: string) => handleDataChange('lurah', v)} />
+                        <Input label="NIP Lurah" value={data.nipLurah} onChange={(v: string) => handleDataChange('nipLurah', v)} />
+                     </div>
+                     <div className="border-t border-slate-100 pt-3 grid grid-cols-2 gap-3">
+                        <Input label="Nama Camat" value={data.camat} onChange={(v: string) => handleDataChange('camat', v)} />
+                        <Input label="NIP Camat" value={data.nipCamat} onChange={(v: string) => handleDataChange('nipCamat', v)} />
+                     </div>
+                 </div>
                </div>
                
                {/* Spacer Bawah */}
@@ -535,9 +664,10 @@ function VillageHeirBuilder() {
              </div>
          </div>
       </main>
+      
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+         <PrintWrapper documentName="Akta_Ahli_Waris" price={15000} />
       </div>
 
       {/* MOBILE NAV */}
@@ -548,12 +678,12 @@ function VillageHeirBuilder() {
 
       {/* PRINT PORTAL */}
       <div id="print-only-root" className="hidden print:h-auto print:static">
-         <table className="print-table">
+         <table className="print-table w-full">
             <thead><tr><td><div style={{ height: '15mm' }}>&nbsp;</div></td></tr></thead>
             <tbody>
                <tr>
                   <td>
-                     <div className="print-content-wrapper">
+                     <div className="print-content-wrapper max-w-full">
                         <ContentInside />
                      </div>
                   </td>
@@ -566,5 +696,3 @@ function VillageHeirBuilder() {
     </div>
   );
 }
-
-// FORCE-HMR-UPDATE

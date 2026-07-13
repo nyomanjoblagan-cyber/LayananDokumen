@@ -2,65 +2,70 @@
 
 /**
  * FILE: NonBantuanPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Keterangan Tidak Menerima Bantuan Sosial (Non-Bansos)
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
+ * STATUS: PRODUCTION READY (FULL LEGAL DRAFTING ENTERPRISE)
+ * DESC: Generator Surat Perjanjian Deklarasi Mutlak Status Non-Bansos/Beasiswa dengan format Hukum Korporat/Notaris
  */
 
-import { useState, Suspense, useEffect, useRef } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Building2, UserCircle2, 
-  FileWarning, LayoutTemplate, X, ShieldCheck, PenTool, Ban,
-  ChevronDown, Check, Edit3, Eye, ImagePlus, RotateCcw, ArrowLeftCircle
+  Printer, ArrowLeftCircle, Building2, UserCircle2, 
+  LayoutTemplate, ChevronDown, Check, Edit3, RotateCcw,
+  Gavel, PenTool, Scale
 } from 'lucide-react';
 import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
-interface NonBansosData {
-  city: string;
-  date: string;
-  docNo: string;
-  
-  // Instansi
-  issuerOffice: string;
-  villageHead: string;
-  villageJob: string;
-  
-  // Warga
-  name: string;
-  nik: string;
-  placeBirth: string;
-  dateBirth: string;
-  job: string;
-  address: string;
-  
-  // Isi
-  statementBody: string;
-  purpose: string;
+interface LegalData {
+  // Pihak 1 (Declarant)
+  pihak1Nama: string;
+  pihak1Nik: string;
+  pihak1TempatLahir: string;
+  pihak1TanggalLahir: string;
+  pihak1Pekerjaan: string;
+  pihak1Alamat: string;
+
+  // Pihak 2 (Institution / Pejabat)
+  pihak2Nama: string;
+  pihak2Nik: string;
+  pihak2TempatLahir: string;
+  pihak2TanggalLahir: string;
+  pihak2Pekerjaan: string;
+  pihak2Alamat: string;
+
+  // Lainnya
+  kategoriBantuan: string;
+  instansiTujuan: string;
+  periodeBerlaku: string;
+  metodePemeriksaan: string;
+  sanksiPelanggaran: string;
+  kotaPembuatan: string;
+  tanggalPembuatan: string;
 }
 
 // --- 2. DATA DEFAULT ---
-const INITIAL_DATA: NonBansosData = {
-  city: 'DENPASAR',
-  date: '', 
-  docNo: '470/05/I/2026',
-  
-  issuerOffice: 'PEMERINTAH KOTA DENPASAR\nKECAMATAN DENPASAR UTARA\nDESA PEMECUTAN KAJA',
-  villageHead: 'I NYOMAN GEDE, S.E.',
-  villageJob: 'Perbekel Pemecutan Kaja',
-  
-  name: 'BAGUS RAMADHAN',
-  nik: '5171010101990001',
-  placeBirth: 'Denpasar',
-  dateBirth: '1999-12-25',
-  job: 'Buruh Harian Lepas',
-  address: 'Jl. Ahmad Yani No. 100, Denpasar Utara',
-  
-  statementBody: 'Nama tersebut di atas adalah benar warga kami yang berdomisili di alamat tersebut. Berdasarkan pendataan kami, yang bersangkutan benar-benar BELUM PERNAH/TIDAK SEDANG menerima bantuan sosial apapun dari Pemerintah (PKH, BPNT, BST, maupun bantuan sosial lainnya).',
-  purpose: 'Persyaratan pengajuan beasiswa pendidikan.'
+const INITIAL_DATA: LegalData = {
+  pihak1Nama: 'BIMA ARYA MAHENDRA',
+  pihak1Nik: '3201012345678901',
+  pihak1TempatLahir: 'Bogor',
+  pihak1TanggalLahir: '2001-08-15',
+  pihak1Pekerjaan: 'Mahasiswa',
+  pihak1Alamat: 'Jl. Padjajaran No. 45, RT 02/03, Kelurahan Bantarjati, Kecamatan Bogor Utara, Kota Bogor, Jawa Barat',
+
+  pihak2Nama: 'DR. H. AHMAD SYUKRI, M.PD.',
+  pihak2Nik: '197501011999031002',
+  pihak2TempatLahir: 'Jakarta',
+  pihak2TanggalLahir: '1975-01-01',
+  pihak2Pekerjaan: 'Kepala Bagian Kemahasiswaan',
+  pihak2Alamat: 'Gedung Rektorat Lt. 2, Kampus Utama Jaya Makmur, Jakarta Selatan',
+
+  kategoriBantuan: 'Beasiswa Pendidikan Pemerintah',
+  instansiTujuan: 'Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi',
+  periodeBerlaku: 'Tahun Akademik 2026/2027',
+  metodePemeriksaan: 'Verifikasi Silang Sistem Nasional',
+  sanksiPelanggaran: 'Pengembalian Dana Penuh 100% beserta Denda 50%',
+  kotaPembuatan: 'JAKARTA',
+  tanggalPembuatan: '', // Diisi di useEffect
 };
 
 export default function NonBantuanPage() {
@@ -77,40 +82,36 @@ function NonBantuanBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [logo, setLogo] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [data, setData] = useState<NonBansosData>(INITIAL_DATA);
+  const [data, setData] = useState<LegalData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
-    setData(prev => ({ ...prev, date: today }));
+    setData(prev => ({ ...prev, tanggalPembuatan: today }));
   }, []);
 
-  const handleDataChange = (field: keyof NonBansosData, val: any) => {
+  const handleDataChange = (field: keyof LegalData, val: any) => {
     setData(prev => ({ ...prev, [field]: val }));
-  };
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setLogo(reader.result as string);
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleReset = () => {
     if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
-        setData({ ...INITIAL_DATA, date: today });
-        setLogo(null);
+        setData({ ...INITIAL_DATA, tanggalPembuatan: today });
     }
   };
 
-  const activeTemplateName = templateId === 1 ? 'Format Formal' : 'Format Ringkas';
+  const activeTemplateName = templateId === 1 ? 'Format Legal Draft (Notaris)' : 'Format Standar';
 
   const DocumentContent = () => {
+    const getHari = (dateString: string) => {
+        if (!dateString) return "...";
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return "...";
+        return days[d.getDay()];
+    };
+
     const formatDateSafe = (dateString: string) => {
         if(!dateString) return '...';
         try {
@@ -119,76 +120,171 @@ function NonBantuanBuilder() {
     };
 
     return (
-      <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
+      <div className={`bg-white flex flex-col box-border text-black leading-normal p-[15mm] md:p-[20mm] print:p-[20mm] w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto font-serif text-[11pt]`}>
         
-        {/* KOP SURAT DESA */}
-        <div className="flex items-center border-b-4 border-double border-slate-900 pb-4 mb-8 shrink-0 text-center font-sans">
-          <div className="flex items-center gap-6 w-full px-4">
-             {logo ? (
-                <img src={logo} alt="Logo" className="w-20 h-20 object-contain shrink-0" />
-             ) : (
-                <div className="w-20 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 shrink-0 print:hidden">
-                   <Building2 size={32} />
-                </div>
-             )}
-             <div className="flex-grow text-center">
-                <div className="text-[14pt] font-black leading-tight whitespace-pre-line uppercase tracking-tight text-slate-900">
-                   {data.issuerOffice}
-                </div>
-             </div>
-          </div>
-        </div>
-
         {/* JUDUL */}
-        <div className="text-center mb-8 shrink-0 leading-tight font-sans">
-          <h2 className="text-lg font-black underline uppercase decoration-1 underline-offset-8 tracking-widest">SURAT KETERANGAN TIDAK MENERIMA BANTUAN</h2>
-          <p className="text-[10pt] mt-3 italic font-bold text-slate-400 print:text-black">Nomor: {data.docNo}</p>
+        <div className="text-center mb-10 leading-tight">
+          <h2 className="text-[14pt] font-black underline uppercase tracking-wide">PERJANJIAN DEKLARASI MUTLAK</h2>
+          <h3 className="text-[12pt] font-bold uppercase mt-1">TENTANG STATUS NON-PENERIMA BANTUAN ATAU BEASISWA</h3>
+          <p className="text-[11pt] mt-2 font-bold">Nomor: .....................................................</p>
         </div>
 
-        {/* BODY SURAT */}
-        <div className="flex-grow space-y-6 overflow-hidden text-justify leading-relaxed">
-          <p>Yang bertanda tangan di bawah ini menerangkan dengan sebenarnya bahwa:</p>
-          
-          <div className="ml-8 space-y-1.5 font-sans text-[10pt] border-l-4 border-slate-100 pl-6 italic py-1 break-inside-avoid">
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>Nama Lengkap</span><span>:</span><span className="font-bold uppercase tracking-tight text-slate-900">{data.name}</span></div>
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>NIK</span><span>:</span><span className="font-mono">{data.nik}</span></div>
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>Tempat, Tgl Lahir</span><span>:</span><span>{data.placeBirth}, {formatDateSafe(data.dateBirth)}</span></div>
-              <div className="grid grid-cols-[160px_10px_1fr]"><span>Pekerjaan</span><span>:</span><span>{data.job}</span></div>
-              <div className="grid grid-cols-[160px_10px_1fr] align-top"><span>Alamat Domisili</span><span>:</span><span>{data.address}</span></div>
+        {/* PEMBUKA */}
+        <div className="text-justify leading-relaxed space-y-4">
+          <p className="indent-8">
+            Pada hari ini, <strong>{getHari(data.tanggalPembuatan)}</strong>, tanggal <strong>{formatDateSafe(data.tanggalPembuatan)}</strong>, bertempat di <strong>{data.kotaPembuatan}</strong>, telah disepakati dan ditandatangani Perjanjian Deklarasi Mutlak (selanjutnya disebut &quot;Perjanjian&quot;) oleh dan antara:
+          </p>
+
+          {/* PIHAK PERTAMA */}
+          <div className="pl-4 md:pl-8">
+            <div className="flex gap-2">
+              <div className="w-5 shrink-0 text-right">1.</div>
+              <div className="flex-1 space-y-1">
+                <div className="flex"><div className="w-48 shrink-0">Nama Lengkap</div><div className="w-4 shrink-0">:</div><div className="font-bold uppercase">{data.pihak1Nama}</div></div>
+                <div className="flex"><div className="w-48 shrink-0">NIK</div><div className="w-4 shrink-0">:</div><div>{data.pihak1Nik}</div></div>
+                <div className="flex"><div className="w-48 shrink-0">Tempat, Tanggal Lahir</div><div className="w-4 shrink-0">:</div><div>{data.pihak1TempatLahir}, {formatDateSafe(data.pihak1TanggalLahir)}</div></div>
+                <div className="flex"><div className="w-48 shrink-0">Pekerjaan</div><div className="w-4 shrink-0">:</div><div>{data.pihak1Pekerjaan}</div></div>
+                <div className="flex"><div className="w-48 shrink-0 align-top">Alamat (Sesuai KTP)</div><div className="w-4 shrink-0 align-top">:</div><div className="text-justify">{data.pihak1Alamat}</div></div>
+              </div>
+            </div>
+            <p className="pt-2 pl-7">Selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK PERTAMA</strong> (Pemberi Pernyataan).</p>
           </div>
 
-          <div className="space-y-4">
-            <p className="whitespace-pre-line leading-relaxed">
-              {data.statementBody}
-            </p>
-
-            <p className="leading-relaxed">
-              Demikian surat keterangan ini kami buat dengan sebenarnya berdasarkan data yang ada untuk dapat digunakan sebagai <strong>{data.purpose}</strong>.
-            </p>
+          {/* PIHAK KEDUA */}
+          <div className="pl-4 md:pl-8">
+            <div className="flex gap-2">
+              <div className="w-5 shrink-0 text-right">2.</div>
+              <div className="flex-1 space-y-1">
+                <div className="flex"><div className="w-48 shrink-0">Nama Lengkap</div><div className="w-4 shrink-0">:</div><div className="font-bold uppercase">{data.pihak2Nama}</div></div>
+                <div className="flex"><div className="w-48 shrink-0">NIP/NIK</div><div className="w-4 shrink-0">:</div><div>{data.pihak2Nik}</div></div>
+                <div className="flex"><div className="w-48 shrink-0">Tempat, Tanggal Lahir</div><div className="w-4 shrink-0">:</div><div>{data.pihak2TempatLahir}, {formatDateSafe(data.pihak2TanggalLahir)}</div></div>
+                <div className="flex"><div className="w-48 shrink-0">Jabatan/Pekerjaan</div><div className="w-4 shrink-0">:</div><div>{data.pihak2Pekerjaan}</div></div>
+                <div className="flex"><div className="w-48 shrink-0 align-top">Alamat Kedudukan</div><div className="w-4 shrink-0 align-top">:</div><div className="text-justify">{data.pihak2Alamat}</div></div>
+              </div>
+            </div>
+            <p className="pt-2 pl-7">Selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK KEDUA</strong> (Penerima Pernyataan / Instansi Terkait).</p>
           </div>
 
-          <p>Atas perhatian dan kerja samanya, kami ucapkan terima kasih.</p>
+          <p className="indent-8 mt-6">
+            PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut sebagai <strong>PARA PIHAK</strong>.
+          </p>
+          <p className="indent-8">
+            PARA PIHAK dengan ini menerangkan dan sepakat untuk mengikatkan diri dalam Perjanjian ini dengan syarat-syarat dan ketentuan-ketentuan sebagaimana diuraikan dalam Pasal-Pasal berikut:
+          </p>
+
+          {/* PASAL 1 */}
+          <div className="text-center font-bold pt-4 pb-2">
+            <p>PASAL 1</p>
+            <p>DEFINISI DAN KETENTUAN UMUM</p>
+          </div>
+          <ol className="list-decimal pl-8 md:pl-12 space-y-2">
+            <li className="pl-2">Bantuan atau Beasiswa adalah segala bentuk penerimaan dana atau fasilitas finansial dalam kategori <strong>{data.kategoriBantuan}</strong> yang bersumber dari Pemerintah, Swasta, atau Lembaga Donor lainnya.</li>
+            <li className="pl-2">Status Non-Penerima adalah kondisi di mana PIHAK PERTAMA secara sah dan meyakinkan tidak sedang menerima, tidak terdaftar sebagai penerima aktif, dan tidak dalam proses pencairan dari jenis Bantuan sebagaimana dimaksud dalam ayat 1.</li>
+          </ol>
+
+          {/* PASAL 2 */}
+          <div className="text-center font-bold pt-4 pb-2">
+            <p>PASAL 2</p>
+            <p>OBJEK PERJANJIAN</p>
+          </div>
+          <ol className="list-decimal pl-8 md:pl-12 space-y-2">
+            <li className="pl-2">Objek dari Perjanjian ini adalah pernyataan jaminan mutlak dari PIHAK PERTAMA kepada PIHAK KEDUA bahwa PIHAK PERTAMA memenuhi kualifikasi Status Non-Penerima guna keperluan pendaftaran atau pengajuan pada instansi <strong>{data.instansiTujuan}</strong>.</li>
+            <li className="pl-2">Pernyataan jaminan mutlak ini berlaku penuh selama periode <strong>{data.periodeBerlaku}</strong> terhitung sejak tanggal ditandatanganinya Perjanjian ini oleh PARA PIHAK.</li>
+          </ol>
+
+          {/* PASAL 3 */}
+          <div className="text-center font-bold pt-4 pb-2 break-before-auto">
+            <p>PASAL 3</p>
+            <p>HAK DAN KEWAJIBAN PIHAK PERTAMA</p>
+          </div>
+          <ol className="list-decimal pl-8 md:pl-12 space-y-2">
+            <li className="pl-2">PIHAK PERTAMA berhak untuk diproses pengajuannya oleh PIHAK KEDUA sesuai dengan prosedur standar operasi (SOP) yang berlaku di instansi PIHAK KEDUA.</li>
+            <li className="pl-2">PIHAK PERTAMA wajib memberikan keterangan, data identitas diri, dan dokumen pendukung yang sebenar-benarnya tanpa ada upaya manipulasi, pemalsuan, atau itikad buruk lainnya.</li>
+            <li className="pl-2">PIHAK PERTAMA wajib secara proaktif dan segera melaporkan kepada PIHAK KEDUA apabila di kemudian hari selama periode berlakunya perjanjian ini terdapat perubahan status menjadi penerima bantuan dari pihak manapun.</li>
+          </ol>
+
+          {/* PASAL 4 */}
+          <div className="text-center font-bold pt-4 pb-2 break-before-auto">
+            <p>PASAL 4</p>
+            <p>HAK DAN KEWAJIBAN PIHAK KEDUA</p>
+          </div>
+          <ol className="list-decimal pl-8 md:pl-12 space-y-2">
+            <li className="pl-2">PIHAK KEDUA berhak untuk menerima jaminan kebenaran data dari PIHAK PERTAMA secara mutlak tanpa syarat apapun.</li>
+            <li className="pl-2">PIHAK KEDUA berhak sewaktu-waktu melakukan investigasi, penelusuran rekam jejak, maupun pencocokan silang (cross-check) terhadap status PIHAK PERTAMA pada pangkalan data instansi terkait tingkat nasional maupun daerah.</li>
+            <li className="pl-2">PIHAK KEDUA wajib menjaga kerahasiaan data pribadi PIHAK PERTAMA yang diserahkan dalam pelaksanaan Perjanjian ini sesuai dengan ketentuan perundang-undangan mengenai perlindungan data pribadi.</li>
+          </ol>
+
+          {/* PASAL 5 */}
+          <div className="text-center font-bold pt-4 pb-2 break-before-auto">
+            <p>PASAL 5</p>
+            <p>SISTEM PEMERIKSAAN DAN VERIFIKASI KEBENARAN</p>
+          </div>
+          <ol className="list-decimal pl-8 md:pl-12 space-y-2">
+            <li className="pl-2">Untuk menjamin keabsahan pernyataan pada Perjanjian ini, PIHAK KEDUA akan melaksanakan prosedur pengawasan dengan metode pemeriksaan berupa <strong>{data.metodePemeriksaan}</strong>.</li>
+            <li className="pl-2">Melalui penandatanganan Perjanjian ini, PIHAK PERTAMA memberikan kuasa penuh yang tidak dapat ditarik kembali (irrevocable) kepada PIHAK KEDUA untuk meminta informasi dari instansi, lembaga, atau otoritas perbankan terkait demi membuktikan kebenaran status PIHAK PERTAMA.</li>
+          </ol>
+
+          {/* PASAL 6 */}
+          <div className="text-center font-bold pt-4 pb-2 break-before-auto">
+            <p>PASAL 6</p>
+            <p>SANKSI DAN KONSEKUENSI PELANGGARAN</p>
+          </div>
+          <ol className="list-decimal pl-8 md:pl-12 space-y-2">
+            <li className="pl-2">Apabila di kemudian hari terbukti secara sah dan meyakinkan bahwa PIHAK PERTAMA memberikan keterangan palsu atau ternyata terdaftar sebagai penerima Bantuan ganda, maka PIHAK PERTAMA dinyatakan melakukan pelanggaran berat atas Perjanjian ini.</li>
+            <li className="pl-2">Atas pelanggaran sebagaimana dimaksud pada ayat 1 di atas, PIHAK PERTAMA sepakat untuk dikenakan sanksi secara langsung berupa <strong>{data.sanksiPelanggaran}</strong>.</li>
+            <li className="pl-2">Pengenaan sanksi perdata administratif sebagaimana dimaksud pada ayat 2 tidak menghapus hak PIHAK KEDUA untuk melaporkan PIHAK PERTAMA kepada pihak kepolisian Republik Indonesia atas dugaan tindak pidana pemalsuan dokumen dan/atau penipuan sesuai ketentuan Kitab Undang-Undang Hukum Pidana (KUHP).</li>
+          </ol>
+
+          {/* PASAL 7 */}
+          <div className="text-center font-bold pt-4 pb-2 break-before-auto">
+            <p>PASAL 7</p>
+            <p>KEADAAN MEMAKSA (FORCE MAJEURE)</p>
+          </div>
+          <ol className="list-decimal pl-8 md:pl-12 space-y-2">
+            <li className="pl-2">Keadaan Memaksa meliputi bencana alam berskala nasional, kebijakan moneter/fiskal pemerintah secara drastis, huru-hara, atau gangguan pangkalan data nasional berskala besar yang mengakibatkan PARA PIHAK tidak dapat memenuhi sebagian atau seluruh kewajiban dalam Perjanjian ini.</li>
+            <li className="pl-2">Dalam hal terjadi Keadaan Memaksa, pihak yang terdampak wajib memberitahukan secara tertulis kepada pihak lainnya paling lambat 7 (tujuh) hari kalender sejak terjadinya peristiwa tersebut.</li>
+            <li className="pl-2">Kelalaian dalam memberitahukan Keadaan Memaksa secara tertulis dalam batas waktu tersebut menyebabkan hak untuk mengajukan alasan Keadaan Memaksa menjadi gugur secara hukum.</li>
+          </ol>
+
+          {/* PASAL 8 */}
+          <div className="text-center font-bold pt-4 pb-2 break-before-auto">
+            <p>PASAL 8</p>
+            <p>PENYELESAIAN SENGKETA DAN DOMISILI HUKUM</p>
+          </div>
+          <ol className="list-decimal pl-8 md:pl-12 space-y-2">
+            <li className="pl-2">Segala perselisihan yang timbul dari atau terkait dengan pelaksanaan Perjanjian ini akan diselesaikan oleh PARA PIHAK secara musyawarah untuk mencapai mufakat.</li>
+            <li className="pl-2">Apabila musyawarah tidak mencapai mufakat dalam batas waktu 30 (tiga puluh) hari kalender, maka PARA PIHAK sepakat untuk menyelesaikannya secara hukum dengan memilih kediaman hukum (domisili) yang umum dan tetap di Kepaniteraan Pengadilan Negeri di <strong>{data.kotaPembuatan}</strong>.</li>
+            <li className="pl-2">Selama proses penyelesaian sengketa berlangsung, seluruh hak dan kewajiban PARA PIHAK yang tidak menjadi objek sengketa tetap berlaku dan wajib dilaksanakan dengan iktikad baik.</li>
+          </ol>
+
+          {/* PENUTUP */}
+          <div className="pt-8 space-y-2">
+            <p className="indent-8">
+              Demikian Perjanjian Deklarasi Mutlak ini dibuat dan ditandatangani di <strong>{data.kotaPembuatan}</strong> pada tanggal <strong>{formatDateSafe(data.tanggalPembuatan)}</strong>, dalam rangkap 2 (dua) asli, masing-masing dibubuhi meterai yang cukup sesuai ketentuan perundang-undangan yang berlaku, dan mempunyai kekuatan hukum pembuktian yang sama bagi PARA PIHAK.
+            </p>
+          </div>
         </div>
 
         {/* TANDA TANGAN */}
-        <div className="shrink-0 mt-10 pt-10 border-t-2 border-slate-50 print:border-black break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-            <div className="grid grid-cols-2 gap-10 text-center font-sans">
-              <div className="flex flex-col h-44">
-                  <p className="uppercase text-[8pt] font-black text-slate-300 tracking-widest mb-1">Tanda Tangan Warga,</p>
+        <div className="mt-16 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+            <div className="grid grid-cols-2 gap-10 text-center font-serif text-[11pt]">
+              <div className="flex flex-col h-40">
+                  <p className="mb-2"><strong>PIHAK PERTAMA</strong></p>
+                  <p className="text-[9pt] italic text-slate-500 mb-1">Meterai Rp 10.000,-</p>
                   <div className="mt-auto">
-                     <p className="font-black underline uppercase text-[11pt] tracking-tight text-slate-900">({data.name})</p>
+                     <p className="font-bold underline uppercase">{data.pihak1Nama}</p>
                   </div>
               </div>
 
-              <div className="flex flex-col h-44">
-                  <p className="text-[10pt] font-bold text-slate-400 mb-1">{data.city}, {formatDateSafe(data.date)}</p>
-                  <p className="uppercase text-[8pt] font-black text-slate-300 tracking-widest mb-1">{data.villageJob},</p>
+              <div className="flex flex-col h-40">
+                  <p className="mb-2"><strong>PIHAK KEDUA</strong></p>
                   <div className="mt-auto">
-                     <p className="font-black underline uppercase text-[11pt] tracking-tight text-slate-900">{data.villageHead}</p>
+                     <p className="font-bold underline uppercase">{data.pihak2Nama}</p>
                   </div>
               </div>
             </div>
         </div>
+
       </div>
     );
   };
@@ -200,7 +296,7 @@ function NonBantuanBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
+          @page { size: A4; margin: 20mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
@@ -219,7 +315,7 @@ function NonBantuanBuilder() {
             </Link>
             <div className="h-6 w-px bg-slate-700 hidden md:block mx-2"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-blue-400 uppercase tracking-tighter italic">
-               <Ban size={16} /> <span>Non-Bansos Letter Builder</span>
+               <Scale size={16} /> <span>Legal Drafter - Perjanjian Non-Bansos</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -229,8 +325,7 @@ function NonBantuanBuilder() {
               </button>
               {showTemplateMenu && (
                 <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Format Formal {templateId === 1 && <Check size={14}/>}</button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Format Ringkas {templateId === 2 && <Check size={14}/>}</button>
+                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Format Legal Draft (Notaris) {templateId === 1 && <Check size={14}/>}</button>
                 </div>
               )}
             </div>
@@ -243,44 +338,88 @@ function NonBantuanBuilder() {
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Data</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans">
+             <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Data</h2>
+             <button onClick={handleReset} className="text-slate-400 hover:text-red-500" title="Reset Data"><RotateCcw size={16}/></button>
+           </div>
+           
            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:block print:overflow-visible print:bg-white">
+              
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Kop Instansi</h3>
-                 <div className="flex items-center gap-4 py-2">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50 overflow-hidden shrink-0">
-                       {logo ? <img src={logo} className="w-full h-full object-contain" alt="Logo" /> : <ImagePlus size={20} className="text-slate-300" />}
-                       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
-                    </div>
-                    <textarea className="flex-1 p-2 border rounded-lg text-[10px] font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase h-20 leading-tight" value={data.issuerOffice} onChange={e => handleDataChange('issuerOffice', e.target.value)} placeholder="KOP SURAT (Instansi)" />
-                 </div>
+                  <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Pihak Pertama (Pemberi Pernyataan)</h3>
+                  <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.pihak1Nama} onChange={e => handleDataChange('pihak1Nama', e.target.value)} placeholder="Nama Lengkap" />
+                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.pihak1Nik} onChange={e => handleDataChange('pihak1Nik', e.target.value)} placeholder="Nomor NIK" />
+                  <div className="grid grid-cols-2 gap-3">
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.pihak1TempatLahir} onChange={e => handleDataChange('pihak1TempatLahir', e.target.value)} placeholder="Tempat Lahir" />
+                     <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.pihak1TanggalLahir} onChange={e => handleDataChange('pihak1TanggalLahir', e.target.value)} />
+                  </div>
+                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.pihak1Pekerjaan} onChange={e => handleDataChange('pihak1Pekerjaan', e.target.value)} placeholder="Pekerjaan" />
+                  <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.pihak1Alamat} onChange={e => handleDataChange('pihak1Alamat', e.target.value)} placeholder="Alamat Sesuai KTP" />
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Data Warga</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.name} onChange={e => handleDataChange('name', e.target.value)} placeholder="Nama Lengkap" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.nik} onChange={e => handleDataChange('nik', e.target.value)} placeholder="Nomor NIK" />
-                 <div className="grid grid-cols-2 gap-3">
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.placeBirth} onChange={e => handleDataChange('placeBirth', e.target.value)} placeholder="Tempat Lahir" />
-                    <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.dateBirth} onChange={e => handleDataChange('dateBirth', e.target.value)} />
-                 </div>
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.job} onChange={e => handleDataChange('job', e.target.value)} placeholder="Pekerjaan" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.address} onChange={e => handleDataChange('address', e.target.value)} placeholder="Alamat Domisili Lengkap" />
+                  <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Pihak Kedua (Instansi/Pejabat)</h3>
+                  <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Nama} onChange={e => handleDataChange('pihak2Nama', e.target.value)} placeholder="Nama Pejabat/Instansi" />
+                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.pihak2Nik} onChange={e => handleDataChange('pihak2Nik', e.target.value)} placeholder="NIP/NIK" />
+                  <div className="grid grid-cols-2 gap-3">
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2TempatLahir} onChange={e => handleDataChange('pihak2TempatLahir', e.target.value)} placeholder="Tempat Lahir" />
+                     <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2TanggalLahir} onChange={e => handleDataChange('pihak2TanggalLahir', e.target.value)} />
+                  </div>
+                  <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Pekerjaan} onChange={e => handleDataChange('pihak2Pekerjaan', e.target.value)} placeholder="Jabatan/Pekerjaan" />
+                  <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Alamat} onChange={e => handleDataChange('pihak2Alamat', e.target.value)} placeholder="Alamat Kedudukan Instansi" />
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><FileWarning size={12}/> Narasi & Pejabat</h3>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-32 resize-none focus:ring-2 focus:ring-red-500 outline-none leading-relaxed" value={data.statementBody} onChange={e => handleDataChange('statementBody', e.target.value)} placeholder="Isi Pernyataan..." />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none font-bold" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} placeholder="Tujuan Pembuatan Surat" />
-                 <div className="grid grid-cols-2 gap-3">
-                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none uppercase font-bold" value={data.villageHead} onChange={e => handleDataChange('villageHead', e.target.value)} placeholder="Nama Pejabat" />
-                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.villageJob} onChange={e => handleDataChange('villageJob', e.target.value)} placeholder="Jabatan" />
-                 </div>
-                 <div className="grid grid-cols-2 gap-3">
-                   <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
-                   <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
-                 </div>
-                 <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-slate-500 outline-none font-mono" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
+                  <h3 className="text-[10px] font-black uppercase text-purple-600 border-b pb-1 tracking-widest flex items-center gap-2"><Gavel size={12}/> Ketentuan Hukum & Deklarasi</h3>
+                  
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Kategori Bantuan</label>
+                    <select className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none mt-1" value={data.kategoriBantuan} onChange={e => handleDataChange('kategoriBantuan', e.target.value)}>
+                      <option value="Beasiswa Pendidikan Pemerintah">Beasiswa Pendidikan Pemerintah</option>
+                      <option value="Beasiswa Pendidikan Swasta">Beasiswa Pendidikan Swasta</option>
+                      <option value="Bantuan Sosial Tunai (BST)">Bantuan Sosial Tunai (BST)</option>
+                      <option value="Program Keluarga Harapan (PKH)">Program Keluarga Harapan (PKH)</option>
+                      <option value="Bantuan Keuangan Pihak Ketiga Lainnya">Bantuan Keuangan Pihak Ketiga Lainnya</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Metode Pemeriksaan (Pasal 5)</label>
+                    <select className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none mt-1" value={data.metodePemeriksaan} onChange={e => handleDataChange('metodePemeriksaan', e.target.value)}>
+                      <option value="Verifikasi Silang Sistem Nasional">Verifikasi Silang Sistem Nasional</option>
+                      <option value="Audit Internal Instansi">Audit Internal Instansi</option>
+                      <option value="Survei Lapangan dan Konfirmasi Instansi Terkait">Survei Lapangan & Konfirmasi Instansi Terkait</option>
+                      <option value="Penelusuran Rekam Jejak Pangkalan Data Terpadu">Penelusuran Rekam Jejak Database Terpadu</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Sanksi Pelanggaran (Pasal 6)</label>
+                    <select className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none mt-1" value={data.sanksiPelanggaran} onChange={e => handleDataChange('sanksiPelanggaran', e.target.value)}>
+                      <option value="Pengembalian Dana Penuh 100% beserta Denda 50%">Pengembalian Dana 100% + Denda 50%</option>
+                      <option value="Pengembalian Dana Secara Langsung Tunai 100%">Pengembalian Dana Tunai 100%</option>
+                      <option value="Pembatalan Status Secara Sepihak dan Blacklist Nasional">Pembatalan Status & Blacklist Nasional</option>
+                      <option value="Gugatan Hukum Pidana dan Perdata">Gugatan Hukum Pidana dan Perdata</option>
+                    </select>
+                  </div>
+
+                  <div>
+                     <label className="text-[10px] font-bold text-slate-500 uppercase">Instansi Tujuan</label>
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none mt-1" value={data.instansiTujuan} onChange={e => handleDataChange('instansiTujuan', e.target.value)} placeholder="Contoh: Kementerian Pendidikan..." />
+                  </div>
+
+                  <div>
+                     <label className="text-[10px] font-bold text-slate-500 uppercase">Periode Berlaku</label>
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none mt-1" value={data.periodeBerlaku} onChange={e => handleDataChange('periodeBerlaku', e.target.value)} placeholder="Contoh: Tahun Akademik 2026/2027" />
+                  </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                  <h3 className="text-[10px] font-black uppercase text-slate-600 border-b pb-1 tracking-widest flex items-center gap-2"><PenTool size={12}/> Informasi Dokumen</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.kotaPembuatan} onChange={e => handleDataChange('kotaPembuatan', e.target.value)} placeholder="Kota" />
+                     <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.tanggalPembuatan} onChange={e => handleDataChange('tanggalPembuatan', e.target.value)} />
+                  </div>
               </div>
            </div>
         </div>
@@ -302,7 +441,7 @@ function NonBantuanBuilder() {
       
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+         <PrintWrapper documentName="Perjanjian Non-Bansos" price={25000} />
       </div>
 
       <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>
