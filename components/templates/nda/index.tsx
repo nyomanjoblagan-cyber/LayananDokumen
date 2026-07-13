@@ -9,17 +9,17 @@
 import { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeftCircle, ShieldCheck, 
-  User, AlertOctagon, Scale, Edit3, RotateCcw,
-  Building2, FileText
+  User, AlertOctagon, Edit3, RotateCcw,
+  Building2
 } from 'lucide-react';
 import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
 
 interface NdaData {
   city: string;
   date: string;
+  
+  // Pihak Pertama (Penguasa)
   name1: string;
   nik1: string;
   pob1: string;
@@ -28,12 +28,15 @@ interface NdaData {
   address1: string;
   institution1: string;
   position1: string;
+  
+  // Pihak Kedua (Penerima)
   name2: string;
   nik2: string;
   pob2: string;
   dob2: string;
   occupation2: string;
   address2: string;
+  
   purpose: string;
   penaltyAmount: string;
   penaltyAmountText: string;
@@ -58,9 +61,9 @@ const INITIAL_DATA: NdaData = {
   occupation2: 'Konsultan Independen',
   address2: 'Jl. Merak No. 9, RT 01/RW 03, Kel. Rawa Barat, Kec. Kebayoran Baru, Jakarta Selatan',
 
-  purpose: 'Audit Strategis dan Pengembangan Arsitektur Sistem Inti (Core System Architecture)',
-  penaltyAmount: '10.000.000.000',
-  penaltyAmountText: 'Sepuluh Miliar Rupiah'
+  purpose: 'Audit Strategis dan Analisis Kerentanan Infrastruktur Siber (Cyber Vulnerability Analysis)',
+  penaltyAmount: '50.000.000.000',
+  penaltyAmountText: 'Lima Puluh Miliar Rupiah'
 };
 
 export default function NDAPage() {
@@ -112,18 +115,18 @@ function NdaToolBuilder() {
         </div>
         
         <p className="mb-6">
-          Pada hari ini, tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, dibuat dan ditandatangani Perjanjian Kerahasiaan (selanjutnya disebut "Perjanjian") yang mengikat secara hukum secara absolut dan tanpa syarat oleh dan antara:
+          Pada hari ini, tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, dibuat dan ditandatangani Perjanjian Kerahasiaan (selanjutnya disebut "Perjanjian") yang mengikat secara hukum secara absolut dan tanpa syarat, oleh dan antara:
         </p>
         
         <div className="ml-4 mb-6 space-y-1">
           <div className="flex align-top"><div className="w-48 shrink-0">Nama Lengkap</div><div className="w-4 shrink-0">:</div><div className="font-bold uppercase">{data.name1}</div></div>
           <div className="flex align-top"><div className="w-48 shrink-0">N I K</div><div className="w-4 shrink-0">:</div><div>{data.nik1}</div></div>
           <div className="flex align-top"><div className="w-48 shrink-0">Tempat, Tgl Lahir</div><div className="w-4 shrink-0">:</div><div>{data.pob1}, {data.dob1}</div></div>
-          <div className="flex align-top"><div className="w-48 shrink-0">Jabatan</div><div className="w-4 shrink-0">:</div><div>{data.occupation1} / {data.position1}</div></div>
+          <div className="flex align-top"><div className="w-48 shrink-0">Pekerjaan</div><div className="w-4 shrink-0">:</div><div>{data.occupation1} / {data.position1}</div></div>
           <div className="flex align-top"><div className="w-48 shrink-0">Instansi Korporasi</div><div className="w-4 shrink-0">:</div><div className="font-bold uppercase">{data.institution1}</div></div>
-          <div className="flex align-top"><div className="w-48 shrink-0">Alamat Sesuai KTP</div><div className="w-4 shrink-0">:</div><div>{data.address1}</div></div>
+          <div className="flex align-top"><div className="w-48 shrink-0">Alamat (Sesuai KTP)</div><div className="w-4 shrink-0">:</div><div>{data.address1}</div></div>
           <p className="mt-3 text-justify">
-            Dalam hal ini bertindak untuk dan atas nama diri sendiri serta korporasi yang diwakilinya, selaku pihak pemegang mutlak atas seluruh informasi, selanjutnya dalam perjanjian ini disebut sebagai <strong>"PIHAK PERTAMA (DISCLOSING PARTY)"</strong>.
+            Dalam hal ini bertindak untuk dan atas nama diri sendiri serta entitas korporasi yang diwakilinya, selaku pihak pemegang mutlak atas seluruh informasi rahasia, selanjutnya dalam Perjanjian ini disebut sebagai <strong>"PIHAK PERTAMA (DISCLOSING PARTY)"</strong>.
           </p>
         </div>
         
@@ -131,10 +134,10 @@ function NdaToolBuilder() {
           <div className="flex align-top"><div className="w-48 shrink-0">Nama Lengkap</div><div className="w-4 shrink-0">:</div><div className="font-bold uppercase">{data.name2}</div></div>
           <div className="flex align-top"><div className="w-48 shrink-0">N I K</div><div className="w-4 shrink-0">:</div><div>{data.nik2}</div></div>
           <div className="flex align-top"><div className="w-48 shrink-0">Tempat, Tgl Lahir</div><div className="w-4 shrink-0">:</div><div>{data.pob2}, {data.dob2}</div></div>
-          <div className="flex align-top"><div className="w-48 shrink-0">Pekerjaan / Jabatan</div><div className="w-4 shrink-0">:</div><div>{data.occupation2}</div></div>
-          <div className="flex align-top"><div className="w-48 shrink-0">Alamat Sesuai KTP</div><div className="w-4 shrink-0">:</div><div>{data.address2}</div></div>
+          <div className="flex align-top"><div className="w-48 shrink-0">Pekerjaan</div><div className="w-4 shrink-0">:</div><div>{data.occupation2}</div></div>
+          <div className="flex align-top"><div className="w-48 shrink-0">Alamat (Sesuai KTP)</div><div className="w-4 shrink-0">:</div><div>{data.address2}</div></div>
           <p className="mt-3 text-justify">
-            Dalam hal ini bertindak untuk dan atas nama diri sendiri secara pribadi, selaku pihak penerima akses terbatas, selanjutnya dalam perjanjian ini disebut sebagai <strong>"PIHAK KEDUA (RECEIVING PARTY)"</strong>.
+            Dalam hal ini bertindak untuk dan atas nama diri sendiri secara pribadi dan profesional, selaku pihak penerima akses terbatas dan bersyarat, selanjutnya dalam Perjanjian ini disebut sebagai <strong>"PIHAK KEDUA (RECEIVING PARTY)"</strong>.
           </p>
         </div>
         
@@ -142,86 +145,89 @@ function NdaToolBuilder() {
           <strong>PIHAK PERTAMA</strong> dan <strong>PIHAK KEDUA</strong> secara bersama-sama selanjutnya disebut sebagai <strong>"PARA PIHAK"</strong>.
         </p>
         
-        <p className="mb-4 text-center font-bold uppercase tracking-widest">--- MENERANGKAN ---</p>
+        <p className="mb-4 text-center font-bold uppercase tracking-widest">--- M E N E R A N G K A N ---</p>
         <ul className="list-disc ml-8 mb-6 text-justify space-y-2">
-          <li>Bahwa PIHAK PERTAMA adalah pemilik tunggal dan sah atas seluruh kekayaan intelektual, rahasia dagang, strategi bisnis, teknologi, dan/atau data korporat yang bernilai sangat tinggi dan bersifat sangat rahasia.</li>
-          <li>Bahwa PIHAK KEDUA secara sadar, sehat, dan tanpa paksaan bermaksud menerima paparan informasi tersebut semata-mata untuk kepentingan operasional: <strong>{data.purpose}</strong>.</li>
-          <li>Bahwa penyerahan informasi ini tidak dalam bentuk apapun mengalihkan hak kepemilikan material maupun immaterial, melainkan hanya memberikan izin penggunaan terbatas yang dikontrol ketat, diawasi secara invasif, dan dapat dicabut sepihak kapan saja oleh PIHAK PERTAMA.</li>
+          <li>Bahwa PIHAK PERTAMA adalah pemilik tunggal, penguasa absolut, dan satu-satunya pemegang sah atas seluruh kekayaan intelektual, data operasi, arsitektur sistem, rahasia dagang, strategi bisnis, dan seluruh aset tak berwujud lainnya yang bernilai sangat tinggi dan bersifat sangat rahasia.</li>
+          <li>Bahwa PIHAK KEDUA secara sadar, sehat, tanpa paksaan maupun tekanan dari pihak manapun, bermaksud menerima paparan informasi tersebut semata-mata untuk kepentingan: <strong>{data.purpose}</strong>.</li>
+          <li>Bahwa penyerahan akses informasi ini sama sekali tidak mengalihkan hak kepemilikan material maupun immaterial dalam bentuk apapun, melainkan murni hanya memberikan izin penggunaan sementara yang diawasi secara invasif, dibatasi secara ketat, dan dapat dicabut secara sepihak oleh PIHAK PERTAMA setiap saat tanpa perlu memberikan alasan hukum apapun.</li>
         </ul>
         
         <p className="mb-6 text-justify">
-          Berdasarkan hal-hal tersebut di atas, PARA PIHAK sepakat untuk mengikatkan diri dalam Perjanjian Kerahasiaan ini dengan syarat-syarat dan ketentuan-ketentuan yang bersifat <strong>mutlak, final, dan memaksa</strong> sebagai berikut:
+          Berdasarkan hal-hal tersebut di atas, PARA PIHAK telah setuju dan sepakat untuk mengikatkan diri dalam Perjanjian Kerahasiaan ini dengan syarat-syarat dan ketentuan-ketentuan korporat yang bersifat <strong>mutlak, final, dan memaksa</strong> sebagai berikut:
         </p>
 
         <div className="mb-6">
-          <h2 className="text-center font-bold mb-2 uppercase">PASAL 1<br/>DEFINISI INFORMASI RAHASIA</h2>
+          <p className="text-center font-bold mb-2 uppercase">PASAL 1<br/>DEFINISI DAN RUANG LINGKUP INFORMASI RAHASIA</p>
           <ol className="list-decimal ml-4 pl-4 text-justify space-y-2">
-            <li className="pl-2">"Informasi Rahasia" meliputi, namun tidak terbatas pada, setiap dan seluruh data, informasi, dokumen, catatan, algoritma, kode sumber (<i>source code</i>), strategi finansial, daftar klien, rancangan arsitektur, rahasia dagang, formula, model bisnis, dan komunikasi lisan maupun tulisan yang diberikan oleh PIHAK PERTAMA kepada PIHAK KEDUA.</li>
-            <li className="pl-2">Seluruh informasi yang diberikan dan dikomunikasikan dalam konteks hubungan kerjasama, terlepas dari apakah informasi tersebut ditandai dengan cap fisik "RAHASIA", mutlak dianggap sebagai Informasi Rahasia secara eksklusif.</li>
+            <li className="pl-2">"Informasi Rahasia" meliputi, namun tidak terbatas pada, setiap dan seluruh data, dokumen, catatan, algoritma, kode sumber (<i>source code</i>), sistem basis data, strategi finansial, struktur harga, daftar klien, rancangan arsitektur, rahasia dagang, cetak biru (<i>blueprint</i>), komunikasi lisan maupun tulisan, serta temuan-temuan terkait operasional yang diberikan oleh PIHAK PERTAMA kepada PIHAK KEDUA.</li>
+            <li className="pl-2">Seluruh informasi, data, atau dokumen yang diperoleh, diakses, didengar, maupun dilihat oleh PIHAK KEDUA selama masa interaksi dengan PIHAK PERTAMA mutlak dianggap sebagai Informasi Rahasia secara eksklusif, terlepas dari apakah informasi tersebut secara spesifik ditandai atau dicap dengan label "RAHASIA".</li>
           </ol>
         </div>
 
         <div className="mb-6">
-          <h2 className="text-center font-bold mb-2 uppercase">PASAL 2<br/>KETENTUAN PENGGUNAAN DAN SIFAT KERAHASIAAN</h2>
+          <p className="text-center font-bold mb-2 uppercase">PASAL 2<br/>KEPEMILIKAN DAN PENGUASAAN MUTLAK</p>
           <ol className="list-decimal ml-4 pl-4 text-justify space-y-2">
-            <li className="pl-2">PIHAK KEDUA dilarang keras menggunakan Informasi Rahasia untuk tujuan komersial independen, kepentingan pribadi, mendirikan usaha rintisan pesaing, atau tujuan apapun selain dari tujuan kolaborasi spesifik yang telah disetujui tertulis oleh Direksi PIHAK PERTAMA.</li>
-            <li className="pl-2">Segala bentuk kegiatan duplikasi, pengutipan, pencetakan ulang, pemotretan, perekaman audiovisual, pendistribusian, atau penyebarluasan Informasi Rahasia kepada pihak ketiga (termasuk keluarga atau kolega) dilarang secara mutlak.</li>
+            <li className="pl-2">PIHAK KEDUA secara tegas mengakui dan membenarkan bahwa seluruh Informasi Rahasia adalah dan akan selalu menjadi properti milik eksklusif dan mutlak dari PIHAK PERTAMA.</li>
+            <li className="pl-2">Segala bentuk modifikasi, turunan, inovasi, pengembangan, cetak biru, kode baru, algoritma turunan, atau penemuan yang tercipta, dipikirkan, atau dikembangkan oleh PIHAK KEDUA yang secara langsung maupun tidak langsung terinspirasi dari Informasi Rahasia, secara otomatis dan sepihak menjadi hak milik penuh dan sah seratus persen (100%) PIHAK PERTAMA sejak detik penciptaannya.</li>
+            <li className="pl-2">PIHAK KEDUA secara hukum melepaskan dan menghapus seluruh hak dan klaim masa depan untuk menuntut royalti, komisi, pembagian saham kosong (<i>sweat equity</i>), pengakuan kekayaan intelektual, maupun kompensasi finansial lainnya dalam bentuk apapun atas karya-karya turunan tersebut.</li>
           </ol>
         </div>
 
         <div className="mb-6">
-          <h2 className="text-center font-bold mb-2 uppercase">PASAL 3<br/>KEWAJIBAN PENGAMANAN (STRICT LIABILITY)</h2>
+          <p className="text-center font-bold mb-2 uppercase">PASAL 3<br/>KETENTUAN PENGGUNAAN DAN LARANGAN EKSPLOITASI</p>
           <ol className="list-decimal ml-4 pl-4 text-justify space-y-2">
-            <li className="pl-2">PIHAK KEDUA wajib mengamankan dan menjaga kerahasiaan Informasi Rahasia dengan standar perlindungan korporat paling maksimal (<i>maximum security protocol</i>).</li>
-            <li className="pl-2">Apabila terjadi kebocoran informasi yang diakibatkan oleh kelalaian sekecil apapun (sengaja maupun tidak sengaja), intrusi siber ke perangkat PIHAK KEDUA, maupun rekayasa sosial, PIHAK KEDUA bertanggung jawab penuh secara hukum tanpa adanya pembelaan dalam bentuk apapun (<i>strict liability</i>).</li>
+            <li className="pl-2">PIHAK KEDUA hanya diperkenankan untuk menggunakan Informasi Rahasia secara sangat terbatas semata-mata untuk mewujudkan tujuan yang telah ditetapkan dalam Perjanjian ini dan tidak untuk tujuan komersial independen.</li>
+            <li className="pl-2">PIHAK KEDUA dilarang keras dan diharamkan secara hukum untuk mengeksploitasi Informasi Rahasia demi mendirikan bisnis pesaing (<i>competitor</i>), melakukan praktik pembajakan klien (<i>poaching</i>), atau mengambil keuntungan pribadi atas akses informasi yang telah diberikan.</li>
+            <li className="pl-2">Segala bentuk kegiatan duplikasi, pengutipan, pencetakan ulang, pemotretan, perekaman audiovisual, pencatatan diam-diam, rekayasa balik (<i>reverse engineering</i>), pendistribusian, atau penyebarluasan Informasi Rahasia kepada pihak ketiga (termasuk keluarga kandung, kolega, entitas bisnis lain, dan publik luas) dilarang secara mutlak.</li>
+          </ol>
+        </div>
+
+        <div className="mb-6">
+          <p className="text-center font-bold mb-2 uppercase">PASAL 4<br/>KEWAJIBAN PENGAMANAN DAN TANGGUNG JAWAB MUTLAK (STRICT LIABILITY)</p>
+          <ol className="list-decimal ml-4 pl-4 text-justify space-y-2">
+            <li className="pl-2">PIHAK KEDUA memiliki kewajiban tingkat tertinggi untuk mengamankan dan menjaga kerahasiaan Informasi Rahasia dengan standar perlindungan siber dan korporat paling maksimal (<i>maximum physical and digital security protocol</i>).</li>
+            <li className="pl-2">Apabila terjadi kebocoran informasi yang diakibatkan oleh kelalaian sekecil apapun (baik disengaja maupun tidak disengaja), kelemahan sistem, kelengahan operasional, intrusi siber peretas terhadap perangkat PIHAK KEDUA, maupun rekayasa sosial, PIHAK KEDUA bertanggung jawab penuh secara hukum tanpa berhak mengajukan alasan pemaaf atau pembelaan dalam bentuk apapun (<i>strict liability</i>).</li>
           </ol>
         </div>
 
         <div className="mb-6 break-inside-avoid">
-          <h2 className="text-center font-bold mb-2 uppercase">PASAL 4<br/>SANKSI DAN PENALTI FINANSIAL MASIF</h2>
+          <p className="text-center font-bold mb-2 uppercase">PASAL 5<br/>PENALTI FINANSIAL MASIF DAN SANKSI PIDANA</p>
           <ol className="list-decimal ml-4 pl-4 text-justify space-y-2">
-            <li className="pl-2">Dalam hal PIHAK KEDUA terbukti secara nyata melakukan pelanggaran atas sebagian maupun seluruh ketentuan dalam Pasal 1, Pasal 2, dan Pasal 3 Perjanjian ini, PIHAK KEDUA diwajibkan untuk membayar denda tunai seketika (<i>liquidated damages</i>) kepada PIHAK PERTAMA sebesar <strong>Rp {data.penaltyAmount} ({data.penaltyAmountText})</strong>.</li>
-            <li className="pl-2">Denda finansial tersebut wajib dibayarkan secara penuh, lunas, dan tunai selambat-lambatnya 7 (tujuh) hari kalender sejak dikeluarkannya Surat Somasi pertama oleh firma hukum PIHAK PERTAMA.</li>
-            <li className="pl-2">Pembayaran denda ini tidak menghapuskan hak PIHAK PERTAMA untuk menuntut tambahan ganti rugi perdata yang lebih besar, menuntut penyitaan seluruh aset pribadi PIHAK KEDUA, serta memidanakan PIHAK KEDUA dengan delik pidana penggelapan korporasi dan pencurian kekayaan intelektual tingkat berat.</li>
+            <li className="pl-2">Dalam hal PIHAK KEDUA terbukti (berdasarkan temuan sepihak PIHAK PERTAMA maupun lembaga audit independen) melakukan pelanggaran nyata atas sebagian maupun seluruh ketentuan kerahasiaan, maka PIHAK KEDUA dikenakan denda tunai seketika (<i>liquidated damages</i>) dan wajib dibayarkan kepada PIHAK PERTAMA sejumlah <strong>Rp {data.penaltyAmount} ({data.penaltyAmountText})</strong>.</li>
+            <li className="pl-2">Denda finansial tersebut merupakan sanksi keperdataan yang tidak bisa dinegosiasikan ulang, dan wajib dibayarkan secara penuh, lunas, dan tunai selambat-lambatnya 7 (tujuh) hari kalender sejak dikeluarkannya Surat Somasi Pertama (Peringatan Terakhir) oleh representasi hukum atau firma hukum PIHAK PERTAMA.</li>
+            <li className="pl-2">Pembayaran denda ini bersifat terpisah dan sama sekali tidak menghapuskan, mengurangi, atau membatasi hak PIHAK PERTAMA untuk menuntut ganti rugi perdata tambahan yang lebih besar apabila nilai kerusakan bisnis melebihi nominal denda tersebut, memohon penyitaan konservatoir terhadap seluruh aset pribadi PIHAK KEDUA (termasuk harta tak bergerak, rekening bank, kendaraan), serta melaporkan dan memidanakan PIHAK KEDUA ke aparat penegak hukum atas dugaan delik pidana pembocoran rahasia korporasi, pencurian data siber, dan pelanggaran kekayaan intelektual tingkat berat sesuai dengan regulasi yang berlaku.</li>
           </ol>
         </div>
 
         <div className="mb-6 break-inside-avoid">
-          <h2 className="text-center font-bold mb-2 uppercase">PASAL 5<br/>HAK AUDIT PAKSA DAN PENYITAAN ASET TEKNOLOGI</h2>
+          <p className="text-center font-bold mb-2 uppercase">PASAL 6<br/>AUDIT PAKSA DAN PENYITAAN ASET TEKNOLOGI</p>
           <ol className="list-decimal ml-4 pl-4 text-justify space-y-2">
-            <li className="pl-2">PIHAK PERTAMA memiliki hak absolut dan tidak dapat dihalangi untuk sewaktu-waktu, tanpa pemberitahuan sebelumnya, melakukan inspeksi, audit paksa, dan penggeledahan terhadap perangkat fisik (laptop, tablet, ponsel), server, email, dan ruang penyimpanan awan (<i>cloud</i>) milik PIHAK KEDUA.</li>
-            <li className="pl-2">Apabila terindikasi kuat terdapat pelanggaran protokol kerahasiaan, PIHAK PERTAMA berhak penuh menyita (mengambil alih secara paksa) perangkat-perangkat tersebut untuk keperluan penyidikan dan audit forensik internal.</li>
+            <li className="pl-2">Guna memastikan kepatuhan atas Perjanjian ini, PIHAK PERTAMA (termasuk agen atau investigator independen yang ditunjuknya) memiliki hak absolut, diskresioner, dan tidak dapat dihalangi untuk sewaktu-waktu (kapanpun dan di manapun), tanpa kewajiban memberikan pemberitahuan terlebih dahulu, untuk melakukan inspeksi mendadak, audit paksa, dan penggeledahan digital.</li>
+            <li className="pl-2">Objek inspeksi meliputi setiap dan seluruh perangkat keras (laptop, komputer pribadi, tablet, telepon seluler), server fisik/virtual, akun surat elektronik (email), ruang penyimpanan komputasi awan (<i>cloud storage</i>), rekam jejak repositori kode, dan riwayat perpesanan milik PIHAK KEDUA yang relevan.</li>
+            <li className="pl-2">Apabila terindikasi secara kuat (berdasarkan kecurigaan beralasan) terdapat pelanggaran protokol kerahasiaan, PIHAK PERTAMA berhak penuh menyita, menahan, atau mengambil alih secara paksa perangkat-perangkat maupun akun-akun tersebut demi mengamankan barang bukti untuk keperluan penyidikan forensik internal lebih lanjut. PIHAK KEDUA melepaskan hak privasinya sehubungan dengan pelaksanaan audit paksa ini.</li>
           </ol>
         </div>
 
         <div className="mb-6">
-          <h2 className="text-center font-bold mb-2 uppercase">PASAL 6<br/>KEPEMILIKAN HAK KEKAYAAN INTELEKTUAL (HAKI)</h2>
+          <p className="text-center font-bold mb-2 uppercase">PASAL 7<br/>MASA BERLAKU SEUMUR HIDUP</p>
           <ol className="list-decimal ml-4 pl-4 text-justify space-y-2">
-            <li className="pl-2">Segala bentuk karya turunan, modifikasi, pengembangan, cetak biru, kode baru, atau penemuan yang tercipta dan dikembangkan oleh PIHAK KEDUA yang secara langsung maupun tidak langsung terinspirasi dari Informasi Rahasia, secara otomatis, sepihak, dan sah menjadi hak milik penuh dan mutlak (100%) PIHAK PERTAMA.</li>
-            <li className="pl-2">PIHAK KEDUA melepaskan semua hak untuk menuntut royalti, komisi, kepemilikan saham kosong (<i>sweat equity</i>), maupun kompensasi finansial lainnya di masa depan.</li>
-          </ol>
-        </div>
-
-        <div className="mb-6">
-          <h2 className="text-center font-bold mb-2 uppercase">PASAL 7<br/>JANGKA WAKTU BERLAKU SEUMUR HIDUP</h2>
-          <ol className="list-decimal ml-4 pl-4 text-justify space-y-2">
-            <li className="pl-2">Kewajiban kerahasiaan dan pelarangan pengungkapan berdasarkan Perjanjian ini mengikat PIHAK KEDUA tanpa batas waktu (berlaku seumur hidup), terlepas dari apakah hubungan kerja, kontrak, dan kolaborasi antara PARA PIHAK telah berakhir, diputus sepihak, maupun batal demi hukum.</li>
-            <li className="pl-2">Kewajiban ini hanya akan gugur sebagian apabila Informasi Rahasia tersebut secara sah dan sengaja dipublikasikan ke ranah publik melalui siaran pers resmi dari Direksi PIHAK PERTAMA.</li>
+            <li className="pl-2">Kewajiban kerahasiaan, pelarangan pengungkapan, dan seluruh tanggung jawab yang diatur di dalam Perjanjian ini mengikat PIHAK KEDUA tanpa batas waktu (berlaku abadi dan seumur hidup), terlepas dari apakah kolaborasi, proyek, hubungan kerja, maupun kontrak utama antara PARA PIHAK telah berakhir, diputus sepihak, dinyatakan usai, atau batal demi hukum.</li>
+            <li className="pl-2">Kewajiban menjaga kerahasiaan ini hanya akan gugur terhadap poin spesifik dari Informasi Rahasia, manakala informasi tersebut telah secara sah, bebas, dan sengaja dipublikasikan ke ranah publik luas melalui siaran pers resmi (<i>official press release</i>) yang ditandatangani oleh Direksi Utama PIHAK PERTAMA. Informasi yang bocor oleh pihak ketiga atau beredar melalui desas-desus publik tetap wajib dijaga kerahasiaannya oleh PIHAK KEDUA.</li>
           </ol>
         </div>
 
         <div className="mb-8">
-          <h2 className="text-center font-bold mb-2 uppercase">PASAL 8<br/>YURISDIKSI HUKUM DAN PELEPASAN HAK PEMBELAAN</h2>
+          <p className="text-center font-bold mb-2 uppercase">PASAL 8<br/>PENYELESAIAN SENGKETA DAN PELEPASAN HAK PEMBELAAN</p>
           <ol className="list-decimal ml-4 pl-4 text-justify space-y-2">
-            <li className="pl-2">Perjanjian ini sepenuhnya tunduk, ditafsirkan, dan diatur berdasarkan hukum dan konstitusi Negara Kesatuan Republik Indonesia.</li>
-            <li className="pl-2">Demi memberikan jaminan eksekusi yang cepat bagi PIHAK PERTAMA, PIHAK KEDUA dengan sadar dan secara sukarela <strong>melepaskan seluruh hak hukumnya untuk membela diri</strong> atas pengenaan penalti dan denda sebagaimana dimaksud dalam Pasal 4, baik melalui mekanisme bantahan peradilan, arbitrase, atau institusi penyelesaian sengketa lainnya.</li>
-            <li className="pl-2">Segala bentuk sengketa, beda pendapat, maupun tindakan eksekusi denda akan dieksekusi secara sepihak dan mutlak di kepaniteraan Pengadilan Negeri tempat kedudukan hukum PIHAK PERTAMA, tanpa hak banding dari PIHAK KEDUA.</li>
+            <li className="pl-2">Perjanjian ini dibuat, disepakati, sepenuhnya tunduk pada, ditafsirkan, serta dieksekusi berdasarkan hukum dan yurisdiksi Negara Kesatuan Republik Indonesia.</li>
+            <li className="pl-2">Demi memberikan jaminan perlindungan dan eksekusi denda secara instan bagi PIHAK PERTAMA, PIHAK KEDUA dengan sadar, penuh kesengajaan, dan secara sukarela <strong>melepaskan seluruh hak hukumnya untuk menuntut, menyanggah, membatalkan, maupun membela diri</strong> atas pengenaan penalti dan audit penyitaan yang diatur dalam Pasal 5 dan Pasal 6. Pelepasan hak ini melingkupi bantahan peradilan, gugatan rekonvensi, arbitrase, maupun manuver pembelaan diri pada institusi penyelesaian sengketa apapun.</li>
+            <li className="pl-2">Segala bentuk sengketa keperdataan terkait keabsahan eksekusi akan diselesaikan secara eksklusif, sepihak, dan final di kepaniteraan Pengadilan Negeri tempat domisili hukum PIHAK PERTAMA, tanpa hak penolakan, hak banding, ataupun hak kasasi dari PIHAK KEDUA. Keputusan pengadilan tersebut wajib dieksekusi serta merta meskipun ada upaya perlawanan (<i>uitvoerbaar bij voorraad</i>).</li>
           </ol>
         </div>
         
         <div className="break-inside-avoid">
           <p className="mb-12 text-justify">
-            Demikian Perjanjian Kerahasiaan (NDA) ini dibuat, dibaca, dimengerti secara utuh konsekuensi pidana dan perdatanya, serta ditandatangani oleh PARA PIHAK dalam keadaan sadar, sehat jasmani dan rohani, tanpa adanya paksaan maupun intervensi dari pihak manapun, serta mempunyai kekuatan pembuktian hukum yang mengikat sejak tanggal ditandatangani.
+            Demikian Perjanjian Kerahasiaan (NDA) ini dirancang, dicetak, dibaca, dan dimengerti secara utuh setiap bait konsekuensi pidana dan perdatanya. Perjanjian ini ditandatangani oleh PARA PIHAK dalam keadaan sadar sesadar-sadarnya, sehat secara fisik maupun kejiwaan, tanpa ada sekelumit pun paksaan, penipuan, maupun intervensi dari pihak manapun, serta mempunyai kekuatan pembuktian hukum dan kekuatan eksekutorial yang mengikat dan memaksa sejak tanggal dibubuhkannya tanda tangan.
           </p>
           
           <div className="flex justify-between text-center font-sans">
@@ -234,12 +240,12 @@ function NdaToolBuilder() {
              </div>
              
              <div className="w-1/2 flex flex-col items-center">
-                <p className="mb-8 font-bold uppercase text-xs">PIHAK KEDUA (RECEIVING PARTY)<br/>PENERIMA AKSES</p>
+                <p className="mb-8 font-bold uppercase text-xs">PIHAK KEDUA (RECEIVING PARTY)<br/>PENERIMA AKSES TERBATAS</p>
                 <div className="h-24 w-32 flex items-center justify-center border border-slate-300 text-[9px] text-slate-500 mb-2 bg-slate-50 print:border-black uppercase relative">
-                   <span className="absolute z-0 text-center px-2">Materai<br/>10.000<br/>Wajib TTD<br/>Kenai Materai</span>
+                   <span className="absolute z-0 text-center px-2 font-bold text-slate-400 print:text-black">Materai<br/>10.000<br/>Wajib TTD<br/>Kena Materai</span>
                 </div>
                 <p className="font-bold underline uppercase text-sm font-serif w-4/5 text-center">{data.name2}</p>
-                <p className="text-xs w-4/5 text-center">NIK: {data.nik2}</p>
+                <p className="text-xs uppercase w-4/5 text-center">NIK: {data.nik2}</p>
              </div>
           </div>
         </div>
@@ -272,7 +278,7 @@ function NdaToolBuilder() {
             </Link>
             <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <ShieldCheck size={16} className="text-red-500" /> <span>Corporate NDA Generator</span>
+               <ShieldCheck size={16} className="text-red-500" /> <span>Corporate Warfare NDA Generator</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -284,33 +290,33 @@ function NdaToolBuilder() {
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-red-600" /> Pengaturan Hukum NDA</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-red-600" /> Pengaturan Hukum Ekstrem NDA</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
            
            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:block print:overflow-visible print:bg-white">
               
               {/* PIHAK PERTAMA */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-800 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Pihak Pertama (Penguasa)</h3>
+                 <h3 className="text-[10px] font-black uppercase text-blue-800 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Pihak Pertama (Penguasa Mutlak)</h3>
                  
                  <div className="space-y-3">
                     <input className="w-full p-2 border border-slate-300 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.name1} onChange={e => handleDataChange('name1', e.target.value)} placeholder="Nama Lengkap KTP" />
                     <div className="grid grid-cols-2 gap-3">
                       <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.nik1} onChange={e => handleDataChange('nik1', e.target.value)} placeholder="NIK KTP" />
-                      <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.position1} onChange={e => handleDataChange('position1', e.target.value)} placeholder="Posisi di Perusahaan" />
+                      <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.position1} onChange={e => handleDataChange('position1', e.target.value)} placeholder="Jabatan Posisi" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.pob1} onChange={e => handleDataChange('pob1', e.target.value)} placeholder="Tempat Lahir" />
-                      <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.dob1} onChange={e => handleDataChange('dob1', e.target.value)} placeholder="Tanggal Lahir (mis. 1 Jan 1980)" />
+                      <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.dob1} onChange={e => handleDataChange('dob1', e.target.value)} placeholder="Tanggal Lahir" />
                     </div>
-                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.occupation1} onChange={e => handleDataChange('occupation1', e.target.value)} placeholder="Pekerjaan" />
-                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-bold text-slate-800" value={data.institution1} onChange={e => handleDataChange('institution1', e.target.value)} placeholder="Nama Entitas/Perusahaan" />
-                    <textarea className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none resize-none h-16" value={data.address1} onChange={e => handleDataChange('address1', e.target.value)} placeholder="Alamat Sesuai KTP" />
+                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.occupation1} onChange={e => handleDataChange('occupation1', e.target.value)} placeholder="Pekerjaan / Jabatan" />
+                    <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-bold text-slate-800" value={data.institution1} onChange={e => handleDataChange('institution1', e.target.value)} placeholder="Nama Entitas/Perusahaan (Opsional)" />
+                    <textarea className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none resize-none h-16" value={data.address1} onChange={e => handleDataChange('address1', e.target.value)} placeholder="Alamat Lengkap (Sesuai KTP)" />
                  </div>
               </div>
 
               {/* PIHAK KEDUA */}
               <div className="bg-slate-50 rounded-xl shadow-sm border border-slate-300 p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-slate-700 border-b border-slate-300 pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Pihak Kedua (Target/Penerima)</h3>
+                 <h3 className="text-[10px] font-black uppercase text-slate-700 border-b border-slate-300 pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Pihak Kedua (Penerima Akses)</h3>
                  
                  <div className="space-y-3">
                     <input className="w-full p-2 border border-slate-300 rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-slate-500 outline-none" value={data.name2} onChange={e => handleDataChange('name2', e.target.value)} placeholder="Nama Lengkap KTP" />
@@ -322,33 +328,34 @@ function NdaToolBuilder() {
                       <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.pob2} onChange={e => handleDataChange('pob2', e.target.value)} placeholder="Tempat Lahir" />
                       <input className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none" value={data.dob2} onChange={e => handleDataChange('dob2', e.target.value)} placeholder="Tanggal Lahir" />
                     </div>
-                    <textarea className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none resize-none h-16" value={data.address2} onChange={e => handleDataChange('address2', e.target.value)} placeholder="Alamat Sesuai KTP" />
+                    <textarea className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none resize-none h-16" value={data.address2} onChange={e => handleDataChange('address2', e.target.value)} placeholder="Alamat Lengkap (Sesuai KTP)" />
                  </div>
               </div>
 
               {/* KONTEN KLAUSUL */}
               <div className="bg-red-50 rounded-xl shadow-sm border border-red-200 p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-red-800 border-b border-red-200 pb-1 tracking-widest flex items-center gap-2"><AlertOctagon size={12}/> Objek & Penalti (Krusial)</h3>
+                 <h3 className="text-[10px] font-black uppercase text-red-800 border-b border-red-200 pb-1 tracking-widest flex items-center gap-2"><AlertOctagon size={12}/> Objek & Penalti Masif (Krusial)</h3>
                  
                  <div className="space-y-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-red-700 mb-1 uppercase tracking-wider">Tujuan Spesifik Kolaborasi / Proyek</label>
-                      <textarea className="w-full p-2 border border-red-300 rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none resize-none h-16" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} placeholder="Tujuan pemberian akses informasi..." />
+                      <label className="block text-[10px] font-bold text-red-700 mb-1 uppercase tracking-wider">Tujuan Spesifik Pemberian Akses</label>
+                      <textarea className="w-full p-2 border border-red-300 rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none resize-none h-16" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} placeholder="Contoh: Audit Teknologi dan Review Manajemen Risiko..." />
                     </div>
                     
                     <div className="p-3 bg-red-100 rounded-lg border border-red-300">
-                      <label className="block text-[10px] font-black text-red-900 mb-2 uppercase tracking-wider">Nominal Denda (Rp) - Pasal 4</label>
+                      <label className="block text-[10px] font-black text-red-900 mb-2 uppercase tracking-wider">Nominal Denda Eksekutorial (Rp)</label>
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-bold text-red-800">Rp</span>
-                        <input className="flex-1 p-2 border border-red-400 rounded-md text-xs font-bold text-red-900 focus:ring-2 focus:ring-red-500 outline-none" value={data.penaltyAmount} onChange={e => handleDataChange('penaltyAmount', e.target.value)} placeholder="10.000.000.000" />
+                        <input className="flex-1 p-2 border border-red-400 rounded-md text-xs font-bold text-red-900 focus:ring-2 focus:ring-red-500 outline-none" value={data.penaltyAmount} onChange={e => handleDataChange('penaltyAmount', e.target.value)} placeholder="50.000.000.000" />
                       </div>
-                      <input className="w-full p-2 border border-red-300 rounded-md text-xs italic text-red-800 focus:ring-2 focus:ring-red-500 outline-none bg-red-50" value={data.penaltyAmountText} onChange={e => handleDataChange('penaltyAmountText', e.target.value)} placeholder="Terbilang (Sepuluh Miliar Rupiah)" />
+                      <input className="w-full p-2 border border-red-300 rounded-md text-xs italic text-red-800 focus:ring-2 focus:ring-red-500 outline-none bg-red-50" value={data.penaltyAmountText} onChange={e => handleDataChange('penaltyAmountText', e.target.value)} placeholder="Terbilang (Lima Puluh Miliar Rupiah)" />
+                      <p className="mt-2 text-[9px] text-red-600 font-bold leading-tight">Denda ini bersifat seketika (liquidated damages) dan tidak bisa dinegosiasikan jika terjadi kebocoran (Pasal 5).</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] font-bold text-red-700 mb-1 uppercase tracking-wider">Kota TTD</label>
-                        <input className="w-full p-2 border border-red-300 rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota" />
+                        <label className="block text-[10px] font-bold text-red-700 mb-1 uppercase tracking-wider">Kota Tanda Tangan</label>
+                        <input className="w-full p-2 border border-red-300 rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Nama Kota" />
                       </div>
                       <div>
                         <label className="block text-[10px] font-bold text-red-700 mb-1 uppercase tracking-wider">Tgl Kesepakatan</label>
@@ -375,7 +382,7 @@ function NdaToolBuilder() {
       
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Non-Disclosure Agreement Korporasi" price={45000} />
+         <PrintWrapper documentName="Corporate Warfare NDA" price={75000} />
       </div>
 
       <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>

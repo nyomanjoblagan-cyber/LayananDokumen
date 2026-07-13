@@ -4,14 +4,14 @@
  * FILE: SuratKuasaPage.tsx
  * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
  * DESC: Generator Surat Kuasa (Power of Attorney) Multi-Purpose Enterprise Grade
- * FIX: Enterprise legal drafting standard with 6 Articles, no CSS grid in text
+ * FIX: Enterprise legal drafting standard with 8 Articles, no CSS grid in text, dynamic form
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeft, Upload, LayoutTemplate, RotateCcw,
   User, UserCheck, FileText, Scroll, Car, GraduationCap, Banknote, 
-  ChevronDown, Check, Edit3, Eye, ArrowLeftCircle, Briefcase, Calendar, Scale, Settings
+  ChevronDown, Check, Edit3, Eye, ArrowLeftCircle, Briefcase, Calendar, Scale, Settings, ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -41,15 +41,17 @@ interface KuasaData {
   purposeTitle: string;
   purposeDetail: string;
   
-  hakSubstitusi: 'Dengan Hak Substitusi' | 'Tanpa Hak Substitusi';
-  masaBerlaku: string;
-  penyelesaianSengketa: string;
+  hakSubstitusi: 'DENGAN HAK SUBSTITUSI' | 'TANPA HAK SUBSTITUSI';
+  masaBerlakuTipe: 'TANGGAL_PASTI' | 'SAMPAI_SELESAI' | 'TANPA_BATAS';
+  masaBerlakuTanggal: string;
+  kewajibanLaporan: 'BERKALA' | 'AKHIR' | 'TIDAK_ADA';
+  penyelesaianSengketa: 'PENGADILAN' | 'ARBITRASE' | 'MUSYAWARAH';
 }
 
 // --- 2. GLOBAL CONSTANTS ---
 const TEMPLATES = [
-  { id: 1, name: "Format Klasik Notariil", desc: "Layout standar dokumen hukum" },
-  { id: 2, name: "Format Modern Korporat", desc: "Layout dengan font sans-serif" }
+  { id: 1, name: "Format Klasik Notariil", desc: "Layout standar dokumen hukum (Serif)" },
+  { id: 2, name: "Format Modern Korporat", desc: "Layout dengan font sans-serif modern" }
 ];
 
 // --- 3. DATA DEFAULT ---
@@ -75,9 +77,11 @@ const INITIAL_DATA: KuasaData = {
   purposeTitle: 'PENGAMBILAN BPKB KENDARAAN BERMOTOR',
   purposeDetail: 'Mengambil Buku Pemilik Kendaraan Bermotor (BPKB) pada instansi terkait dengan rincian:\n- Merk/Type: Honda Vario 125\n- No. Polisi: B 1234 XXX\n- No. Rangka: MH1JM123456789\n- Atas Nama: Budi Santoso',
   
-  hakSubstitusi: 'Tanpa Hak Substitusi',
-  masaBerlaku: 'Hingga tugas/wewenang tersebut selesai dilaksanakan',
-  penyelesaianSengketa: 'Musyawarah untuk mufakat dan Pengadilan Negeri setempat',
+  hakSubstitusi: 'TANPA HAK SUBSTITUSI',
+  masaBerlakuTipe: 'SAMPAI_SELESAI',
+  masaBerlakuTanggal: '2026-12-31',
+  kewajibanLaporan: 'AKHIR',
+  penyelesaianSengketa: 'PENGADILAN',
 };
 
 export default function SuratKuasaPage() {
@@ -95,6 +99,7 @@ function KuasaToolBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<KuasaData>(INITIAL_DATA);
+
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -145,12 +150,14 @@ function KuasaToolBuilder() {
     return (
       <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
         
+        {/* HEADER */}
         <div className={`text-center mb-8 shrink-0 ${templateId === 1 ? 'border-b-4 border-double border-slate-900 pb-4' : 'border-b-2 border-slate-100 pb-4 print:border-black'}`}>
           <h1 className="text-2xl font-black underline uppercase tracking-[0.2em] leading-none text-slate-900">
             SURAT KUASA {data.jenisKuasa}
           </h1>
         </div>
 
+        {/* BODY */}
         <div className="space-y-4 flex-grow text-justify leading-relaxed">
           <p>Yang bertanda tangan di bawah ini:</p>
           
@@ -182,9 +189,9 @@ function KuasaToolBuilder() {
              </div>
           </div>
           
-          <p className="mt-2">Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang untuk selanjutnya disebut sebagai <strong>PIHAK PERTAMA (PEMBERI KUASA)</strong>.</p>
+          <p className="mt-2">Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang untuk selanjutnya dalam Surat Kuasa ini disebut sebagai <strong>PIHAK PERTAMA (PEMBERI KUASA)</strong>.</p>
           
-          <p className="mt-4">Dengan ini menerangkan memberikan kuasa penuh kepada:</p>
+          <p className="mt-4">Dengan ini menerangkan dengan sadar dan tanpa paksaan dari pihak manapun, memberikan KUASA PENUH kepada:</p>
 
           <div className="ml-6 space-y-1 mt-2">
              <div className="flex">
@@ -214,18 +221,38 @@ function KuasaToolBuilder() {
              </div>
           </div>
           
-          <p className="mt-2">Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang untuk selanjutnya disebut sebagai <strong>PIHAK KEDUA (PENERIMA KUASA)</strong>.</p>
+          <p className="mt-2">Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang untuk selanjutnya dalam Surat Kuasa ini disebut sebagai <strong>PIHAK KEDUA (PENERIMA KUASA)</strong>.</p>
           
           <p className="text-center font-bold uppercase mt-6 mb-2 tracking-widest text-[10pt]">-------------------------------------------- M E N E R A N G K A N --------------------------------------------</p>
-          <p>Bahwa PIHAK PERTAMA dengan ini memberikan kuasa penuh kepada PIHAK KEDUA dengan syarat-syarat dan ketentuan-ketentuan yang diatur dalam pasal-pasal sebagai berikut:</p>
+          <p>Bahwa PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama sepakat untuk tunduk dan mengikatkan diri pada syarat-syarat dan ketentuan-ketentuan yang diatur dalam pasal-pasal berikut ini:</p>
 
           <div className="mt-6 space-y-4">
              {/* PASAL 1 */}
              <div className="break-inside-avoid">
-                <p className="font-bold text-center">PASAL 1<br/>PEMBERIAN KUASA DAN RUANG LINGKUP</p>
-                <div className="mt-2 text-justify">
-                   <p className="mb-1">(1) PIHAK PERTAMA dengan ini memberikan wewenang kepada PIHAK KEDUA untuk bertindak untuk dan atas nama PIHAK PERTAMA dalam hal pelaksanaan <strong>{data.purposeTitle}</strong>.</p>
-                   <p className="mb-1">(2) Adapun ruang lingkup pelaksanaan kuasa yang diberikan oleh PIHAK PERTAMA kepada PIHAK KEDUA meliputi tindakan-tindakan sebagai berikut:</p>
+                <p className="font-bold text-center mb-2">PASAL 1<br/>DEFINISI</p>
+                <div className="text-justify">
+                   <p className="mb-1">Dalam Surat Kuasa ini, kecuali ditentukan lain secara tegas, istilah-istilah di bawah ini memiliki makna sebagai berikut:</p>
+                   <ol className="list-[lower-alpha] ml-8 mt-1 space-y-1">
+                      <li className="pl-2">&quot;Surat Kuasa&quot; adalah dokumen pemberian wewenang ini beserta seluruh lampiran dan perubahannya di kemudian hari.</li>
+                      <li className="pl-2">&quot;Pihak Pertama&quot; adalah Pemberi Kuasa sebagaimana identitasnya diuraikan secara sah di atas.</li>
+                      <li className="pl-2">&quot;Pihak Kedua&quot; adalah Penerima Kuasa yang ditunjuk oleh Pihak Pertama.</li>
+                      <li className="pl-2">&quot;Objek Kuasa&quot; adalah segala tindakan, wewenang, dan ruang lingkup yang dikuasakan sebagaimana diatur lebih lanjut dalam Pasal 2 Surat Kuasa ini.</li>
+                   </ol>
+                </div>
+             </div>
+
+             {/* PASAL 2 */}
+             <div className="break-inside-avoid">
+                <p className="font-bold text-center mt-6 mb-2">PASAL 2<br/>PEMBERIAN KUASA DAN RUANG LINGKUP (OBJEK KUASA)</p>
+                <div className="text-justify">
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(1)</div>
+                      <div>PIHAK PERTAMA dengan ini memberikan kuasa penuh dan wewenang kepada PIHAK KEDUA untuk bertindak untuk dan atas nama PIHAK PERTAMA dalam hal pelaksanaan: <strong>{data.purposeTitle}</strong>.</div>
+                   </div>
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(2)</div>
+                      <div>Ruang lingkup pelaksanaan kuasa ini secara spesifik meliputi tindakan-tindakan berikut:</div>
+                   </div>
                    <div className="ml-6 mt-1 whitespace-pre-wrap mb-1">
                       {data.purposeDetail.split('\n').map((line, idx) => (
                          <p key={idx}>{line}</p>
@@ -234,55 +261,119 @@ function KuasaToolBuilder() {
                 </div>
              </div>
 
-             {/* PASAL 2 */}
-             <div className="break-inside-avoid">
-                <p className="font-bold text-center mt-4">PASAL 2<br/>WEWENANG PIHAK KEDUA</p>
-                <div className="mt-2 text-justify">
-                   <p className="mb-1">Dalam menjalankan kuasa sebagaimana dimaksud pada Pasal 1, PIHAK KEDUA diberi wewenang penuh untuk:</p>
-                   <ol className="list-[lower-alpha] ml-10 mt-1 space-y-1">
-                      <li className="pl-2">Menghadap para pejabat, instansi pemerintah, instansi swasta, maupun pihak terkait lainnya yang berhubungan dengan objek Surat Kuasa ini;</li>
-                      <li className="pl-2">Membuat, menandatangani, serta menyerahkan segala bentuk dokumen, permohonan, pernyataan, kuitansi, maupun tanda terima yang diperlukan;</li>
-                      <li className="pl-2">Melakukan segala tindakan hukum lainnya yang dianggap perlu dan bermanfaat demi tercapainya maksud dan tujuan pemberian Surat Kuasa ini, tanpa ada yang dikecualikan selama tidak bertentangan dengan hukum yang berlaku.</li>
-                   </ol>
-                </div>
-             </div>
-
              {/* PASAL 3 */}
              <div className="break-inside-avoid">
-                <p className="font-bold text-center mt-4">PASAL 3<br/>HAK SUBSTITUSI</p>
-                <div className="mt-2 text-justify">
-                   <p>Surat Kuasa ini diberikan secara tegas <strong>{data.hakSubstitusi}</strong> kepada pihak ketiga mana pun tanpa pengecualian.</p>
+                <p className="font-bold text-center mt-6 mb-2">PASAL 3<br/>WEWENANG DAN HAK PIHAK KEDUA</p>
+                <div className="text-justify">
+                   <p className="mb-1">Dalam melaksanakan Objek Kuasa sebagaimana dimaksud pada Pasal 2, PIHAK KEDUA berhak dan berwenang secara sah untuk:</p>
+                   <ol className="list-[lower-alpha] ml-8 mt-1 space-y-1">
+                      <li className="pl-2">Menghadap, menemui, dan/atau berkomunikasi dengan setiap pejabat, instansi pemerintah, instansi swasta, maupun pihak ketiga lainnya yang relevan dengan Objek Kuasa;</li>
+                      <li className="pl-2">Meminta, menerima, membuat, menandatangani, serta menyerahkan segala bentuk dokumen, permohonan, pernyataan, akta, maupun tanda terima kuitansi yang diperlukan;</li>
+                      <li className="pl-2">Melakukan segala tindakan hukum lainnya yang dipandang perlu, relevan, dan bermanfaat demi tercapainya maksud dan tujuan Surat Kuasa ini, selama tidak bertentangan dengan peraturan perundang-undangan yang berlaku.</li>
+                   </ol>
                 </div>
              </div>
 
              {/* PASAL 4 */}
              <div className="break-inside-avoid">
-                <p className="font-bold text-center mt-4">PASAL 4<br/>MASA BERLAKU</p>
-                <div className="mt-2 text-justify">
-                   <p>Surat Kuasa ini berlaku terhitung sejak tanggal ditandatanganinya dokumen ini oleh kedua belah pihak dan akan terus berlaku <strong>{data.masaBerlaku}</strong>, atau sampai dicabut kembali secara tertulis oleh PIHAK PERTAMA.</p>
+                <p className="font-bold text-center mt-6 mb-2">PASAL 4<br/>KEWAJIBAN PIHAK KEDUA</p>
+                <div className="text-justify">
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(1)</div>
+                      <div>PIHAK KEDUA wajib melaksanakan wewenang yang diberikan dengan penuh kehati-hatian, iktikad baik, dan semata-mata demi melindungi serta memperjuangkan kepentingan hukum PIHAK PERTAMA.</div>
+                   </div>
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(2)</div>
+                      <div>PIHAK KEDUA berkewajiban untuk memberikan pelaporan pelaksanaan kuasa kepada PIHAK PERTAMA dengan ketentuan bahwa: 
+                        {data.kewajibanLaporan === 'BERKALA' ? ' PIHAK KEDUA wajib memberikan laporan perkembangan (progress) secara berkala selambat-lambatnya setiap 1 (satu) bulan sekali kepada PIHAK PERTAMA.' : 
+                         data.kewajibanLaporan === 'AKHIR' ? ' PIHAK KEDUA wajib memberikan laporan akhir yang komprehensif kepada PIHAK PERTAMA setelah seluruh tugas dan wewenang yang dikuasakan selesai dilaksanakan.' : 
+                         ' PIHAK KEDUA tidak diwajibkan memberikan laporan secara berkala, kecuali apabila diminta secara khusus oleh PIHAK PERTAMA.'}
+                      </div>
+                   </div>
                 </div>
              </div>
 
              {/* PASAL 5 */}
              <div className="break-inside-avoid">
-                <p className="font-bold text-center mt-4">PASAL 5<br/>PERTANGGUNGJAWABAN DAN PEMBEBASAN</p>
-                <div className="mt-2 text-justify">
-                   <p className="mb-1">(1) PIHAK KEDUA wajib senantiasa memberikan laporan atas segala tindakan dan/atau perbuatan yang telah dilakukannya berdasarkan Surat Kuasa ini kepada PIHAK PERTAMA apabila diminta.</p>
-                   <p className="mb-1">(2) PIHAK PERTAMA dengan ini melepaskan dan membebaskan PIHAK KEDUA dari segala tuntutan, gugatan, kerugian, maupun klaim dari pihak mana pun, asalkan PIHAK KEDUA menjalankan wewenangnya dengan itikad baik dan sesuai dengan ruang lingkup yang diatur di dalam Surat Kuasa ini.</p>
+                <p className="font-bold text-center mt-6 mb-2">PASAL 5<br/>HAK SUBSTITUSI DAN PELIMPAHAN WEWENANG</p>
+                <div className="text-justify">
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(1)</div>
+                      <div>Surat Kuasa ini diberikan secara tegas <strong>{data.hakSubstitusi}</strong>.</div>
+                   </div>
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(2)</div>
+                      <div>
+                        {data.hakSubstitusi === 'DENGAN HAK SUBSTITUSI' 
+                        ? 'PIHAK KEDUA berhak dan berwenang menunjuk, melimpahkan, atau mengalihkan sebagian maupun seluruh wewenang yang diberikan dalam Surat Kuasa ini kepada pihak lain (pihak ketiga) yang ditunjuknya secara sah.' 
+                        : 'PIHAK KEDUA dilarang keras melimpahkan, mengalihkan, atau menunjuk pihak lain (substitusi) untuk melaksanakan sebagian maupun seluruh wewenang yang diberikan berdasarkan Surat Kuasa ini.'}
+                      </div>
+                   </div>
                 </div>
              </div>
 
              {/* PASAL 6 */}
              <div className="break-inside-avoid">
-                <p className="font-bold text-center mt-4">PASAL 6<br/>PENYELESAIAN SENGKETA</p>
-                <div className="mt-2 text-justify">
-                   <p>Apabila di kemudian hari timbul perbedaan pendapat atau perselisihan sehubungan dengan pelaksanaan Surat Kuasa ini, maka PIHAK PERTAMA dan PIHAK KEDUA sepakat untuk menyelesaikannya secara {data.penyelesaianSengketa}.</p>
+                <p className="font-bold text-center mt-6 mb-2">PASAL 6<br/>MASA BERLAKU DAN KEDALUWARSA</p>
+                <div className="text-justify">
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(1)</div>
+                      <div>Surat Kuasa ini mulai berlaku secara efektif dan mengikat kedua belah pihak sejak tanggal ditandatangani.</div>
+                   </div>
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(2)</div>
+                      <div>Jangka waktu masa berlaku Surat Kuasa ini adalah: 
+                        {data.masaBerlakuTipe === 'TANGGAL_PASTI' ? ` Berlaku secara sah hingga batas waktu kedaluwarsa secara eksplisit pada tanggal ${formatDateSafe(data.masaBerlakuTanggal)}, setelah melewati tanggal tersebut maka Surat Kuasa ini dinyatakan berakhir dengan sendirinya dan tidak lagi memiliki kekuatan hukum.` : 
+                         data.masaBerlakuTipe === 'SAMPAI_SELESAI' ? ' Berlaku terus-menerus hingga seluruh tindakan, tugas, dan wewenang yang dikuasakan dalam Objek Kuasa dinyatakan selesai secara tuntas.' : 
+                         ' Berlaku tanpa batas waktu tertentu sampai adanya pencabutan atau pembatalan kembali secara tertulis oleh PIHAK PERTAMA.'}
+                      </div>
+                   </div>
                 </div>
              </div>
+
+             {/* PASAL 7 */}
+             <div className="break-inside-avoid">
+                <p className="font-bold text-center mt-6 mb-2">PASAL 7<br/>PERTANGGUNGJAWABAN DAN PEMBEBASAN TUNTUTAN (INDEMNIFIKASI)</p>
+                <div className="text-justify">
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(1)</div>
+                      <div>PIHAK PERTAMA dengan ini secara mutlak menyatakan menerima, menyetujui, dan meratifikasi segala tindakan hukum yang dilakukan oleh PIHAK KEDUA berdasarkan Surat Kuasa ini.</div>
+                   </div>
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(2)</div>
+                      <div>PIHAK PERTAMA dengan ini melepaskan, melindungi, dan membebaskan PIHAK KEDUA dari segala macam tuntutan, gugatan, ganti rugi, maupun klaim hukum dari pihak ketiga mana pun (<strong>Indemnification</strong>) yang mungkin timbul di kemudian hari akibat pelaksanaan Surat Kuasa ini, dengan syarat PIHAK KEDUA telah menjalankan wewenangnya dengan iktikad baik dan tidak melanggar batas ruang lingkup yang ditetapkan pada Pasal 2.</div>
+                   </div>
+                </div>
+             </div>
+
+             {/* PASAL 8 */}
+             <div className="break-inside-avoid">
+                <p className="font-bold text-center mt-6 mb-2">PASAL 8<br/>PENYELESAIAN SENGKETA DAN KEADAAN MEMAKSA (FORCE MAJEURE)</p>
+                <div className="text-justify">
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(1)</div>
+                      <div>Segala perbedaan pendapat atau perselisihan yang mungkin timbul akibat penafsiran atau pelaksanaan Surat Kuasa ini akan diselesaikan terlebih dahulu oleh kedua belah pihak dengan mengutamakan prinsip musyawarah untuk mufakat.</div>
+                   </div>
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(2)</div>
+                      <div>Apabila perselisihan tidak dapat diselesaikan melalui jalan musyawarah dalam waktu selambat-lambatnya 30 (tiga puluh) hari kalender, maka kedua belah pihak sepakat untuk menyelesaikan sengketa tersebut secara final melalui: 
+                        {data.penyelesaianSengketa === 'PENGADILAN' ? ' Kepaniteraan Pengadilan Negeri setempat yang berwenang secara absolut dan relatif sesuai hukum Republik Indonesia.' : 
+                         data.penyelesaianSengketa === 'ARBITRASE' ? ' Badan Arbitrase Nasional Indonesia (BANI) sesuai dengan peraturan dan prosedur yang berlaku di lembaga tersebut.' : 
+                         ' Mediasi dan Musyawarah Kekeluargaan secara tertutup yang dimediasi oleh pihak netral yang disepakati bersama.'}
+                      </div>
+                   </div>
+                   <div className="flex mb-1">
+                      <div className="w-6 shrink-0">(3)</div>
+                      <div>Kedua belah pihak dibebaskan dari kewajiban dalam Surat Kuasa ini apabila terjadi Keadaan Memaksa (<em>Force Majeure</em>) seperti bencana alam skala nasional, kebijakan mendadak dari otoritas pemerintah, atau huru-hara massal yang secara langsung menghalangi pelaksanaan Surat Kuasa ini.</div>
+                   </div>
+                </div>
+             </div>
+
           </div>
-          <p className="pt-4 text-justify">Demikian Surat Kuasa ini dibuat dan ditandatangani oleh para pihak dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya paksaan dari pihak mana pun juga untuk dipergunakan sebagaimana mestinya.</p>
+          <p className="pt-6 text-justify">Demikian Surat Kuasa ini dibuat, dibaca, dan ditandatangani oleh para pihak di atas meterai yang cukup dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya paksaan maupun tekanan dari pihak mana pun juga untuk dipergunakan sebagaimana mestinya.</p>
         </div>
 
+        {/* TANDA TANGAN */}
         <div className="shrink-0 mt-8 pt-8 border-t-2 border-slate-50 print:border-black break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
             <div className="flex justify-end w-full mb-6 text-[10.5pt]">
                <p className="font-bold text-slate-700 print:text-black">{data.city}, {formatDateSafe(data.date)}</p>
@@ -450,7 +541,7 @@ function KuasaToolBuilder() {
                     </select>
                  </div>
                  <div>
-                    <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Tujuan Utama (Judul)</label>
+                    <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Tujuan Utama (Judul Objek)</label>
                     <input className="w-full p-2 border rounded-lg text-xs font-black focus:ring-2 focus:ring-amber-500 outline-none uppercase" value={data.purposeTitle} onChange={e => handleDataChange('purposeTitle', e.target.value)} placeholder="PENGAMBILAN BPKB KENDARAAN" />
                  </div>
                  <div>
@@ -461,27 +552,47 @@ function KuasaToolBuilder() {
 
               {/* KETENTUAN LEGAL */}
               <div className="space-y-4 border-t pt-4 pb-10">
-                 <h3 className="text-[10px] font-black uppercase text-purple-600 border-b pb-1 tracking-widest flex items-center gap-2"><Settings size={12}/> Ketentuan Legalitas</h3>
+                 <h3 className="text-[10px] font-black uppercase text-purple-600 border-b pb-1 tracking-widest flex items-center gap-2"><ShieldAlert size={12}/> Klausul Hukum (Enterprise)</h3>
                  
                  <div>
-                    <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Hak Substitusi (Pasal 3)</label>
-                    <select className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.hakSubstitusi} onChange={e => handleDataChange('hakSubstitusi', e.target.value)}>
-                       <option value="Tanpa Hak Substitusi">Tanpa Hak Substitusi</option>
-                       <option value="Dengan Hak Substitusi">Dengan Hak Substitusi</option>
+                    <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Hak Substitusi (Pasal 5)</label>
+                    <select className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none font-semibold text-purple-700" value={data.hakSubstitusi} onChange={e => handleDataChange('hakSubstitusi', e.target.value)}>
+                       <option value="TANPA HAK SUBSTITUSI">TIDAK DAPAT DIALIHKAN (Tanpa Hak Substitusi)</option>
+                       <option value="DENGAN HAK SUBSTITUSI">BISA DIALIHKAN (Dengan Hak Substitusi)</option>
                     </select>
                  </div>
 
                  <div>
-                    <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Masa Berlaku (Pasal 4)</label>
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.masaBerlaku} onChange={e => handleDataChange('masaBerlaku', e.target.value)} placeholder="Hingga tugas tersebut selesai dilaksanakan" />
+                    <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Masa Berlaku (Pasal 6)</label>
+                    <select className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none mb-2" value={data.masaBerlakuTipe} onChange={e => handleDataChange('masaBerlakuTipe', e.target.value)}>
+                       <option value="SAMPAI_SELESAI">Berlaku Sampai Tugas Selesai</option>
+                       <option value="TANGGAL_PASTI">Batas Waktu Kedaluwarsa Pasti (Tanggal)</option>
+                       <option value="TANPA_BATAS">Tanpa Batas Waktu</option>
+                    </select>
+                    {data.masaBerlakuTipe === 'TANGGAL_PASTI' && (
+                        <input type="date" className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.masaBerlakuTanggal} onChange={e => handleDataChange('masaBerlakuTanggal', e.target.value)} />
+                    )}
                  </div>
 
                  <div>
-                    <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Penyelesaian Sengketa (Pasal 6)</label>
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.penyelesaianSengketa} onChange={e => handleDataChange('penyelesaianSengketa', e.target.value)} placeholder="Musyawarah untuk mufakat" />
+                    <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Kewajiban Laporan (Pasal 4)</label>
+                    <select className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.kewajibanLaporan} onChange={e => handleDataChange('kewajibanLaporan', e.target.value)}>
+                       <option value="AKHIR">Laporan Akhir (Setelah Selesai)</option>
+                       <option value="BERKALA">Laporan Berkala (Bulanan)</option>
+                       <option value="TIDAK_ADA">Tanpa Laporan (Kecuali Diminta)</option>
+                    </select>
+                 </div>
+
+                 <div>
+                    <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Penyelesaian Sengketa (Pasal 8)</label>
+                    <select className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.penyelesaianSengketa} onChange={e => handleDataChange('penyelesaianSengketa', e.target.value)}>
+                       <option value="PENGADILAN">Pengadilan Negeri</option>
+                       <option value="ARBITRASE">Arbitrase (BANI)</option>
+                       <option value="MUSYAWARAH">Mediasi & Musyawarah Kekeluargaan</option>
+                    </select>
                  </div>
                  
-                 <div className="grid grid-cols-2 gap-3 pt-2">
+                 <div className="grid grid-cols-2 gap-3 pt-4 border-t mt-4">
                    <div>
                       <label className="text-[10px] text-slate-500 font-bold uppercase mb-1 block">Kota TTD</label>
                       <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-slate-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} placeholder="Kota TTD" />
@@ -512,8 +623,8 @@ function KuasaToolBuilder() {
 
       
       {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Surat Kuasa" price={10000} />
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 mt-6">
+         <PrintWrapper documentName="Surat Kuasa" price={15000} />
       </div>
 
       <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>

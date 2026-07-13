@@ -1,64 +1,146 @@
 'use client';
 
-/**
- * FILE: PesangonPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Kalkulator & Generator Surat Perhitungan Pesangon (PP 35/2021)
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
- */
-
-import { useState, Suspense, useMemo, useEffect } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Calculator, Wallet, 
-  CalendarDays, Briefcase, Info, AlertTriangle, Scale, Edit3, Eye,
-  LayoutTemplate, ChevronDown, Check, MapPin, RotateCcw, ArrowLeftCircle
+  Printer, ArrowLeftCircle, Edit3, RotateCcw, 
+  User, Building, FileText, Briefcase, CreditCard,
+  CalendarDays, MapPin, Scale
 } from 'lucide-react';
 import Link from 'next/link';
 
 // IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
 
-// --- 1. TYPE DEFINITIONS ---
+// --- TYPE DEFINITIONS ---
 interface PesangonData {
   city: string;
   date: string;
-  name: string;
-  joinDate: string;
+  
+  // Pihak 1 (Perusahaan/Perwakilan)
+  p1Name: string;
+  p1Nik: string;
+  p1Pob: string;
+  p1Dob: string;
+  p1Occupation: string;
+  p1Address: string;
+  companyName: string;
+  companyTitle: string;
+  
+  // Pihak 2 (Karyawan)
+  p2Name: string;
+  p2Nik: string;
+  p2Pob: string;
+  p2Dob: string;
+  p2Occupation: string;
+  p2Address: string;
+  empStartDate: string;
+  empTitle: string;
+
+  // Detail PHK & Pesangon
   phkDate: string;
-  salary: number; 
-  reason: string; 
+  severanceAmount: number;
+  paymentMethod: 'Tunai' | 'Transfer';
+  bankName: string;
+  bankAccount: string;
+  bankAccountName: string;
+  taxPayer: 'Ditanggung Perusahaan' | 'Ditanggung Pihak Kedua';
 }
 
-// --- 2. DATA DEFAULT ---
 const INITIAL_DATA: PesangonData = {
-  city: 'JAKARTA',
-  date: '', 
-  name: 'BUDI SANTOSO',
-  joinDate: '2015-01-01',
-  phkDate: '2026-01-08',
-  salary: 8000000, 
-  reason: 'efisiensi', 
+  city: 'Jakarta',
+  date: '',
+  
+  p1Name: 'Budi Santoso',
+  p1Nik: '3171234567890001',
+  p1Pob: 'Jakarta',
+  p1Dob: '1980-05-15',
+  p1Occupation: 'Direktur HR',
+  p1Address: 'Jl. Sudirman Kav 21, RT 001/RW 002, Senayan, Kebayoran Baru, Jakarta Selatan',
+  companyName: 'PT Maju Bersama Sejahtera',
+  companyTitle: 'Direktur HRD',
+  
+  p2Name: 'Andi Setiawan',
+  p2Nik: '3171234567890002',
+  p2Pob: 'Bandung',
+  p2Dob: '1990-08-20',
+  p2Occupation: 'Karyawan Swasta',
+  p2Address: 'Jl. Kebon Jeruk No. 10, RT 005/RW 003, Kebon Jeruk, Jakarta Barat',
+  empStartDate: '2020-01-10',
+  empTitle: 'Senior Marketing Staff',
+
+  phkDate: '2026-07-13',
+  severanceAmount: 55000000,
+  paymentMethod: 'Transfer',
+  bankName: 'BCA',
+  bankAccount: '1234567890',
+  bankAccountName: 'Andi Setiawan',
+  taxPayer: 'Ditanggung Perusahaan',
 };
 
-export default function PesangonPage() {
+// --- HELPERS ---
+function terbilang(angka: number): string {
+    const bilangan = [
+        "", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"
+    ];
+
+    if (angka < 12) {
+        return bilangan[angka];
+    } else if (angka < 20) {
+        return terbilang(angka - 10) + " Belas";
+    } else if (angka < 100) {
+        return terbilang(Math.floor(angka / 10)) + " Puluh " + terbilang(angka % 10);
+    } else if (angka < 200) {
+        return "Seratus " + terbilang(angka - 100);
+    } else if (angka < 1000) {
+        return terbilang(Math.floor(angka / 100)) + " Ratus " + terbilang(angka % 100);
+    } else if (angka < 2000) {
+        return "Seribu " + terbilang(angka - 1000);
+    } else if (angka < 1000000) {
+        return terbilang(Math.floor(angka / 1000)) + " Ribu " + terbilang(angka % 1000);
+    } else if (angka < 1000000000) {
+        return terbilang(Math.floor(angka / 1000000)) + " Juta " + terbilang(angka % 1000000);
+    } else if (angka < 1000000000000) {
+        return terbilang(Math.floor(angka / 1000000000)) + " Milyar " + terbilang(angka % 1000000000);
+    } else if (angka < 1000000000000000) {
+        return terbilang(Math.floor(angka / 1000000000000)) + " Triliun " + terbilang(angka % 1000000000000);
+    }
+    return "";
+}
+
+const getDayName = (dateStr: string) => {
+    if (!dateStr) return '...';
+    try {
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        return days[new Date(dateStr).getDay()];
+    } catch { return '...'; }
+};
+
+const formatDateSafe = (dateStr: string) => {
+    if (!dateStr) return '...';
+    try {
+        return new Date(dateStr).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+    } catch { return dateStr; }
+};
+
+const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+
+export default function PesangonDraftPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs bg-slate-50">Loading Calculator...</div>}>
-      <PesangonCalculatorBuilder />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium uppercase tracking-widest text-xs bg-slate-50">Loading Editor...</div>}>
+      <PesangonBuilder />
     </Suspense>
   );
 }
 
-function PesangonCalculatorBuilder() {
-  // --- STATE SYSTEM ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+function PesangonBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<PesangonData>(INITIAL_DATA);
+
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
-    setData(prev => ({ ...prev, date: today }));
+    setData(prev => ({ ...prev, date: prev.date || today, phkDate: prev.phkDate || today }));
   }, []);
 
   const handleDataChange = (field: keyof PesangonData, val: any) => {
@@ -68,196 +150,236 @@ function PesangonCalculatorBuilder() {
   const handleReset = () => {
     if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
-        setData({ ...INITIAL_DATA, date: today });
+        setData({ ...INITIAL_DATA, date: today, phkDate: today });
     }
   };
 
-  // --- LOGIC PERHITUNGAN (PP 35/2021) ---
-  const calculation = useMemo(() => {
-    const start = new Date(data.joinDate);
-    const end = new Date(data.phkDate);
-    
-    // Hitung Masa Kerja (Tahun & Bulan)
-    let years = end.getFullYear() - start.getFullYear();
-    let months = end.getMonth() - start.getMonth();
-    if (months < 0 || (months === 0 && end.getDate() < start.getDate())) {
-        years--;
-        months += 12;
-    }
-    
-    // Masa Kerja (Exact Years untuk logic UP)
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffYearsExact = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+  const DocumentContent = () => (
+    <div className="bg-white flex flex-col box-border font-serif text-black leading-relaxed text-[11pt] p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto">
+      
+      {/* JUDUL DOKUMEN */}
+      <div className="text-center font-bold mb-8">
+        <p className="uppercase underline tracking-wide text-sm font-black mb-1">PERJANJIAN BERSAMA PEMUTUSAN HUBUNGAN KERJA DAN PELEPASAN HAK</p>
+        <p className="text-xs uppercase tracking-wider">(Release and Discharge)</p>
+      </div>
 
-    // 1. Uang Pesangon (UP) - Pasal 40 ayat (2)
-    let upMultiplier = 0;
-    if (diffYearsExact < 1) upMultiplier = 1;
-    else if (diffYearsExact < 2) upMultiplier = 2;
-    else if (diffYearsExact < 3) upMultiplier = 3;
-    else if (diffYearsExact < 4) upMultiplier = 4;
-    else if (diffYearsExact < 5) upMultiplier = 5;
-    else if (diffYearsExact < 6) upMultiplier = 6;
-    else if (diffYearsExact < 7) upMultiplier = 7;
-    else if (diffYearsExact < 8) upMultiplier = 8;
-    else upMultiplier = 9; 
+      {/* PEMBUKAAN */}
+      <p className="text-justify mb-4">
+        Pada hari ini, <strong>{getDayName(data.date)}</strong>, tanggal <strong>{formatDateSafe(data.date)}</strong> bertempat di <strong>{data.city}</strong>, telah dibuat dan ditandatangani Perjanjian Bersama Pemutusan Hubungan Kerja ("Perjanjian") oleh dan antara:
+      </p>
 
-    // 2. Uang Penghargaan Masa Kerja (UPMK) - Pasal 40 ayat (3)
-    let upmkMultiplier = 0;
-    if (years >= 3 && years < 6) upmkMultiplier = 2;
-    else if (years >= 6 && years < 9) upmkMultiplier = 3;
-    else if (years >= 9 && years < 12) upmkMultiplier = 4;
-    else if (years >= 12 && years < 15) upmkMultiplier = 5;
-    else if (years >= 15 && years < 18) upmkMultiplier = 6;
-    else if (years >= 18 && years < 21) upmkMultiplier = 7;
-    else if (years >= 21 && years < 24) upmkMultiplier = 8;
-    else if (years >= 24) upmkMultiplier = 10;
-
-    // 3. Faktor Pengali Alasan PHK
-    let reasonCoefficient = 1.0;
-    if (data.reason === 'efisiensi') reasonCoefficient = 1.0; 
-    else if (data.reason === 'pelanggaran') reasonCoefficient = 0.5; 
-    else if (data.reason === 'pensiun') reasonCoefficient = 1.75;
-    else if (data.reason === 'meninggal') reasonCoefficient = 2.0;
-    else if (data.reason === 'tutup_kerugian') reasonCoefficient = 0.5;
-
-    // HITUNG NOMINAL
-    const totalUP = upMultiplier * data.salary * reasonCoefficient;
-    const totalUPMK = upmkMultiplier * data.salary; 
-    const totalUPH = (totalUP + totalUPMK) * 0.15; 
-
-    return {
-      years: years,
-      months: months < 0 ? 0 : months,
-      upMultiplier,
-      upmkMultiplier,
-      reasonCoefficient,
-      totalUP,
-      totalUPMK,
-      totalUPH,
-      grandTotal: totalUP + totalUPMK + totalUPH
-    };
-  }, [data]);
-
-  const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
-
-  const activeTemplateName = templateId === 1 ? 'Format Rincian' : 'Format Ringkas';
-
-  const DocumentContent = () => {
-    const formatDateSafe = (dateString: string) => {
-        if(!dateString) return '...';
-        try {
-            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        } catch { return dateString; }
-    };
-
-    return (
-      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto">
-        
-        <div className="text-center mb-8 border-b-4 border-double border-black pb-4 shrink-0">
-          <h1 className="font-black text-xl uppercase tracking-tighter">RINCIAN PERHITUNGAN PESANGON</h1>
-          <p className="text-sm mt-1 font-sans font-bold text-slate-500 uppercase tracking-widest print:text-black">Berdasarkan Peraturan Pemerintah No. 35 Tahun 2021</p>
-        </div>
-
-        <div className="flex-grow space-y-6">
-          <section className="grid grid-cols-2 gap-4 md:gap-6 text-[10pt] font-sans bg-slate-50 p-5 rounded-xl border border-slate-200 print:bg-transparent print:border-black break-inside-avoid">
-            <div className="space-y-3">
-              <div><p className="text-[9px] font-black text-slate-400 uppercase">Nama Karyawan</p><p className="font-bold text-base uppercase">{data.name}</p></div>
-              <div><p className="text-[9px] font-black text-slate-400 uppercase">Masa Kerja</p><p className="font-bold">{calculation.years} Tahun {calculation.months} Bulan</p></div>
-            </div>
-            <div className="space-y-3 text-right md:text-left">
-              <div><p className="text-[9px] font-black text-slate-400 uppercase">Upah Terakhir</p><p className="font-bold text-emerald-700 text-base print:text-black">{formatRupiah(data.salary)}</p></div>
-              <div><p className="text-[9px] font-black text-slate-400 uppercase">Alasan PHK</p><p className="font-bold uppercase text-red-600 italic">PHK {data.reason.replace('_', ' ')}</p></div>
-            </div>
-          </section>
-
-          {templateId === 1 ? (
-            <div className="overflow-hidden border-2 border-black rounded-sm shrink-0 break-inside-avoid">
-                <table className="w-full border-collapse font-sans">
-                <thead>
-                    <tr className="bg-slate-900 text-white print:bg-transparent print:text-black border-b-2 border-black">
-                    <th className="p-3 text-left text-[10px] uppercase tracking-widest">Komponen Hak</th>
-                    <th className="p-3 text-right text-[10px] uppercase tracking-widest">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody className="text-[10pt]">
-                    <tr className="border-b border-slate-100 print:border-black">
-                    <td className="p-4">
-                      <div className="font-black uppercase text-slate-900">Uang Pesangon (UP)</div>
-                      <div className="text-[9px] font-bold text-slate-400 mt-1 uppercase italic">
-                          Formula: {calculation.upMultiplier} x Upah x {calculation.reasonCoefficient} (Multiplier)
-                      </div>
-                    </td>
-                    <td className="p-4 text-right font-black text-slate-900">{formatRupiah(calculation.totalUP)}</td>
-                    </tr>
-                    <tr className="border-b border-slate-100 print:border-black">
-                    <td className="p-4">
-                      <div className="font-black uppercase text-slate-900">Penghargaan Masa Kerja (UPMK)</div>
-                      <div className="text-[9px] font-bold text-slate-400 mt-1 uppercase italic">
-                          Formula: {calculation.upmkMultiplier} x Upah
-                      </div>
-                    </td>
-                    <td className="p-4 text-right font-black text-slate-900">{formatRupiah(calculation.totalUPMK)}</td>
-                    </tr>
-                    <tr className="border-b border-slate-100 print:border-black">
-                    <td className="p-4">
-                      <div className="font-black uppercase text-slate-900">Uang Penggantian Hak (UPH)</div>
-                      <div className="text-[9px] font-bold text-slate-400 mt-1 uppercase italic">
-                          Estimasi: 15% x (UP + UPMK)
-                      </div>
-                    </td>
-                    <td className="p-4 text-right font-black text-slate-900">{formatRupiah(calculation.totalUPH)}</td>
-                    </tr>
-                    <tr className="bg-slate-900 text-white print:bg-transparent print:text-black">
-                    <td className="p-5 text-xl font-black uppercase text-right">Grand Total Bruto</td>
-                    <td className="p-5 text-2xl font-black text-right border-l border-white/20 print:border-black">{formatRupiah(calculation.grandTotal)}</td>
-                    </tr>
-                </tbody>
-                </table>
-            </div>
-          ) : (
-            <div className="space-y-6 font-sans px-4 break-inside-avoid">
-               <div className="flex justify-between border-b-2 border-slate-100 pb-3 print:border-black uppercase text-xs font-bold text-slate-400"><span>Uang Pesangon</span><span className="text-slate-900 font-black">{formatRupiah(calculation.totalUP)}</span></div>
-               <div className="flex justify-between border-b-2 border-slate-100 pb-3 print:border-black uppercase text-xs font-bold text-slate-400"><span>Uang Penghargaan Masa Kerja</span><span className="text-slate-900 font-black">{formatRupiah(calculation.totalUPMK)}</span></div>
-               <div className="flex justify-between border-b-2 border-slate-100 pb-3 print:border-black uppercase text-xs font-bold text-slate-400"><span>Uang Penggantian Hak</span><span className="text-slate-900 font-black">{formatRupiah(calculation.totalUPH)}</span></div>
-               <div className="flex justify-between text-2xl font-black pt-6 border-t-4 border-slate-900 text-slate-900"><span>GRAND TOTAL</span><span>{formatRupiah(calculation.grandTotal)}</span></div>
-            </div>
-          )}
-
-          <div className="bg-amber-50 border-2 border-dashed border-amber-200 p-5 rounded-2xl flex gap-4 items-start print:bg-transparent print:border-black shrink-0 break-inside-avoid">
-              <Info size={24} className="text-amber-600 shrink-0 mt-0.5 print:text-black" />
-              <div className="space-y-1">
-                <p className="text-[10px] font-black text-amber-900 uppercase print:text-black">Catatan Penting:</p>
-                <p className="text-[9pt] text-amber-800 leading-relaxed italic print:text-black">
-                  Perhitungan ini merupakan estimasi berdasarkan standar PP 35/2021. Nilai akhir dapat bervariasi sesuai Perjanjian Kerja Bersama (PKB) atau kebijakan internal perusahaan. Angka di atas adalah nilai bruto sebelum dipotong pajak penghasilan (PPh 21).
-                </p>
-              </div>
+      {/* IDENTITAS PIHAK PERTAMA */}
+      <div className="mb-4">
+        <div className="flex flex-col ml-4">
+          <div className="flex">
+            <span className="w-8 shrink-0 font-bold">I.</span>
+            <span className="w-40 shrink-0">Nama Lengkap</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1 font-bold">{data.p1Name}</span>
+          </div>
+          <div className="flex">
+            <span className="w-8 shrink-0"></span>
+            <span className="w-40 shrink-0">NIK</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1">{data.p1Nik}</span>
+          </div>
+          <div className="flex">
+            <span className="w-8 shrink-0"></span>
+            <span className="w-40 shrink-0">Tempat, Tgl Lahir</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1">{data.p1Pob}, {formatDateSafe(data.p1Dob)}</span>
+          </div>
+          <div className="flex">
+            <span className="w-8 shrink-0"></span>
+            <span className="w-40 shrink-0">Pekerjaan</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1">{data.p1Occupation}</span>
+          </div>
+          <div className="flex">
+            <span className="w-8 shrink-0"></span>
+            <span className="w-40 shrink-0">Alamat Sesuai KTP</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1">{data.p1Address}</span>
           </div>
         </div>
+      </div>
+      <p className="text-justify mb-4">
+        Dalam hal ini bertindak untuk dan atas nama <strong>{data.companyName}</strong>, berkedudukan sebagai <strong>{data.companyTitle}</strong>, yang selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK PERTAMA</strong>.
+      </p>
 
-        <div className="mt-auto pt-10 border-t border-slate-100 flex justify-between items-end print:border-black shrink-0 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-            <div className="text-center w-48 font-sans">
-              <p className="text-[9px] font-black text-slate-300 mb-16 uppercase tracking-[0.3em]">Management</p>
-              <div className="w-full border-b-2 border-slate-900 mb-1"></div>
-              <p className="text-[10px] font-black uppercase">HRD DEPARTMENT</p>
-            </div>
-            <div className="text-right w-64 font-sans">
-              <p className="text-[10px] font-black text-slate-300 mb-16 uppercase tracking-widest">{data.city}, {formatDateSafe(data.date)}</p>
-              <p className="font-black underline uppercase text-[11pt] tracking-tight text-slate-900">{data.name}</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase mt-1">Karyawan Bersangkutan</p>
-            </div>
+      {/* IDENTITAS PIHAK KEDUA */}
+      <div className="mb-4">
+        <div className="flex flex-col ml-4">
+          <div className="flex">
+            <span className="w-8 shrink-0 font-bold">II.</span>
+            <span className="w-40 shrink-0">Nama Lengkap</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1 font-bold">{data.p2Name}</span>
+          </div>
+          <div className="flex">
+            <span className="w-8 shrink-0"></span>
+            <span className="w-40 shrink-0">NIK</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1">{data.p2Nik}</span>
+          </div>
+          <div className="flex">
+            <span className="w-8 shrink-0"></span>
+            <span className="w-40 shrink-0">Tempat, Tgl Lahir</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1">{data.p2Pob}, {formatDateSafe(data.p2Dob)}</span>
+          </div>
+          <div className="flex">
+            <span className="w-8 shrink-0"></span>
+            <span className="w-40 shrink-0">Pekerjaan</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1">{data.p2Occupation}</span>
+          </div>
+          <div className="flex">
+            <span className="w-8 shrink-0"></span>
+            <span className="w-40 shrink-0">Alamat Sesuai KTP</span>
+            <span className="w-4 shrink-0">:</span>
+            <span className="flex-1">{data.p2Address}</span>
+          </div>
         </div>
       </div>
-    );
-  };
+      <p className="text-justify mb-6">
+        Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK KEDUA</strong>.
+      </p>
+
+      <p className="text-justify mb-4">
+        Pihak Pertama dan Pihak Kedua secara bersama-sama selanjutnya disebut sebagai <strong>PARA PIHAK</strong>, dan masing-masing disebut sebagai <strong>PIHAK</strong>.
+      </p>
+
+      {/* PREMIS */}
+      <p className="text-justify mb-2 font-bold">Menerangkan terlebih dahulu (Premis):</p>
+      <ol className="list-decimal pl-6 text-justify space-y-2 mb-6">
+        <li>Bahwa Pihak Pertama adalah sebuah Badan Usaha berbadan hukum yang mempekerjakan Pihak Kedua.</li>
+        <li>Bahwa Pihak Kedua telah dipekerjakan oleh Pihak Pertama sejak tanggal <strong>{formatDateSafe(data.empStartDate)}</strong> dan menempati posisi terakhir sebagai <strong>{data.empTitle}</strong>.</li>
+        <li>Bahwa Para Pihak setelah melalui perundingan dan mufakat, telah sepakat untuk mengakhiri hubungan kerja secara damai dan baik-baik.</li>
+      </ol>
+
+      <p className="text-justify mb-6">
+        Berdasarkan hal-hal tersebut di atas, Para Pihak dengan ini sepakat dan mengikatkan diri ke dalam Perjanjian ini dengan syarat-syarat dan ketentuan sebagai berikut:
+      </p>
+
+      {/* PASAL 1 */}
+      <div className="text-center font-bold mb-4">
+        <p>PASAL 1</p>
+        <p>KESEPAKATAN PEMUTUSAN HUBUNGAN KERJA</p>
+      </div>
+      <ol className="list-decimal pl-6 text-justify space-y-2 mb-6">
+        <li>Para Pihak dengan ini sepakat untuk mengakhiri hubungan kerja secara baik-baik antara Pihak Pertama dan Pihak Kedua, efektif terhitung sejak tanggal <strong>{formatDateSafe(data.phkDate)}</strong>.</li>
+        <li>Dengan berakhirnya hubungan kerja tersebut, maka terhitung sejak tanggal Pemutusan Hubungan Kerja, Pihak Kedua tidak lagi berstatus sebagai karyawan Pihak Pertama dan tidak lagi memiliki hak serta kewenangan untuk mewakili dan/atau bertindak untuk dan atas nama Pihak Pertama dalam hal apapun.</li>
+      </ol>
+
+      {/* PASAL 2 */}
+      <div className="text-center font-bold mb-4 break-before-auto">
+        <p>PASAL 2</p>
+        <p>HAK DAN KOMPENSASI</p>
+      </div>
+      <ol className="list-decimal pl-6 text-justify space-y-2 mb-6">
+        <li>Sebagai akibat dari Pemutusan Hubungan Kerja sebagaimana dimaksud pada Pasal 1, Pihak Pertama sepakat untuk memberikan pembayaran kompensasi pemutusan hubungan kerja kepada Pihak Kedua secara keseluruhan ("Kompensasi") sebesar <strong>{formatRupiah(data.severanceAmount)} ({terbilang(data.severanceAmount).trim()} Rupiah)</strong>.</li>
+        <li>Kompensasi sebagaimana dimaksud pada Ayat 1 merupakan gabungan dari Uang Pesangon, Uang Penghargaan Masa Kerja, dan Uang Penggantian Hak (jika ada), sesuai dengan ketentuan peraturan perundang-undangan ketenagakerjaan yang berlaku, khususnya Peraturan Pemerintah (PP) No. 35 Tahun 2021.</li>
+        <li>Pihak Kedua dengan ini menyatakan dan mengakui bahwa jumlah Kompensasi tersebut adalah jumlah yang final, penuh, lengkap, dan mengikat, serta mencakup seluruh hak-hak Pihak Kedua sehubungan dengan pemutusan hubungan kerja ini.</li>
+      </ol>
+
+      {/* PASAL 3 */}
+      <div className="text-center font-bold mb-4">
+        <p>PASAL 3</p>
+        <p>METODE PEMBAYARAN DAN PAJAK</p>
+      </div>
+      <ol className="list-decimal pl-6 text-justify space-y-2 mb-6">
+        <li>
+          {data.paymentMethod === 'Tunai' 
+            ? "Pembayaran Kompensasi sebagaimana dimaksud pada Pasal 2 akan dilakukan secara tunai secara bersamaan dengan penandatanganan Perjanjian ini oleh Para Pihak, yang mana Perjanjian ini sekaligus berlaku sebagai Tanda Terima (Kuitansi) yang sah atas pembayaran tersebut."
+            : `Pembayaran Kompensasi sebagaimana dimaksud pada Pasal 2 akan dilakukan melalui transfer bank ke rekening Pihak Kedua selambat-lambatnya 7 (tujuh) hari kerja setelah penandatanganan Perjanjian ini, dengan detail rekening sebagai berikut:`}
+          
+          {data.paymentMethod === 'Transfer' && (
+            <div className="mt-2 ml-4">
+              <div className="flex"><span className="w-32">Nama Bank</span><span>: {data.bankName}</span></div>
+              <div className="flex"><span className="w-32">No. Rekening</span><span>: {data.bankAccount}</span></div>
+              <div className="flex"><span className="w-32">Atas Nama</span><span>: {data.bankAccountName}</span></div>
+            </div>
+          )}
+        </li>
+        <li>
+          {data.taxPayer === 'Ditanggung Perusahaan'
+            ? "Pajak Penghasilan (PPh Pasal 21) yang timbul atas pembayaran Kompensasi ini ditanggung sepenuhnya oleh Pihak Pertama, sehingga nominal Kompensasi yang diterima Pihak Kedua adalah jumlah bersih (neto)."
+            : "Pajak Penghasilan (PPh Pasal 21) yang timbul atas pembayaran Kompensasi ini menjadi beban dan tanggung jawab Pihak Kedua. Pihak Pertama akan melakukan pemotongan atas total Kompensasi untuk kemudian disetorkan kepada Kas Negara sesuai peraturan perundang-undangan perpajakan yang berlaku."}
+        </li>
+      </ol>
+
+      {/* PASAL 4 */}
+      <div className="text-center font-bold mb-4">
+        <p>PASAL 4</p>
+        <p>PENGEMBALIAN ASET PERUSAHAAN DAN KERAHASIAAN</p>
+      </div>
+      <ol className="list-decimal pl-6 text-justify space-y-2 mb-6">
+        <li>Pihak Kedua berkewajiban untuk mengembalikan seluruh barang, dokumen, perangkat elektronik, fasilitas kerja, dan aset-aset lainnya milik Pihak Pertama yang berada dalam penguasaan Pihak Kedua, dalam keadaan baik, selambat-lambatnya pada tanggal efektif Pemutusan Hubungan Kerja.</li>
+        <li>Pihak Kedua berjanji dan mengikatkan diri untuk senantiasa menjaga kerahasiaan seluruh informasi penting, rahasia dagang, sistem internal, dan data perusahaan milik Pihak Pertama. Pihak Kedua dilarang membocorkan dan/atau menyalahgunakan informasi rahasia tersebut kepada pihak ketiga manapun meskipun hubungan kerja telah berakhir.</li>
+      </ol>
+
+      {/* PASAL 5 (ABSOLUTE RELEASE KLAUSUL) */}
+      <div className="text-center font-bold mb-4 break-before-auto">
+        <p>PASAL 5</p>
+        <p>PELEPASAN HAK (RELEASE AND DISCHARGE)</p>
+      </div>
+      <ol className="list-decimal pl-6 text-justify space-y-2 mb-6">
+        <li>Pihak Kedua menyatakan bahwa dengan ditandatanganinya Perjanjian ini dan telah diterimanya pembayaran Kompensasi secara penuh sebagaimana dimaksud dalam Pasal 2 dan Pasal 3, maka Pihak Kedua memberikan pembebasan dan pelepasan tanggung jawab sepenuhnya (<em>acquit et decharge</em>) kepada Pihak Pertama, beserta seluruh jajaran direksi, komisaris, pemegang saham, dan afiliasinya.</li>
+        <li>Pihak Kedua menyatakan bahwa seluruh hak-haknya (termasuk namun tidak terbatas pada upah, tunjangan, uang lembur, sisa cuti, dan hak lainnya) telah diselesaikan dengan lunas, tuntas, dan tidak ada lagi yang tertunggak.</li>
+        <li><strong>Pihak Kedua secara sadar, tanpa paksaan, dan secara mutlak melepaskan haknya untuk mengajukan segala bentuk tuntutan, gugatan, keberatan, pelaporan, atau proses hukum apapun, baik secara perdata, pidana, maupun ketenagakerjaan terhadap Pihak Pertama. Secara khusus, Pihak Kedua melepaskan haknya secara mutlak untuk menggugat Pihak Pertama di Pengadilan Hubungan Industrial (PHI) maupun di instansi pemerintah lainnya yang berwenang, sehubungan dengan pelaksanaan pemutusan hubungan kerja ini dan segala hak yang timbul daripadanya.</strong></li>
+      </ol>
+
+      {/* PASAL 6 */}
+      <div className="text-center font-bold mb-4">
+        <p>PASAL 6</p>
+        <p>PENYELESAIAN SENGKETA</p>
+      </div>
+      <ol className="list-decimal pl-6 text-justify space-y-2 mb-6">
+        <li>Tanpa mengesampingkan ketentuan pelepasan hak yang diatur pada Pasal 5, segala perselisihan yang mungkin timbul akibat penafsiran dan pelaksanaan atas Perjanjian ini, akan diselesaikan secara musyawarah untuk mufakat oleh Para Pihak.</li>
+        <li>Perjanjian ini diatur dan ditafsirkan berdasarkan hukum Negara Republik Indonesia.</li>
+      </ol>
+
+      {/* PASAL 7 */}
+      <div className="text-center font-bold mb-4">
+        <p>PASAL 7</p>
+        <p>PENUTUP</p>
+      </div>
+      <ol className="list-decimal pl-6 text-justify space-y-2 mb-8">
+        <li>Perjanjian ini berlaku dan mengikat Para Pihak sejak tanggal penandatanganan.</li>
+        <li>Perjanjian ini dibuat dan ditandatangani oleh Para Pihak dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya tekanan, paksaan, atau kekhilafan dari pihak manapun.</li>
+        <li>Perjanjian ini dibuat dalam rangkap 2 (dua), masing-masing bermeterai cukup Rp10.000,- (sepuluh ribu rupiah) yang keduanya memiliki kekuatan hukum yang sama, di mana 1 (satu) rangkap asli dipegang oleh Pihak Pertama dan 1 (satu) rangkap asli dipegang oleh Pihak Kedua.</li>
+      </ol>
+
+      {/* SIGNATURE SECTION */}
+      <div className="flex justify-between w-full mt-10 px-8 pb-10" style={{ pageBreakInside: 'avoid' }}>
+        <div className="text-center flex flex-col items-center">
+          <p className="font-bold mb-2">PIHAK PERTAMA,</p>
+          <p className="font-bold mb-20 uppercase">{data.companyName}</p>
+          <div className="w-48 border-b border-black mb-1"></div>
+          <p className="font-bold underline uppercase">{data.p1Name}</p>
+          <p className="text-sm">{data.companyTitle}</p>
+        </div>
+        
+        <div className="text-center flex flex-col items-center">
+          <p className="font-bold mb-24">PIHAK KEDUA,</p>
+          <div className="w-48 border-b border-black mb-1 relative flex justify-center items-end pb-1">
+             <div className="absolute border-2 border-slate-300 text-[8px] text-slate-300 w-16 h-10 flex items-center justify-center bottom-2 opacity-50 select-none">METERAI Rp10.000</div>
+          </div>
+          <p className="font-bold underline uppercase">{data.p2Name}</p>
+          <p className="text-sm">Karyawan</p>
+        </div>
+      </div>
+    </div>
+  );
 
   if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
+          @page { size: A4; margin: 20mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
@@ -276,66 +398,169 @@ function PesangonCalculatorBuilder() {
             </Link>
             <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <Calculator size={16} className="text-blue-500" /> <span>Severance Calculator</span>
+               <FileText size={16} className="text-blue-500" /> <span>Legal Drafter - Perjanjian PHK (Release & Discharge)</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
-              </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Format Tabel {templateId === 1 && <Check size={14}/>}</button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Format Memo {templateId === 2 && <Check size={14}/>}</button>
-                </div>
-              )}
-            </div>
             <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
+              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Data</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+        <div className={`no-print w-full md:w-[500px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans">
+              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Form Data Perjanjian</h2>
+              <button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button>
+           </div>
+           
            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:block print:overflow-visible print:bg-white">
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Briefcase size={12}/> Karyawan</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none uppercase" value={data.name} onChange={e => handleDataChange('name', e.target.value)} placeholder="Nama Lengkap" />
-                 <div className="space-y-1">
-                    <label className="text-[9px] font-black text-slate-400 uppercase">Upah (Gaji + Tunjangan Tetap)</label>
-                    <input type="number" className="w-full p-2 border rounded-lg text-xs font-black text-emerald-600 focus:ring-2 focus:ring-emerald-500 outline-none" value={data.salary} onChange={e => handleDataChange('salary', parseInt(e.target.value) || 0)} />
-                 </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><CalendarDays size={12}/> Masa Kerja</h3>
+              
+              {/* DATA PERJANJIAN */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-indigo-600 border-b pb-1 tracking-widest flex items-center gap-2"><MapPin size={12}/> Info Perjanjian</h3>
                  <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                       <label className="text-[9px] font-black text-slate-400">TGL MASUK</label>
-                       <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.joinDate} onChange={e => handleDataChange('joinDate', e.target.value)} />
+                       <label className="text-[9px] font-black text-slate-400">KOTA PENANDATANGANAN</label>
+                       <input className="w-full p-2 border rounded-lg text-xs" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
                     </div>
                     <div className="space-y-1">
-                       <label className="text-[9px] font-black text-slate-400">TGL PHK</label>
-                       <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.phkDate} onChange={e => handleDataChange('phkDate', e.target.value)} />
+                       <label className="text-[9px] font-black text-slate-400">TANGGAL PERJANJIAN</label>
+                       <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
                     </div>
                  </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><Scale size={12}/> Kondisi PHK</h3>
-                 <select className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50 focus:ring-2 focus:ring-red-500 outline-none" value={data.reason} onChange={e => handleDataChange('reason', e.target.value)}>
-                    <option value="efisiensi">Efisiensi / Perusahaan Tutup (1.0x)</option>
-                    <option value="pensiun">Mencapai Usia Pensiun (1.75x)</option>
-                    <option value="meninggal">Meninggal Dunia (2.0x)</option>
-                    <option value="pelanggaran">Pelanggaran Aturan / SP (0.5x)</option>
-                    <option value="tutup_kerugian">Tutup Karena Rugi (0.5x)</option>
-                 </select>
-                 <div className="p-3 bg-red-50 rounded-lg border-l-4 border-red-500">
-                    <p className="text-[10px] text-red-700 italic">"Faktor pengali (multiplier) pesangon disesuaikan secara otomatis menurut Pasal 42-52 PP 35/2021."</p>
+              {/* PIHAK PERTAMA */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building size={12}/> Pihak Pertama (Perusahaan)</h3>
+                 
+                 <div className="grid grid-cols-2 gap-3">
+                     <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-black text-slate-400">NAMA LENGKAP (PERWAKILAN)</label>
+                        <input className="w-full p-2 border rounded-lg text-xs font-bold" value={data.p1Name} onChange={e => handleDataChange('p1Name', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-black text-slate-400">NIK (KTP)</label>
+                        <input className="w-full p-2 border rounded-lg text-xs" value={data.p1Nik} onChange={e => handleDataChange('p1Nik', e.target.value)} />
+                     </div>
+                     <div className="space-y-1">
+                        <label className="text-[9px] font-black text-slate-400">TEMPAT LAHIR</label>
+                        <input className="w-full p-2 border rounded-lg text-xs" value={data.p1Pob} onChange={e => handleDataChange('p1Pob', e.target.value)} />
+                     </div>
+                     <div className="space-y-1">
+                        <label className="text-[9px] font-black text-slate-400">TANGGAL LAHIR</label>
+                        <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.p1Dob} onChange={e => handleDataChange('p1Dob', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-black text-slate-400">PEKERJAAN</label>
+                        <input className="w-full p-2 border rounded-lg text-xs" value={data.p1Occupation} onChange={e => handleDataChange('p1Occupation', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-black text-slate-400">ALAMAT LENGKAP (KTP)</label>
+                        <textarea rows={2} className="w-full p-2 border rounded-lg text-xs resize-none" value={data.p1Address} onChange={e => handleDataChange('p1Address', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 col-span-2 border-t pt-3 mt-1">
+                        <label className="text-[9px] font-black text-slate-400">BERTINDAK ATAS NAMA (NAMA PERUSAHAAN)</label>
+                        <input className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-black text-slate-400">JABATAN / KEDUDUKAN DI PERUSAHAAN</label>
+                        <input className="w-full p-2 border rounded-lg text-xs bg-slate-50" value={data.companyTitle} onChange={e => handleDataChange('companyTitle', e.target.value)} />
+                     </div>
+                 </div>
+              </div>
+
+              {/* PIHAK KEDUA */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-1 tracking-widest flex items-center gap-2"><User size={12}/> Pihak Kedua (Karyawan)</h3>
+                 
+                 <div className="grid grid-cols-2 gap-3">
+                     <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-black text-slate-400">NAMA LENGKAP KARYAWAN</label>
+                        <input className="w-full p-2 border rounded-lg text-xs font-bold" value={data.p2Name} onChange={e => handleDataChange('p2Name', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-black text-slate-400">NIK (KTP)</label>
+                        <input className="w-full p-2 border rounded-lg text-xs" value={data.p2Nik} onChange={e => handleDataChange('p2Nik', e.target.value)} />
+                     </div>
+                     <div className="space-y-1">
+                        <label className="text-[9px] font-black text-slate-400">TEMPAT LAHIR</label>
+                        <input className="w-full p-2 border rounded-lg text-xs" value={data.p2Pob} onChange={e => handleDataChange('p2Pob', e.target.value)} />
+                     </div>
+                     <div className="space-y-1">
+                        <label className="text-[9px] font-black text-slate-400">TANGGAL LAHIR</label>
+                        <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.p2Dob} onChange={e => handleDataChange('p2Dob', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-black text-slate-400">PEKERJAAN</label>
+                        <input className="w-full p-2 border rounded-lg text-xs" value={data.p2Occupation} onChange={e => handleDataChange('p2Occupation', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-black text-slate-400">ALAMAT LENGKAP (KTP)</label>
+                        <textarea rows={2} className="w-full p-2 border rounded-lg text-xs resize-none" value={data.p2Address} onChange={e => handleDataChange('p2Address', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 border-t pt-3 mt-1">
+                        <label className="text-[9px] font-black text-slate-400">TANGGAL MASUK KERJA</label>
+                        <input type="date" className="w-full p-2 border rounded-lg text-xs bg-slate-50" value={data.empStartDate} onChange={e => handleDataChange('empStartDate', e.target.value)} />
+                     </div>
+                     <div className="space-y-1 border-t pt-3 mt-1">
+                        <label className="text-[9px] font-black text-slate-400">JABATAN TERAKHIR</label>
+                        <input className="w-full p-2 border rounded-lg text-xs bg-slate-50" value={data.empTitle} onChange={e => handleDataChange('empTitle', e.target.value)} />
+                     </div>
+                 </div>
+              </div>
+
+              {/* DETAIL PESANGON */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><CreditCard size={12}/> Detail Kompensasi & PHK</h3>
+                 
+                 <div className="space-y-3">
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-black text-slate-400">TANGGAL EFEKTIF PHK</label>
+                       <input type="date" className="w-full p-2 border rounded-lg text-xs font-bold" value={data.phkDate} onChange={e => handleDataChange('phkDate', e.target.value)} />
+                    </div>
+
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-black text-slate-400">TOTAL NOMINAL PESANGON (IDR)</label>
+                       <input type="number" className="w-full p-2 border rounded-lg text-sm font-black text-emerald-600 focus:ring-2 focus:ring-emerald-500 outline-none" value={data.severanceAmount} onChange={e => handleDataChange('severanceAmount', parseInt(e.target.value) || 0)} />
+                       <div className="text-[10px] text-slate-500 italic px-1 pt-1">{terbilang(data.severanceAmount).trim() || "Nol"} Rupiah</div>
+                    </div>
+
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-black text-slate-400">METODE PEMBAYARAN</label>
+                       <select className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50" value={data.paymentMethod} onChange={e => handleDataChange('paymentMethod', e.target.value)}>
+                          <option value="Tunai">Tunai / Cash</option>
+                          <option value="Transfer">Transfer Bank</option>
+                       </select>
+                    </div>
+
+                    {data.paymentMethod === 'Transfer' && (
+                       <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                          <div className="space-y-1 col-span-2 md:col-span-1">
+                             <label className="text-[9px] font-black text-slate-400">NAMA BANK</label>
+                             <input className="w-full p-2 border rounded-lg text-xs" placeholder="Contoh: BCA" value={data.bankName} onChange={e => handleDataChange('bankName', e.target.value)} />
+                          </div>
+                          <div className="space-y-1 col-span-2 md:col-span-1">
+                             <label className="text-[9px] font-black text-slate-400">NO. REKENING</label>
+                             <input className="w-full p-2 border rounded-lg text-xs" value={data.bankAccount} onChange={e => handleDataChange('bankAccount', e.target.value)} />
+                          </div>
+                          <div className="space-y-1 col-span-2">
+                             <label className="text-[9px] font-black text-slate-400">ATAS NAMA</label>
+                             <input className="w-full p-2 border rounded-lg text-xs" value={data.bankAccountName} onChange={e => handleDataChange('bankAccountName', e.target.value)} />
+                          </div>
+                       </div>
+                    )}
+
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-black text-slate-400">TANGGUNGAN PPH 21</label>
+                       <select className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50" value={data.taxPayer} onChange={e => handleDataChange('taxPayer', e.target.value)}>
+                          <option value="Ditanggung Perusahaan">Ditanggung Perusahaan (Karyawan terima utuh / nett)</option>
+                          <option value="Ditanggung Pihak Kedua">Ditanggung Karyawan (Dipotong dari total kompensasi)</option>
+                       </select>
+                    </div>
                  </div>
               </div>
            </div>
@@ -346,7 +571,7 @@ function PesangonCalculatorBuilder() {
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                 <DocumentContent />
             </div>
-            </div>
+        </div>
       </main>
 
       {/* MOBILE NAV */}
@@ -354,11 +579,10 @@ function PesangonCalculatorBuilder() {
           <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
-
       
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+         <PrintWrapper documentName="Perjanjian_Bersama_PHK" price={25000} />
       </div>
 
       <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>

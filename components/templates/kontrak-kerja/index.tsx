@@ -33,11 +33,14 @@ function ContractToolBuilder() {
   // ==========================================
   // STATE: PIHAK PERTAMA (PERUSAHAAN)
   // ==========================================
-  const [compName, setCompName] = useState('PT MEGA MAJU ABADI');
+  const [compName, setCompName] = useState('PT NAGA LAUT KORPORATAMA');
   const [compAddress, setCompAddress] = useState('Gedung Cyber 2, Lt. 10, Jl. H.R. Rasuna Said Blok X-5, Kuningan, Jakarta Selatan 12950');
   const [compRep, setCompRep] = useState('Budi Santoso, S.E., M.B.A.');
   const [compRepKtp, setCompRepKtp] = useState('3174001234560001');
+  const [compRepPob, setCompRepPob] = useState('Surabaya');
+  const [compRepDob, setCompRepDob] = useState('1975-04-12');
   const [compRepTitle, setCompRepTitle] = useState('Direktur Utama');
+  const [compRepJob, setCompRepJob] = useState('Wiraswasta');
   
   // ==========================================
   // STATE: PIHAK KEDUA (KARYAWAN)
@@ -125,7 +128,7 @@ function ContractToolBuilder() {
        </div>
  
        <div className="mb-6">
-          Pada hari ini, <strong>{formatDateFull(docDate)}</strong>, bertempat di <strong>{city}</strong>, telah disepakati dan ditandatangani Perjanjian Kerja Waktu {contractType === 'PKWT' ? 'Tertentu (selanjutnya disebut "PKWT")' : 'Tidak Tertentu (selanjutnya disebut "PKWTT")'} antara:
+          Pada hari ini, <strong>{formatDateFull(docDate)}</strong>, bertempat di <strong>{city}</strong>, yang bertanda tangan di bawah ini:
        </div>
  
        <div className="mb-6 space-y-4">
@@ -136,11 +139,12 @@ function ContractToolBuilder() {
                 <div className="mb-2 space-y-1">
                    <div className="flex"><div className="w-40 md:w-48">Nama Lengkap</div><div className="mr-2">:</div><div className="font-bold uppercase flex-1">{compRep}</div></div>
                    <div className="flex"><div className="w-40 md:w-48">NIK</div><div className="mr-2">:</div><div className="flex-1">{compRepKtp}</div></div>
-                   <div className="flex"><div className="w-40 md:w-48">Jabatan</div><div className="mr-2">:</div><div className="flex-1">{compRepTitle}</div></div>
-                   <div className="flex"><div className="w-40 md:w-48 align-top">Alamat Perusahaan</div><div className="mr-2 align-top">:</div><div className="flex-1">{compAddress}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48">Tempat, Tgl Lahir</div><div className="mr-2">:</div><div className="flex-1">{compRepPob}, {formatDateMedium(compRepDob)}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48">Pekerjaan</div><div className="mr-2">:</div><div className="flex-1">{compRepJob}</div></div>
+                   <div className="flex"><div className="w-40 md:w-48 align-top">Alamat (Sesuai KTP)</div><div className="mr-2 align-top">:</div><div className="flex-1">{compAddress}</div></div>
                 </div>
                 <div className="text-justify mt-2">
-                   Bertindak untuk dan atas nama <strong>{compName}</strong>, selanjutnya dalam perjanjian ini disebut sebagai <strong>PIHAK PERTAMA</strong>.
+                   Dalam hal ini bertindak dalam jabatannya selaku <strong>{compRepTitle}</strong>, dari dan karenanya sah mewakili direksi untuk dan atas nama <strong>{compName}</strong>, suatu perseroan terbatas yang didirikan berdasarkan hukum Negara Republik Indonesia, berkedudukan di {city}. Selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK PERTAMA</strong>.
                 </div>
              </div>
           </div>
@@ -157,184 +161,204 @@ function ContractToolBuilder() {
                    <div className="flex"><div className="w-40 md:w-48 align-top">Alamat (Sesuai KTP)</div><div className="mr-2 align-top">:</div><div className="flex-1">{empAddress}</div></div>
                 </div>
                 <div className="text-justify mt-2">
-                   Bertindak untuk dan atas nama diri sendiri, selanjutnya dalam perjanjian ini disebut sebagai <strong>PIHAK KEDUA</strong>.
+                   Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK KEDUA</strong>.
                 </div>
              </div>
           </div>
        </div>
  
        <div className="mb-8">
-          PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut sebagai <strong>"Para Pihak"</strong>. Para Pihak dengan ini sepakat untuk mengikatkan diri dalam Perjanjian ini dengan tunduk pada ketentuan perundang-undangan di bidang ketenagakerjaan Republik Indonesia serta syarat dan ketentuan di bawah ini:
+          PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut sebagai <strong>"Para Pihak"</strong> dan masing-masing disebut sebagai <strong>"Pihak"</strong>. Para Pihak terlebih dahulu menerangkan hal-hal sebagai berikut:
+          <ul className="list-disc pl-5 md:pl-8 mt-2 space-y-1">
+            <li>Bahwa, PIHAK PERTAMA adalah sebuah badan hukum yang membutuhkan tenaga kerja dengan kualifikasi tertentu untuk mendukung kegiatan operasional dan pencapaian target bisnis perusahaan.</li>
+            <li>Bahwa, PIHAK KEDUA menyatakan memiliki keahlian, pengalaman, dan kualifikasi yang dipersyaratkan oleh PIHAK PERTAMA serta bersedia mematuhi seluruh standar dan regulasi yang berlaku di lingkungan PIHAK PERTAMA.</li>
+          </ul>
+          Maka, berdasarkan hal-hal tersebut di atas, Para Pihak dengan ini sepakat untuk mengikatkan diri dalam Perjanjian Kerja Waktu {contractType === 'PKWT' ? 'Tertentu' : 'Tidak Tertentu'} dengan syarat-syarat dan ketentuan-ketentuan sebagai berikut:
        </div>
  
-       {/* PASAL 1: MASA KERJA & JABATAN */}
+       {/* PASAL 1 */}
        <div className="mb-6">
           <div className="text-center font-bold mb-3 uppercase">
-             PASAL 1<br/>MASA KERJA DAN PENEMPATAN
+             PASAL 1<br/>DEFINISI DAN RUANG LINGKUP PEKERJAAN
           </div>
           <ol className="list-decimal pl-5 md:pl-8 space-y-2">
              <li className="pl-2">
-                Perjanjian ini berlaku terhitung sejak tanggal <strong>{formatDateMedium(startDate)}</strong>. 
+                PIHAK PERTAMA dengan ini sepakat untuk menerima dan mempekerjakan PIHAK KEDUA, dan PIHAK KEDUA sepakat untuk bekerja pada PIHAK PERTAMA dengan jabatan/posisi sebagai <strong>{jobTitle}</strong> yang ditempatkan pada departemen <strong>{department}</strong>.
+             </li>
+             <li className="pl-2">
+                Uraian tugas pokok (Job Description) PIHAK KEDUA adalah sebagaimana yang ditetapkan dalam Standar Operasional Prosedur (SOP) dan instruksi penugasan yang diberikan oleh atasan langsung maupun manajemen PIHAK PERTAMA.
+             </li>
+             <li className="pl-2">
+                PIHAK KEDUA bersedia dan sepakat untuk ditempatkan, dipindahtugaskan, atau dialihkan ke bagian, departemen, atau lokasi kerja (cabang/site) lain yang ditentukan oleh PIHAK PERTAMA sewaktu-waktu tanpa memerlukan persetujuan tambahan dari PIHAK KEDUA, sesuai dengan kebutuhan operasional dan strategi bisnis perusahaan.
+             </li>
+          </ol>
+       </div>
+
+       {/* PASAL 2 */}
+       <div className="mb-6">
+          <div className="text-center font-bold mb-3 uppercase">
+             PASAL 2<br/>MASA BERLAKU PERJANJIAN
+          </div>
+          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
+             <li className="pl-2">
+                Perjanjian ini berlaku efektif terhitung sejak tanggal <strong>{formatDateMedium(startDate)}</strong>. 
                 {contractType === 'PKWT' ? (
-                   <> Dan disepakati berlangsung selama masa PKWT yang akan berakhir pada tanggal <strong>{formatDateMedium(endDate)}</strong>.</>
+                   <> Dan disepakati berlangsung selama masa Perjanjian Kerja Waktu Tertentu (PKWT) yang akan berakhir secara otomatis demi hukum pada tanggal <strong>{formatDateMedium(endDate)}</strong>, tanpa perlu adanya penetapan dari instansi yang berwenang.</>
                 ) : (
-                   <> Perjanjian ini berlaku untuk jangka waktu tidak tertentu (pekerja tetap), dengan ketentuan PIHAK KEDUA wajib menjalani masa percobaan (probation) selama <strong>{probation} bulan</strong> pertama.</>
+                   <> Perjanjian ini berlaku untuk jangka waktu tidak tertentu, dengan ketentuan PIHAK KEDUA wajib menjalani masa percobaan (probation) selama <strong>{probation} ({probation}) bulan</strong> pertama.</>
                 )}
              </li>
+             {contractType === 'PKWT' && (
              <li className="pl-2">
-                PIHAK PERTAMA menempatkan dan mempekerjakan PIHAK KEDUA pada posisi/jabatan sebagai <strong>{jobTitle}</strong> di bawah naungan departemen <strong>{department}</strong>.
+                PIHAK PERTAMA atas kebijaksanaannya sendiri dapat memperpanjang jangka waktu Perjanjian ini, dengan memberikan pemberitahuan secara tertulis kepada PIHAK KEDUA selambat-lambatnya 7 (tujuh) hari sebelum berakhirnya Perjanjian.
              </li>
+             )}
+             {contractType === 'PKWTT' && (
              <li className="pl-2">
-                PIHAK KEDUA bersedia dan sepakat untuk ditempatkan, dipindahtugaskan, atau dialihkan ke bagian, departemen, atau lokasi kerja lain yang ditentukan oleh PIHAK PERTAMA sewaktu-waktu sesuai dengan kebutuhan operasional dan strategi bisnis perusahaan.
+                Selama masa percobaan (probation), masing-masing Pihak berhak untuk mengakhiri Perjanjian Kerja ini sewaktu-waktu tanpa syarat, tanpa tuntutan ganti rugi, pesangon, uang penghargaan masa kerja, dan/atau kompensasi apapun selain dari upah yang telah menjadi hak PIHAK KEDUA atas hari kerja yang telah dijalani.
              </li>
+             )}
           </ol>
        </div>
  
-       {/* PASAL 2: HAK & KEWAJIBAN PERUSAHAAN */}
+       {/* PASAL 3 */}
        <div className="mb-6">
           <div className="text-center font-bold mb-3 uppercase">
-             PASAL 2<br/>HAK DAN KEWAJIBAN PIHAK PERTAMA
+             PASAL 3<br/>HAK DAN KEWAJIBAN PARA PIHAK
           </div>
           <ol className="list-decimal pl-5 md:pl-8 space-y-2">
              <li className="pl-2">
-                PIHAK PERTAMA berhak penuh untuk menerima hasil pekerjaan, mengawasi, serta memberikan evaluasi berkala terhadap kinerja (Key Performance Indicator) PIHAK KEDUA sesuai standar perusahaan.
+                <strong>Hak dan Kewajiban PIHAK PERTAMA:</strong>
+                <ol className="list-[lower-alpha] pl-6 mt-1 space-y-1">
+                   <li>Berhak untuk menerima hasil kerja yang maksimal dan sesuai standar kualitas (Key Performance Indicator) dari PIHAK KEDUA.</li>
+                   <li>Berhak menetapkan, mengubah, dan menegakkan Peraturan Perusahaan serta tata tertib yang wajib dipatuhi oleh PIHAK KEDUA.</li>
+                   <li>Berkewajiban membayarkan upah dan kompensasi lain kepada PIHAK KEDUA sesuai ketentuan yang disepakati.</li>
+                   <li>Berkewajiban menyediakan sarana prasarana yang memadai dan lingkungan kerja yang aman dan sehat.</li>
+                </ol>
              </li>
-             <li className="pl-2">
-                PIHAK PERTAMA berhak memberikan perintah, instruksi, serta teguran baik lisan maupun tulisan apabila PIHAK KEDUA dinilai tidak melaksanakan tugasnya dengan baik atau melakukan pelanggaran.
-             </li>
-             <li className="pl-2">
-                PIHAK PERTAMA berkewajiban membayarkan upah/gaji, tunjangan (jika ada), dan hak-hak kompensasi lainnya kepada PIHAK KEDUA tepat waktu sebagaimana diatur dalam Pasal 4.
-             </li>
-             <li className="pl-2">
-                PIHAK PERTAMA berkewajiban menyediakan fasilitas pendukung kerja yang memadai serta memastikan lingkungan kerja yang aman, kondusif, dan sehat bagi PIHAK KEDUA.
+             <li className="pl-2 mt-2">
+                <strong>Hak dan Kewajiban PIHAK KEDUA:</strong>
+                <ol className="list-[lower-alpha] pl-6 mt-1 space-y-1">
+                   <li>Berhak menerima upah dan hak-hak ketenagakerjaan lainnya sesuai dengan ketentuan Peraturan Perundang-undangan dan Perjanjian ini.</li>
+                   <li>Wajib mendedikasikan waktu, pikiran, dan tenaga secara penuh untuk melaksanakan pekerjaan demi kepentingan PIHAK PERTAMA secara profesional dan berintegritas.</li>
+                   <li>Wajib menjaga dengan sebaik-baiknya setiap aset, inventaris, dan fasilitas yang dipercayakan kepadanya.</li>
+                   <li>Dilarang keras melakukan tindakan yang dapat merugikan perusahaan baik secara materiil maupun imateriil, termasuk namun tidak terbatas pada korupsi, kolusi, nepotisme, dan pencemaran nama baik.</li>
+                </ol>
              </li>
           </ol>
        </div>
  
-       {/* PASAL 3: HAK & KEWAJIBAN KARYAWAN */}
+       {/* PASAL 4 */}
        <div className="mb-6">
           <div className="text-center font-bold mb-3 uppercase">
-             PASAL 3<br/>HAK DAN KEWAJIBAN PIHAK KEDUA
+             PASAL 4<br/>PENGUPAHAN DAN WAKTU KERJA
           </div>
           <ol className="list-decimal pl-5 md:pl-8 space-y-2">
              <li className="pl-2">
-                PIHAK KEDUA berhak menerima upah, fasilitas kerja, serta perlindungan ketenagakerjaan dari PIHAK PERTAMA sesuai ketentuan perundang-undangan dan kebijakan internal perusahaan.
+                Atas pelaksanaan pekerjaan yang dilakukan oleh PIHAK KEDUA, PIHAK PERTAMA akan memberikan upah bulanan bruto (kotor) sebesar <strong>{formatRp(salary || 0)}</strong>.
              </li>
              <li className="pl-2">
-                PIHAK KEDUA wajib melaksanakan seluruh tugas dan tanggung jawab jabatannya dengan tingkat profesionalisme tertinggi, penuh dedikasi, integritas, dan tanggung jawab moral.
+                Pembayaran upah sebagaimana dimaksud pada ayat (1) dilaksanakan setiap akhir bulan berjalan melalui transfer ke rekening bank milik PIHAK KEDUA.
              </li>
              <li className="pl-2">
-                PIHAK KEDUA wajib menaati dan tunduk secara mutlak pada seluruh Peraturan Perusahaan, Standar Operasional Prosedur (SOP), Kode Etik, serta kebijakan internal lainnya yang berlaku di lingkungan PIHAK PERTAMA.
+                PIHAK PERTAMA berhak melakukan pemotongan upah PIHAK KEDUA untuk pembayaran Pajak Penghasilan (PPh Pasal 21), iuran jaminan sosial tenaga kerja (BPJS Ketenagakerjaan) dan jaminan pemeliharaan kesehatan (BPJS Kesehatan) bagian karyawan, serta potongan-potongan lain yang sah sesuai peraturan yang berlaku.
              </li>
              <li className="pl-2">
-                PIHAK KEDUA wajib memelihara dan merawat seluruh aset perusahaan, fasilitas kerja, dan dokumen yang berada di bawah penguasaannya, serta senantiasa menjaga nama baik (reputasi) PIHAK PERTAMA.
+                Hari dan jam kerja PIHAK KEDUA ditetapkan pada <strong>{workDays}</strong>, jam <strong>{workHours}</strong>, dengan tidak menutup kemungkinan pemberlakuan shift atau kerja lembur jika dipandang perlu oleh PIHAK PERTAMA guna menjamin kelancaran operasional.
              </li>
           </ol>
        </div>
  
-       {/* PASAL 4: WAKTU KERJA & PENGUPAHAN */}
-       <div className="mb-6">
-          <div className="text-center font-bold mb-3 uppercase">
-             PASAL 4<br/>WAKTU KERJA DAN PENGUPAHAN
-          </div>
-          <ol className="list-decimal pl-5 md:pl-8 space-y-2">
-             <li className="pl-2">
-                Waktu kerja PIHAK KEDUA ditetapkan pada hari <strong>{workDays}</strong> dengan jam operasional dari pukul <strong>{workHours}</strong>, kecuali diatur lain berdasarkan kebijakan khusus perusahaan, urgensi bisnis, atau sistem shift.
-             </li>
-             <li className="pl-2">
-                Sebagai imbalan atas pelaksanaan tugas dan tanggung jawabnya, PIHAK PERTAMA akan memberikan upah pokok bulanan (Gaji) kepada PIHAK KEDUA sebesar <strong>{formatRp(salary || 0)}</strong>.
-             </li>
-             <li className="pl-2">
-                Upah tersebut di atas bersifat gross (kotor), di mana pembayarannya akan dikenakan pemotongan Pajak Penghasilan (PPh 21), iuran kewajiban BPJS Ketenagakerjaan, BPJS Kesehatan, maupun potongan sah lainnya sesuai peraturan yang berlaku.
-             </li>
-             <li className="pl-2">
-                Pembayaran upah akan dilakukan setiap akhir bulan kalender berjalan atau pada tanggal yang telah ditetapkan dalam kebijakan penggajian (payroll) melalui mekanisme transfer bank ke rekening atas nama PIHAK KEDUA.
-             </li>
-          </ol>
-       </div>
- 
-       {/* PASAL 5: HKI (INTELECTUAL PROPERTY) */}
+       {/* PASAL 5 */}
        <div className="mb-6">
           <div className="text-center font-bold mb-3 uppercase">
              PASAL 5<br/>HAK KEKAYAAN INTELEKTUAL (HKI)
           </div>
           <ol className="list-decimal pl-5 md:pl-8 space-y-2">
              <li className="pl-2">
-                Segala bentuk karya cipta, inovasi, sistem, basis data, kode perangkat lunak, desain, formula, materi pemasaran, metode bisnis, dan/atau temuan apa pun yang diciptakan, diinisiasi, atau dikembangkan oleh PIHAK KEDUA (baik secara mandiri maupun bersama tim) selama masa hubungan kerjanya dengan PIHAK PERTAMA merupakan <strong>Hak Kekayaan Intelektual mutlak milik PIHAK PERTAMA</strong>.
+                Seluruh hasil karya, temuan, desain, sistem, basis data, penemuan teknologi, tulisan, dan/atau kekayaan intelektual lainnya ("Hasil Karya") yang diciptakan, dikembangkan, maupun direalisasikan oleh PIHAK KEDUA selama masa kerjanya, baik secara sendiri maupun bersama-sama dengan pihak lain, dalam kapasitas pelaksanaan tugasnya bagi PIHAK PERTAMA adalah merupakan hak milik absolut dan eksklusif PIHAK PERTAMA.
              </li>
              <li className="pl-2">
-                PIHAK KEDUA dengan ini sepakat untuk melepaskan segala hak ekonomi dan hak klaim royalti atas karya tersebut. PIHAK KEDUA tidak diperkenankan untuk mendaftarkan, memperbanyak, melisensikan, atau mengkomersialkannya kepada pihak ketiga dengan cara apa pun tanpa izin tertulis dari PIHAK PERTAMA.
+                PIHAK KEDUA dengan ini secara tanpa syarat, melepaskan segala hak ekonomi atas Hasil Karya tersebut, dan PIHAK PERTAMA berhak penuh untuk mendaftarkan, mengkomersialkan, menduplikasi, dan melisensikannya kepada pihak ketiga mana pun tanpa kompensasi tambahan apapun kepada PIHAK KEDUA di masa kini maupun masa depan.
              </li>
              <li className="pl-2">
-                Pada saat berakhirnya masa kerja atau sewaktu-waktu apabila diminta, PIHAK KEDUA wajib menyerahkan seluruh data, kode sumber (source code), akses kredensial, master desain, dan dokumen kerja kepada manajemen PIHAK PERTAMA tanpa menahan salinan (copy) apa pun.
+                Apabila PIHAK KEDUA bermaksud mempublikasikan atau menggunakan bagian dari Hasil Karya untuk keperluan eksternal, wajib mendapatkan persetujuan tertulis terlebih dahulu dari Direksi PIHAK PERTAMA.
              </li>
           </ol>
        </div>
  
-       {/* PASAL 6: NON-COMPETE & NDA */}
+       {/* PASAL 6 */}
        <div className="mb-6">
           <div className="text-center font-bold mb-3 uppercase">
-             PASAL 6<br/>KERAHASIAAN DAN LARANGAN BERSAING
+             PASAL 6<br/>KERAHASIAAN (NON-DISCLOSURE) DAN LARANGAN BERSAING (NON-COMPETE)
           </div>
           <ol className="list-decimal pl-5 md:pl-8 space-y-2">
              <li className="pl-2">
-                <strong>Kerahasiaan (Non-Disclosure):</strong> PIHAK KEDUA terikat kewajiban mutlak untuk menjaga kerahasiaan seluruh Informasi Rahasia (Confidential Information) perusahaan. Informasi ini mencakup, namun tidak terbatas pada, data klien/pelanggan, rahasia dagang, strategi bisnis, rencana pemasaran, sistem teknologi, dan informasi keuangan. Kewajiban kerahasiaan ini tetap mengikat dan berlaku tanpa batas waktu meskipun hubungan kerja telah berakhir.
+                <strong>Non-Disclosure (Kerahasiaan):</strong> PIHAK KEDUA terikat kewajiban mutlak untuk menjaga kerahasiaan seluruh <em>Confidential Information</em> (Informasi Rahasia) PIHAK PERTAMA. Informasi ini mencakup, namun tidak terbatas pada data klien, rahasia dagang, strategi bisnis, proyeksi keuangan, dan teknologi. Kewajiban kerahasiaan ini tetap berlaku tanpa batas waktu meskipun Perjanjian ini telah berakhir.
              </li>
              <li className="pl-2">
-                <strong>Larangan Bersaing (Non-Compete):</strong> Selama perjanjian ini berlangsung, dan untuk jangka waktu selama <strong>1 (satu) tahun</strong> setelah berakhirnya hubungan kerja, PIHAK KEDUA dilarang, baik secara langsung maupun tidak langsung, untuk bekerja sebagai karyawan, konsultan, pengurus, maupun mendirikan atau memiliki kepentingan kepemilikan bisnis pada perusahaan kompetitor yang bergerak di bidang usaha yang sama dan sejenis dengan PIHAK PERTAMA.
+                <strong>Non-Compete (Larangan Bersaing):</strong> Selama berlakunya Perjanjian ini dan untuk jangka waktu selama <strong>1 (satu) tahun</strong> sejak berakhirnya Perjanjian ini, PIHAK KEDUA dilarang (baik secara langsung maupun tidak langsung) bekerja sebagai karyawan, konsultan, pemegang saham, pengurus, atau berafiliasi dengan perusahaan kompetitor yang menjalankan kegiatan usaha sejenis dengan PIHAK PERTAMA di wilayah Republik Indonesia.
              </li>
              <li className="pl-2">
-                <strong>Larangan Pembajakan (Non-Solicitation):</strong> Selama jangka waktu 2 (dua) tahun setelah berakhirnya hubungan kerja, PIHAK KEDUA dilarang secara sengaja untuk membujuk, merekrut, atau mempekerjakan karyawan PIHAK PERTAMA, serta dilarang membujuk klien atau mitra bisnis untuk menghentikan kerja samanya dengan PIHAK PERTAMA.
+                <strong>Non-Solicitation (Larangan Pembajakan):</strong> Selama masa berlaku Perjanjian ini dan untuk jangka waktu <strong>2 (dua) tahun</strong> setelah berakhirnya Perjanjian ini, PIHAK KEDUA dilarang membujuk, merekrut, atau mempekerjakan karyawan atau eks-karyawan PIHAK PERTAMA, serta dilarang mengajak klien/pelanggan PIHAK PERTAMA untuk mengalihkan transaksinya kepada pihak lain.
              </li>
              <li className="pl-2">
-                Setiap pelanggaran yang terbukti dilakukan oleh PIHAK KEDUA terhadap ketentuan Pasal ini memberikan hak hukum bagi PIHAK PERTAMA untuk menuntut ganti rugi materiil secara perdata dan/atau memproses perbuatan tersebut secara pidana.
+                Setiap pelanggaran terhadap ketentuan Pasal ini memberikan hak kepada PIHAK PERTAMA untuk secara seketika melakukan Pemutusan Hubungan Kerja (PHK) secara tidak hormat, serta mengambil langkah hukum baik perdata (tuntutan ganti rugi) maupun pidana (penggelapan rahasia dagang).
              </li>
           </ol>
        </div>
  
-       {/* PASAL 7: PHK */}
+       {/* PASAL 7 */}
        <div className="mb-6">
           <div className="text-center font-bold mb-3 uppercase">
              PASAL 7<br/>PEMUTUSAN HUBUNGAN KERJA (PHK)
           </div>
           <ol className="list-decimal pl-5 md:pl-8 space-y-2">
              <li className="pl-2">
-                Hubungan kerja antara Para Pihak berakhir dengan sendirinya apabila:
+                Hubungan kerja berakhir dengan sendirinya tanpa melalui putusan lembaga penyelesaian perselisihan hubungan industrial apabila:
                 <ul className="list-[lower-alpha] pl-6 mt-1 space-y-1">
-                   {contractType === 'PKWT' ? (
-                      <li>a. Berakhirnya jangka waktu PKWT sebagaimana disepakati secara tegas pada Pasal 1 ayat (1).</li>
-                   ) : (
-                      <li>a. PIHAK KEDUA memasuki usia pensiun sesuai dengan peraturan ketenagakerjaan dan/atau kebijakan perusahaan.</li>
+                   {contractType === 'PKWT' && (
+                      <li>a. Berakhirnya jangka waktu PKWT sebagaimana disepakati pada Pasal 2 ayat (1).</li>
                    )}
-                   <li>b. PIHAK KEDUA meninggal dunia atau tidak mampu lagi melaksanakan pekerjaan secara medis akibat cacat tetap (permanent disability).</li>
+                   {contractType === 'PKWTT' && (
+                      <li>a. PIHAK KEDUA telah mencapai usia pensiun sesuai dengan peraturan ketenagakerjaan yang berlaku.</li>
+                   )}
+                   <li>b. PIHAK KEDUA meninggal dunia.</li>
+                   <li>c. PIHAK KEDUA tidak lulus evaluasi pada Masa Percobaan (Probation).</li>
                 </ul>
              </li>
              <li className="pl-2">
-                PIHAK PERTAMA memiliki hak penuh dan berhak melakukan Pemutusan Hubungan Kerja (PHK) seketika terhadap PIHAK KEDUA, tanpa kewajiban membayarkan kompensasi atau pesangon, jika PIHAK KEDUA terbukti secara meyakinkan melakukan <strong>pelanggaran berat (fraud)</strong>, yang meliputi namun tidak terbatas pada: penipuan, penggelapan aset, manipulasi data, pembocoran rahasia perusahaan, tindakan asusila, konsumsi minuman keras/narkoba di lingkungan kerja, atau perbuatan pidana lainnya.
+                PIHAK PERTAMA berhak secara sepihak melakukan PHK terhadap PIHAK KEDUA tanpa peringatan sebelumnya dan tanpa kompensasi pesangon, apabila PIHAK KEDUA terbukti melakukan "Pelanggaran Berat" (<em>Gross Misconduct</em>), yang mencakup namun tidak terbatas pada:
+                <ul className="list-[lower-alpha] pl-6 mt-1 space-y-1">
+                   <li>Melakukan penipuan, pencurian, atau penggelapan barang dan/atau uang milik perusahaan atau klien.</li>
+                   <li>Membocorkan rahasia perusahaan sebagaimana diatur dalam Pasal 6.</li>
+                   <li>Mengkonsumsi minuman keras, mabuk, memakai atau mengedarkan narkotika dan obat-obatan terlarang di lingkungan kerja.</li>
+                   <li>Melakukan tindakan asusila, pelecehan, perjudian, atau perbuatan tindak pidana lainnya yang diancam pidana penjara.</li>
+                </ul>
              </li>
              <li className="pl-2">
-                Apabila PIHAK KEDUA bermaksud mengundurkan diri dari perusahaan secara sukarela (resign), PIHAK KEDUA diwajibkan untuk mengajukan surat pemberitahuan tertulis <em>(One Month Notice)</em> kepada manajemen selambat-lambatnya <strong>30 (tiga puluh) hari kalender</strong> sebelum tanggal efektif pengunduran diri, guna memastikan serah terima pekerjaan (handover) berjalan dengan baik.
+                Dalam hal PIHAK KEDUA berkehendak mengakhiri Perjanjian ini secara sukarela (Resign), PIHAK KEDUA wajib mengajukan permohonan tertulis (<em>One Month Notice</em>) paling lambat <strong>30 (tiga puluh) hari kalender</strong> sebelum tanggal efektif pengunduran diri. Selama masa notice tersebut, PIHAK KEDUA diwajibkan melakukan serah terima pekerjaan (<em>Handover</em>) dengan baik, serta mengembalikan seluruh fasilitas dan aset perusahaan.
              </li>
           </ol>
        </div>
  
-       {/* PASAL 8: PENUTUP */}
+       {/* PASAL 8 */}
        <div className="mb-6">
           <div className="text-center font-bold mb-3 uppercase">
              PASAL 8<br/>PENYELESAIAN SENGKETA DAN PENUTUP
           </div>
           <ol className="list-decimal pl-5 md:pl-8 space-y-2">
              <li className="pl-2">
-                Segala perselisihan yang mungkin timbul akibat dari penafsiran, pelaksanaan, atau pemutusan Perjanjian Kerja ini, sedapat mungkin akan diselesaikan melalui jalur musyawarah untuk mufakat antara Para Pihak (Bipartit).
+                Setiap perselisihan, kontroversi, atau perbedaan pendapat yang timbul berkenaan dengan pelaksanaan, penafsiran, maupun pengakhiran Perjanjian ini akan diselesaikan secara damai melalui jalan musyawarah untuk mufakat (Bipartit).
              </li>
              <li className="pl-2">
-                Apabila penyelesaian melalui musyawarah gagal mencapai titik temu dan kesepakatan, maka Para Pihak sepakat untuk menyelesaikannya melalui instansi pemerintah yang berwenang di bidang Ketenagakerjaan sesuai wilayah domisili hukum kedudukan PIHAK PERTAMA, hingga bermuara pada Pengadilan Hubungan Industrial.
+                Apabila dalam waktu selambat-lambatnya 30 (tiga puluh) hari kalender musyawarah gagal mencapai mufakat, maka Para Pihak sepakat untuk menyelesaikan perselisihan tersebut melalui prosedur hukum ketenagakerjaan yang berlaku, dengan memilih domisili hukum yang sah dan tidak berubah di Kepaniteraan Pengadilan Hubungan Industrial pada Pengadilan Negeri di wilayah kedudukan hukum PIHAK PERTAMA.
              </li>
              <li className="pl-2">
-                Hal-hal esensial yang belum, kurang, atau tidak cukup diatur di dalam Perjanjian ini secara mutlak akan merujuk dan tunduk pada Peraturan Perusahaan, SOP internal, serta norma-norma hukum ketenagakerjaan yang berlaku di wilayah Negara Kesatuan Republik Indonesia.
+                Hal-hal yang belum atau tidak cukup diatur dalam Perjanjian ini, akan dirujuk dan tunduk pada Peraturan Perusahaan, Standar Operasional Prosedur, dan ketentuan perundang-undangan Republik Indonesia.
              </li>
              <li className="pl-2">
-                Perjanjian Kerja ini dibuat, dipahami, dan ditandatangani oleh Para Pihak dalam keadaan sadar sepenuhnya, secara sukarela tanpa adanya unsur paksaan, tekanan, intimidasi, atau pengaruh menyesatkan dari pihak mana pun. Dibuat dalam rangkap 2 (dua) dokumen fisik asli, yang masing-masing dibubuhi meterai yang cukup dan memiliki kekuatan hukum pembuktian yang sama bagi masing-masing pihak.
+                Perjanjian ini dibuat dalam rangkap 2 (dua), bermeterai cukup sesuai ketentuan perundang-undangan yang berlaku, ditandatangani secara sadar tanpa paksaan, serta masing-masing rangkap memiliki kekuatan hukum pembuktian yang sama, satu rangkap untuk PIHAK PERTAMA dan satu rangkap untuk PIHAK KEDUA.
              </li>
           </ol>
        </div>
@@ -349,7 +373,7 @@ function ContractToolBuilder() {
           <div className="w-[45%] flex flex-col items-center">
              <div className="font-bold mb-24 uppercase">PIHAK KEDUA</div>
              <div className="font-bold underline uppercase">{empName}</div>
-             <div className="text-sm">Karyawan / Pekerja</div>
+             <div className="text-sm">Karyawan</div>
           </div>
        </div>
     </div>
@@ -461,6 +485,14 @@ function ContractToolBuilder() {
                    </div>
                    <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">NIK KTP Wakil</label>
                    <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={compRepKtp} onChange={e => setCompRepKtp(e.target.value)} /></div>
+                   <div className="grid grid-cols-2 gap-3">
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Tempat Lahir</label>
+                      <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={compRepPob} onChange={e => setCompRepPob(e.target.value)} /></div>
+                      <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Tgl Lahir</label>
+                      <input type="date" className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={compRepDob} onChange={e => setCompRepDob(e.target.value)} /></div>
+                   </div>
+                   <div><label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Pekerjaan Wakil</label>
+                   <input className="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={compRepJob} onChange={e => setCompRepJob(e.target.value)} /></div>
                 </div>
              </div>
        
