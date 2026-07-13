@@ -148,7 +148,7 @@ export default function SuratTugas() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -166,7 +166,7 @@ export default function SuratTugas() {
               <button onClick={() => setActiveTab('biaya')} className={`flex-1 py-3 ${activeTab === 'biaya' ? 'bg-white text-red-600 border-b-2 border-b-red-600' : 'text-slate-500 hover:bg-slate-200'}`}>Biaya</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'info' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -287,8 +287,8 @@ export default function SuratTugas() {
         </div>
 
         {/* Right Panel: Preview */}
-        <div className="flex-1 overflow-y-auto bg-slate-300 p-8 flex justify-center print:bg-white print:p-0 print:w-full">
-          <div id="print-only-root" className="w-full flex justify-center print:block">
+        <div className="flex-1 overflow-y-auto bg-slate-300 p-8 flex justify-center print:bg-white print:p-0 print:w-full print:block print:overflow-visible">
+          <div id="print-only-root" className="w-full flex justify-center print:block print:h-auto print:static">
             <div ref={componentRef}>
               <Kertas>
                 <div className="text-gray-900 font-serif leading-relaxed">

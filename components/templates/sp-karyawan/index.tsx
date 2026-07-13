@@ -175,7 +175,7 @@ function SPToolBuilder() {
                 <button onClick={handleReset} title="Reset" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:block print:overflow-visible print:bg-white">
                
                {/* 1. DATA ADMINISTRASI */}
                <div className="space-y-3">
@@ -253,7 +253,7 @@ function SPToolBuilder() {
 
          {/* LIVE PREVIEW AREA */}
          <div className="flex-1 bg-slate-300 print:bg-white print:overflow-visible print:static print:block relative overflow-hidden flex flex-col items-center">
-            <div className="flex-1 overflow-y-auto print:overflow-visible print:w-full print:block w-full flex justify-center p-4 md:p-8 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto print:overflow-visible print:w-full print:block w-full flex justify-center p-4 md:p-8 custom-scrollbar print:bg-white">
                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 print:scale-100 print:transform-none print:w-full print:m-0 print:block w-full flex flex-col items-center">
                   
                   <div id="print-only-root" className="bg-white shadow-2xl relative print:static flex-shrink-0 h-max print:shadow-none print:w-full print:min-w-0 print:min-h-0 print:h-auto" style={{ width: '210mm', minHeight: '297mm' }}>

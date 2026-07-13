@@ -171,7 +171,7 @@ function LamaranBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -188,7 +188,7 @@ function LamaranBuilder() {
               <button onClick={() => setActiveTab('lampiran')} className={`flex-1 py-3 ${activeTab === 'lampiran' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Lampiran</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'surat' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -307,7 +307,7 @@ function LamaranBuilder() {
         </div>
 
         {/* RIGHT PANEL: PREVIEW */}
-        <div className="flex-1 overflow-y-auto bg-slate-200 p-8 flex justify-center print:w-full print:p-0 print:m-0 print:bg-white print:overflow-visible">
+        <div className="flex-1 overflow-y-auto bg-slate-200 p-8 flex justify-center print:w-full print:p-0 print:m-0 print:bg-white print:overflow-visible print:block">
           <Kertas>
             {/* Tanggal */}
             <div className="text-right mb-8">

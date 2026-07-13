@@ -230,7 +230,7 @@ function MedicalCertificateBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -246,7 +246,7 @@ function MedicalCertificateBuilder() {
               <button onClick={() => setActiveTab('klinik')} className={`flex-1 py-3 ${activeTab === 'klinik' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Klinik & Dokter</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'pasien' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -348,7 +348,7 @@ function MedicalCertificateBuilder() {
         </div>
         
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className={`flex-1 bg-slate-400 overflow-y-auto p-4 md:p-8 flex justify-center w-full h-full custom-scrollbar transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0 hidden md:flex' : 'translate-x-0 flex'}`}>
+        <div className={`flex-1 bg-slate-400 overflow-y-auto p-4 md:p-8 flex justify-center w-full h-full custom-scrollbar transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0 hidden md:flex' : 'translate-x-0 flex'} print:block print:overflow-visible print:bg-white`}>
             <DocumentContent />
         </div>
         

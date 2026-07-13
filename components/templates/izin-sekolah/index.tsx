@@ -212,7 +212,7 @@ function IzinBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -228,7 +228,7 @@ function IzinBuilder() {
               <button onClick={() => setActiveTab('izin')} className={`flex-1 py-3 ${activeTab === 'izin' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Detail Izin</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'pengirim' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -332,7 +332,7 @@ function IzinBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className={`flex-1 bg-slate-200/50 overflow-y-auto relative transition-transform duration-300 ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0 hidden md:block' : 'translate-x-0 block w-full'}`}>
+        <div className={`flex-1 bg-slate-200/50 overflow-y-auto relative transition-transform duration-300 ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0 hidden md:block' : 'translate-x-0 block w-full'} print:block print:overflow-visible print:bg-white print:static`}>
            <div className="no-print bg-white/80 backdrop-blur border-b sticky top-0 z-10 px-6 py-3 flex justify-between items-center">
               <div className="flex items-center gap-2 text-slate-600">
                 <Eye size={18} className="text-emerald-600" />

@@ -427,7 +427,7 @@ function VillageHeirBuilder() {
          </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
          {/* SIDEBAR EDITOR */}
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
@@ -435,7 +435,7 @@ function VillageHeirBuilder() {
                 <button onClick={handleReset} title="Reset Data" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:block print:overflow-visible print:bg-white">
                {/* 1. KOP SURAT */}
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Landmark size={12}/> Kop Pemerintah Desa</h3>
@@ -525,9 +525,9 @@ function VillageHeirBuilder() {
          </div>
 
          {/* PREVIEW */}
-         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
-             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0">
+         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center print:block print:overflow-visible print:bg-white print:static">
+             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:block print:overflow-visible print:bg-white">
+                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                    <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                       <ContentInside />
                    </div>
@@ -547,7 +547,7 @@ function VillageHeirBuilder() {
       </div>
 
       {/* PRINT PORTAL */}
-      <div id="print-only-root" className="hidden">
+      <div id="print-only-root" className="hidden print:h-auto print:static">
          <table className="print-table">
             <thead><tr><td><div style={{ height: '15mm' }}>&nbsp;</div></td></tr></thead>
             <tbody>

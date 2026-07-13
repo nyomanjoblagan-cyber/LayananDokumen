@@ -154,7 +154,7 @@ function PphCalculatorBuilder() {
           </div>
       </div>
 
-      <main className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden">
+      <main className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:block print:h-auto print:overflow-visible">
         {/* INPUT SIDEBAR */}
         <div className={`w-full md:w-[400px] bg-white border-r overflow-y-auto p-6 space-y-8 z-20 ${mobileView === 'preview' ? 'hidden md:block' : 'block'}`}>
            <div>
@@ -206,7 +206,7 @@ function PphCalculatorBuilder() {
         </div>
 
         {/* OUTPUT DISPLAY */}
-        <div className={`flex-1 bg-slate-200/50 p-4 md:p-8 overflow-y-auto h-full relative ${mobileView === 'editor' ? 'hidden md:flex md:flex-col' : 'flex flex-col'}`}>
+        <div className={`flex-1 bg-slate-200/50 p-4 md:p-8 overflow-y-auto h-full relative ${mobileView === 'editor' ? 'hidden md:flex md:flex-col' : 'flex flex-col'} print:block print:overflow-visible print:bg-white print:static`}>
            <div className="max-w-3xl w-full mx-auto space-y-6">
               
               {/* MAIN RESULT CARD */}

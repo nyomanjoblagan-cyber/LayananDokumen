@@ -120,7 +120,7 @@ export default function SuratPHKTemplate() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`print-hidden w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -138,7 +138,7 @@ export default function SuratPHKTemplate() {
               <button onClick={() => setActiveTab('lainnya')} className={`flex-1 py-3 ${activeTab === 'lainnya' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Lainnya</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'perusahaan' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -265,7 +265,7 @@ export default function SuratPHKTemplate() {
         </div>
 
         {/* RIGHT PANEL - PREVIEW KERTAS */}
-        <div className="flex-1 overflow-y-auto print:overflow-visible bg-slate-100">
+        <div className="flex-1 overflow-y-auto print:overflow-visible bg-slate-100 print:block print:bg-white">
           <Kertas>
             <div ref={printRef} className="text-black font-serif text-[12pt] leading-normal mx-auto max-w-4xl">
               {/* Header/Kop Surat (Opsional, biasa dicetak di kertas ber-kop) */}

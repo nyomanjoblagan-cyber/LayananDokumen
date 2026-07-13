@@ -123,7 +123,7 @@ export default function CVTemplate() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -140,7 +140,7 @@ export default function CVTemplate() {
               <button onClick={() => setActiveTab('keahlian')} className={`flex-1 py-3 ${activeTab === 'keahlian' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Keahlian</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'diri' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -261,7 +261,7 @@ export default function CVTemplate() {
         </div>
 
         {/* RIGHT PANEL: Live Preview */}
-        <div className="flex-1 bg-gray-500 p-4 lg:p-8 overflow-y-auto print:p-0 print:bg-white print:overflow-visible custom-scrollbar">
+        <div className="flex-1 bg-gray-500 p-4 lg:p-8 overflow-y-auto print:p-0 print:bg-white print:overflow-visible custom-scrollbar print:block">
           <Kertas>
             <div className="max-w-3xl mx-auto text-black">
               {/* Header: Name and Contact */}

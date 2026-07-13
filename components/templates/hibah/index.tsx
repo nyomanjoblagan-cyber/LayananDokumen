@@ -319,14 +319,14 @@ function GrantLetterBuilder() {
          </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10 font-sans">
                 <h2 className="font-bold text-slate-700 flex items-center gap-2 text-xs uppercase tracking-widest"><Edit3 size={16} /> Isi Formulir</h2>
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar font-sans">
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar font-sans print:block print:overflow-visible print:bg-white">
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Gift size={12}/> Pemberi Hibah</h3>
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
@@ -380,9 +380,9 @@ function GrantLetterBuilder() {
             </div>
          </div>
 
-         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center">
-             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[1.0] mb-[-160mm] sm:mb-[-130mm] md:mb-10 mt-2 md:mt-0">
+         <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center print:block print:overflow-visible print:bg-white print:static">
+             <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:block print:overflow-visible print:bg-white">
+                <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[1.0] mb-[-160mm] sm:mb-[-130mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                    <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                       <HibahContent />
                    </div>
@@ -402,7 +402,7 @@ function GrantLetterBuilder() {
          <PrintWrapper documentName="Dokumen" price={10000} />
       </div>
 
-      <div id="print-only-root" className="hidden">
+      <div id="print-only-root" className="hidden print:h-auto print:static">
          <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col p-[20mm]">
             <HibahContent />
          </div>

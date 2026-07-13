@@ -277,7 +277,7 @@ function DomisiliBuilder() {
         <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-sm font-bold ${mobileView === 'preview' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-500'}`}>Preview</button>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -296,7 +296,7 @@ function DomisiliBuilder() {
               <button onClick={() => setActiveTab('lainnya')} className={`flex-1 py-3 ${activeTab === 'lainnya' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Keperluan</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'surat' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -439,7 +439,7 @@ function DomisiliBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className="flex-1 bg-slate-200 overflow-y-auto relative p-4 md:p-8 custom-scrollbar">
+        <div className="flex-1 bg-slate-200 overflow-y-auto relative p-4 md:p-8 custom-scrollbar print:block print:overflow-visible print:bg-white print:static">
            <DocumentContent />
         </div>
       </main>

@@ -306,13 +306,13 @@ function IzinBarangBuilder() {
           </div>
       </div>
 
-      <main className="max-w-[1600px] mx-auto p-4 flex flex-col md:flex-row gap-6 h-[calc(100vh-64px)] overflow-hidden relative">
+      <main className="max-w-[1600px] mx-auto p-4 flex flex-col md:flex-row gap-6 h-[calc(100vh-64px)] overflow-hidden relative print:block print:h-auto print:overflow-visible">
         <div className={`no-print w-full md:w-[450px] bg-white rounded-xl border flex flex-col h-full transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-4 border-b flex justify-between items-center bg-slate-50 rounded-t-xl">
                 <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Data</h2>
                 <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors"><RotateCcw size={16}/></button>
             </div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 md:pb-10">
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 md:pb-10 print:block print:overflow-visible print:bg-white">
               <div className="bg-slate-50 p-2 rounded-xl grid grid-cols-2 gap-2 border">
                   <button onClick={() => handleDataChange('type', 'KELUAR')} className={`py-2 rounded-lg text-[10px] font-bold ${data.type === 'KELUAR' ? 'bg-red-600 text-white shadow-md' : 'bg-white text-slate-400'}`}>KELUAR</button>
                   <button onClick={() => handleDataChange('type', 'MASUK')} className={`py-2 rounded-lg text-[10px] font-bold ${data.type === 'MASUK' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-slate-400'}`}>MASUK</button>
@@ -348,8 +348,8 @@ function IzinBarangBuilder() {
         </div>
 
         {/* PREVIEW */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-           <div className="origin-top transition-transform duration-300 transform scale-[0.35] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-120%] sm:mb-[-100mm] md:mb-[-40mm] lg:mb-[-10mm] xl:mb-10 mt-2 xl:mt-0 shadow-2xl shrink-0">
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white`}>
+           <div className="origin-top transition-transform duration-300 transform scale-[0.35] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-120%] sm:mb-[-100mm] md:mb-[-40mm] lg:mb-[-10mm] xl:mb-10 mt-2 xl:mt-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                 <DocumentContent />
            </div>
         </div>
@@ -368,7 +368,7 @@ function IzinBarangBuilder() {
          <PrintWrapper documentName="Dokumen" price={10000} />
       </div>
 
-      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
+      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }

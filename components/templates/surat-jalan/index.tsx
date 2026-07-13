@@ -267,7 +267,7 @@ function SuratJalanBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -282,7 +282,7 @@ function SuratJalanBuilder() {
               <button onClick={() => setActiveTab('barang')} className={`flex-1 py-3 ${activeTab === 'barang' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Daftar Barang</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'info' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -386,8 +386,8 @@ function SuratJalanBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className={`w-full md:flex-1 bg-slate-300 md:overflow-y-auto flex justify-center py-0 md:py-8 absolute md:relative z-0 h-full transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-          <div id="print-only-root" className="w-full flex justify-center">
+        <div className={`w-full md:flex-1 bg-slate-300 md:overflow-y-auto flex justify-center py-0 md:py-8 absolute md:relative z-0 h-full transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0' : 'translate-x-0'} print:block print:overflow-visible print:bg-white print:static`}>
+          <div id="print-only-root" className="w-full flex justify-center print:h-auto print:static">
              <DocumentContent />
           </div>
         </div>

@@ -138,7 +138,7 @@ function PromosiBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -155,7 +155,7 @@ function PromosiBuilder() {
               <button onClick={() => setActiveTab('surat')} className={`flex-1 py-3 ${activeTab === 'surat' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Surat</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'karyawan' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -282,7 +282,7 @@ function PromosiBuilder() {
         </div>
 
         {/* Right Panel: Preview A4 */}
-        <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-gray-200 print:p-0 print:bg-white flex justify-center print:block custom-scrollbar">
+        <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-gray-200 print:p-0 print:bg-white flex justify-center print:block custom-scrollbar print:overflow-visible">
           <Kertas>
             {/* Header/Kop Surat */}
             <div className="border-b-4 border-black pb-4 mb-8 text-center">

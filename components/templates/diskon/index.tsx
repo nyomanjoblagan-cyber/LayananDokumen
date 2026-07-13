@@ -59,7 +59,7 @@ export default function DiskonPage() {
       </div>
 
       {/* MAIN CONTENT */}
-      <main className="max-w-6xl mx-auto p-4 md:p-8 flex-grow w-full">
+      <main className="max-w-6xl mx-auto p-4 md:p-8 flex-grow w-full print:block print:h-auto print:overflow-visible">
          <DiscountCalculator />
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">

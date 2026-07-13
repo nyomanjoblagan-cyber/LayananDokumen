@@ -99,7 +99,7 @@ export default function SuratPernyataanBebasNarkoba() {
               <button onClick={() => setActiveTab('dokumen')} className={`flex-1 py-3 ${activeTab === 'dokumen' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Dokumen</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'identitas' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -163,7 +163,7 @@ export default function SuratPernyataanBebasNarkoba() {
         </div>
 
         {/* Live Preview Panel (Right) */}
-        <div className="flex-1 p-4 md:p-8 bg-gray-100 overflow-y-auto flex justify-center print:p-0 print:w-full print:min-w-0 print:min-h-0 print:block print:overflow-visible">
+        <div className="flex-1 p-4 md:p-8 bg-gray-100 overflow-y-auto flex justify-center print:p-0 print:w-full print:min-w-0 print:min-h-0 print:block print:overflow-visible print:bg-white">
           {/* Kertas A4 */}
           <div className="bg-white shadow-xl w-full max-w-[210mm] min-h-[297mm] p-[20mm] text-black font-serif print:w-full print:max-w-none print:shadow-none print:m-0 print:p-0">
             

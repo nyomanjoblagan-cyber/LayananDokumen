@@ -235,7 +235,7 @@ function BelumMenikahBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -251,7 +251,7 @@ function BelumMenikahBuilder() {
               <button onClick={() => setActiveTab('saksi')} className={`flex-1 py-3 ${activeTab === 'saksi' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Saksi</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
               
               {activeTab === 'pembuat' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -368,7 +368,7 @@ function BelumMenikahBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className={`flex-1 bg-slate-400 overflow-y-auto relative transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0 hidden md:block' : 'translate-x-0 w-full absolute z-20 h-full'}`}>
+        <div className={`flex-1 bg-slate-400 overflow-y-auto relative transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0 hidden md:block' : 'translate-x-0 w-full absolute z-20 h-full'} print:block print:overflow-visible print:bg-white print:static`}>
            <div className="md:hidden sticky top-0 z-50 bg-slate-800 text-white p-3 flex items-center gap-3 shadow-lg">
               <button onClick={() => setMobileView('editor')} className="p-2 bg-slate-700 rounded-lg"><ArrowLeft size={16}/></button>
               <div className="font-bold text-xs uppercase tracking-wider">Kembali ke Editor</div>

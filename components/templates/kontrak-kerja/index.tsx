@@ -393,7 +393,7 @@ function ContractToolBuilder() {
         </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: EDITOR */}
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -402,7 +402,7 @@ function ContractToolBuilder() {
              <button onClick={() => window.location.reload()} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Data"><RotateCcw size={16}/></button>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:block print:overflow-visible print:bg-white">
              
              {/* SECTION 1: SETTING */}
              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -540,8 +540,8 @@ function ContractToolBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className={`flex-1 h-full bg-slate-200/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-           <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shrink-0">
+        <div className={`flex-1 h-full bg-slate-200/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
+           <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                <Kertas><ContractDocument /></Kertas>
            </div>
         </div>
@@ -559,7 +559,7 @@ function ContractToolBuilder() {
       </div>
 
       {/* HIDDEN PRINT ROOT UNTUK HTML-TO-PDF ATAU NATIVE BROWSER PRINT */}
-      <div id="print-only-root" className="hidden print:block w-full bg-white relative">
+      <div id="print-only-root" className="hidden print:block w-full bg-white relative print:h-auto print:static">
          <Kertas className="kertas-print"><ContractDocument /></Kertas>
       </div>
     </div>

@@ -110,7 +110,7 @@ function TerbilangTool() {
         </div>
       </nav>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative print:block print:h-auto print:overflow-visible">
         
         {/* SIDEBAR INPUT */}
         <div className={`w-full md:w-[450px] bg-white border-r overflow-y-auto p-6 lg:p-10 h-full ${mobileView === 'preview' ? 'hidden md:block' : 'block'}`}>
@@ -172,8 +172,8 @@ function TerbilangTool() {
         </div>
 
         {/* VISUAL PREVIEW (KUITANSI) */}
-        <div className={`flex-1 bg-slate-200/50 relative h-full flex flex-col items-center justify-center p-4 lg:p-12 overflow-hidden ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-          <div className="w-full max-w-2xl transform scale-[0.7] sm:scale-[0.85] lg:scale-100 transition-all">
+        <div className={`flex-1 bg-slate-200/50 relative h-full flex flex-col items-center justify-center p-4 lg:p-12 overflow-hidden ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
+          <div className="w-full max-w-2xl transform scale-[0.7] sm:scale-[0.85] lg:scale-100 transition-all print:scale-100 print:transform-none print:w-full print:m-0 print:block">
             <div className="bg-white p-8 lg:p-12 shadow-2xl rounded-sm border-t-[12px] border-emerald-600 relative overflow-hidden text-left">
               
               <div className="absolute top-0 right-0 p-4 opacity-[0.03] -rotate-12">

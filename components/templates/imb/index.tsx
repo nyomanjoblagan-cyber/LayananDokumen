@@ -215,7 +215,7 @@ function IMBBuilder() {
         </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* INPUT SIDEBAR */}
         <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -224,7 +224,7 @@ function IMBBuilder() {
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
-           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar font-sans">
+           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-20 custom-scrollbar font-sans print:block print:overflow-visible print:bg-white">
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
                  <div className="flex items-center gap-2 border-b pb-2"><Building2 size={14} className="text-blue-500"/><h3 className="text-xs font-bold uppercase text-slate-700 tracking-tight">Instansi / Desa</h3></div>
                  <div className="space-y-3">
@@ -268,8 +268,8 @@ function IMBBuilder() {
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-200/50 relative overflow-hidden flex flex-col items-center p-0 md:p-8 overflow-y-auto ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center shrink-0">
+        <div className={`flex-1 h-full bg-slate-200/50 relative overflow-hidden flex flex-col items-center p-0 md:p-8 overflow-y-auto ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                 <DocumentContent />
             </div>
             </div>
@@ -287,7 +287,7 @@ function IMBBuilder() {
          <PrintWrapper documentName="Dokumen" price={10000} />
       </div>
 
-      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
+      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }
