@@ -367,13 +367,11 @@ function GadaiBuilder() {
       {/* CSS PRINT FIXED - NO CSS GRIDS FOR TEXT, JUST FLEX AND MARGINS */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
+          @page { size: A4 portrait; margin: 0; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
-          * { box-sizing: border-box !important; }
         }
       ` }} />
 
@@ -398,7 +396,7 @@ function GadaiBuilder() {
         </div>
       </div>
 
-      <main className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden print:block print:h-auto print:overflow-visible">
+      <main className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden">
         
         {/* INPUT SIDEBAR */}
         <div className={`no-print w-full lg:w-[500px] shrink-0 h-full overflow-y-auto pb-20 space-y-6 font-sans ${mobileView === 'preview' ? 'hidden lg:block' : 'block'} custom-scrollbar`}>
@@ -506,8 +504,8 @@ function GadaiBuilder() {
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-0 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center print:scale-100 print:transform-none print:w-full print:m-0 print:block">
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-0 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center">
                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col shadow-2xl">
                   <ContentInside />
                 </div>
@@ -527,7 +525,7 @@ function GadaiBuilder() {
          <PrintWrapper documentName="Perjanjian_Gadai_Enterprise" price={15000} />
       </div>
 
-      <div id="print-only-root" className="hidden print:h-auto print:static">
+      <div id="print-only-root" className="hidden">
          <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col">
             <ContentInside />
          </div>

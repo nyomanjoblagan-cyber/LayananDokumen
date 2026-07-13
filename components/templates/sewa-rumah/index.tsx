@@ -167,7 +167,7 @@ function RentalAgreementBuilder() {
 
   // --- KOMPONEN HALAMAN ---
   const A4Document = ({ children }: { children: React.ReactNode }) => (
-    <div className="bg-white block box-border text-black leading-normal p-[20mm] w-[210mm] print:w-full print:min-w-0 min-h-[297mm] h-auto shadow-2xl print:shadow-none print:m-0 print:h-auto print:w-[210mm] print:w-full print:min-w-0 print:p-[20mm] relative mb-10 print:mb-0">
+    <div className="bg-white block box-border text-black leading-normal p-[20mm] w-[210mm] min-h-[297mm] h-auto shadow-2xl print:shadow-none print:m-0 print:h-auto print:w-[210mm] print:p-[20mm] relative mb-10 print:mb-0">
       {children}
     </div>
   );
@@ -438,13 +438,11 @@ function RentalAgreementBuilder() {
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
+          @page { size: A4 portrait; margin: 0; } 
+          body { background: white !important; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
-          * { box-sizing: border-box !important; }
         }
       ` }} />
 
@@ -481,7 +479,7 @@ function RentalAgreementBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         
         {/* PANEL KIRI - EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
@@ -498,7 +496,7 @@ function RentalAgreementBuilder() {
               <button onClick={() => setActiveTab('harga')} className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-colors ${activeTab === 'harga' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-slate-400 hover:text-slate-600'}`}>Harga & Ketentuan</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar pb-32 font-sans bg-white print:block print:overflow-visible print:bg-white">
+           <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar pb-32 font-sans bg-white">
               
               {/* HEADER UMUM */}
               <div className="grid grid-cols-2 gap-4">
@@ -699,8 +697,8 @@ function RentalAgreementBuilder() {
         </div>
 
         {/* PANEL KANAN - PREVIEW SURAT */}
-        <div className={`flex-1 h-full bg-slate-300/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.7] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-40mm] lg:mb-0 shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
+        <div className={`flex-1 h-full bg-slate-300/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.7] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-40mm] lg:mb-0 shrink-0">
                 <DocumentContent />
             </div>
         </div>
@@ -717,7 +715,7 @@ function RentalAgreementBuilder() {
          <PrintWrapper documentName={`Perjanjian_Sewa_${data.tenantName.replace(/\s+/g, '_')}`} price={15000} />
       </div>
 
-      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }

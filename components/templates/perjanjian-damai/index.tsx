@@ -145,7 +145,7 @@ function DamaiBuilder() {
         {templateId === 1 && (
           <>
             {/* HALAMAN 1 */}
-            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto mb-8 print:mb-0">
+            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto mb-8 print:mb-0">
                 <div className="text-center mb-8 pb-4 border-b-2 border-black shrink-0">
                   <h1 className="font-black text-xl uppercase tracking-widest underline">SURAT PERJANJIAN PERDAMAIAN (DADING)</h1>
                 </div>
@@ -223,7 +223,7 @@ function DamaiBuilder() {
             </div>
 
             {/* HALAMAN 2 */}
-            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto mb-8 print:mb-0">
+            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto mb-8 print:mb-0">
                 <div className="space-y-4 text-justify flex-grow">
                   <div className="break-inside-avoid">
                       <div className="text-center font-bold mt-4 mb-2 uppercase">PASAL 3<br/>KESEPAKATAN DAN MEKANISME GANTI RUGI</div>
@@ -290,7 +290,7 @@ function DamaiBuilder() {
             </div>
 
             {/* HALAMAN 3 */}
-            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto">
+            <div className="bg-white flex flex-col box-border p-[20mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
                 <div className="space-y-4 text-justify flex-grow">
                   <div className="break-inside-avoid">
                       <div className="text-center font-bold mt-4 mb-2 uppercase">PASAL 7<br/>PENYELESAIAN SENGKETA DAN FORCE MAJEURE</div>
@@ -361,7 +361,7 @@ function DamaiBuilder() {
 
         {/* TEMPLATE 2: COMPACT (1 HALAMAN) - Optional implementation retained but updated to standard formats */}
         {templateId === 2 && (
-          <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[10pt] p-[15mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto">
+          <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[10pt] p-[15mm] print:p-0 w-[210mm] min-h-[296mm] shadow-2xl print:shadow-none print:m-0 mx-auto">
               <div className="text-center mb-6 border-b-4 border-slate-900 pb-2 shrink-0">
                 <h1 className="font-black text-xl uppercase tracking-tighter">SURAT PERNYATAAN PERDAMAIAN</h1>
               </div>
@@ -427,13 +427,12 @@ function DamaiBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
+          @page { size: A4 portrait; margin: 0; } 
+          body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 210mm; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
-          * { box-sizing: border-box !important; }
         }
       ` }} />
 
@@ -467,7 +466,7 @@ function DamaiBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
         {/* SIDEBAR INPUT */}
         <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans">
@@ -475,7 +474,7 @@ function DamaiBuilder() {
              <button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button>
            </div>
            
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:block print:overflow-visible print:bg-white">
+           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans">
               
               {/* Form Data Surat */}
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
@@ -640,8 +639,8 @@ function DamaiBuilder() {
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
+        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
+            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0">
                 <DocumentContent />
             </div>
         </div>
@@ -659,7 +658,7 @@ function DamaiBuilder() {
          <PrintWrapper documentName="Perjanjian_Perdamaian" price={25000} />
       </div>
 
-      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>
+      <div id="print-only-root" className="hidden"><div className="bg-white"><DocumentContent /></div></div>
     </div>
   );
 }
