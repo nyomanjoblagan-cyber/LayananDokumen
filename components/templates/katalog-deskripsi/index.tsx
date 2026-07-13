@@ -1,260 +1,269 @@
 'use client';
 
-/**
- * FILE: KatalogLengkapPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE)
- * DESC: Katalog seluruh alat bantu administrasi dengan fitur pencarian.
- */
-
+import React, { useState, useRef } from 'react';
 import PrintWrapper from '@/components/PrintWrapper';
-import { 
-  ArrowLeft, Search, ExternalLink, Store, Users, Gavel, 
-  Landmark, Truck, GraduationCap, Stethoscope, PartyPopper, 
-  Calculator, X, FileText, ArrowLeftCircle
-} from 'lucide-react';
-import Link from 'next/link';
-import { useState } from 'react';
+import { ShoppingBag, Box, Image as ImageIcon } from 'lucide-react';
 
-// --- KOMPONEN PENJARA IKLAN (SAFE MODE + RESPONSIVE WRAPPER) ---
-const AdCage = ({ adKey, w, h }: { adKey: string, w: number, h: number }) => {
-  const content = `
-    <html>
-      <body style='margin:0;display:flex;justify-content:center;align-items:center;background:transparent;'>
-        <script type='text/javascript'>
-          atOptions = {
-            'key': '${adKey}',
-            'format': 'iframe',
-            'height': ${h},
-            'width': ${w},
-            'params': {}
-          };
-        </script>
-        <script type='text/javascript' src='https://www.highperformanceformat.com/${adKey}/invoke.js'></script>
-      </body>
-    </html>
-  `;
-  
-  return (
-    <div className="flex justify-center w-full my-8 overflow-x-auto bg-slate-50/50 border border-dashed border-slate-200 rounded-xl py-4 no-print scrollbar-hide">
-      <div style={{ width: w, height: h, flexShrink: 0 }}>
-        <iframe
-            srcDoc={content}
-            width={w}
-            height={h}
-            frameBorder="0"
-            scrolling="no"
-            title="Sponsor"
-            style={{ pointerEvents: 'auto' }} 
-        />
-      </div>
-    </div>
-  );
-};
+export default function KatalogDeskripsiTemplate() {
+  const [data, setData] = useState({
+    // Perusahaan
+    namaPerusahaan: 'PT. TEKNOLOGI MASA DEPAN',
+    website: 'www.tekno-masa.com',
+    kontak: 'Sales: 0811-2233-4455 | Email: sales@tekno-masa.com',
+    
+    // Produk
+    namaProduk: 'Mesin Kopi Espresso Otomatis Seri X-900',
+    kategori: 'Peralatan Dapur Komersial',
+    sku: 'TM-X900-ESP',
+    hargaBiasa: 45000000,
+    hargaDiskon: 42500000,
+    
+    // Deskripsi
+    deskripsiUtama: 'Mesin kopi profesional dengan sistem dual-boiler dan pompa putar (rotary pump) yang mampu menghasilkan ekstraksi espresso sempurna secara konsisten. Sangat cocok untuk coffee shop dengan volume tinggi (hingga 300 cup per hari).',
+    
+    // Spesifikasi
+    specList: 'Daya Listrik: 2.200 Watt\nTegangan: 220V / 50Hz\nKapasitas Boiler: 5 Liter\nDimensi (PxLxT): 55cm x 45cm x 50cm\nBerat: 35 Kg\nMaterial: Stainless Steel 304',
+    
+    // Fitur Unggulan
+    fiturList: '1. Layar sentuh TFT 3.5 inci\n2. Profil suhu ekstraksi yang dapat diatur (PID)\n3. Pre-infusion otomatis\n4. Steam wand anti-panas (cool touch)',
+    
+    // Garansi / S&K
+    syaratKetentuan: 'Garansi resmi 1 tahun untuk sparepart dan 2 tahun untuk service (heating element). Pengiriman gratis untuk wilayah Jabodetabek. Instalasi dan training dasar penggunaan termasuk dalam harga.'
+  });
 
-export default function KatalogLengkapPage() {
-  const [search, setSearch] = useState('');
+  const printRef = useRef<HTMLDivElement>(null);
 
-  // --- DATABASE ALAT ---
-  const FULL_CATALOG = [
-    {
-      group: "Keuangan & Bisnis",
-      icon: Store, color: "text-emerald-700", bg: "bg-emerald-50",
-      items: [
-        { name: "Invoice Profesional", desc: "Buat tagihan resmi dengan rincian barang & jasa.", href: "/tools/finance?mode=invoice" },
-        { name: "Kuitansi Pembayaran", desc: "Bukti penerimaan uang dengan fitur terbilang otomatis.", href: "/tools/finance?mode=kuitansi" },
-        { name: "Nota Penjualan", desc: "Nota kontan ringkas untuk toko retail/warung.", href: "/tools/finance?mode=nota" },
-        { name: "Laporan Kas Kecil", desc: "Catat pemasukan & pengeluaran (Petty Cash).", href: "/tools/kas" },
-        { name: "Faktur Pajak UMKM", desc: "Invoice dengan perhitungan PPN & PPh otomatis.", href: "/tools/faktur-pajak" },
-        { name: "Perjanjian Joint Venture", desc: "Kontrak kerjasama bagi hasil / modal usaha.", href: "/tools/joint-venture" },
-        { name: "Perjanjian Franchise", desc: "Kontrak waralaba / kemitraan bisnis.", href: "/tools/franchise" },
-      ]
-    },
-    {
-      group: "Legalitas & Aset",
-      icon: Gavel, color: "text-indigo-700", bg: "bg-indigo-50",
-      items: [
-        { name: "Jual Beli Tanah", desc: "Surat perjanjian jual beli tanah/lahan (Legal/Compact).", href: "/tools/jual-beli-tanah" },
-        { name: "Jual Beli Kendaraan", desc: "Bukti transaksi sah motor atau mobil.", href: "/tools/jual-beli-kendaraan" },
-        { name: "Perjanjian Hutang", desc: "Surat pernyataan hutang piutang dengan pasal sanksi.", href: "/tools/hutang" },
-        { name: "Gadai Aset", desc: "Perjanjian gadai barang sebagai jaminan pinjaman.", href: "/tools/gadai" },
-        { name: "Surat Kuasa", desc: "Limpahkan wewenang ke orang lain secara resmi.", href: "/tools/surat-kuasa" },
-        { name: "Surat Hibah", desc: "Pernyataan pemberian aset/tanah tanpa transaksi.", href: "/tools/hibah" },
-        { name: "Ahli Waris", desc: "Keterangan silsilah keluarga untuk urusan bank/tanah.", href: "/tools/ahli-waris" },
-      ]
-    },
-    {
-      group: "Perizinan & Lingkungan",
-      icon: Landmark, color: "text-orange-700", bg: "bg-orange-50",
-      items: [
-        { name: "Izin Keramaian", desc: "Surat izin ke Polisi atau Warga untuk hajatan.", href: "/tools/izin-keramaian" },
-        { name: "Izin Renovasi", desc: "Permohonan izin bangun/renovasi ke RT/RW/Tetangga.", href: "/tools/izin-renovasi" },
-        { name: "Keterangan Domisili", desc: "Surat pengantar RT/RW atau Kelurahan.", href: "/tools/domisili" },
-        { name: "IMB Sederhana", desc: "Draft permohonan Izin Mendirikan Bangunan.", href: "/tools/imb" },
-        { name: "Kehilangan Barang", desc: "Berita acara / pernyataan hilang untuk logistik.", href: "/tools/hilang-kirim" },
-      ]
-    },
-    {
-      group: "Pribadi & Keluarga",
-      icon: Users, color: "text-rose-700", bg: "bg-rose-50",
-      items: [
-        { name: "Izin Pasangan", desc: "Surat persetujuan suami/istri untuk kerja/kredit.", href: "/tools/izin-pasangan" },
-        { name: "Izin Sekolah", desc: "Surat sakit atau izin acara keluarga untuk siswa.", href: "/tools/izin-sekolah" },
-        { name: "Keterangan Belum Menikah", desc: "Pernyataan status lajang untuk KUA/Lamaran.", href: "/tools/belum-menikah" },
-        { name: "Surat Kematian", desc: "Laporan meninggal dunia untuk administrasi.", href: "/tools/kematian" },
-      ]
-    },
-    {
-      group: "Logistik & Gudang",
-      icon: Truck, color: "text-slate-700", bg: "bg-slate-100",
-      items: [
-        { name: "Surat Jalan", desc: "Dokumen pengantar barang dalam perjalanan.", href: "/tools/izin-barang?mode=surat-jalan" },
-        { name: "Gate Pass (Izin Barang)", desc: "Izin keluar/masuk barang dari area perusahaan.", href: "/tools/izin-barang" },
-        { name: "Berita Acara (BAST)", desc: "Bukti serah terima pekerjaan atau barang.", href: "/tools/bast" },
-        { name: "Label Pengiriman", desc: "Cetak label alamat paket siap tempel.", href: "/tools/label-pengiriman" },
-      ]
-    },
-    {
-      group: "Lainnya",
-      icon: FileText, color: "text-blue-700", bg: "bg-blue-50",
-      items: [
-        { name: "Surat Jaminan Garansi", desc: "Sertifikat garansi produk atau jasa purnajual.", href: "/tools/garansi" },
-        { name: "Donor Darah/Organ", desc: "Pernyataan persetujuan tindakan medis/donor.", href: "/tools/donor" },
-        { name: "Donasi & Sponsorship", desc: "Proposal permohonan dana kegiatan.", href: "/tools/donasi" },
-      ]
-    }
-  ];
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setData({ ...data, [e.target.name]: e.target.type === 'number' ? Number(e.target.value) || 0 : e.target.value });
+  };
 
-  // Logic Search
-  const filteredCatalog = FULL_CATALOG.map(group => ({
-    ...group,
-    items: group.items.filter(item => 
-      item.name.toLowerCase().includes(search.toLowerCase()) || 
-      item.desc.toLowerCase().includes(search.toLowerCase())
-    )
-  })).filter(group => group.items.length > 0);
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
 
   return (
-    <div className="min-h-screen font-sans text-slate-900 bg-[#f8fafc] relative">
-      
-      {/* BACKGROUND DECORATION */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-          <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-emerald-400 opacity-20 blur-[100px]"></div>
-      </div>
-
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 font-sans">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-emerald-600 transition-colors">
-            <ArrowLeftCircle size={20} className="text-emerald-500" /> Kembali
-          </Link>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:inline">Database v2.1</span>
-            <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">PRO</span>
-          </div>
-        </div>
-      </header>
-
-      {/* MAIN CONTENT */}
-      <main className="relative z-10 max-w-5xl mx-auto px-6 py-12 md:py-16">
+    <div className="flex flex-col md:flex-row gap-6">
+      {/* Sidebar Form */}
+      <div className="w-full md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg print:hidden h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-700">
+        <h2 className="text-xl font-bold mb-5 text-gray-800 dark:text-white border-b pb-3 flex items-center gap-2">
+          <ShoppingBag className="w-5 h-5 text-fuchsia-600" />
+          Editor Katalog Produk
+        </h2>
         
-        {/* HERO SECTION */}
-        <div className="mb-12 space-y-6">
-          <div className="space-y-3 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-full px-3 py-1">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-[10px] font-bold text-emerald-700 tracking-wide uppercase">Katalog Lengkap</span>
-            </div>
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 leading-[1.15]">
-              Semua Alat Bantu <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">Administrasi Anda.</span>
-            </h1>
-            <p className="text-slate-500 text-sm md:text-base max-w-xl font-medium">
-               Temukan 50+ template surat otomatis. Mulai dari invoice bisnis, perjanjian legal, hingga surat izin sekolah. Gratis & instan.
-            </p>
-          </div>
+        <div className="space-y-5">
           
-          {/* SEARCH BAR */}
-          <div className="max-w-md relative group mx-auto md:mx-0">
-            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-blue-400 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-200"></div>
-            <div className="relative bg-white rounded-xl shadow-sm flex items-center p-1 border border-slate-200 focus-within:border-emerald-500 transition-colors">
-              <Search className="text-slate-400 ml-3 shrink-0" size={20} />
-              <input 
-                type="text" 
-                placeholder="Cari surat (misal: jual beli, invoice)..." 
-                className="w-full p-3 outline-none text-slate-800 font-medium placeholder:text-slate-400 bg-transparent text-sm"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              {search && (
-                <button onClick={() => setSearch('')} className="p-2 mr-1 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
-                    <X size={16} />
-                </button>
-              )}
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">Identitas Brand</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Perusahaan/Toko</label>
+                <input type="text" name="namaPerusahaan" value={data.namaPerusahaan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Website</label>
+                  <input type="text" name="website" value={data.website} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kontak/Telepon</label>
+                  <input type="text" name="kontak" value={data.kontak} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+              </div>
             </div>
           </div>
+
+          <div className="bg-fuchsia-50 dark:bg-fuchsia-900/20 p-4 rounded-lg border border-fuchsia-100 dark:border-fuchsia-800">
+            <h3 className="font-semibold text-fuchsia-800 dark:text-fuchsia-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <Box className="w-4 h-4" /> Informasi Produk Utama
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-fuchsia-700 dark:text-fuchsia-400 mb-1">Nama Produk</label>
+                <input type="text" name="namaProduk" value={data.namaProduk} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-fuchsia-700 dark:text-fuchsia-400 mb-1">Kategori</label>
+                  <input type="text" name="kategori" value={data.kategori} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-fuchsia-700 dark:text-fuchsia-400 mb-1">Kode / SKU</label>
+                  <input type="text" name="sku" value={data.sku} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm font-mono" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-fuchsia-700 dark:text-fuchsia-400 mb-1">Harga Normal (Rp)</label>
+                  <input type="number" name="hargaBiasa" value={data.hargaBiasa} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-fuchsia-700 dark:text-fuchsia-400 mb-1">Harga Diskon/Promo (Rp)</label>
+                  <input type="number" name="hargaDiskon" value={data.hargaDiskon} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-fuchsia-600 dark:text-fuchsia-400" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-fuchsia-700 dark:text-fuchsia-400 mb-1">Deskripsi Singkat</label>
+                <textarea name="deskripsiUtama" value={data.deskripsiUtama} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-24 resize-none leading-relaxed text-sm"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">Detail Teknis & Fitur</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Spesifikasi (Satu per baris)</label>
+                <textarea name="specList" value={data.specList} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-32 resize-none text-sm font-mono"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fitur Unggulan (Satu per baris)</label>
+                <textarea name="fiturList" value={data.fiturList} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-32 resize-none text-sm"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Syarat, Ketentuan & Garansi</label>
+                <textarea name="syaratKetentuan" value={data.syaratKetentuan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-20 resize-none text-sm"></textarea>
+              </div>
+            </div>
+          </div>
+
         </div>
+      </div>
 
-        {/* CATALOG GRID */}
-        <div className="space-y-12">
-          {filteredCatalog.length === 0 ? (
-             <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
-                <p className="text-slate-400 font-bold">Tidak ada alat yang ditemukan untuk "{search}".</p>
-                <button onClick={() => setSearch('')} className="mt-2 text-emerald-600 text-sm font-bold hover:underline font-sans">Reset Pencarian</button>
-             </div>
-          ) : (
-              filteredCatalog.map((group, idx) => (
-                <section key={idx} className="relative">
-                  <div className="sticky top-[64px] z-20 flex items-center gap-3 py-3 mb-6 bg-[#f8fafc]/95 backdrop-blur-sm border-b border-slate-200">
-                    <div className={`p-1.5 rounded-lg bg-white shadow-sm border border-slate-100 ${group.color}`}>
-                      <group.icon size={18} strokeWidth={2.5} />
-                    </div>
-                    <h2 className={`text-sm font-bold uppercase tracking-widest ${group.color}`}>
-                      {group.group}
-                    </h2>
-                    <div className="h-px flex-grow bg-slate-200 ml-2"></div>
+      {/* Print Preview Area */}
+      <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar">
+        <PrintWrapper printRef={printRef}>
+          <div ref={printRef} className="print-safe-area bg-white text-black shadow-2xl mx-auto flex flex-col" style={{ width: '210mm', minHeight: '297mm', padding: '0', fontFamily: '"Inter", "Segoe UI", Arial, sans-serif' }}>
+            <style dangerouslySetInnerHTML={{__html: `
+              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+              @media print {
+                @page { size: A4 portrait; margin: 0; }
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .print-safe-area { box-shadow: none !important; }
+              }
+              .gradient-bg { background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%); }
+              .spec-table td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; }
+              .spec-table td:first-child { font-weight: 600; color: #4b5563; width: 40%; background-color: #f9fafb; border-right: 1px solid #e5e7eb; }
+            `}} />
+
+            {/* HEADER BRANDING */}
+            <div className="gradient-bg text-white p-8 pb-12 rounded-b-[2rem]">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-black tracking-tight uppercase" style={{ fontSize: '24pt' }}>{data.namaPerusahaan}</h1>
+                  <p className="text-purple-200 mt-1 uppercase tracking-widest text-sm">Product Catalog Specification</p>
+                </div>
+                <div className="text-right text-sm">
+                  <p className="font-semibold text-purple-100">{data.website}</p>
+                  <p className="text-purple-200">{data.kontak}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* CONTENT BODY */}
+            <div className="flex-1 p-10 pt-4 -mt-6">
+              
+              <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 flex gap-8 mb-8">
+                {/* Image Placeholder */}
+                <div className="w-1/2 bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center min-h-[300px]">
+                  <ImageIcon className="w-20 h-20 text-gray-300 mb-4" />
+                  <span className="text-gray-400 font-medium text-sm">Product Image<br/>(High Resolution)</span>
+                </div>
+                
+                {/* Main Product Info */}
+                <div className="w-1/2 flex flex-col justify-center">
+                  <div className="inline-block px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold uppercase tracking-wider rounded-full mb-3 w-max">
+                    {data.kategori}
                   </div>
+                  
+                  <h2 className="text-3xl font-extrabold text-gray-900 leading-tight mb-2" style={{ fontSize: '22pt' }}>
+                    {data.namaProduk}
+                  </h2>
+                  
+                  <p className="text-gray-500 font-mono text-sm mb-6">SKU: {data.sku}</p>
+                  
+                  <div className="mb-6">
+                    {data.hargaDiskon > 0 ? (
+                      <div>
+                        <span className="text-gray-400 line-through text-lg">{formatCurrency(data.hargaBiasa)}</span>
+                        <div className="text-4xl font-black text-purple-700" style={{ fontSize: '28pt' }}>{formatCurrency(data.hargaDiskon)}</div>
+                      </div>
+                    ) : (
+                      <div className="text-4xl font-black text-gray-900" style={{ fontSize: '28pt' }}>{formatCurrency(data.hargaBiasa)}</div>
+                    )}
+                  </div>
+                  
+                  <p className="text-gray-700 leading-relaxed text-justify">
+                    {data.deskripsiUtama}
+                  </p>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                    {group.items.map((item, iIdx) => (
-                      <Link 
-                        key={iIdx} 
-                        href={item.href}
-                        className="group bg-white rounded-xl p-4 border border-slate-200 hover:border-emerald-500 hover:shadow-md hover:shadow-emerald-500/5 transition-all duration-300 flex items-start gap-4 h-full relative overflow-hidden"
-                      >
-                        <div className="mt-1 bg-slate-50 p-1.5 rounded-lg text-slate-300 group-hover:text-emerald-500 group-hover:bg-emerald-50 transition-all shrink-0">
-                          <ExternalLink size={14} />
-                        </div>
-                        <div className="space-y-1 relative z-10">
-                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors uppercase tracking-tight">
-                            {item.name}
-                          </h3>
-                          <p className="text-[11px] text-slate-500 leading-relaxed font-medium line-clamp-2 group-hover:text-slate-600">
-                            {item.desc}
-                          </p>
-                        </div>
-                      </Link>
+              {/* Two Column Section */}
+              <div className="flex gap-8 mt-10">
+                {/* Specifications */}
+                <div className="w-1/2">
+                  <h3 className="text-lg font-bold text-gray-900 uppercase tracking-widest border-b-2 border-purple-500 pb-2 mb-4">Technical Specifications</h3>
+                  <table className="w-full spec-table text-[10pt] border border-gray-200">
+                    <tbody>
+                      {data.specList.split('\n').filter(line => line.trim() !== '').map((line, idx) => {
+                        const parts = line.split(':');
+                        if (parts.length >= 2) {
+                          const key = parts[0].trim();
+                          const val = parts.slice(1).join(':').trim();
+                          return (
+                            <tr key={idx}>
+                              <td>{key}</td>
+                              <td>{val}</td>
+                            </tr>
+                          );
+                        } else {
+                          return (
+                            <tr key={idx}>
+                              <td colSpan={2}>{line}</td>
+                            </tr>
+                          );
+                        }
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Features */}
+                <div className="w-1/2">
+                  <h3 className="text-lg font-bold text-gray-900 uppercase tracking-widest border-b-2 border-purple-500 pb-2 mb-4">Key Features</h3>
+                  <ul className="space-y-3">
+                    {data.fiturList.split('\n').filter(line => line.trim() !== '').map((line, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-[10.5pt] text-gray-700">
+                        <div className="mt-1 w-2 h-2 rounded-full bg-purple-500 flex-shrink-0"></div>
+                        <span>{line.replace(/^\d+\.\s*/, '')}</span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
 
-                  {/* IKLAN SISIPAN */}
-                  <div className="mt-8">
-                     <AdCage adKey="8fd377728513d5d23b9caf7a2bba1a73" w={728} h={90} />
+                  <div className="mt-10 p-5 bg-gray-50 border border-gray-200 rounded-lg">
+                    <h4 className="font-bold text-gray-900 uppercase text-xs mb-2">Warranty & Terms</h4>
+                    <p className="text-gray-600 text-xs leading-relaxed text-justify">
+                      {data.syaratKetentuan}
+                    </p>
                   </div>
-                </section>
-             ))
-          )}
-        </div>
-      </main>
+                </div>
+              </div>
 
-      <footer className="relative z-10 border-t border-slate-200 py-12 bg-white/50">
-        <div className="max-w-5xl mx-auto px-6 text-center">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-sans">&copy; 2026 LayananDokumen.com • Dokumen Aman & Instan</p>
-        </div>
-      </footer>
+            </div>
+            
+            {/* FOOTER */}
+            <div className="bg-gray-900 text-gray-400 text-center py-4 text-[8pt] uppercase tracking-widest mt-auto">
+              Confidential Product Information &copy; {new Date().getFullYear()} {data.namaPerusahaan}
+            </div>
+
+          </div>
+        </PrintWrapper>
+      </div>
     </div>
   );
 }

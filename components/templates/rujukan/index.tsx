@@ -1,324 +1,334 @@
-import React, { forwardRef } from "react";
+'use client';
 
-export interface RujukanData {
-  kopSurat: {
-    namaFaskes: string;
-    alamat: string;
-    kontak: string;
-    email: string;
-    logoUrl?: string;
+import React, { useState, useRef } from 'react';
+import PrintWrapper from '@/components/PrintWrapper';
+import { Activity, Stethoscope, User, MapPin } from 'lucide-react';
+
+export default function RujukanTemplate() {
+  const [data, setData] = useState({
+    // Header/KOP
+    namaFaskes: 'PUSKESMAS KECAMATAN SEHAT SENTOSA',
+    alamatFaskes: 'Jl. Kesehatan No. 99, Jakarta Barat 11220',
+    kontakFaskes: 'Telp: (021) 123-4567 | Email: puskesmas.ss@dinkes.go.id',
+    
+    // Surat
+    noRujukan: '112233/RJK/VII/2026',
+    tanggalSurat: '13 Juli 2026',
+    
+    // Tujuan
+    rsTujuan: 'RSUD TARAKAN',
+    poliTujuan: 'Poli Spesialis Penyakit Dalam',
+    
+    // Pasien
+    namaPasien: 'Budi Santoso',
+    noBPJS: '0001234567890',
+    nik: '3173012345678901',
+    umur: '45 Tahun',
+    jenisKelamin: 'Laki-laki',
+    alamatPasien: 'Jl. Anggrek Raya No. 15, Kebon Jeruk, Jakarta Barat',
+    noTelp: '0812-9876-5432',
+    
+    // Medis
+    anamnesa: 'Pasien datang mengeluh nyeri dada sebelah kiri sejak 2 hari yang lalu, menjalar ke lengan. Keringat dingin (+), mual (-). Riwayat hipertensi sejak 5 tahun lalu.',
+    pemeriksaanFisik: 'TD: 160/100 mmHg, Nadi: 90x/mnt, RR: 20x/mnt, Suhu: 36.5 C',
+    diagnosaAwal: 'Susp. Coronary Artery Disease (CAD)',
+    kodeICD10: 'I20.9 - Angina Pectoris, Unspecified',
+    terapiDiberikan: '1. Amlodipine 10mg (1x1)\n2. Aspirin 80mg (1x1)\n3. Oksigen nasal kanul 2 lpm',
+    alasanRujuk: 'Memerlukan pemeriksaan penunjang lebih lanjut (EKG, Echocardiography) dan penanganan spesialistik.',
+    
+    // Dokter
+    namaDokter: 'dr. Andi Gunawan',
+    sipDokter: 'SIP.123/456/DINKES/2023'
+  });
+
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setData({ ...data, [e.target.name]: e.target.value });
   };
-  nomorSurat: string;
-  tanggalSurat: string;
-  tujuanRujukan: {
-    dokterSpesialis: string;
-    namaRumahSakit: string;
-  };
-  identitasPasien: {
-    nama: string;
-    nik: string;
-    nomorBpjs: string;
-    tanggalLahir: string;
-    umur: string;
-    jenisKelamin: string;
-    alamat: string;
-    noHp: string;
-  };
-  pemeriksaan: {
-    anamnesis: string;
-    kesadaran: string;
-    tekananDarah: string;
-    nadi: string;
-    suhu: string;
-    pernapasan: string;
-    pemeriksaanFisikLainnya: string;
-  };
-  diagnosisSementara: string;
-  kodeIcd10?: string;
-  terapiDiberikan: string;
-  alasanRujukan: string;
-  dokterPerujuk: {
-    nama: string;
-    sip: string;
-  };
-}
 
-const defaultData: RujukanData = {
-  kopSurat: {
-    namaFaskes: "KLINIK PRATAMA SEHAT SELALU",
-    alamat: "Jl. Kesehatan No. 123, Jakarta Selatan, 12345",
-    kontak: "Telp: (021) 1234567 | WA: 081234567890",
-    email: "info@kliniksehatselalu.com",
-  },
-  nomorSurat: "045/RUJ/KSS/VII/2026",
-  tanggalSurat: "13 Juli 2026",
-  tujuanRujukan: {
-    dokterSpesialis: "Spesialis Penyakit Dalam",
-    namaRumahSakit: "RSUD Harapan Maju",
-  },
-  identitasPasien: {
-    nama: "Budi Santoso",
-    nik: "3171234567890001",
-    nomorBpjs: "0001234567890",
-    tanggalLahir: "15 Agustus 1985",
-    umur: "40 Tahun",
-    jenisKelamin: "Laki-laki",
-    alamat: "Jl. Melati No. 45, RT 02 RW 03, Kel. Mawar, Kec. Kebayoran",
-    noHp: "085712345678",
-  },
-  pemeriksaan: {
-    anamnesis: "Pasien datang mengeluhkan nyeri perut sebelah kanan bawah sejak 2 hari yang lalu, disertai mual dan muntah 3 kali sehari. Demam (+).",
-    kesadaran: "Compos Mentis (E4V5M6)",
-    tekananDarah: "130/80 mmHg",
-    nadi: "98 x/menit",
-    suhu: "38.5 °C",
-    pernapasan: "22 x/menit",
-    pemeriksaanFisikLainnya: "Nyeri tekan titik McBurney (+), Rovsing sign (+), Psoas sign (+). Bising usus menurun.",
-  },
-  diagnosisSementara: "Suspect Appendicitis Akut",
-  kodeIcd10: "K35.8",
-  terapiDiberikan: "1. IVFD RL 20 tpm\n2. Injeksi Ondansetron 4mg (IV)\n3. Paracetamol infus 1000mg",
-  alasanRujukan: "Mohon penanganan lebih lanjut dan evaluasi untuk tindakan pembedahan cito.",
-  dokterPerujuk: {
-    nama: "dr. Andi Pratama",
-    sip: "SIP. 445/1234/DINKES/2023",
-  },
-};
-
-interface RujukanProps {
-  data?: Partial<RujukanData>;
-  isPrintMode?: boolean;
-}
-
-export const Rujukan = forwardRef<HTMLDivElement, RujukanProps>(
-  ({ data: providedData, isPrintMode = false }, ref) => {
-    const data = { ...defaultData, ...providedData };
-
-    return (
-      <div
-        ref={ref}
-        className={`bg-white text-black font-sans ${
-          isPrintMode ? "p-0" : "p-8 max-w-4xl mx-auto shadow-lg my-8 border border-gray-200"
-        }`}
-        style={{
-          width: "210mm",
-          minHeight: "297mm",
-          backgroundColor: "#ffffff",
-          color: "#000000",
-        }}
-      >
-        {/* KOP SURAT */}
-        <div className="flex items-center border-b-4 border-black pb-4 mb-6">
-          <div className="w-24 h-24 flex-shrink-0 flex items-center justify-center border-2 border-gray-800 rounded-full bg-gray-100 overflow-hidden">
-            {data.kopSurat.logoUrl ? (
-              <img src={data.kopSurat.logoUrl} alt="Logo" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-3xl font-bold text-gray-500 font-serif">+</span>
-            )}
-          </div>
-          <div className="flex-1 text-center px-4">
-            <h1 className="text-2xl font-bold uppercase tracking-wider text-green-800">
-              {data.kopSurat.namaFaskes}
-            </h1>
-            <p className="text-sm mt-1 text-gray-800">{data.kopSurat.alamat}</p>
-            <p className="text-sm text-gray-800">
-              {data.kopSurat.kontak} | Email: {data.kopSurat.email}
-            </p>
-          </div>
-          <div className="w-24 h-24 flex-shrink-0">
-            {/* Empty space for balance */}
-          </div>
-        </div>
-
-        {/* JUDUL SURAT */}
-        <div className="text-center mb-8">
-          <h2 className="text-xl font-bold underline uppercase tracking-widest">
-            Surat Rujukan Medis
-          </h2>
-          <p className="text-sm font-medium mt-1">Nomor: {data.nomorSurat}</p>
-        </div>
-
-        {/* TUJUAN RUJUKAN */}
-        <div className="mb-6 flex justify-between">
-          <div className="w-2/3">
-            <p className="mb-1">Kepada Yth.,</p>
-            <p className="font-bold">TS. {data.tujuanRujukan.dokterSpesialis}</p>
-            <p className="font-semibold">Di {data.tujuanRujukan.namaRumahSakit}</p>
-          </div>
-          <div className="w-1/3 text-right">
-            <p>Jakarta, {data.tanggalSurat}</p>
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <p className="text-justify mb-2">Dengan hormat,</p>
-          <p className="text-justify mb-4">
-            Mohon bantuan pemeriksaan dan penanganan lebih lanjut pada pasien di bawah ini:
-          </p>
-        </div>
-
-        {/* IDENTITAS PASIEN */}
-        <div className="mb-6">
-          <table className="w-full text-sm">
-            <tbody>
-              <tr>
-                <td className="py-1 w-1/4 font-semibold">Nama Pasien</td>
-                <td className="py-1 w-4">:</td>
-                <td className="py-1 font-bold">{data.identitasPasien.nama}</td>
-              </tr>
-              <tr>
-                <td className="py-1 font-semibold">No. NIK / KTP</td>
-                <td className="py-1">:</td>
-                <td className="py-1">{data.identitasPasien.nik}</td>
-              </tr>
-              <tr>
-                <td className="py-1 font-semibold">No. Kartu BPJS</td>
-                <td className="py-1">:</td>
-                <td className="py-1">{data.identitasPasien.nomorBpjs}</td>
-              </tr>
-              <tr>
-                <td className="py-1 font-semibold">Tgl Lahir / Umur</td>
-                <td className="py-1">:</td>
-                <td className="py-1">
-                  {data.identitasPasien.tanggalLahir} / {data.identitasPasien.umur}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-1 font-semibold">Jenis Kelamin</td>
-                <td className="py-1">:</td>
-                <td className="py-1">{data.identitasPasien.jenisKelamin}</td>
-              </tr>
-              <tr>
-                <td className="py-1 font-semibold align-top">Alamat</td>
-                <td className="py-1 align-top">:</td>
-                <td className="py-1 align-top">{data.identitasPasien.alamat}</td>
-              </tr>
-              <tr>
-                <td className="py-1 font-semibold">No. Telepon / HP</td>
-                <td className="py-1">:</td>
-                <td className="py-1">{data.identitasPasien.noHp}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {/* HASIL PEMERIKSAAN */}
-        <div className="mb-6">
-          <p className="font-bold border-b border-gray-400 mb-2 uppercase text-sm">
-            I. Riwayat & Pemeriksaan
-          </p>
-          <table className="w-full text-sm mb-2">
-            <tbody>
-              <tr>
-                <td className="py-1 w-1/4 font-semibold align-top">Anamnesis</td>
-                <td className="py-1 w-4 align-top">:</td>
-                <td className="py-1 align-top text-justify">{data.pemeriksaan.anamnesis}</td>
-              </tr>
-              <tr>
-                <td className="py-1 font-semibold align-top">Kesadaran</td>
-                <td className="py-1 align-top">:</td>
-                <td className="py-1 align-top">{data.pemeriksaan.kesadaran}</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div className="bg-gray-50 p-3 rounded border border-gray-200 mb-3 grid grid-cols-4 gap-2 text-center text-sm">
-            <div>
-              <p className="text-xs text-gray-500 font-semibold uppercase">TD</p>
-              <p className="font-bold">{data.pemeriksaan.tekananDarah}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 font-semibold uppercase">Nadi</p>
-              <p className="font-bold">{data.pemeriksaan.nadi}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 font-semibold uppercase">Suhu</p>
-              <p className="font-bold">{data.pemeriksaan.suhu}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 font-semibold uppercase">RR</p>
-              <p className="font-bold">{data.pemeriksaan.pernapasan}</p>
+  return (
+    <div className="flex flex-col md:flex-row gap-6">
+      {/* Editor Sidebar */}
+      <div className="w-full md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg print:hidden h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-700">
+        <h2 className="text-xl font-bold mb-5 text-gray-800 dark:text-white border-b pb-3 flex items-center gap-2">
+          <Activity className="w-5 h-5 text-red-600" />
+          Form Rujukan Medis
+        </h2>
+        
+        <div className="space-y-5">
+          
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">Tujuan Rujukan</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RS Tujuan</label>
+                <input type="text" name="rsTujuan" value={data.rsTujuan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Poliklinik Tujuan</label>
+                <input type="text" name="poliTujuan" value={data.poliTujuan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">No. Rujukan</label>
+                  <input type="text" name="noRujukan" value={data.noRujukan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tanggal</label>
+                  <input type="text" name="tanggalSurat" value={data.tanggalSurat} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+              </div>
             </div>
           </div>
 
-          <table className="w-full text-sm">
-            <tbody>
-              <tr>
-                <td className="py-1 w-1/4 font-semibold align-top">Pemeriksaan Fisik</td>
-                <td className="py-1 w-4 align-top">:</td>
-                <td className="py-1 align-top text-justify">
-                  {data.pemeriksaan.pemeriksaanFisikLainnya}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {/* DIAGNOSIS & TERAPI */}
-        <div className="mb-6">
-          <p className="font-bold border-b border-gray-400 mb-2 uppercase text-sm">
-            II. Diagnosis & Terapi
-          </p>
-          <table className="w-full text-sm">
-            <tbody>
-              <tr>
-                <td className="py-1 w-1/4 font-semibold align-top">Diagnosis Sementara</td>
-                <td className="py-1 w-4 align-top">:</td>
-                <td className="py-1 align-top font-bold text-red-700">
-                  {data.diagnosisSementara}
-                  {data.kodeIcd10 && (
-                    <span className="ml-2 font-normal text-gray-600">
-                      (ICD-10: {data.kodeIcd10})
-                    </span>
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-1 font-semibold align-top">Terapi/Tindakan</td>
-                <td className="py-1 align-top">:</td>
-                <td className="py-1 align-top whitespace-pre-line text-justify">
-                  {data.terapiDiberikan}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-1 font-semibold align-top">Alasan Rujukan</td>
-                <td className="py-1 align-top">:</td>
-                <td className="py-1 align-top font-medium italic text-justify">
-                  {data.alasanRujukan}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mb-12">
-          <p className="text-justify text-sm">
-            Demikian surat rujukan ini kami buat. Atas perhatian dan kerjasamanya, kami ucapkan
-            terima kasih.
-          </p>
-        </div>
-
-        {/* TANDA TANGAN */}
-        <div className="flex justify-end mt-8">
-          <div className="text-center w-64">
-            <p className="text-sm mb-16">Hormat Kami,</p>
-            <p className="font-bold underline text-sm">{data.dokterPerujuk.nama}</p>
-            <p className="text-xs mt-1 text-gray-700">{data.dokterPerujuk.sip}</p>
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+            <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <User className="w-4 h-4" /> Data Pasien
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Nama Pasien</label>
+                <input type="text" name="namaPasien" value={data.namaPasien} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">No. BPJS/JKN</label>
+                  <input type="text" name="noBPJS" value={data.noBPJS} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">NIK</label>
+                  <input type="text" name="nik" value={data.nik} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-sm" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Jenis Kelamin</label>
+                  <select name="jenisKelamin" value={data.jenisKelamin} onChange={handleChange as any} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Umur</label>
+                  <input type="text" name="umur" value={data.umur} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Alamat Pasien</label>
+                <textarea name="alamatPasien" value={data.alamatPasien} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-16 resize-none"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">No. Telp / HP</label>
+                <input type="text" name="noTelp" value={data.noTelp} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* FOOTER CATATAN */}
-        <div className="mt-12 pt-4 border-t-2 border-dashed border-gray-300">
-          <p className="text-xs text-gray-500 italic">
-            * Harap membawa berkas rujukan ini saat datang ke rumah sakit tujuan.
-            <br />* Berlaku untuk 1 (satu) kali kunjungan.
-          </p>
+          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-100 dark:border-red-800">
+            <h3 className="font-semibold text-red-800 dark:text-red-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <Stethoscope className="w-4 h-4" /> Informasi Medis
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-red-700 dark:text-red-400 mb-1">Anamnesa</label>
+                <textarea name="anamnesa" value={data.anamnesa} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-20 resize-none"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-red-700 dark:text-red-400 mb-1">Pemeriksaan Fisik</label>
+                <textarea name="pemeriksaanFisik" value={data.pemeriksaanFisik} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-12 resize-none"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-red-700 dark:text-red-400 mb-1">Diagnosa Awal</label>
+                <input type="text" name="diagnosaAwal" value={data.diagnosaAwal} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold text-red-600" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-red-700 dark:text-red-400 mb-1">Kode ICD-10</label>
+                <input type="text" name="kodeICD10" value={data.kodeICD10} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-red-700 dark:text-red-400 mb-1">Terapi / Tindakan Sementara</label>
+                <textarea name="terapiDiberikan" value={data.terapiDiberikan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-20 resize-none"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-red-700 dark:text-red-400 mb-1">Alasan Rujukan</label>
+                <textarea name="alasanRujuk" value={data.alasanRujuk} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-16 resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">Dokter Perujuk</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Dokter</label>
+                <input type="text" name="namaDokter" value={data.namaDokter} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SIP</label>
+                <input type="text" name="sipDokter" value={data.sipDokter} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-sm" />
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
-    );
-  }
-);
 
-Rujukan.displayName = "Rujukan";
+      {/* Print Preview */}
+      <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar">
+        <PrintWrapper printRef={printRef}>
+          <div ref={printRef} className="print-safe-area bg-white text-black shadow-2xl mx-auto" style={{ width: '210mm', minHeight: '297mm', padding: '20mm', fontFamily: 'Arial, sans-serif' }}>
+            <style dangerouslySetInnerHTML={{__html: `
+              @media print {
+                @page { size: A4 portrait; margin: 20mm; }
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .print-safe-area { box-shadow: none !important; }
+              }
+              .rujukan-table td { padding: 4px 8px; vertical-align: top; font-size: 10.5pt; border: 1px solid #000; }
+              .rujukan-table th { padding: 4px 8px; font-weight: bold; font-size: 10.5pt; text-align: left; border: 1px solid #000; background-color: #f3f4f6; }
+            `}} />
 
-export default Rujukan;
+            {/* KOP FASKES */}
+            <div className="flex items-center border-b-2 border-black pb-4 mb-4">
+              <div className="w-20 h-24 flex items-center justify-center">
+                {/* Placeholder Logo Bakti Husada / Puskesmas */}
+                <div className="w-16 h-16 border-2 border-green-600 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 border-2 border-green-600 flex items-center justify-center rotate-45">
+                    <div className="w-4 h-4 bg-green-600 -rotate-45 rounded-sm"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 text-center pr-20">
+                <h1 className="text-xl font-bold uppercase tracking-wide">{data.namaFaskes}</h1>
+                <p className="text-sm">{data.alamatFaskes}</p>
+                <p className="text-xs">{data.kontakFaskes}</p>
+              </div>
+            </div>
+
+            {/* JUDUL */}
+            <div className="text-center mb-6">
+              <h2 className="text-lg font-bold uppercase underline" style={{ fontSize: '14pt' }}>Surat Rujukan Medis</h2>
+              <p className="text-sm mt-1">No. {data.noRujukan}</p>
+            </div>
+
+            {/* Kepada */}
+            <div className="text-[11pt] mb-6">
+              <p>Kepada Yth. Teman Sejawat,</p>
+              <p className="font-bold">{data.rsTujuan}</p>
+              <p>{data.poliTujuan}</p>
+              <p>Di tempat.</p>
+            </div>
+
+            {/* Pembuka */}
+            <div className="text-[11pt] text-justify mb-4">
+              <p>Mohon pemeriksaan dan penanganan lebih lanjut terhadap pasien di bawah ini:</p>
+            </div>
+
+            {/* Data Pasien & Medis Table */}
+            <div className="mb-6">
+              <table className="w-full border-collapse rujukan-table">
+                <tbody>
+                  <tr>
+                    <th colSpan={3} className="text-center">IDENTITAS PASIEN</th>
+                  </tr>
+                  <tr>
+                    <td style={{ width: '25%' }} className="font-semibold">Nama Pasien</td>
+                    <td style={{ width: '2%', borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ width: '73%', borderLeft: 'none' }} className="font-bold">{data.namaPasien}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">No. BPJS / NIK</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }}>
+                      <span className="font-mono font-bold mr-4">{data.noBPJS}</span> / 
+                      <span className="font-mono ml-4">{data.nik}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">Umur / Jenis Kelamin</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }}>{data.umur} / {data.jenisKelamin}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">Alamat Lengkap</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }}>{data.alamatPasien}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">No. Telepon</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }}>{data.noTelp}</td>
+                  </tr>
+
+                  <tr>
+                    <th colSpan={3} className="text-center">INFORMASI MEDIS</th>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">Anamnesa</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }} className="text-justify">{data.anamnesa}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">Pemeriksaan Fisik</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }}>{data.pemeriksaanFisik}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">Diagnosa Sementara</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }} className="font-bold">{data.diagnosaAwal}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">Kode ICD-10</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }} className="font-mono">{data.kodeICD10}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">Terapi / Tindakan yang Telah Diberikan</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }} className="whitespace-pre-line">{data.terapiDiberikan}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold">Alasan Rujuk</td>
+                    <td style={{ borderRight: 'none', borderLeft: 'none' }}>:</td>
+                    <td style={{ borderLeft: 'none' }}>{data.alasanRujuk}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Penutup */}
+            <div className="text-[11pt] text-justify mb-8">
+              <p>Atas bantuan sejawat, kami ucapkan terima kasih.</p>
+            </div>
+
+            {/* Tanda Tangan */}
+            <div className="flex justify-end text-[11pt]">
+              <div className="w-64 text-center">
+                <p className="mb-2">{data.tanggalSurat}</p>
+                <p className="mb-20">Dokter Perujuk,</p>
+                
+                <div className="relative">
+                  <p className="font-bold underline">{data.namaDokter}</p>
+                  <p className="text-[9pt]">SIP. {data.sipDokter}</p>
+                  
+                  {/* Cap/Stempel */}
+                  <div className="absolute -left-16 -top-16 w-24 h-24 border-2 border-purple-700 rounded-full flex items-center justify-center opacity-30 pointer-events-none transform -rotate-12">
+                    <span className="text-purple-700 font-bold text-[8px] text-center uppercase px-2">{data.namaFaskes}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Footer Note */}
+            <div className="mt-8 pt-2 border-t border-gray-400 text-[8pt] text-gray-500 flex justify-between">
+              <span>* Surat rujukan ini berlaku selama 3 (tiga) bulan sejak tanggal diterbitkan.</span>
+              <span>Dokumen Rujukan Medis v2.0</span>
+            </div>
+
+          </div>
+        </PrintWrapper>
+      </div>
+    </div>
+  );
+}

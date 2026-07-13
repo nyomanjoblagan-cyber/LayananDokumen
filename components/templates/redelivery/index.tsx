@@ -1,239 +1,350 @@
-import React from 'react';
+'use client';
 
-export interface RedeliveryData {
-  letterNo: string;
-  date: string;
-  senderCompany: {
-    name: string;
-    address: string;
-    phone: string;
-    email: string;
-  };
-  recipientCompany: {
-    name: string;
-    attention: string;
-    address: string;
-  };
-  shipmentDetails: {
-    blNumber: string;
-    containerNumbers: string[];
-    vesselVoyage: string;
-    portOfLoading: string;
-    portOfDischarge: string;
-    originalETA: string;
-  };
-  redeliveryDetails: {
-    reason: string;
-    newConsigneeName: string;
-    newDeliveryAddress: string;
-    contactPerson: string;
-    contactNumber: string;
-    requestedDeliveryDate: string;
-  };
-  signatory: {
-    name: string;
-    title: string;
-  };
-}
+import React, { useState, useRef } from 'react';
+import PrintWrapper from '@/components/PrintWrapper';
+import { Ship, Anchor, MapPin, User, FileText } from 'lucide-react';
 
-interface RedeliveryTemplateProps {
-  data?: RedeliveryData;
-}
+export default function RedeliveryTemplate() {
+  const [data, setData] = useState({
+    nomorSurat: 'RDL/2026/08-001',
+    tanggal: '13 Juli 2026',
+    
+    // Shipping Line
+    shippingLine: 'PT. SAMUDERA GLOBAL LOGISTICS',
+    alamatShipping: 'Graha Samudera Lt. 5, Jl. Yos Sudarso No. 12, Tanjung Priok, Jakarta Utara',
+    
+    // Shipment Details
+    vessel: 'MSC ORION / VOY. 045E',
+    blNumber: 'SGL-JKT-9988776',
+    portOfLoading: 'Singapore (SGSIN)',
+    portOfDischarge: 'Jakarta (IDJKT)',
+    eta: '10 Juli 2026',
+    containerType: '2x40HC, 1x20DC',
+    
+    // Container List
+    containers: 'MSCU1234567, MSCU7654321, MSCU1122334',
+    cargoDescription: 'Electronic Spare Parts & Accessories',
+    
+    // Old & New Details
+    oldConsignee: 'PT. LAMA SEJAHTERA',
+    oldDestination: 'Gudang Cikarang Dry Port Blok A1',
+    newConsignee: 'PT. BARU SUKSES MAKMUR',
+    newDestination: 'Kawasan Industri MM2100 Blok H-5, Cibitung',
+    
+    // Reason
+    alasan: 'Perubahan lokasi gudang penerima akhir atas instruksi dari Shipper (Pihak Pengirim) sesuai dengan email terlampir.',
+    
+    // Signatures
+    namaPemohon: 'Ahmad Yani',
+    jabatanPemohon: 'Logistics Manager',
+    perusahaanPemohon: 'PT. IMPORTIR MAJU INDONESIA',
+    
+    // Indemnity
+    indemnityClause: true
+  });
 
-const defaultData: RedeliveryData = {
-  letterNo: "REDEL/EXP/2026/07-001",
-  date: "13 Juli 2026",
-  senderCompany: {
-    name: "PT. GLOBAL LOGISTIK INDONESIA",
-    address: "Kawasan Industri MM2100, Jl. Jawa Blok H No. 1, Cikarang Barat, Bekasi 17530",
-    phone: "+62 21 8989 1234",
-    email: "export.ops@globallogistik.co.id"
-  },
-  recipientCompany: {
-    name: "PT. PELAYARAN SAMUDERA LUAS",
-    attention: "Import Customer Service / Delivery Dept.",
-    address: "Gedung Maritim Lt. 5, Jl. Yos Sudarso No. 12, Tanjung Priok, Jakarta Utara 14320"
-  },
-  shipmentDetails: {
-    blNumber: "OOCL1234567890",
-    containerNumbers: ["OOCU 123456-7 (40HC)", "OOCU 765432-1 (20DC)"],
-    vesselVoyage: "CMA CGM COLUMBA / 0T345W",
-    portOfLoading: "Shanghai, China",
-    portOfDischarge: "Tanjung Priok, Jakarta",
-    originalETA: "10 Juli 2026"
-  },
-  redeliveryDetails: {
-    reason: "Pabrik penerima awal mengalami kendala teknis bongkar muat (crane utama dalam perbaikan), sehingga muatan harus dialihkan sementara ke gudang konsolidasi.",
-    newConsigneeName: "PT. GLOBAL LOGISTIK INDONESIA (Gudang Cibitung)",
-    newDeliveryAddress: "Kawasan Industri Gobel, Jl. Teuku Umar KM 44, Cibitung, Bekasi 17520",
-    contactPerson: "Bpk. Budi Santoso",
-    contactNumber: "+62 812 3456 7890",
-    requestedDeliveryDate: "15 Juli 2026"
-  },
-  signatory: {
-    name: "Ahmad Riyadi",
-    title: "Logistics & Operations Manager"
-  }
-};
+  const printRef = useRef<HTMLDivElement>(null);
 
-const RedeliveryTemplate: React.FC<RedeliveryTemplateProps> = ({ data = defaultData }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setData({ ...data, [e.target.name]: e.target.value });
+  };
+
+  const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setData({ ...data, [e.target.name]: e.target.checked });
+  };
+
   return (
-    <div className="bg-white text-black p-12 max-w-4xl mx-auto shadow-xl text-sm border border-gray-200" style={{ fontFamily: 'Arial, sans-serif', minHeight: '1056px' }}>
-      {/* Header / Kop Surat */}
-      <div className="border-b-4 border-black pb-4 mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-black uppercase tracking-wider text-blue-900">{data.senderCompany.name}</h1>
-          <p className="text-gray-800 mt-1 max-w-md font-medium">{data.senderCompany.address}</p>
-          <p className="text-gray-600 mt-1">Tel: {data.senderCompany.phone} | Email: {data.senderCompany.email}</p>
-        </div>
-        {/* Placeholder for Logo */}
-        <div className="w-24 h-24 bg-gray-50 flex items-center justify-center border-2 border-blue-900 rounded-lg shadow-sm">
-          <span className="text-blue-900 font-bold text-xs text-center leading-tight">LOGISTICS<br/>LOGO</span>
-        </div>
-      </div>
-
-      {/* Date & Ref */}
-      <div className="flex justify-between mb-8 items-start">
-        <div>
-          <table className="text-sm">
-            <tbody>
-              <tr>
-                <td className="pr-4 py-1 text-gray-600">Nomor</td>
-                <td>: <strong className="text-black">{data.letterNo}</strong></td>
-              </tr>
-              <tr>
-                <td className="pr-4 py-1 text-gray-600">Lampiran</td>
-                <td>: <span className="text-black">1 (satu) Berkas</span></td>
-              </tr>
-              <tr>
-                <td className="pr-4 py-1 text-gray-600">Perihal</td>
-                <td>: <strong className="uppercase underline text-black">Permohonan Pengiriman Ulang (Redelivery Request)</strong></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div className="text-right">
-          <p className="font-medium text-black">Jakarta, {data.date}</p>
-        </div>
-      </div>
-
-      {/* Recipient */}
-      <div className="mb-8 p-4 bg-gray-50 rounded border border-gray-200 w-2/3">
-        <p className="text-gray-600 mb-1">Kepada Yth.,</p>
-        <p className="font-bold text-lg text-black">{data.recipientCompany.name}</p>
-        <p className="text-black font-medium mt-1">U.p: {data.recipientCompany.attention}</p>
-        <p className="max-w-md text-black mt-1 leading-relaxed">{data.recipientCompany.address}</p>
-      </div>
-
-      {/* Body */}
-      <div className="mb-6 leading-relaxed text-black">
-        <p className="mb-4">Dengan hormat,</p>
-        <p className="mb-4 text-justify">
-          Merujuk pada pengiriman kargo kami yang telah tiba di Pelabuhan <strong>{data.shipmentDetails.portOfDischarge}</strong>, bersama surat ini kami bermaksud untuk mengajukan permohonan pengiriman ulang (<strong>Redelivery</strong>) dengan rincian pengiriman awal sebagai berikut:
-        </p>
-
-        {/* Shipment Details Table */}
-        <table className="w-full mb-6 border-collapse border border-gray-800 shadow-sm">
-          <tbody>
-            <tr className="border-b border-gray-800">
-              <td className="w-2/5 p-3 bg-gray-100 font-semibold border-r border-gray-800">Nomor B/L (Bill of Lading)</td>
-              <td className="w-3/5 p-3 font-mono font-bold">{data.shipmentDetails.blNumber}</td>
-            </tr>
-            <tr className="border-b border-gray-800">
-              <td className="w-2/5 p-3 bg-gray-100 font-semibold border-r border-gray-800 align-top">Nomor Kontainer / Ukuran</td>
-              <td className="w-3/5 p-3">
-                <ul className="list-disc list-inside font-mono">
-                  {data.shipmentDetails.containerNumbers.map((c, i) => (
-                    <li key={i}>{c}</li>
-                  ))}
-                </ul>
-              </td>
-            </tr>
-            <tr className="border-b border-gray-800">
-              <td className="w-2/5 p-3 bg-gray-100 font-semibold border-r border-gray-800">Kapal / Pelayaran (Vessel/Voy)</td>
-              <td className="w-3/5 p-3 uppercase">{data.shipmentDetails.vesselVoyage}</td>
-            </tr>
-            <tr className="border-b border-gray-800">
-              <td className="w-2/5 p-3 bg-gray-100 font-semibold border-r border-gray-800">Pelabuhan Muat (POL)</td>
-              <td className="w-3/5 p-3">{data.shipmentDetails.portOfLoading}</td>
-            </tr>
-            <tr>
-              <td className="w-2/5 p-3 bg-gray-100 font-semibold border-r border-gray-800">Estimasi Kedatangan (ETA)</td>
-              <td className="w-3/5 p-3">{data.shipmentDetails.originalETA}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <p className="mb-4 text-justify">
-          Dikarenakan adanya perubahan instruksi pengiriman karena alasan: <em>"{data.redeliveryDetails.reason}"</em>, kami memohon agar rute pengiriman kargo/kontainer tersebut diubah dan dikirimkan kembali ke alamat tujuan yang baru di bawah ini:
-        </p>
-
-        {/* New Delivery Details Box */}
-        <div className="p-5 border-2 border-blue-800 bg-blue-50 mb-6 rounded-md shadow-sm">
-          <h3 className="font-bold text-blue-900 mb-3 border-b border-blue-200 pb-2 uppercase tracking-wide">Detail Pengiriman Baru (New Delivery Details)</h3>
-          <table className="text-sm w-full">
-            <tbody>
-              <tr>
-                <td className="font-semibold w-1/3 py-2 text-gray-700">Penerima Baru (Consignee)</td>
-                <td className="py-2">: <span className="font-bold text-black text-base">{data.redeliveryDetails.newConsigneeName}</span></td>
-              </tr>
-              <tr>
-                <td className="font-semibold py-2 align-top text-gray-700">Alamat Pengiriman Baru</td>
-                <td className="py-2 leading-relaxed">: <span className="text-black font-medium">{data.redeliveryDetails.newDeliveryAddress}</span></td>
-              </tr>
-              <tr>
-                <td className="font-semibold py-2 text-gray-700">Tgl. Pengiriman Diminta</td>
-                <td className="py-2">: <span className="font-bold text-red-600">{data.redeliveryDetails.requestedDeliveryDate}</span></td>
-              </tr>
-              <tr>
-                <td className="font-semibold py-2 text-gray-700">Contact Person (PIC Lokasi)</td>
-                <td className="py-2">: <span className="text-black font-medium">{data.redeliveryDetails.contactPerson} (Telp: {data.redeliveryDetails.contactNumber})</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <p className="mb-4 text-justify bg-yellow-50 p-4 border-l-4 border-yellow-500 rounded text-gray-800">
-          <strong className="text-yellow-800 block mb-1">Surat Pernyataan Pertanggungjawaban (Letter of Indemnity):</strong>
-          Dengan diterbitkannya permohonan ini, kami selaku pihak pemohon menyatakan akan bertanggung jawab penuh atas segala biaya tambahan yang timbul akibat perubahan ini, termasuk namun tidak terbatas pada biaya <em>demurrage</em>, <em>detention</em>, biaya penumpukan (<em>storage</em>), biaya pengiriman ulang (<em>redelivery fee</em>), serta biaya administrasi lainnya yang dibebankan oleh pihak pelayaran maupun pihak ketiga terkait. Kami juga membebaskan pihak <strong>{data.recipientCompany.name}</strong> dari segala tuntutan hukum atau klaim yang mungkin timbul dari pihak manapun akibat perubahan instruksi pengiriman ini.
-        </p>
+    <div className="flex flex-col md:flex-row gap-6">
+      {/* Sidebar Form */}
+      <div className="w-full md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg print:hidden h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-700">
+        <h2 className="text-xl font-bold mb-5 text-gray-800 dark:text-white border-b pb-3 flex items-center gap-2">
+          <Ship className="w-5 h-5 text-blue-600" />
+          Redelivery Request
+        </h2>
         
-        <p className="mb-6 text-justify">
-          Sebagai kelengkapan administrasi, kami lampirkan dokumen pendukung berupa fotokopi B/L, Delivery Order (DO), dan Surat Kuasa. Demikian surat permohonan pengiriman ulang ini kami sampaikan. Atas perhatian, bantuan, dan kerjasamanya yang baik, kami ucapkan terima kasih.
-        </p>
-      </div>
-
-      {/* Signature */}
-      <div className="flex justify-end mt-12 pt-8 border-t border-gray-200">
-        <div className="text-center w-72">
-          <p className="mb-2 text-black">Hormat Kami,</p>
-          <p className="font-bold text-black">{data.senderCompany.name}</p>
-          
-          {/* Stamp/Signature Space */}
-          <div className="h-32 w-full relative my-4">
-            <div className="absolute inset-0 flex items-center justify-center opacity-30">
-               {/* Dummy Stamp */}
-               <div className="w-24 h-24 rounded-full border-[3px] border-blue-900 flex flex-col items-center justify-center -rotate-[15deg]">
-                 <span className="text-[10px] font-bold text-blue-900 uppercase tracking-widest">{data.senderCompany.name.substring(0, 15)}...</span>
-                 <span className="text-xs font-black text-blue-900 mt-1">APPROVED</span>
-               </div>
-            </div>
-            {/* Dummy Signature Line */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-blue-800">
-               {/* Decorative signature stroke */}
-               <svg width="150" height="60" viewBox="0 0 150 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 40 C 30 10, 60 50, 80 30 S 110 60, 140 20" stroke="currentColor" strokeWidth="2.5" fill="transparent" strokeLinecap="round" />
-                  <path d="M30 45 L 120 45" stroke="currentColor" strokeWidth="1" fill="transparent" strokeDasharray="4 4" opacity="0.5"/>
-               </svg>
+        <div className="space-y-5">
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <FileText className="w-4 h-4" /> Info Surat
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nomor Surat</label>
+                <input type="text" name="nomorSurat" value={data.nomorSurat} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tanggal</label>
+                <input type="text" name="tanggal" value={data.tanggal} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
             </div>
           </div>
-          
-          <p className="font-bold underline uppercase text-black">{data.signatory.name}</p>
-          <p className="text-sm font-medium text-gray-600 mt-1">{data.signatory.title}</p>
+
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <Anchor className="w-4 h-4" /> Kepada (Shipping Line)
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Shipping Line</label>
+                <input type="text" name="shippingLine" value={data.shippingLine} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alamat</label>
+                <textarea name="alamatShipping" value={data.alamatShipping} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-20 resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+            <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <Ship className="w-4 h-4" /> Shipment Details
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Vessel / Voy</label>
+                <input type="text" name="vessel" value={data.vessel} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">B/L Number</label>
+                <input type="text" name="blNumber" value={data.blNumber} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">POL</label>
+                  <input type="text" name="portOfLoading" value={data.portOfLoading} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">POD</label>
+                  <input type="text" name="portOfDischarge" value={data.portOfDischarge} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Container & Type</label>
+                <input type="text" name="containerType" value={data.containerType} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Container Numbers</label>
+                <textarea name="containers" value={data.containers} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono h-20 resize-none"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Cargo Description</label>
+                <input type="text" name="cargoDescription" value={data.cargoDescription} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-100 dark:border-amber-800">
+            <h3 className="font-semibold text-amber-800 dark:text-amber-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <MapPin className="w-4 h-4" /> Perubahan Tujuan
+            </h3>
+            <div className="space-y-4">
+              <div className="pl-3 border-l-2 border-red-400">
+                <p className="text-xs font-bold text-red-600 mb-1 uppercase">Lama (Old)</p>
+                <input type="text" placeholder="Consignee Lama" name="oldConsignee" value={data.oldConsignee} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white mb-2" />
+                <input type="text" placeholder="Destinasi Lama" name="oldDestination" value={data.oldDestination} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+              <div className="pl-3 border-l-2 border-green-500">
+                <p className="text-xs font-bold text-green-700 mb-1 uppercase">Baru (New)</p>
+                <input type="text" placeholder="Consignee Baru" name="newConsignee" value={data.newConsignee} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white mb-2 font-bold" />
+                <input type="text" placeholder="Destinasi Baru" name="newDestination" value={data.newDestination} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-amber-700 dark:text-amber-400 mb-1">Alasan Perubahan</label>
+                <textarea name="alasan" value={data.alasan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-20 resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <User className="w-4 h-4" /> Pemohon (Applicant)
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Perusahaan Pemohon</label>
+                <input type="text" name="perusahaanPemohon" value={data.perusahaanPemohon} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama</label>
+                <input type="text" name="namaPemohon" value={data.namaPemohon} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jabatan</label>
+                <input type="text" name="jabatanPemohon" value={data.jabatanPemohon} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+              <div className="pt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="indemnityClause" checked={data.indemnityClause} onChange={handleCheckbox} className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sertakan Letter of Indemnity (LOI) Clause</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
         </div>
+      </div>
+
+      {/* Print Preview Area */}
+      <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar">
+        <PrintWrapper printRef={printRef}>
+          <div ref={printRef} className="print-safe-area bg-white text-black shadow-2xl mx-auto" style={{ width: '210mm', minHeight: '297mm', padding: '20mm', fontFamily: 'Arial, sans-serif' }}>
+            <style dangerouslySetInnerHTML={{__html: `
+              @media print {
+                @page { size: A4 portrait; margin: 20mm; }
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .print-safe-area { box-shadow: none !important; }
+              }
+              .info-table td { padding: 4px 8px; vertical-align: top; font-size: 10pt; }
+              .info-table td:nth-child(1) { width: 35%; font-weight: bold; background-color: #f3f4f6; border-right: 1px solid #d1d5db; }
+              .info-table td:nth-child(2) { width: 65%; }
+              .info-table tr { border-bottom: 1px solid #d1d5db; border-top: 1px solid #d1d5db; }
+            `}} />
+
+            {/* Letterhead */}
+            <div className="border-b-4 border-double border-gray-800 pb-4 mb-8 flex justify-between items-end">
+              <div>
+                <h1 className="text-2xl font-black uppercase tracking-wider text-blue-900" style={{ fontSize: '18pt' }}>
+                  {data.perusahaanPemohon}
+                </h1>
+                <p className="text-xs text-gray-600 mt-1">Export / Import & Logistics Solutions</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm">Ref: {data.nomorSurat}</p>
+                <p className="text-sm">Date: {data.tanggal}</p>
+              </div>
+            </div>
+
+            {/* To Section */}
+            <div className="mb-8 text-[11pt]">
+              <p><strong>To:</strong></p>
+              <p className="font-bold uppercase text-lg">{data.shippingLine}</p>
+              <div className="whitespace-pre-line mt-1">{data.alamatShipping}</div>
+            </div>
+
+            {/* Title */}
+            <div className="text-center mb-8">
+              <h2 className="text-xl font-bold uppercase underline" style={{ fontSize: '14pt' }}>Request for Redelivery / Change of Destination</h2>
+            </div>
+
+            {/* Body Text */}
+            <div className="text-[11pt] text-justify mb-6">
+              <p className="mb-4">
+                Dear Sir/Madam,
+              </p>
+              <p className="mb-4">
+                We, <strong>{data.perusahaanPemohon}</strong>, hereby request to amend the delivery destination / consignee for the following shipment:
+              </p>
+            </div>
+
+            {/* Shipment Details Table */}
+            <div className="mb-8">
+              <table className="w-full border-collapse info-table border border-gray-300">
+                <tbody>
+                  <tr>
+                    <td>Vessel / Voyage</td>
+                    <td className="font-bold">{data.vessel}</td>
+                  </tr>
+                  <tr>
+                    <td>Bill of Lading (B/L) No.</td>
+                    <td className="font-mono font-bold text-[11pt]">{data.blNumber}</td>
+                  </tr>
+                  <tr>
+                    <td>Port of Loading (POL)</td>
+                    <td>{data.portOfLoading}</td>
+                  </tr>
+                  <tr>
+                    <td>Port of Discharge (POD)</td>
+                    <td>{data.portOfDischarge}</td>
+                  </tr>
+                  <tr>
+                    <td>Container / Type</td>
+                    <td>{data.containerType}</td>
+                  </tr>
+                  <tr>
+                    <td>Container Number(s)</td>
+                    <td className="font-mono">{data.containers}</td>
+                  </tr>
+                  <tr>
+                    <td>Cargo Description</td>
+                    <td>{data.cargoDescription}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Old vs New Table */}
+            <div className="mb-8">
+              <p className="font-bold mb-2 text-[11pt]">Please amend the delivery instructions as follows:</p>
+              <table className="w-full border-collapse border border-gray-300 text-[10pt]">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 bg-red-50 p-2 w-1/2 text-red-800 uppercase">From (Old Details)</th>
+                    <th className="border border-gray-300 bg-green-50 p-2 w-1/2 text-green-800 uppercase">To (New Details)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-gray-300 p-3 align-top">
+                      <p className="text-xs font-bold text-gray-500 uppercase mb-1">Consignee:</p>
+                      <p className="mb-3">{data.oldConsignee}</p>
+                      <p className="text-xs font-bold text-gray-500 uppercase mb-1">Destination / Delivery Place:</p>
+                      <p>{data.oldDestination}</p>
+                    </td>
+                    <td className="border border-gray-300 p-3 align-top bg-green-50/30">
+                      <p className="text-xs font-bold text-green-700 uppercase mb-1">Consignee:</p>
+                      <p className="mb-3 font-bold">{data.newConsignee}</p>
+                      <p className="text-xs font-bold text-green-700 uppercase mb-1">Destination / Delivery Place:</p>
+                      <p className="font-bold">{data.newDestination}</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div className="mt-3 text-[10pt]">
+                <strong>Reason for change:</strong> {data.alasan}
+              </div>
+            </div>
+
+            {/* Letter of Indemnity Clause */}
+            {data.indemnityClause && (
+              <div className="mb-8 text-[9pt] border border-gray-400 p-4 bg-gray-50 text-justify">
+                <p className="font-bold mb-2 uppercase underline">Letter of Indemnity (LOI)</p>
+                <p className="mb-2">
+                  In consideration of your complying with our above request, we hereby agree as follows:
+                </p>
+                <ol className="list-decimal pl-5 space-y-1">
+                  <li>To indemnify you, your servants and agents and to hold all of you harmless in respect of any liability, loss, damage or expense of whatsoever nature which you may sustain by reason of delivering the cargo in accordance with our request.</li>
+                  <li>In the event of any proceedings being commenced against you or any of your servants or agents in connection with the delivery of the cargo as aforesaid, to provide you or them on demand with sufficient funds to defend the same.</li>
+                  <li>If the vessel or any other vessel or property belonging to you should be arrested or detained or if the arrest or detention thereof should be threatened, to provide on demand such bail or other security as may be required to prevent such arrest or detention or to secure the release of such vessel or property and to indemnify you in respect of any loss, damage or expenses caused by such arrest or detention whether or not the same may be justified.</li>
+                  <li>To bear any additional freight, port charges, terminal handling charges, trucking fees, and other expenses arising from this change of destination.</li>
+                </ol>
+              </div>
+            )}
+
+            {/* Closing */}
+            <div className="text-[11pt] mb-12">
+              <p>Thank you for your prompt assistance and cooperation in this matter.</p>
+            </div>
+
+            {/* Signature Area */}
+            <div className="flex justify-end text-[11pt]">
+              <div className="w-72 text-center">
+                <p className="mb-1">Yours faithfully,</p>
+                <p className="font-bold mb-20">{data.perusahaanPemohon}</p>
+                
+                {/* Stamp Placeholder area */}
+                <div className="relative">
+                  <div className="absolute -left-4 -top-16 w-24 h-24 border-[3px] border-blue-700 rounded-full flex items-center justify-center opacity-30 transform -rotate-12">
+                    <span className="text-blue-700 font-bold text-[8px] text-center">{data.perusahaanPemohon}<br/>APPROVED</span>
+                  </div>
+                  <p className="font-bold underline uppercase">{data.namaPemohon}</p>
+                  <p>{data.jabatanPemohon}</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </PrintWrapper>
       </div>
     </div>
   );
-};
-
-export default RedeliveryTemplate;
+}

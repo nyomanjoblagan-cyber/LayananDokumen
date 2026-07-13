@@ -1,279 +1,302 @@
-import React, { useState } from 'react';
+'use client';
 
-interface ApplicationLetterData {
-  applicantName: string;
-  applicantAddress: string;
-  applicantEmail: string;
-  applicantPhone: string;
-  applicantLinkedIn: string;
-  
-  cityAndDate: string;
-  
-  recipientName: string;
-  recipientTitle: string;
-  companyName: string;
-  companyAddress: string;
+import React, { useState, useRef } from 'react';
+import PrintWrapper from '@/components/PrintWrapper';
+import { UserCircle, Briefcase, FileText } from 'lucide-react';
 
-  positionApplied: string;
-  sourceOfInformation: string;
-  
-  education: string;
-  yearsOfExperience: string;
-  keySkills: string;
-  expectedSalary: string;
-  
-  additionalInfo: string;
-}
-
-const JobApplicationTemplate: React.FC = () => {
-  const [formData, setFormData] = useState<ApplicationLetterData>({
-    applicantName: 'Budi Santoso, S.Kom., M.Sc.',
-    applicantAddress: 'Jl. Sudirman No. 45, Jakarta Selatan 12190',
-    applicantEmail: 'budi.santoso@email.com',
-    applicantPhone: '+62 812-3456-7890',
-    applicantLinkedIn: 'linkedin.com/in/budisantoso',
+export default function LamaranTemplate() {
+  const [data, setData] = useState({
+    // Meta Surat
+    tempatTanggal: 'Bandung, 13 Juli 2026',
+    lampiran: '5 (Lima) Lembar',
+    hal: 'Lamaran Pekerjaan',
     
-    cityAndDate: 'Jakarta, 24 Agustus 2026',
+    // Tujuan
+    namaPenerima: 'HRD Manager',
+    perusahaanTujuan: 'PT. INOVASI DIGITAL TEKNOLOGI',
+    alamatTujuan: 'Gedung Cyber Lt. 10\nJl. Kuningan Barat No. 8, Jakarta Selatan 12710',
     
-    recipientName: 'Bpk. Andi Wijaya',
-    recipientTitle: 'Direktur Sumber Daya Manusia (HRD)',
-    companyName: 'PT Teknologi Nusantara Global',
-    companyAddress: 'Gedung Cyber Tower Lt. 15\nJl. H.R. Rasuna Said Blok X5\nJakarta Selatan 12950',
+    // Data Pelamar
+    namaLengkap: 'Budi Hartanto, S.Kom.',
+    tempatLahir: 'Bandung',
+    tanggalLahir: '15 Agustus 2000',
+    jenisKelamin: 'Laki-laki',
+    pendidikan: 'S1 Teknik Informatika - Institut Teknologi Bandung (IPK: 3.85)',
+    alamatPelamar: 'Jl. Dago Asri No. 45, Coblong, Kota Bandung, Jawa Barat 40135',
+    noTelp: '0812-3456-7890',
+    email: 'budi.hartanto@email.com',
     
-    positionApplied: 'Senior Software Engineer',
-    sourceOfInformation: 'portal karir LinkedIn pada tanggal 20 Agustus 2026',
+    // Posisi & Sumber
+    posisiDilamar: 'Senior Frontend Developer',
+    sumberInfo: 'portal lowongan kerja TechJobs.id pada tanggal 10 Juli 2026',
     
-    education: 'S2 Ilmu Komputer dari Universitas Indonesia dengan IPK 3.85',
-    yearsOfExperience: '5',
-    keySkills: 'React, Node.js, TypeScript, dan Arsitektur Cloud (AWS)',
-    expectedSalary: 'Rp 25.000.000 - Rp 30.000.000',
+    // Isi Surat
+    pengalamanKeahlian: 'Saya memiliki pengalaman selama 3 tahun bekerja sebagai Frontend Engineer dengan fokus pada ekosistem React, Next.js, dan Tailwind CSS. Selama bekerja, saya telah berhasil memimpin tim dalam migrasi sistem legacy ke arsitektur modern yang meningkatkan performa aplikasi hingga 40%. Saya juga terbiasa bekerja dengan metodologi Agile/Scrum dan berkolaborasi erat dengan tim UI/UX serta Backend.',
     
-    additionalInfo: 'Saya terbiasa memimpin tim dalam lingkungan Agile dan selalu berorientasi pada pencapaian target dengan kualitas terbaik.',
+    // Lampiran
+    daftarLampiran: '1. Curriculum Vitae (CV)\n2. Fotokopi Ijazah Terakhir\n3. Fotokopi Transkrip Nilai\n4. Portofolio Project\n5. Pas Foto 4x6'
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = () => {
-    window.print();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setData({ ...data, [e.target.name]: e.target.value });
   };
 
   return (
-    <div className="min-h-screen bg-neutral-100 p-4 md:p-8 font-sans text-neutral-800 selection:bg-blue-200">
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
+    <div className="flex flex-col md:flex-row gap-6">
+      {/* Sidebar Form */}
+      <div className="w-full md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg print:hidden h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-700">
+        <h2 className="text-xl font-bold mb-5 text-gray-800 dark:text-white border-b pb-3 flex items-center gap-2">
+          <Briefcase className="w-5 h-5 text-blue-600" />
+          Editor Surat Lamaran
+        </h2>
         
-        {/* Form Section - Hidden on Print */}
-        <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-lg border border-neutral-200 print:hidden overflow-y-auto max-h-[90vh]">
-          <div className="mb-6 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-slate-800">Kustomisasi Dokumen</h2>
-            <button 
-              onClick={handlePrint}
-              className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-              Cetak PDF
-            </button>
+        <div className="space-y-6">
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">Info & Tujuan Surat</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tempat, Tanggal</label>
+                <input type="text" name="tempatTanggal" value={data.tempatTanggal} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Perihal</label>
+                  <input type="text" name="hal" value={data.hal} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lampiran</label>
+                  <input type="text" name="lampiran" value={data.lampiran} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+              </div>
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-600 mt-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kepada Yth. (Penerima)</label>
+                <input type="text" name="namaPenerima" value={data.namaPenerima} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Perusahaan Tujuan</label>
+                <input type="text" name="perusahaanTujuan" value={data.perusahaanTujuan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alamat Tujuan</label>
+                <textarea name="alamatTujuan" value={data.alamatTujuan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-16 resize-none"></textarea>
+              </div>
+            </div>
           </div>
-          
-          <div className="space-y-6">
-            {/* Applicant Info Group */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-2">Data Pelamar</h3>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap & Gelar</label>
-                <input type="text" name="applicantName" value={formData.applicantName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Alamat Domisili</label>
-                <textarea name="applicantAddress" value={formData.applicantAddress} onChange={handleChange} rows={2} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
 
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+            <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <UserCircle className="w-4 h-4" /> Data Diri Pelamar
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Nama Lengkap & Gelar</label>
+                <input type="text" name="namaLengkap" value={data.namaLengkap} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                  <input type="email" name="applicantEmail" value={formData.applicantEmail} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Tempat Lahir</label>
+                  <input type="text" name="tempatLahir" value={data.tempatLahir} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">No. HP/WA</label>
-                  <input type="text" name="applicantPhone" value={formData.applicantPhone} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Tanggal Lahir</label>
+                  <input type="text" name="tanggalLahir" value={data.tanggalLahir} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Pendidikan Terakhir</label>
+                  <input type="text" name="pendidikan" value={data.pendidikan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Alamat Domisili</label>
+                <textarea name="alamatPelamar" value={data.alamatPelamar} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-16 resize-none"></textarea>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">No. Telp / WA</label>
+                  <input type="text" name="noTelp" value={data.noTelp} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm font-mono" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Email</label>
+                  <input type="text" name="email" value={data.email} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
                 </div>
               </div>
             </div>
-
-            {/* Recipient & Company Info */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-2">Tujuan Surat</h3>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Kota & Tanggal</label>
-                <input type="text" name="cityAndDate" value={formData.cityAndDate} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Nama Penerima</label>
-                  <input type="text" name="recipientName" value={formData.recipientName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Jabatan Penerima</label>
-                  <input type="text" name="recipientTitle" value={formData.recipientTitle} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nama Perusahaan</label>
-                <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Alamat Perusahaan</label>
-                <textarea name="companyAddress" value={formData.companyAddress} onChange={handleChange} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
-            </div>
-
-            {/* Job Application Details */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-2">Detail Lamaran & Kualifikasi</h3>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Posisi yang Dilamar</label>
-                <input type="text" name="positionApplied" value={formData.positionApplied} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Sumber Informasi Lowongan</label>
-                <input type="text" name="sourceOfInformation" value={formData.sourceOfInformation} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Latar Belakang Pendidikan</label>
-                <textarea name="education" value={formData.education} onChange={handleChange} rows={2} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Keahlian Utama (Skills)</label>
-                <textarea name="keySkills" value={formData.keySkills} onChange={handleChange} rows={2} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Pengalaman (Tahun)</label>
-                  <input type="text" name="yearsOfExperience" value={formData.yearsOfExperience} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Ekspektasi Gaji</label>
-                  <input type="text" name="expectedSalary" value={formData.expectedSalary} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nilai Tambah / Info Lainnya</label>
-                <textarea name="additionalInfo" value={formData.additionalInfo} onChange={handleChange} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
-              </div>
-            </div>
-
           </div>
+
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <FileText className="w-4 h-4" /> Isi Surat & Kualifikasi
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Posisi yang Dilamar</label>
+                <input type="text" name="posisiDilamar" value={data.posisiDilamar} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold text-blue-600" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sumber Info Lowongan</label>
+                <input type="text" name="sumberInfo" value={data.sumberInfo} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pengalaman & Keahlian (Promosikan Diri Anda)</label>
+                <textarea name="pengalamanKeahlian" value={data.pengalamanKeahlian} onChange={handleChange} className="w-full p-3 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-40 resize-none leading-relaxed text-sm"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Daftar Lampiran (Satu per baris)</label>
+                <textarea name="daftarLampiran" value={data.daftarLampiran} onChange={handleChange} className="w-full p-3 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-32 resize-none leading-relaxed text-sm"></textarea>
+              </div>
+            </div>
+          </div>
+
         </div>
+      </div>
 
-        {/* Document Preview Section */}
-        <div className="w-full lg:w-2/3 flex justify-center print:w-full print:block">
-          {/* A4 Paper Dimensions: 210 x 297 mm */}
-          <div className="bg-white shadow-2xl print:shadow-none w-[210mm] min-h-[297mm] p-[25.4mm] text-[11pt] leading-[1.6] font-serif text-black mx-auto shrink-0 relative overflow-hidden group">
+      {/* Print Preview */}
+      <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar">
+        <PrintWrapper printRef={printRef}>
+          <div ref={printRef} className="print-safe-area bg-white text-black shadow-2xl mx-auto" style={{ width: '210mm', minHeight: '297mm', padding: '20mm', fontFamily: '"Times New Roman", Times, serif' }}>
+            <style dangerouslySetInnerHTML={{__html: `
+              @media print {
+                @page { size: A4 portrait; margin: 20mm; }
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .print-safe-area { box-shadow: none !important; }
+              }
+              .lamaran-table td { padding: 4px 8px 4px 0; vertical-align: top; font-size: 11pt; }
+              .lamaran-table td:nth-child(1) { width: 30%; }
+              .lamaran-table td:nth-child(2) { width: 2%; }
+              .lamaran-table td:nth-child(3) { width: 68%; }
+              p { font-size: 11pt; margin-bottom: 8px; line-height: 1.5; text-align: justify; }
+              .surat-header td { font-size: 11pt; padding: 2px 0; vertical-align: top; }
+            `}} />
+
+            {/* Header / Tanggal */}
+            <div className="text-right text-[11pt] mb-8">
+              {data.tempatTanggal}
+            </div>
             
-            {/* Header/Letterhead for Corporate Feel */}
-            <div className="border-b-2 border-black pb-4 mb-8 flex justify-between items-end">
-              <div>
-                <h1 className="text-2xl font-bold uppercase tracking-widest text-slate-800">{formData.applicantName}</h1>
-                <p className="text-sm text-slate-600 mt-1 font-sans">{formData.positionApplied} Professional</p>
-              </div>
-              <div className="text-right text-[9pt] font-sans text-slate-600 space-y-1">
-                <p>{formData.applicantAddress}</p>
-                <p>{formData.applicantEmail} | {formData.applicantPhone}</p>
-                <p>{formData.applicantLinkedIn}</p>
-              </div>
+            <div className="mb-8">
+              <table className="surat-header w-full">
+                <tbody>
+                  <tr>
+                    <td className="w-20">Hal</td>
+                    <td className="w-4">:</td>
+                    <td className="font-bold">{data.hal}</td>
+                  </tr>
+                  <tr>
+                    <td>Lampiran</td>
+                    <td>:</td>
+                    <td>{data.lampiran}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
-            <div className="flex justify-between items-start mb-10">
-              <div className="w-1/2">
-                <p>{formData.cityAndDate}</p>
-                <br />
-                <p>Kepada Yth.,</p>
-                <p className="font-bold">{formData.recipientName}</p>
-                <p>{formData.recipientTitle}</p>
-                <p className="font-bold">{formData.companyName}</p>
-                <p className="whitespace-pre-wrap">{formData.companyAddress}</p>
-              </div>
+            {/* Tujuan */}
+            <div className="mb-8 text-[11pt]">
+              <p className="mb-0">Yth.</p>
+              <p className="font-bold mb-0">{data.namaPenerima}</p>
+              <p className="font-bold mb-0">{data.perusahaanTujuan}</p>
+              <div className="whitespace-pre-line">{data.alamatTujuan}</div>
             </div>
 
+            {/* Pembuka */}
             <div className="mb-6">
-              <p>Perihal: <strong>Lamaran Pekerjaan – {formData.positionApplied}</strong></p>
-            </div>
-
-            <div className="space-y-4 text-justify">
               <p>Dengan hormat,</p>
-              
-              <p>
-                Menanggapi informasi lowongan pekerjaan yang dipublikasikan melalui {formData.sourceOfInformation}, 
-                bersama surat ini saya bermaksud menyampaikan ketertarikan saya untuk mengisi posisi 
-                <strong> {formData.positionApplied}</strong> di <strong>{formData.companyName}</strong>. 
-                Dengan rekam jejak profesional yang solid dan komitmen terhadap keunggulan operasional, 
-                saya yakin dapat memberikan kontribusi strategis bagi perusahaan yang Bapak/Ibu pimpin.
+              <p className="indent-8">
+                Berdasarkan informasi lowongan pekerjaan yang saya peroleh dari {data.sumberInfo}, saya mengetahui bahwa {data.perusahaanTujuan} sedang membutuhkan karyawan baru untuk mengisi posisi sebagai <strong>{data.posisiDilamar}</strong>.
               </p>
-
-              <p>
-                Sebagai profesional dengan pengalaman selama lebih dari {formData.yearsOfExperience} tahun di industri ini, 
-                saya telah mengembangkan kompetensi yang mendalam di bidang spesifik yang relevan dengan kebutuhan perusahaan. 
-                Latar belakang pendidikan saya, yaitu {formData.education}, telah membekali saya dengan 
-                landasan analitis dan pemecahan masalah yang tajam.
-              </p>
-
-              <p>
-                Sepanjang karir saya, saya telah menguasai dan mengaplikasikan berbagai keahlian kunci, 
-                di antaranya: {formData.keySkills}. {formData.additionalInfo} Saya terbiasa 
-                bekerja dalam ekosistem perusahaan yang dinamis, menuntut adaptabilitas tinggi, 
-                serta kolaborasi lintas divisi untuk mencapai sasaran bisnis.
-              </p>
-
-              <p>
-                Mengenai ekspektasi kompensasi, berdasarkan riset pasar dan kualifikasi yang saya tawarkan, 
-                saya mengajukan kisaran remunerasi sebesar {formData.expectedSalary}. Namun, saya 
-                sangat terbuka untuk mendiskusikan hal ini lebih lanjut, sejalan dengan struktur 
-                kompensasi yang berlaku di <strong>{formData.companyName}</strong> serta total 
-                benefit yang ditawarkan.
-              </p>
-
-              <p>
-                Bersama surat lamaran ini, turut saya lampirkan <em>Curriculum Vitae</em> (CV) dan 
-                portofolio dokumen pendukung lainnya sebagai bahan pertimbangan komprehensif Bapak/Ibu. 
-                Saya sangat menantikan kesempatan untuk dapat berdiskusi lebih lanjut dalam sesi 
-                wawancara guna memaparkan bagaimana kualifikasi saya dapat sejalan dengan visi dan 
-                kebutuhan <strong>{formData.companyName}</strong>.
-              </p>
-
-              <p>
-                Atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan, saya mengucapkan 
-                terima kasih yang sebesar-besarnya.
+              <p className="indent-8">
+                Sehubungan dengan hal tersebut, saya yang bertanda tangan di bawah ini:
               </p>
             </div>
 
-            <div className="mt-12 space-y-16">
-              <p>Hormat saya,</p>
-              <div className="flex flex-col">
-                <p className="font-bold underline">{formData.applicantName}</p>
-                <p className="text-sm italic text-slate-600">Pelamar</p>
+            {/* Identitas Pelamar */}
+            <div className="mb-6 pl-8">
+              <table className="w-full lamaran-table">
+                <tbody>
+                  <tr>
+                    <td>Nama Lengkap</td>
+                    <td>:</td>
+                    <td className="font-bold">{data.namaLengkap}</td>
+                  </tr>
+                  <tr>
+                    <td>Tempat, Tanggal Lahir</td>
+                    <td>:</td>
+                    <td>{data.tempatLahir}, {data.tanggalLahir}</td>
+                  </tr>
+                  <tr>
+                    <td>Jenis Kelamin</td>
+                    <td>:</td>
+                    <td>{data.jenisKelamin}</td>
+                  </tr>
+                  <tr>
+                    <td>Pendidikan Terakhir</td>
+                    <td>:</td>
+                    <td>{data.pendidikan}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat Domisili</td>
+                    <td>:</td>
+                    <td className="whitespace-pre-line">{data.alamatPelamar}</td>
+                  </tr>
+                  <tr>
+                    <td>No. Telepon / WA</td>
+                    <td>:</td>
+                    <td>{data.noTelp}</td>
+                  </tr>
+                  <tr>
+                    <td>Email</td>
+                    <td>:</td>
+                    <td>{data.email}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Isi & Promosi Diri */}
+            <div className="mb-6">
+              <p className="indent-8">
+                Dengan ini bermaksud mengajukan lamaran pekerjaan untuk mengisi posisi tersebut. Sebagai bahan pertimbangan Bapak/Ibu, {data.pengalamanKeahlian}
+              </p>
+              <p className="indent-8">
+                Saya memiliki kondisi kesehatan yang sangat baik, mampu berbahasa Inggris dengan baik (lisan maupun tulisan), serta dapat bekerja secara mandiri maupun dalam tim.
+              </p>
+            </div>
+
+            {/* Lampiran */}
+            <div className="mb-8">
+              <p>Sebagai kelengkapan administrasi lamaran, bersama surat ini turut saya lampirkan dokumen pendukung:</p>
+              <div className="pl-4 mt-2">
+                {data.daftarLampiran.split('\n').filter(line => line.trim() !== '').map((item, idx) => (
+                  <div key={idx} className="text-[11pt] mb-1">{item}</div>
+                ))}
+              </div>
+            </div>
+
+            {/* Penutup */}
+            <div className="mb-12">
+              <p className="indent-8">
+                Besar harapan saya agar Bapak/Ibu bersedia meluangkan waktu untuk memberikan kesempatan wawancara, sehingga saya dapat menjelaskan secara lebih detail mengenai potensi dan kompetensi yang saya miliki.
+              </p>
+              <p className="indent-8">
+                Demikian surat lamaran pekerjaan ini saya buat. Atas perhatian dan kesempatan yang Bapak/Ibu berikan, saya ucapkan terima kasih.
+              </p>
+            </div>
+
+            {/* Tanda Tangan */}
+            <div className="flex justify-end pr-8">
+              <div className="w-64 text-center">
+                <p className="mb-24">Hormat saya,</p>
+                <p className="font-bold underline">{data.namaLengkap}</p>
               </div>
             </div>
 
           </div>
-        </div>
-
+        </PrintWrapper>
       </div>
     </div>
   );
-};
-
-export default JobApplicationTemplate;
+}

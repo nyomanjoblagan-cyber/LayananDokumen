@@ -1,162 +1,310 @@
-import React, { forwardRef } from 'react';
+'use client';
 
-interface KasProps {
-  data?: any;
+import React, { useState, useRef, useMemo } from 'react';
+import PrintWrapper from '@/components/PrintWrapper';
+import { Wallet, Calculator, Plus, Trash2, Calendar } from 'lucide-react';
+
+interface KasTransaction {
+  id: string;
+  tanggal: string;
+  noBukti: string;
+  keterangan: string;
+  debit: number;
+  kredit: number;
 }
 
-export const KasTemplate = forwardRef<HTMLDivElement, KasProps>(({ data }, ref) => {
-  // Default data for preview
-  const defaultData = {
-    companyName: "PT BINTANG SEJAHTERA",
-    documentTitle: "BUKU KAS UMUM",
-    period: "Periode: 1 Juli 2026 - 31 Juli 2026",
-    currency: "IDR",
-    transactions: [
-      { id: 1, date: "01/07/2026", ref: "BKM-001", description: "Saldo Awal", debit: 15000000, credit: 0, balance: 15000000 },
-      { id: 2, date: "02/07/2026", ref: "BKM-002", description: "Penerimaan piutang dari Toko Abadi", debit: 5000000, credit: 0, balance: 20000000 },
-      { id: 3, date: "05/07/2026", ref: "BKK-001", description: "Pembayaran listrik & air", debit: 0, credit: 1200000, balance: 18800000 },
-      { id: 4, date: "10/07/2026", ref: "BKK-002", description: "Pembelian ATK", debit: 0, credit: 350000, balance: 18450000 },
-      { id: 5, date: "15/07/2026", ref: "BKK-003", description: "Pembayaran gaji karyawan", debit: 0, credit: 8000000, balance: 10450000 },
-      { id: 6, date: "20/07/2026", ref: "BKM-003", description: "Penjualan tunai", debit: 12500000, credit: 0, balance: 22950000 },
-      { id: 7, date: "25/07/2026", ref: "BKK-004", description: "Biaya operasional kendaraan", debit: 0, credit: 750000, balance: 22200000 },
-      { id: 8, date: "28/07/2026", ref: "BKK-005", description: "Pembelian inventaris kantor", debit: 0, credit: 2500000, balance: 19700000 },
-      { id: 9, date: "31/07/2026", ref: "BKK-006", description: "Biaya konsumsi rapat", debit: 0, credit: 450000, balance: 19250000 },
-    ],
-    signatures: [
-      { role: "Dibuat Oleh,", name: "Siti Aminah", title: "Admin Keuangan" },
-      { role: "Diperiksa Oleh,", name: "Budi Santoso", title: "Manager Keuangan" },
-      { role: "Disetujui Oleh,", name: "Andi Wijaya", title: "Direktur Utama" }
-    ]
+export default function BukuKasTemplate() {
+  const [data, setData] = useState({
+    namaPerusahaan: 'PT. MAJU BERSAMA',
+    judulLaporan: 'Buku Kas Harian',
+    periode: 'Juli 2026',
+    saldoAwal: 5000000,
+    disiapkanOleh: 'Siti Aminah',
+    disetujuiOleh: 'Budi Santoso',
+  });
+
+  const [transactions, setTransactions] = useState<KasTransaction[]>([
+    { id: '1', tanggal: '01/07/26', noBukti: 'BKM-001', keterangan: 'Penjualan Tunai Toko', debit: 2500000, kredit: 0 },
+    { id: '2', tanggal: '02/07/26', noBukti: 'BKK-001', keterangan: 'Bayar Listrik PLN & Air', debit: 0, kredit: 1250000 },
+    { id: '3', tanggal: '05/07/26', noBukti: 'BKK-002', keterangan: 'Beli ATK Kantor', debit: 0, kredit: 350000 },
+    { id: '4', tanggal: '08/07/26', noBukti: 'BKM-002', keterangan: 'Pencairan Piutang PT X', debit: 4000000, kredit: 0 },
+  ]);
+
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setData({ ...data, [e.target.name]: e.target.type === 'number' ? Number(e.target.value) || 0 : e.target.value });
   };
 
-  const kasData = data || defaultData;
+  const handleTxChange = (id: string, field: keyof KasTransaction, value: any) => {
+    setTransactions(transactions.map(tx => tx.id === id ? { ...tx, [field]: value } : tx));
+  };
+
+  const addTransaction = (type: 'debit' | 'kredit') => {
+    const newTx: KasTransaction = {
+      id: Date.now().toString(),
+      tanggal: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit' }),
+      noBukti: '',
+      keterangan: '',
+      debit: type === 'debit' ? 100000 : 0,
+      kredit: type === 'kredit' ? 100000 : 0,
+    };
+    setTransactions([...transactions, newTx]);
+  };
+
+  const removeTransaction = (id: string) => {
+    setTransactions(transactions.filter(tx => tx.id !== id));
+  };
 
   const formatCurrency = (amount: number) => {
+    if (amount === 0) return '-';
     return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
-  const totalDebit = kasData.transactions.reduce((acc: number, curr: any) => acc + curr.debit, 0);
-  const totalCredit = kasData.transactions.reduce((acc: number, curr: any) => acc + curr.credit, 0);
-  const finalBalance = kasData.transactions.length > 0 ? kasData.transactions[kasData.transactions.length - 1].balance : 0;
+  // Calculations
+  const calculatedTransactions = useMemo(() => {
+    let currentSaldo = data.saldoAwal;
+    return transactions.map(tx => {
+      currentSaldo = currentSaldo + (tx.debit || 0) - (tx.kredit || 0);
+      return { ...tx, saldo: currentSaldo };
+    });
+  }, [data.saldoAwal, transactions]);
+
+  const totalDebit = transactions.reduce((sum, tx) => sum + (tx.debit || 0), 0);
+  const totalKredit = transactions.reduce((sum, tx) => sum + (tx.kredit || 0), 0);
+  const saldoAkhir = data.saldoAwal + totalDebit - totalKredit;
 
   return (
-    <div ref={ref} className="w-full bg-white text-black font-sans text-sm p-10 max-w-[210mm] mx-auto min-h-[297mm] shadow-lg border border-gray-200">
-      {/* Header */}
-      <div className="text-center mb-8 border-b-4 border-double border-black pb-4">
-        <h1 className="text-3xl font-bold uppercase tracking-wider text-gray-900">{kasData.companyName}</h1>
-        <h2 className="text-xl font-bold mt-3 uppercase tracking-widest">{kasData.documentTitle}</h2>
-        <p className="text-md mt-1 font-medium text-gray-700">{kasData.period}</p>
-      </div>
+    <div className="flex flex-col md:flex-row gap-6">
+      {/* Sidebar Form */}
+      <div className="w-full md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg print:hidden h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-700">
+        <h2 className="text-xl font-bold mb-5 text-gray-800 dark:text-white border-b pb-3 flex items-center gap-2">
+          <Wallet className="w-5 h-5 text-emerald-600" />
+          Editor Buku Kas
+        </h2>
+        
+        <div className="space-y-6">
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">Info Laporan</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Perusahaan / Entitas</label>
+                <input type="text" name="namaPerusahaan" value={data.namaPerusahaan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Judul Laporan</label>
+                  <input type="text" name="judulLaporan" value={data.judulLaporan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Periode</label>
+                  <input type="text" name="periode" value={data.periode} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Saldo Awal (Rp)</label>
+                <input type="number" name="saldoAwal" value={data.saldoAwal} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono" />
+              </div>
+            </div>
+          </div>
 
-      {/* Table */}
-      <div className="mb-8 overflow-hidden rounded-sm border border-gray-800">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-gray-900 border-b-2 border-gray-800">
-              <th className="border-r border-gray-800 p-3 text-center w-12 font-bold">No</th>
-              <th className="border-r border-gray-800 p-3 text-center w-28 font-bold">Tanggal</th>
-              <th className="border-r border-gray-800 p-3 text-center w-28 font-bold">No. Bukti</th>
-              <th className="border-r border-gray-800 p-3 text-center font-bold">Uraian / Keterangan</th>
-              <th className="border-r border-gray-800 p-3 text-center w-36 font-bold">Penerimaan (Rp)</th>
-              <th className="border-r border-gray-800 p-3 text-center w-36 font-bold">Pengeluaran (Rp)</th>
-              <th className="p-3 text-center w-36 font-bold">Saldo (Rp)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {kasData.transactions.map((trx: any, index: number) => (
-              <tr key={trx.id} className="border-b border-gray-400 hover:bg-gray-50 transition-colors">
-                <td className="border-r border-gray-800 p-2 text-center text-gray-700">{index + 1}</td>
-                <td className="border-r border-gray-800 p-2 text-center text-gray-700">{trx.date}</td>
-                <td className="border-r border-gray-800 p-2 text-center font-medium text-gray-800">{trx.ref}</td>
-                <td className="border-r border-gray-800 p-2 text-left text-gray-800">{trx.description}</td>
-                <td className="border-r border-gray-800 p-2 text-right font-medium text-gray-900">
-                  {trx.debit > 0 ? formatCurrency(trx.debit).replace('Rp', '').trim() : '-'}
-                </td>
-                <td className="border-r border-gray-800 p-2 text-right font-medium text-gray-900">
-                  {trx.credit > 0 ? formatCurrency(trx.credit).replace('Rp', '').trim() : '-'}
-                </td>
-                <td className="p-2 text-right font-bold text-gray-900 bg-gray-50/50">
-                  {formatCurrency(trx.balance).replace('Rp', '').trim()}
-                </td>
-              </tr>
-            ))}
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-semibold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wider flex items-center gap-2">
+                <Calculator className="w-4 h-4" /> Transaksi
+              </h3>
+              <div className="flex gap-2">
+                <button onClick={() => addTransaction('debit')} className="text-[10px] bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded flex items-center gap-1 transition">
+                  <Plus className="w-3 h-3" /> Masuk
+                </button>
+                <button onClick={() => addTransaction('kredit')} className="text-[10px] bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded flex items-center gap-1 transition">
+                  <Plus className="w-3 h-3" /> Keluar
+                </button>
+              </div>
+            </div>
             
-            {/* Totals Row */}
-            <tr className="bg-gray-100 font-bold border-t-2 border-gray-800">
-              <td colSpan={4} className="border-r border-gray-800 p-3 text-right uppercase tracking-wider text-gray-800">
-                Total Mutasi
-              </td>
-              <td className="border-r border-gray-800 p-3 text-right text-green-700">
-                {formatCurrency(totalDebit).replace('Rp', '').trim()}
-              </td>
-              <td className="border-r border-gray-800 p-3 text-right text-red-700">
-                {formatCurrency(totalCredit).replace('Rp', '').trim()}
-              </td>
-              <td className="p-3 bg-gray-200"></td>
-            </tr>
-            <tr className="bg-gray-800 text-white font-bold">
-              <td colSpan={6} className="border-r border-gray-600 p-3 text-right uppercase text-base tracking-widest">
-                Saldo Akhir Periode
-              </td>
-              <td className="p-3 text-right text-base">
-                {formatCurrency(finalBalance).replace('Rp', '').trim()}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            <div className="space-y-4">
+              {transactions.map((tx, index) => (
+                <div key={tx.id} className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md relative shadow-sm">
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <button onClick={() => removeTransaction(tx.id)} className="text-gray-400 hover:text-red-500" title="Hapus Transaksi">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-12 gap-2 mt-1">
+                    <div className="col-span-12 md:col-span-5">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Tgl & No. Bukti</label>
+                      <div className="flex gap-1">
+                        <input type="text" value={tx.tanggal} onChange={(e) => handleTxChange(tx.id, 'tanggal', e.target.value)} className="w-1/2 p-1.5 text-xs border rounded dark:bg-gray-700 dark:border-gray-600 text-center" placeholder="DD/MM/YY" />
+                        <input type="text" value={tx.noBukti} onChange={(e) => handleTxChange(tx.id, 'noBukti', e.target.value)} className="w-1/2 p-1.5 text-xs border rounded dark:bg-gray-700 dark:border-gray-600 text-center" placeholder="BKM-01" />
+                      </div>
+                    </div>
+                    <div className="col-span-12 md:col-span-7">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Keterangan</label>
+                      <input type="text" value={tx.keterangan} onChange={(e) => handleTxChange(tx.id, 'keterangan', e.target.value)} className="w-full p-1.5 text-xs border rounded dark:bg-gray-700 dark:border-gray-600" placeholder="Keterangan transaksi" />
+                    </div>
+                    
+                    <div className="col-span-6">
+                      <label className="block text-[10px] font-bold text-green-600 uppercase">Debit (Masuk)</label>
+                      <input type="number" value={tx.debit || ''} onChange={(e) => handleTxChange(tx.id, 'debit', parseInt(e.target.value) || 0)} className="w-full p-1.5 text-xs border rounded dark:bg-gray-700 dark:border-gray-600 text-right font-mono text-green-700 dark:text-green-400" />
+                    </div>
+                    <div className="col-span-6">
+                      <label className="block text-[10px] font-bold text-red-600 uppercase">Kredit (Keluar)</label>
+                      <input type="number" value={tx.kredit || ''} onChange={(e) => handleTxChange(tx.id, 'kredit', parseInt(e.target.value) || 0)} className="w-full p-1.5 text-xs border rounded dark:bg-gray-700 dark:border-gray-600 text-right font-mono text-red-700 dark:text-red-400" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+              <div className="flex justify-between text-sm font-bold text-blue-900 dark:text-blue-200">
+                <span>Saldo Akhir:</span>
+                <span className="font-mono">Rp {formatCurrency(saldoAkhir)}</span>
+              </div>
+            </div>
+          </div>
 
-      {/* Summary Section */}
-      <div className="flex justify-start mb-12">
-        <div className="w-[350px] border-2 border-gray-800 p-5 rounded-lg bg-gray-50 shadow-sm relative">
-          <div className="absolute -top-3 left-4 bg-white px-2 font-bold text-gray-800 border border-gray-300 rounded text-xs uppercase">
-            Ringkasan Keuangan
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">Pengesahan</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dibuat Oleh</label>
+                <input type="text" name="disiapkanOleh" value={data.disiapkanOleh} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Disetujui Oleh</label>
+                <input type="text" name="disetujuiOleh" value={data.disetujuiOleh} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between mb-2 mt-2 items-center">
-            <span className="text-gray-600 font-medium">Saldo Awal:</span>
-            <span className="font-bold text-gray-900">{formatCurrency(kasData.transactions[0]?.balance || 0)}</span>
-          </div>
-          <div className="flex justify-between mb-2 items-center">
-            <span className="text-gray-600 font-medium">Total Penerimaan:</span>
-            <span className="font-bold text-green-700">+{formatCurrency(totalDebit - (kasData.transactions[0]?.debit || 0))}</span>
-          </div>
-          <div className="flex justify-between mb-3 items-center">
-            <span className="text-gray-600 font-medium">Total Pengeluaran:</span>
-            <span className="font-bold text-red-700">-{formatCurrency(totalCredit)}</span>
-          </div>
-          <div className="flex justify-between pt-3 border-t-2 border-dashed border-gray-400 items-center">
-            <span className="font-bold uppercase tracking-wider text-gray-800">Saldo Akhir:</span>
-            <span className="font-bold text-lg text-gray-900 bg-yellow-100 px-2 py-1 rounded">{formatCurrency(finalBalance)}</span>
-          </div>
+
         </div>
       </div>
 
-      {/* Signatures */}
-      <div className="flex justify-between mt-16 px-4">
-        {kasData.signatures.map((sig: any, index: number) => (
-          <div key={index} className="flex flex-col items-center text-center w-52">
-            <p className="mb-24 text-gray-700 font-medium">{sig.role}</p>
-            <div className="border-b-2 border-gray-800 w-full mb-1 relative">
-              <p className="font-bold text-gray-900 absolute -bottom-1 left-0 right-0">{sig.name}</p>
+      {/* Print Preview Area */}
+      <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar">
+        <PrintWrapper printRef={printRef}>
+          <div ref={printRef} className="print-safe-area bg-white text-black shadow-2xl mx-auto" style={{ width: '210mm', minHeight: '297mm', padding: '15mm', fontFamily: 'Arial, sans-serif' }}>
+            <style dangerouslySetInnerHTML={{__html: `
+              @media print {
+                @page { size: A4 portrait; margin: 15mm; }
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .print-safe-area { box-shadow: none !important; }
+              }
+              .kas-table { width: 100%; border-collapse: collapse; }
+              .kas-table th { padding: 6px 4px; border: 1px solid #000; background-color: #f3f4f6; text-align: center; font-size: 9pt; font-weight: bold; }
+              .kas-table td { padding: 4px 6px; border: 1px solid #000; font-size: 9pt; vertical-align: middle; }
+              .kas-table .angka { text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-weight: 600; }
+            `}} />
+
+            {/* Header Laporan */}
+            <div className="text-center mb-6">
+              <h1 className="text-xl font-bold uppercase tracking-wider mb-1" style={{ fontSize: '16pt' }}>{data.namaPerusahaan}</h1>
+              <h2 className="text-lg font-bold uppercase underline tracking-widest">{data.judulLaporan}</h2>
+              <p className="text-sm mt-1">Periode: <strong>{data.periode}</strong></p>
             </div>
-            <p className="text-gray-600 text-xs mt-1">{sig.title}</p>
+
+            {/* Table Kas */}
+            <div className="mb-8 min-h-[400px]">
+              <table className="kas-table">
+                <thead>
+                  <tr>
+                    <th className="w-12">Tgl</th>
+                    <th className="w-20">No. Bukti</th>
+                    <th>Uraian / Keterangan</th>
+                    <th className="w-24">Debit (Rp)</th>
+                    <th className="w-24">Kredit (Rp)</th>
+                    <th className="w-24">Saldo (Rp)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Saldo Awal */}
+                  <tr className="bg-gray-50">
+                    <td colSpan={3} className="text-right font-bold italic pr-4">Saldo Awal</td>
+                    <td className="angka text-green-700 bg-green-50/20">{data.saldoAwal > 0 ? formatCurrency(data.saldoAwal) : '-'}</td>
+                    <td className="angka"></td>
+                    <td className="angka font-bold bg-gray-100">{formatCurrency(data.saldoAwal)}</td>
+                  </tr>
+
+                  {/* Transactions */}
+                  {calculatedTransactions.map((tx, idx) => (
+                    <tr key={tx.id}>
+                      <td className="text-center text-xs">{tx.tanggal}</td>
+                      <td className="text-center font-mono text-xs">{tx.noBukti}</td>
+                      <td>{tx.keterangan}</td>
+                      <td className="angka">{formatCurrency(tx.debit)}</td>
+                      <td className="angka">{formatCurrency(tx.kredit)}</td>
+                      <td className="angka font-bold bg-gray-50/50">{formatCurrency(tx.saldo)}</td>
+                    </tr>
+                  ))}
+
+                  {/* Empty rows filler if items are few */}
+                  {Array.from({ length: Math.max(0, 15 - calculatedTransactions.length) }).map((_, idx) => (
+                    <tr key={`empty-${idx}`} className="h-6">
+                      <td></td><td></td><td></td><td></td><td></td><td className="bg-gray-50/50"></td>
+                    </tr>
+                  ))}
+
+                  {/* Totals */}
+                  <tr className="font-bold border-t-2 border-black bg-gray-100">
+                    <td colSpan={3} className="text-center uppercase tracking-wider py-2">Total Mutasi & Saldo Akhir</td>
+                    <td className="angka text-green-700 py-2">{formatCurrency(totalDebit)}</td>
+                    <td className="angka text-red-700 py-2">{formatCurrency(totalKredit)}</td>
+                    <td className="angka bg-gray-200 border-l-2 border-black py-2 text-[10pt]">{formatCurrency(saldoAkhir)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Rekapitulasi */}
+            <div className="flex justify-between items-start mb-12">
+              <div className="w-1/3 border border-black p-3 bg-gray-50 text-[9pt]">
+                <p className="font-bold border-b border-black pb-1 mb-2 text-center uppercase">Ringkasan</p>
+                <div className="flex justify-between mb-1">
+                  <span>Saldo Awal:</span>
+                  <span className="font-mono font-bold">Rp {formatCurrency(data.saldoAwal)}</span>
+                </div>
+                <div className="flex justify-between mb-1 text-green-700">
+                  <span>Penerimaan:</span>
+                  <span className="font-mono">Rp {formatCurrency(totalDebit)}</span>
+                </div>
+                <div className="flex justify-between mb-1 text-red-700">
+                  <span>Pengeluaran:</span>
+                  <span className="font-mono">Rp {formatCurrency(totalKredit)}</span>
+                </div>
+                <div className="flex justify-between mt-2 pt-1 border-t border-black font-bold">
+                  <span>Saldo Akhir:</span>
+                  <span className="font-mono">Rp {formatCurrency(saldoAkhir)}</span>
+                </div>
+              </div>
+              
+              <div className="w-2/3 flex justify-end gap-16 pr-8 text-[10pt]">
+                <div className="text-center w-32">
+                  <p className="mb-20">Disiapkan Oleh,</p>
+                  <p className="font-bold underline uppercase">{data.disiapkanOleh}</p>
+                  <p className="text-[8pt] text-gray-500">Kasir / Finance</p>
+                </div>
+                <div className="text-center w-32">
+                  <p className="mb-20">Disetujui Oleh,</p>
+                  <p className="font-bold underline uppercase">{data.disetujuiOleh}</p>
+                  <p className="text-[8pt] text-gray-500">Manajer Keuangan</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Note */}
+            <div className="mt-8 text-center text-[8pt] text-gray-500 border-t border-gray-300 pt-2">
+              Buku Kas dicetak secara otomatis dari Sistem Keuangan {data.namaPerusahaan}.
+            </div>
+            
           </div>
-        ))}
-      </div>
-      
-      {/* Footer / Page Info */}
-      <div className="mt-20 border-t border-gray-300 pt-4 flex justify-between text-xs text-gray-500 font-medium">
-        <span>Sistem Layanan Dokumen Terpadu</span>
-        <span>Dicetak pada: {new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+        </PrintWrapper>
       </div>
     </div>
   );
-});
-
-KasTemplate.displayName = 'KasTemplate';
-export default KasTemplate;
+}

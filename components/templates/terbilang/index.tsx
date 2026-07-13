@@ -1,232 +1,249 @@
 'use client';
 
-/**
- * FILE: TerbilangPage.tsx
- * STATUS: FINAL & CONSISTENT
- * DESC: Generator Teks Terbilang Rupiah Otomatis dengan Preview Kuitansi
- */
-
+import React, { useState, useRef, useEffect } from 'react';
 import PrintWrapper from '@/components/PrintWrapper';
-import { useState, useEffect } from 'react';
-import { 
-  ArrowLeft, Copy, Check, Hash, Type, 
-  Banknote, Sparkles, RefreshCcw, Edit3, Eye, RotateCcw
-} from 'lucide-react';
-import Link from 'next/link';
+import { Banknote, FileSignature, Coins } from 'lucide-react';
 
-export default function TerbilangPage() {
-  return (
-    <TerbilangTool />
-  );
-}
+export default function TerbilangTemplate() {
+  const [data, setData] = useState({
+    // Meta
+    noKwitansi: 'KWT/2026/07-0089',
+    tempatTanggal: 'Jakarta, 13 Juli 2026',
+    namaPerusahaan: 'PT. TEKNOLOGI DIGITAL ASIA',
+    
+    // Transaksi
+    telahDiterimaDari: 'PT. MAKMUR SEJAHTERA',
+    uangSejumlah: 125500000,
+    untukPembayaran: 'Pembayaran DP 50% Project Pengembangan Aplikasi Web E-Commerce B2B (PO Ref: RMS-2026-045)',
+    
+    // Penandatangan
+    namaPenerima: 'Andi Wijaya',
+    jabatanPenerima: 'Finance Manager'
+  });
 
-function TerbilangTool() {
-  // --- STATE SYSTEM (KONSISTEN) ---
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-  const [amount, setAmount] = useState<string>('');
-  const [result, setResult] = useState<string>('');
-  const [style, setStyle] = useState<'Title Case' | 'UPPERCASE' | 'lowercase'>('Title Case');
-  const [copied, setCopied] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [terbilangStr, setTerbilangStr] = useState('');
+  const printRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // --- LOGIC TERBILANG INDONESIA ---
-  const konversiTerbilang = (nilai: number): string => {
-    const angka = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
-    let temp = "";
-    if (nilai < 12) temp = " " + angka[nilai];
-    else if (nilai < 20) temp = konversiTerbilang(nilai - 10) + " Belas";
-    else if (nilai < 100) temp = konversiTerbilang(Math.floor(nilai / 10)) + " Puluh" + konversiTerbilang(nilai % 10);
-    else if (nilai < 200) temp = " Seratus" + konversiTerbilang(nilai - 100);
-    else if (nilai < 1000) temp = konversiTerbilang(Math.floor(nilai / 100)) + " Ratus" + konversiTerbilang(nilai % 100);
-    else if (nilai < 2000) temp = " Seribu" + konversiTerbilang(nilai - 1000);
-    else if (nilai < 1000000) temp = konversiTerbilang(Math.floor(nilai / 1000)) + " Ribu" + konversiTerbilang(nilai % 1000);
-    else if (nilai < 1000000000) temp = konversiTerbilang(Math.floor(nilai / 1000000)) + " Juta" + konversiTerbilang(nilai % 1000000);
-    else if (nilai < 1000000000000) temp = konversiTerbilang(Math.floor(nilai / 1000000000)) + " Milyar" + konversiTerbilang(nilai % 1000000000);
-    else if (nilai < 1000000000000000) temp = konversiTerbilang(Math.floor(nilai / 1000000000000)) + " Triliun" + konversiTerbilang(nilai % 1000000000000);
-    return temp;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setData({ ...data, [e.target.name]: e.target.type === 'number' ? Number(e.target.value) || 0 : e.target.value });
   };
 
-  useEffect(() => {
-    const cleanAmount = amount.replace(/\D/g, '');
-    const num = parseInt(cleanAmount);
-    
-    if (!cleanAmount || isNaN(num)) {
-      setResult('');
-      return;
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  // Fungsi Terbilang Bahasa Indonesia
+  const terbilang = (angka: number): string => {
+    const bilangan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+    let hasil = "";
+
+    if (angka < 12) {
+      hasil = " " + bilangan[angka];
+    } else if (angka < 20) {
+      hasil = terbilang(angka - 10) + " Belas";
+    } else if (angka < 100) {
+      hasil = terbilang(Math.floor(angka / 10)) + " Puluh" + terbilang(angka % 10);
+    } else if (angka < 200) {
+      hasil = " Seratus" + terbilang(angka - 100);
+    } else if (angka < 1000) {
+      hasil = terbilang(Math.floor(angka / 100)) + " Ratus" + terbilang(angka % 100);
+    } else if (angka < 2000) {
+      hasil = " Seribu" + terbilang(angka - 1000);
+    } else if (angka < 1000000) {
+      hasil = terbilang(Math.floor(angka / 1000)) + " Ribu" + terbilang(angka % 1000);
+    } else if (angka < 1000000000) {
+      hasil = terbilang(Math.floor(angka / 1000000)) + " Juta" + terbilang(angka % 1000000);
+    } else if (angka < 1000000000000) {
+      hasil = terbilang(Math.floor(angka / 1000000000)) + " Miliar" + terbilang(angka % 1000000000);
+    } else if (angka < 1000000000000000) {
+      hasil = terbilang(Math.floor(angka / 1000000000000)) + " Triliun" + terbilang(angka % 1000000000000);
     }
 
-    let text = konversiTerbilang(num).trim() + " Rupiah";
-    
-    if (style === 'UPPERCASE') text = text.toUpperCase();
-    else if (style === 'lowercase') text = text.toLowerCase();
-    else {
-      // Default: Title Case (Sudah dari fungsi asal)
-      text = text.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+    return hasil.trim();
+  };
+
+  useEffect(() => {
+    if (data.uangSejumlah > 0) {
+      setTerbilangStr(terbilang(data.uangSejumlah) + " Rupiah");
+    } else {
+      setTerbilangStr("Nol Rupiah");
     }
-    
-    setResult(text);
-  }, [amount, style]);
-
-  const displayAmount = amount ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(parseInt(amount.replace(/\D/g, '') || '0')) : 'Rp 0';
-
-  const handleCopy = () => {
-    if (!result) return;
-    navigator.clipboard.writeText(result);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleReset = () => {
-    setAmount('');
-    setStyle('Title Case');
-  };
-
-  if (!isClient) return null;
+  }, [data.uangSejumlah]);
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      
-      {/* NAVBAR */}
-      <nav className="bg-slate-900 text-white h-16 shrink-0 flex items-center justify-between px-6 border-b border-slate-700 shadow-xl z-50">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-slate-400 hover:text-white transition-all"><ArrowLeft size={20} /></Link>
-          <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-          <h1 className="font-black text-sm uppercase tracking-tighter text-emerald-400 italic flex items-center gap-2">
-            <Sparkles size={18} /> Terbilang <span className="text-white not-italic opacity-40 font-normal">Automator</span>
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-            <button 
-                onClick={handleCopy}
-                disabled={!result}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-black uppercase text-[10px] flex items-center gap-2 active:scale-95 transition-all shadow-lg disabled:opacity-30 disabled:grayscale"
-            >
-                {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Copied!' : 'Salin Teks'}
-            </button>
-        </div>
-      </nav>
-
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative print:block print:h-auto print:overflow-visible">
+    <div className="flex flex-col md:flex-row gap-6">
+      {/* Sidebar Form */}
+      <div className="w-full md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg print:hidden h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-700">
+        <h2 className="text-xl font-bold mb-5 text-gray-800 dark:text-white border-b pb-3 flex items-center gap-2">
+          <Banknote className="w-5 h-5 text-green-600" />
+          Kwitansi & Terbilang
+        </h2>
         
-        {/* SIDEBAR INPUT */}
-        <div className={`w-full md:w-[450px] bg-white border-r overflow-y-auto p-6 lg:p-10 h-full ${mobileView === 'preview' ? 'hidden md:block' : 'block'}`}>
-          <div className="space-y-8 text-left">
-            
-            <div className="flex justify-between items-center border-b pb-2">
-                <h2 className="font-bold text-slate-700 text-xs uppercase tracking-widest flex items-center gap-2"><Type size={14}/> Konfigurasi</h2>
-                <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
-            {/* Input Nominal */}
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                <Banknote size={12}/> Nominal Uang
-              </label>
-              <div className="relative group">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300 group-focus-within:text-emerald-500 transition-colors">Rp</span>
-                <input 
-                  type="text"
-                  className="w-full pl-10 py-3 text-4xl font-black text-slate-800 bg-transparent border-b-2 border-slate-100 focus:border-emerald-500 focus:outline-none transition-all font-mono"
-                  placeholder="0"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))}
-                />
+        <div className="space-y-6">
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">Info Dokumen</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Perusahaan Penerbit</label>
+                <input type="text" name="namaPerusahaan" value={data.namaPerusahaan} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
               </div>
-              <p className="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg inline-block">
-                {displayAmount}
-              </p>
-            </div>
-
-            {/* Gaya Tulisan */}
-            <div className="space-y-3 pt-4">
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Gaya Huruf</label>
-              <div className="grid grid-cols-1 gap-2">
-                {(['Title Case', 'UPPERCASE', 'lowercase'] as const).map((s) => (
-                  <button 
-                    key={s}
-                    onClick={() => setStyle(s)}
-                    className={`py-3 px-4 rounded-xl text-xs font-bold text-left border-2 transition-all flex justify-between items-center ${style === s ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-white text-slate-500 border-slate-100 hover:border-slate-200'}`}
-                  >
-                    {s}
-                    {style === s && <Check size={14} className="text-emerald-400" />}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Hasil Preview Teks */}
-            <div className="pt-6 space-y-3">
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Teks Terbilang</label>
-              <div className="p-5 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-                <p className="text-lg font-serif italic font-medium leading-relaxed text-slate-700">
-                  {result ? `"${result}"` : "Masukkan nominal untuk melihat hasil..."}
-                </p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* VISUAL PREVIEW (KUITANSI) */}
-        <div className={`flex-1 bg-slate-200/50 relative h-full flex flex-col items-center justify-center p-4 lg:p-12 overflow-hidden ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
-          <div className="w-full max-w-2xl transform scale-[0.7] sm:scale-[0.85] lg:scale-100 transition-all print:scale-100 print:transform-none print:w-full print:m-0 print:block">
-            <div className="bg-white p-8 lg:p-12 shadow-2xl rounded-sm border-t-[12px] border-emerald-600 relative overflow-hidden text-left">
-              
-              <div className="absolute top-0 right-0 p-4 opacity-[0.03] -rotate-12">
-                <Banknote size={200} />
-              </div>
-              
-              <div className="flex justify-between items-start border-b-2 border-slate-800 pb-6 mb-8 font-sans">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <h2 className="text-3xl font-black tracking-tighter text-slate-900 uppercase italic">Kuitansi</h2>
-                  <p className="text-[10px] font-bold text-slate-400 tracking-[0.3em] uppercase mt-1">Official Voucher</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">No. Kwitansi</label>
+                  <input type="text" name="noKwitansi" value={data.noKwitansi} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm font-mono" />
                 </div>
-                <div className="text-right font-mono text-sm font-bold text-slate-300">
-                  No. 0000 / AUTO / {new Date().getFullYear()}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tempat, Tanggal</label>
+                  <input type="text" name="tempatTanggal" value={data.tempatTanggal} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800">
+            <h3 className="font-semibold text-green-800 dark:text-green-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <Coins className="w-4 h-4" /> Data Transaksi
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-1">Telah Diterima Dari</label>
+                <input type="text" name="telahDiterimaDari" value={data.telahDiterimaDari} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white font-bold" />
+              </div>
+              
+              <div className="p-3 bg-white dark:bg-gray-800 rounded border border-green-200 dark:border-green-700 shadow-sm">
+                <div className="mb-2">
+                  <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Uang Sejumlah (Rp)</label>
+                  <input type="number" name="uangSejumlah" value={data.uangSejumlah} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 text-lg font-bold font-mono text-green-700 dark:text-green-400" />
+                </div>
+                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                  <span className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Terbilang (Otomatis):</span>
+                  <div className="text-sm italic font-medium text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900 p-2 rounded border border-gray-200 dark:border-gray-700">
+                    {terbilangStr}
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-1">Untuk Pembayaran</label>
+                <textarea name="untukPembayaran" value={data.untukPembayaran} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white h-20 resize-none text-sm leading-relaxed"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+              <FileSignature className="w-4 h-4" /> Penandatangan
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Penerima</label>
+                <input type="text" name="namaPenerima" value={data.namaPenerima} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm font-bold" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jabatan</label>
+                <input type="text" name="jabatanPenerima" value={data.jabatanPenerima} onChange={handleChange} className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Print Preview Area */}
+      <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar">
+        <PrintWrapper printRef={printRef}>
+          <div ref={printRef} className="print-safe-area bg-white text-black shadow-2xl mx-auto flex flex-col" style={{ width: '210mm', minHeight: '148.5mm', padding: '15mm', fontFamily: '"Arial", sans-serif' }}>
+            <style dangerouslySetInnerHTML={{__html: `
+              @media print {
+                @page { size: A5 landscape; margin: 10mm; }
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .print-safe-area { box-shadow: none !important; width: 100% !important; min-height: auto !important; }
+              }
+              .kuitansi-border { border: 2px solid #111827; }
+              .kuitansi-line { border-bottom: 1px dotted #4b5563; }
+            `}} />
+
+            <div className="kuitansi-border flex-1 p-6 flex flex-col relative bg-orange-50/20">
+              {/* Background Watermark (Optional) */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                <span className="text-[120px] font-black transform -rotate-12 uppercase">{data.namaPerusahaan}</span>
+              </div>
+
+              {/* Header */}
+              <div className="flex justify-between items-start mb-6 border-b-2 border-black pb-4 relative z-10">
+                <div className="w-1/2">
+                  <h1 className="text-2xl font-black uppercase tracking-wider text-gray-900 leading-none">{data.namaPerusahaan}</h1>
+                  <p className="text-[9pt] mt-1 italic font-medium">Official Payment Receipt</p>
+                </div>
+                <div className="w-1/2 text-right">
+                  <h2 className="text-3xl font-black uppercase tracking-widest text-gray-400">KWITANSI</h2>
+                  <p className="font-mono mt-1 text-[11pt] font-bold">No. {data.noKwitansi}</p>
                 </div>
               </div>
 
-              <div className="space-y-8 font-serif">
-                <div className="flex border-b border-dotted border-slate-300 pb-2">
-                  <span className="w-32 text-[10px] font-bold uppercase text-slate-400 pt-1 font-sans">Terima Dari</span>
-                  <span className="flex-1 text-sm font-bold text-slate-800 italic uppercase">Pihak Pertama / Bendahara</span>
+              {/* Body */}
+              <div className="space-y-6 relative z-10 text-[11.5pt] flex-1">
+                {/* Diterima Dari */}
+                <div className="flex">
+                  <div className="w-48 font-bold">Telah Diterima Dari</div>
+                  <div className="w-4">:</div>
+                  <div className="flex-1 kuitansi-line font-bold text-[13pt] uppercase">{data.telahDiterimaDari}</div>
                 </div>
-                
-                <div className="flex flex-col gap-2">
-                  <span className="text-[10px] font-bold uppercase text-slate-400 font-sans">Sejumlah Uang (Terbilang)</span>
-                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 text-lg lg:text-xl font-bold italic leading-relaxed text-slate-700 shadow-inner min-h-[80px]">
-                    {result || "..........................................................................................................................................."}
+
+                {/* Terbilang */}
+                <div className="flex">
+                  <div className="w-48 font-bold">Uang Sejumlah</div>
+                  <div className="w-4">:</div>
+                  <div className="flex-1 kuitansi-line">
+                    <div className="bg-gray-100 border border-gray-300 py-2 px-4 italic font-bold text-gray-800 leading-snug">
+                      "{terbilangStr}"
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex border-b border-dotted border-slate-300 pb-2">
-                  <span className="w-32 text-[10px] font-bold uppercase text-slate-400 pt-1 font-sans">Keperluan</span>
-                  <span className="flex-1 text-sm text-slate-600 italic">Input Data Terbilang Otomatis Untuk Legalitas Dokumen</span>
+                {/* Untuk Pembayaran */}
+                <div className="flex">
+                  <div className="w-48 font-bold align-top pt-1">Untuk Pembayaran</div>
+                  <div className="w-4 align-top pt-1">:</div>
+                  <div className="flex-1 kuitansi-line leading-relaxed pb-1 min-h-[3rem]">
+                    {data.untukPembayaran}
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-12 flex justify-between items-end">
-                <div className="bg-slate-900 text-emerald-400 px-6 py-3 text-2xl font-black font-mono rounded-lg shadow-xl transform -rotate-1 border-b-4 border-emerald-700">
-                  {displayAmount}
+              {/* Footer / Nominal & TTD */}
+              <div className="flex justify-between items-end mt-8 relative z-10">
+                <div className="w-1/2">
+                  <div className="bg-white border-2 border-black inline-block">
+                    <div className="flex items-center">
+                      <div className="bg-gray-800 text-white font-bold px-4 py-3 text-[14pt]">Rp</div>
+                      <div className="px-6 py-3 font-mono font-black text-[18pt]">{formatCurrency(data.uangSejumlah)},-</div>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-center font-sans">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase mb-12">Authorized Signatory</p>
-                  <p className="font-bold underline text-slate-900 uppercase">Pro-Legal System</p>
+                
+                <div className="w-64 text-center">
+                  <p className="mb-1 text-[11pt]">{data.tempatTanggal}</p>
+                  <p className="mb-20 text-[11pt] font-bold">Penerima,</p>
+                  
+                  <div className="relative">
+                    {/* Stamp Placeholder */}
+                    <div className="absolute left-1/2 -top-16 -translate-x-1/2 w-24 h-24 border-[3px] border-blue-800 rounded-full flex flex-col items-center justify-center opacity-30 transform -rotate-12 pointer-events-none">
+                      <span className="text-[7px] font-bold uppercase tracking-widest">{data.namaPerusahaan}</span>
+                      <span className="text-[12px] font-black text-blue-800 my-1">FINANCE</span>
+                    </div>
+                    <p className="font-bold underline uppercase text-[11.5pt]">{data.namaPenerima}</p>
+                    <p className="text-[10pt] text-gray-600">{data.jabatanPenerima}</p>
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
-        </div>
-      </main>
-
-      {/* MOBILE NAV (KONSISTEN) */}
-      <div className="md:hidden fixed bottom-6 left-6 right-6 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5 z-50">
-        <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}><Edit3 size={16}/> Editor</button>
-        <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}><Eye size={16}/> Preview</button>
+        </PrintWrapper>
       </div>
     </div>
   );
