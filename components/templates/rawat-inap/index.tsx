@@ -1,67 +1,74 @@
 'use client';
 
-/**
- * FILE: RawatInapPage.tsx
- * STATUS: PRODUCTION READY (FIXED TS 2552)
- * DESC: Generator Surat Keterangan Rawat Inap
- * FIX: Memasukkan kembali definisi TemplateMenu ke dalam scope InpatientBuilder
- */
-
 import { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Bed, Building2, UserCircle2, 
-  X, PenTool, ShieldCheck, CalendarRange, Thermometer, FileText,
-  LayoutTemplate, ChevronDown, Check, Edit3, Eye, RotateCcw, ArrowLeftCircle
+  Printer, ArrowLeftCircle, Bed, Building2, UserCircle2, 
+  X, PenTool, ShieldCheck, CalendarRange, FileText,
+  LayoutTemplate, ChevronDown, Edit3, RotateCcw,
+  Stethoscope, Activity, MapPin, Phone
 } from 'lucide-react';
 import Link from 'next/link';
 
-// IMPORT KOMPONEN SAKTI
+// IMPORT KOMPONEN PRINT
 import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface InpatientData {
-  city: string;
-  date: string;
-  docNo: string;
-  
+  // Kop Surat
   hospitalName: string;
   hospitalAddress: string;
+  hospitalContact: string;
   
+  // Dokumen
+  docNo: string;
+  
+  // Data Pasien
   patientName: string;
-  patientNik: string;
-  patientAge: string;
+  patientRm: string;
+  patientDobAge: string;
+  patientGender: string;
+  patientJob: string;
   patientAddress: string;
   
+  // Detail Perawatan
   admissionDate: string;
   dischargeDate: string;
   roomName: string;
   diagnosis: string;
+  purpose: string;
   
+  // Tanda Tangan
   doctorName: string;
   sipNumber: string;
+  city: string;
+  date: string;
 }
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: InpatientData = {
-  city: 'DENPASAR',
-  date: '', 
+  hospitalName: 'RSUD BALI MANDARA',
+  hospitalAddress: 'Jl. Bypass Ngurah Rai No. 548, Sanur Kauh, Denpasar Selatan, Kota Denpasar, Bali 80227',
+  hospitalContact: 'Telp: (0361) 4490566 | Email: info@rsbm.baliprov.go.id',
+  
   docNo: 'SKRI/RSBM/2026/01/088',
   
-  hospitalName: 'RSUD BALI MANDARA',
-  hospitalAddress: 'Jl. Bypass Ngurah Rai No. 548, Sanur, Denpasar Selatan',
-  
   patientName: 'BAGUS RAMADHAN',
-  patientNik: '5171010101990001',
-  patientAge: '27 Tahun',
-  patientAddress: 'Jl. Ahmad Yani No. 100, Denpasar Utara',
+  patientRm: 'RM-889201',
+  patientDobAge: 'Denpasar, 15 Mei 1999 / 27 Tahun',
+  patientGender: 'Laki-laki',
+  patientJob: 'Wiraswasta',
+  patientAddress: 'Jl. Ahmad Yani Utara No. 100, Peguyangan, Denpasar Utara',
   
   admissionDate: '2026-01-05',
   dischargeDate: '2026-01-08',
   roomName: 'Ruang Amerta - Kamar 302',
-  diagnosis: 'Demam Berdarah Dengue (DBD) dengan Trombositopenia berat, membutuhkan observasi cairan dan monitoring trombosit secara berkala selama masa perawatan.',
+  diagnosis: 'Demam Berdarah Dengue (DBD) derajat II',
+  purpose: 'Klaim Asuransi Kesehatan dan Izin Istirahat Kerja',
   
   doctorName: 'dr. I MADE WIRA, Sp.PD',
-  sipNumber: 'SIP. 445/112/DINKES/2024'
+  sipNumber: 'SIP. 445/112/DINKES/2024',
+  city: 'Denpasar',
+  date: '' 
 };
 
 export default function RawatInapPage() {
@@ -79,38 +86,38 @@ function InpatientBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<InpatientData>(INITIAL_DATA);
+
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
     setData(prev => ({ ...prev, date: today }));
   }, []);
 
-  const handleDataChange = (field: keyof InpatientData, val: any) => {
+  const handleDataChange = (field: keyof InpatientData, val: string) => {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
   const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke data awal?')) {
         const today = new Date().toISOString().split('T')[0];
         setData({ ...INITIAL_DATA, date: today });
     }
   };
 
-  // --- 3. FIX: DEFINISI TEMPLATEMENU (Penyebab Error 2552) ---
   const TemplateMenu = () => (
     <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-rose-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-rose-50 text-rose-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-rose-500' : 'bg-slate-300'}`}></div> 
-            Format Standar
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format Medis Standar
         </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-rose-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-rose-50 text-rose-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-rose-500' : 'bg-slate-300'}`}></div> 
-            Format Ringkas
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+            Format Sederhana
         </button>
     </div>
   );
 
-  const activeTemplateName = templateId === 1 ? 'Format Standar' : 'Format Ringkas';
+  const activeTemplateName = templateId === 1 ? 'Format Medis Standar' : 'Format Sederhana';
 
   const DocumentContent = () => {
     const formatDateSafe = (dateString: string) => {
@@ -121,55 +128,97 @@ function InpatientBuilder() {
     };
 
     return (
-      <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10.5pt]'}`}>
+      <div className={`bg-white flex flex-col box-border text-slate-900 leading-normal p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[11pt]'}`}>
         
-        <div className="flex flex-col items-center border-b-4 border-double border-slate-900 pb-4 mb-6 text-center shrink-0 font-sans">
-          <h1 className="text-[16pt] font-black uppercase leading-tight tracking-tighter">{data.hospitalName}</h1>
-          <p className="text-[9pt] mt-1 italic leading-relaxed text-slate-500 print:text-black">{data.hospitalAddress}</p>
+        {/* KOP SURAT RUMAH SAKIT */}
+        <div className="flex flex-col items-center border-b-[3px] border-black pb-4 mb-1 text-center shrink-0">
+          <h1 className="text-[18pt] font-black uppercase leading-tight tracking-wide font-sans">{data.hospitalName}</h1>
+          <p className="text-[10pt] mt-1 font-sans">{data.hospitalAddress}</p>
+          <p className="text-[10pt] mt-0.5 font-sans">{data.hospitalContact}</p>
         </div>
+        <div className="border-b-[1px] border-black w-full mb-8 shrink-0"></div>
 
+        {/* JUDUL SURAT */}
         <div className="text-center mb-8 shrink-0 leading-tight">
-          <h2 className="text-lg font-black underline uppercase decoration-1 underline-offset-4 tracking-widest">SURAT KETERANGAN RAWAT INAP</h2>
-          <p className="text-[9pt] font-sans mt-3 italic font-bold text-slate-400 print:text-black">Nomor: {data.docNo}</p>
+          <h2 className="text-[14pt] font-bold underline uppercase tracking-wide">SURAT KETERANGAN RAWAT INAP</h2>
+          <p className="text-[11pt] mt-1">Nomor: {data.docNo}</p>
         </div>
 
-        <div className="space-y-6 flex-grow overflow-hidden text-left">
-          <p>Yang bertanda tangan di bawah ini menerangkan dengan sebenarnya bahwa:</p>
+        {/* ISI SURAT */}
+        <div className="flex-grow space-y-4 text-justify">
+          <p>Yang bertanda tangan di bawah ini menerangkan dengan sesungguhnya bahwa:</p>
           
-          <div className="ml-8 space-y-1.5 font-sans text-[10pt] border-l-4 border-slate-100 pl-6 italic py-1 break-inside-avoid">
-              <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama Pasien</span><span>:</span><span className="font-bold uppercase tracking-tight text-slate-900">{data.patientName}</span></div>
-              <div className="grid grid-cols-[140px_10px_1fr]"><span>NIK</span><span>:</span><span className="font-mono">{data.patientNik}</span></div>
-              <div className="grid grid-cols-[140px_10px_1fr]"><span>Umur</span><span>:</span><span>{data.patientAge}</span></div>
-              <div className="grid grid-cols-[140px_10px_1fr] align-top"><span>Alamat</span><span>:</span><span className="leading-snug">{data.patientAddress}</span></div>
-          </div>
-
-          <p>Telah menjalani perawatan intensif (Rawat Inap) pada fasilitas kesehatan kami terhitung sejak:</p>
-
-          <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 font-sans text-[10pt] space-y-2 print:bg-transparent print:border-black break-inside-avoid">
-              <div className="grid grid-cols-[150px_10px_1fr]"><span>Tanggal Masuk</span><span>:</span><span className="font-bold">{formatDateSafe(data.admissionDate)}</span></div>
-              <div className="grid grid-cols-[150px_10px_1fr]"><span>Tanggal Keluar</span><span>:</span><span className="font-bold">{formatDateSafe(data.dischargeDate)}</span></div>
-              <div className="grid grid-cols-[150px_10px_1fr]"><span>Ruang Rawat</span><span>:</span><span>{data.roomName}</span></div>
-              <div className="grid grid-cols-[150px_10px_1fr] text-rose-700 print:text-black mt-2 pt-2 border-t border-slate-100 print:border-black">
-                <span className="font-bold uppercase text-[8px] tracking-widest text-slate-400">Diagnosis</span>
-                <span>:</span>
-                <span className="font-black italic leading-relaxed">"{data.diagnosis}"</span>
+          <div className="ml-8 space-y-1.5 break-inside-avoid">
+              <div className="flex">
+                <span className="w-48 inline-block">Nama Pasien</span>
+                <span className="w-4 inline-block">:</span>
+                <span className="font-bold flex-1">{data.patientName}</span>
+              </div>
+              <div className="flex">
+                <span className="w-48 inline-block">No. Rekam Medis</span>
+                <span className="w-4 inline-block">:</span>
+                <span className="flex-1">{data.patientRm}</span>
+              </div>
+              <div className="flex">
+                <span className="w-48 inline-block">Tempat/Tanggal Lahir / Umur</span>
+                <span className="w-4 inline-block">:</span>
+                <span className="flex-1">{data.patientDobAge}</span>
+              </div>
+              <div className="flex">
+                <span className="w-48 inline-block">Jenis Kelamin</span>
+                <span className="w-4 inline-block">:</span>
+                <span className="flex-1">{data.patientGender}</span>
+              </div>
+              <div className="flex">
+                <span className="w-48 inline-block">Pekerjaan</span>
+                <span className="w-4 inline-block">:</span>
+                <span className="flex-1">{data.patientJob}</span>
+              </div>
+              <div className="flex align-top">
+                <span className="w-48 inline-block shrink-0">Alamat</span>
+                <span className="w-4 inline-block shrink-0">:</span>
+                <span className="flex-1 leading-snug">{data.patientAddress}</span>
               </div>
           </div>
 
-          <p className="text-justify leading-relaxed">
-            Surat keterangan ini diterbitkan berdasarkan catatan medis pasien untuk dipergunakan sebagai kelengkapan administrasi, klaim asuransi, atau keperluan lain yang sah sesuai hukum.
-          </p>
-          <p>Demikian surat keterangan ini kami buat untuk dapat dipergunakan sebagaimana mestinya.</p>
+          <p className="pt-2">Adalah benar pasien tersebut telah dirawat inap di {data.hospitalName} dengan rincian sebagai berikut:</p>
+
+          <div className="ml-8 space-y-1.5 break-inside-avoid">
+              <div className="flex">
+                <span className="w-48 inline-block">Tanggal Masuk</span>
+                <span className="w-4 inline-block">:</span>
+                <span className="flex-1">{formatDateSafe(data.admissionDate)}</span>
+              </div>
+              <div className="flex">
+                <span className="w-48 inline-block">Tanggal Keluar</span>
+                <span className="w-4 inline-block">:</span>
+                <span className="flex-1">{data.dischargeDate ? formatDateSafe(data.dischargeDate) : 'Masih dalam perawatan'}</span>
+              </div>
+              <div className="flex">
+                <span className="w-48 inline-block">Ruang Perawatan</span>
+                <span className="w-4 inline-block">:</span>
+                <span className="flex-1">{data.roomName}</span>
+              </div>
+              <div className="flex align-top">
+                <span className="w-48 inline-block shrink-0">Diagnosa Medis Utama</span>
+                <span className="w-4 inline-block shrink-0">:</span>
+                <span className="flex-1 font-bold">{data.diagnosis}</span>
+              </div>
+          </div>
+
+          <p className="pt-2">Surat keterangan rawat inap ini diberikan kepada yang bersangkutan untuk keperluan <strong>{data.purpose}</strong>.</p>
+          <p>Demikian surat keterangan ini kami buat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
         </div>
 
-        <div className="shrink-0 mt-10 pt-8 border-t border-slate-100 print:border-black break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-           <div className="flex justify-end text-center font-sans">
-              <div className="w-72 flex flex-col h-40">
-                 <p className="text-[10pt] mb-1">{data.city}, {formatDateSafe(data.date)}</p>
-                 <p className="uppercase text-[8.5pt] font-black text-slate-300 tracking-widest mb-1">Dokter Penanggung Jawab,</p>
-                 <div className="mt-auto">
-                    <p className="font-bold underline uppercase tracking-tight leading-none text-[11pt] text-slate-900">{data.doctorName}</p>
-                    <p className="text-[9pt] font-bold text-blue-600 mt-1 uppercase tracking-tighter">{data.sipNumber}</p>
+        {/* TANDA TANGAN */}
+        <div className="shrink-0 mt-12 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+           <div className="flex justify-end text-center">
+              <div className="w-72 flex flex-col">
+                 <p className="mb-1">{data.city}, {formatDateSafe(data.date)}</p>
+                 <p className="mb-24">Dokter Penanggung Jawab Pelayanan (DPJP),</p>
+                 <div>
+                    <p className="font-bold underline">{data.doctorName}</p>
+                    <p className="mt-1">SIP. {data.sipNumber}</p>
                  </div>
               </div>
            </div>
@@ -195,6 +244,7 @@ function InpatientBuilder() {
         }
       ` }} />
 
+      {/* HEADER NAV */}
       <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
@@ -202,8 +252,8 @@ function InpatientBuilder() {
               <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
             <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-rose-400 uppercase tracking-tighter italic">
-               <Bed size={16} /> <span>Inpatient Certificate Builder</span>
+            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-400 uppercase tracking-tighter italic">
+               <Activity size={16} /> <span>Medical Certificate Builder</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -213,70 +263,171 @@ function InpatientBuilder() {
               </button>
               {showTemplateMenu && <TemplateMenu />}
             </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-rose-600 hover:bg-rose-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak</span>
             </button>
           </div>
       </div>
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
-        <div className={`no-print w-full md:w-[450px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-sans"><h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Medis</h2><button onClick={handleReset} className="text-slate-400 hover:text-red-500"><RotateCcw size={16}/></button></div>
+        
+        {/* EDITOR PANEL */}
+        <div className={`no-print w-full md:w-[480px] bg-slate-50 border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+           <div className="p-4 border-b flex justify-between items-center bg-white font-sans">
+              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-emerald-500" /> Form Input Medis</h2>
+              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 tooltip-trigger" title="Reset Data"><RotateCcw size={16}/></button>
+           </div>
+           
            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:block print:overflow-visible print:bg-white">
+              
+              {/* SECTION: RUMAH SAKIT */}
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Building2 size={12}/> Rumah Sakit</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.hospitalName} onChange={e => handleDataChange('hospitalName', e.target.value)} placeholder="Nama RS" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.hospitalAddress} onChange={e => handleDataChange('hospitalAddress', e.target.value)} placeholder="Alamat RS" />
+                 <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-2 tracking-widest flex items-center gap-2"><Building2 size={12}/> Informasi Instansi</h3>
+                 
+                 <div className="space-y-3">
+                   <div className="space-y-1">
+                     <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Rumah Sakit</label>
+                     <input className="w-full p-2.5 border rounded-lg text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none" value={data.hospitalName} onChange={e => handleDataChange('hospitalName', e.target.value)} />
+                   </div>
+                   <div className="space-y-1">
+                     <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Lengkap</label>
+                     <textarea className="w-full p-2.5 border rounded-lg text-sm h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.hospitalAddress} onChange={e => handleDataChange('hospitalAddress', e.target.value)} />
+                   </div>
+                   <div className="space-y-1">
+                     <label className="text-[10px] font-bold text-slate-500 uppercase">Kontak (Telp/Email)</label>
+                     <input className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" value={data.hospitalContact} onChange={e => handleDataChange('hospitalContact', e.target.value)} />
+                   </div>
+                   <div className="space-y-1">
+                     <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Surat</label>
+                     <input className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} />
+                   </div>
+                 </div>
               </div>
 
+              {/* SECTION: DATA PASIEN */}
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Data Pasien</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.patientName} onChange={e => handleDataChange('patientName', e.target.value)} placeholder="Nama Pasien" />
-                 <div className="grid grid-cols-2 gap-3">
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.patientNik} onChange={e => handleDataChange('patientNik', e.target.value)} placeholder="NIK" />
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.patientAge} onChange={e => handleDataChange('patientAge', e.target.value)} placeholder="Umur (thn)" />
+                 <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-2 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Identitas Pasien</h3>
+                 
+                 <div className="space-y-3">
+                   <div className="grid grid-cols-1 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
+                        <input className="w-full p-2.5 border rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.patientName} onChange={e => handleDataChange('patientName', e.target.value)} />
+                      </div>
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">No. Rekam Medis</label>
+                        <input className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.patientRm} onChange={e => handleDataChange('patientRm', e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Kelamin</label>
+                        <select className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white" value={data.patientGender} onChange={e => handleDataChange('patientGender', e.target.value)}>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                      </div>
+                   </div>
+
+                   <div className="space-y-1">
+                     <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat/Tgl Lahir & Umur</label>
+                     <input className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.patientDobAge} onChange={e => handleDataChange('patientDobAge', e.target.value)} />
+                   </div>
+
+                   <div className="space-y-1">
+                     <label className="text-[10px] font-bold text-slate-500 uppercase">Pekerjaan</label>
+                     <input className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" value={data.patientJob} onChange={e => handleDataChange('patientJob', e.target.value)} />
+                   </div>
+
+                   <div className="space-y-1">
+                     <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat</label>
+                     <textarea className="w-full p-2.5 border rounded-lg text-sm h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.patientAddress} onChange={e => handleDataChange('patientAddress', e.target.value)} />
+                   </div>
                  </div>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.patientAddress} onChange={e => handleDataChange('patientAddress', e.target.value)} placeholder="Alamat Pasien" />
               </div>
 
+              {/* SECTION: DATA RAWAT INAP */}
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
-                 <h3 className="text-[10px] font-black uppercase text-rose-600 border-b pb-1 tracking-widest flex items-center gap-2"><CalendarRange size={12}/> Detail Perawatan</h3>
+                 <h3 className="text-[10px] font-black uppercase text-rose-600 border-b pb-2 tracking-widest flex items-center gap-2"><Bed size={12}/> Data Perawatan</h3>
+                 
                  <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                       <label className="text-[9px] font-bold text-slate-400 uppercase">Masuk</label>
-                       <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.admissionDate} onChange={e => handleDataChange('admissionDate', e.target.value)} />
+                       <label className="text-[10px] font-bold text-slate-500 uppercase">Tgl Masuk</label>
+                       <input type="date" className="w-full p-2.5 border rounded-lg text-sm" value={data.admissionDate} onChange={e => handleDataChange('admissionDate', e.target.value)} />
                     </div>
                     <div className="space-y-1">
-                       <label className="text-[9px] font-bold text-slate-400 uppercase">Keluar</label>
-                       <input type="date" className="w-full p-2 border rounded-lg text-xs" value={data.dischargeDate} onChange={e => handleDataChange('dischargeDate', e.target.value)} />
+                       <label className="text-[10px] font-bold text-slate-500 uppercase">Tgl Keluar (Bisa Kosong)</label>
+                       <input type="date" className="w-full p-2.5 border rounded-lg text-sm" value={data.dischargeDate} onChange={e => handleDataChange('dischargeDate', e.target.value)} />
                     </div>
                  </div>
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-rose-500 outline-none" value={data.roomName} onChange={e => handleDataChange('roomName', e.target.value)} placeholder="Nama Ruang/Kamar" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-24 resize-none leading-relaxed focus:ring-2 focus:ring-rose-500 outline-none" value={data.diagnosis} onChange={e => handleDataChange('diagnosis', e.target.value)} placeholder="Diagnosis Medis" />
+
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Ruang Perawatan</label>
+                    <input className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-rose-500 outline-none" value={data.roomName} onChange={e => handleDataChange('roomName', e.target.value)} />
+                 </div>
+
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Diagnosa Medis Utama</label>
+                    <textarea className="w-full p-2.5 border rounded-lg text-sm h-16 resize-none focus:ring-2 focus:ring-rose-500 outline-none font-medium" value={data.diagnosis} onChange={e => handleDataChange('diagnosis', e.target.value)} />
+                 </div>
+
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Keperluan Surat</label>
+                    <input className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-rose-500 outline-none" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} />
+                 </div>
+              </div>
+
+              {/* SECTION: PENANDATANGAN */}
+              <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
+                 <h3 className="text-[10px] font-black uppercase text-amber-600 border-b pb-2 tracking-widest flex items-center gap-2"><Stethoscope size={12}/> DPJP & TTD</h3>
+                 
+                 <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-bold text-slate-500 uppercase">Kota Penetapan</label>
+                       <input className="w-full p-2.5 border rounded-lg text-sm" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Surat</label>
+                       <input type="date" className="w-full p-2.5 border rounded-lg text-sm" value={data.date} onChange={e => handleDataChange('date', e.target.value)} />
+                    </div>
+                 </div>
+
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Dokter (DPJP)</label>
+                    <input className="w-full p-2.5 border rounded-lg text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none" value={data.doctorName} onChange={e => handleDataChange('doctorName', e.target.value)} />
+                 </div>
+
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">No. SIP</label>
+                    <input className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none" value={data.sipNumber} onChange={e => handleDataChange('sipNumber', e.target.value)} />
+                 </div>
               </div>
            </div>
         </div>
 
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
+        {/* PREVIEW PANEL */}
+        <div className={`flex-1 h-full bg-slate-400 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white print:static`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                 <DocumentContent />
             </div>
-            </div>
+        </div>
       </main>
 
+      {/* MOBILE NAV BUTTONS */}
       <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl font-sans font-bold">
           <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
-
       
-      {/* AREA TOMBOL MONETISASI */}
+      {/* AREA CETAK & MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
+         <PrintWrapper documentName="Dokumen" price={15000} />
       </div>
 
-      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>
+      <div id="print-only-root" className="hidden print:block print:h-auto print:static w-full">
+         <div className="bg-white w-full"><DocumentContent /></div>
+      </div>
     </div>
   );
 }
