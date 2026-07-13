@@ -1,374 +1,192 @@
-'use client';
+import React from 'react';
 
-/**
- * FILE: IzinBarangPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Izin Keluar/Masuk Barang (Gate Pass)
- * FIX: Ganti styled-jsx ke dangerouslySetInnerHTML untuk stabilitas build TypeScript
- */
+const IzinBarangTemplate = () => {
+  return (
+    <div className="w-full max-w-5xl mx-auto bg-white p-10 shadow-xl text-sm text-gray-800 font-sans border border-gray-200">
+      {/* Header */}
+      <div className="flex justify-between items-start border-b-4 border-slate-800 pb-6 mb-8">
+        <div className="flex items-center gap-6">
+          <div className="w-20 h-20 bg-slate-800 flex items-center justify-center font-bold text-white text-xl rounded shadow-sm">
+            LOGO
+          </div>
+          <div>
+            <h1 className="text-3xl font-black tracking-tight uppercase text-slate-900">PT KORPORAT LOGISTIK MANDIRI</h1>
+            <p className="text-sm text-gray-600 mt-1 font-medium">Kawasan Industri Cikarang Utama Blok A1, Jawa Barat 17530</p>
+            <p className="text-sm text-gray-600">Telp: (021) 890-1234 | Fax: (021) 890-1235 | Email: logistic@korporat.com</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <h2 className="text-4xl font-black uppercase tracking-widest text-slate-900">GATE PASS</h2>
+          <p className="text-base font-bold text-slate-700 mt-1 uppercase">Surat Izin Keluar/Masuk Barang</p>
+          <div className="mt-3 inline-block bg-red-50 border border-red-200 px-4 py-2 rounded">
+            <p className="text-lg text-red-700 font-bold tracking-wider">No: GP-2026/07/00142</p>
+          </div>
+        </div>
+      </div>
 
-import { useState, Suspense, useEffect, useRef } from 'react';
-import { 
-  Printer, ArrowLeft, ChevronDown, Check, LayoutTemplate, 
-  Truck, UserCircle2, Package, ClipboardList, Plus, Trash2,
-  Edit3, Eye, RotateCcw, ArrowLeftCircle
-} from 'lucide-react';
-import Link from 'next/link';
+      {/* Main Info */}
+      <div className="grid grid-cols-2 gap-x-12 gap-y-6 mb-8">
+        <div className="bg-slate-50 p-4 rounded border border-slate-200">
+          <h3 className="text-xs font-bold uppercase text-slate-500 mb-3 tracking-wider border-b border-slate-200 pb-2">Informasi Gate Pass</h3>
+          <table className="w-full text-sm">
+            <tbody>
+              <tr>
+                <td className="py-1.5 font-semibold text-slate-700 w-36">Tipe Gate Pass</td>
+                <td className="py-1.5 px-2 text-slate-400">:</td>
+                <td className="py-1.5 font-bold text-blue-700">KELUAR (OUTBOUND)</td>
+              </tr>
+              <tr>
+                <td className="py-1.5 font-semibold text-slate-700">Tanggal & Waktu</td>
+                <td className="py-1.5 px-2 text-slate-400">:</td>
+                <td className="py-1.5 font-medium">13 Juli 2026, 14:30 WIB</td>
+              </tr>
+              <tr>
+                <td className="py-1.5 font-semibold text-slate-700">Departemen</td>
+                <td className="py-1.5 px-2 text-slate-400">:</td>
+                <td className="py-1.5 font-medium">Warehouse & Distribution</td>
+              </tr>
+              <tr>
+                <td className="py-1.5 font-semibold text-slate-700">Referensi Dokumen</td>
+                <td className="py-1.5 px-2 text-slate-400">:</td>
+                <td className="py-1.5 font-medium">DO-559281-XYZ / PO-9901</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-slate-50 p-4 rounded border border-slate-200">
+          <h3 className="text-xs font-bold uppercase text-slate-500 mb-3 tracking-wider border-b border-slate-200 pb-2">Informasi Pembawa & Armada</h3>
+          <table className="w-full text-sm">
+            <tbody>
+              <tr>
+                <td className="py-1.5 font-semibold text-slate-700 w-36">Nama Pengemudi</td>
+                <td className="py-1.5 px-2 text-slate-400">:</td>
+                <td className="py-1.5 font-medium">Budi Santoso</td>
+              </tr>
+              <tr>
+                <td className="py-1.5 font-semibold text-slate-700">No. Kendaraan (Nopol)</td>
+                <td className="py-1.5 px-2 text-slate-400">:</td>
+                <td className="py-1.5 uppercase font-bold text-slate-900 bg-yellow-100 px-2 py-0.5 rounded inline-block">B 9921 UYQ</td>
+              </tr>
+              <tr>
+                <td className="py-1.5 font-semibold text-slate-700">Vendor Ekspedisi</td>
+                <td className="py-1.5 px-2 text-slate-400">:</td>
+                <td className="py-1.5 font-medium">PT Trans Lintas Nusantara</td>
+              </tr>
+              <tr>
+                <td className="py-1.5 font-semibold text-slate-700">Tujuan / Asal</td>
+                <td className="py-1.5 px-2 text-slate-400">:</td>
+                <td className="py-1.5 font-medium">Gudang Distributor Surabaya</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-// IMPORT KOMPONEN SAKTI
-import PrintWrapper from '@/components/PrintWrapper';
+      {/* Items Table */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-bold uppercase border-l-4 border-slate-800 pl-3 text-slate-800">Rincian Barang</h3>
+          <span className="text-xs font-medium bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">Total: 4 Item</span>
+        </div>
+        <table className="w-full border-collapse border border-slate-300 text-sm">
+          <thead className="bg-slate-800 text-white">
+            <tr>
+              <th className="border border-slate-300 py-3 px-3 w-12 text-center font-semibold">No</th>
+              <th className="border border-slate-300 py-3 px-3 w-32 text-left font-semibold">Kode Barang</th>
+              <th className="border border-slate-300 py-3 px-3 text-left font-semibold">Deskripsi Barang</th>
+              <th className="border border-slate-300 py-3 px-3 w-20 text-center font-semibold">Qty</th>
+              <th className="border border-slate-300 py-3 px-3 w-20 text-center font-semibold">Satuan</th>
+              <th className="border border-slate-300 py-3 px-3 w-48 text-left font-semibold">Keterangan / Serial No</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { id: 'ITM-001', desc: 'Kompresor Industri XG-500', qty: 2, uom: 'Unit', notes: 'SN: XG5-001, XG5-002' },
+              { id: 'ITM-045', desc: 'Suku Cadang Valve V-200', qty: 15, uom: 'Pcs', notes: 'Box Kayu (Fragile)' },
+              { id: 'ITM-089', desc: 'Pelumas Sintetis Drum 200L', qty: 4, uom: 'Drum', notes: 'Handling Hati-hati' },
+              { id: 'ITM-112', desc: 'Filter Udara H13', qty: 10, uom: 'Box', notes: '-' },
+              { id: '', desc: '', qty: '', uom: '', notes: '' },
+              { id: '', desc: '', qty: '', uom: '', notes: '' },
+            ].map((item, index) => (
+              <tr key={index} className="hover:bg-slate-50">
+                <td className="border border-slate-300 py-2.5 px-3 text-center text-slate-500">{item.desc ? index + 1 : '\u00A0'}</td>
+                <td className="border border-slate-300 py-2.5 px-3 font-mono text-xs text-slate-700">{item.id}</td>
+                <td className="border border-slate-300 py-2.5 px-3 font-medium text-slate-800">{item.desc}</td>
+                <td className="border border-slate-300 py-2.5 px-3 text-center font-bold text-slate-900">{item.qty}</td>
+                <td className="border border-slate-300 py-2.5 px-3 text-center text-slate-600">{item.uom}</td>
+                <td className="border border-slate-300 py-2.5 px-3 text-xs text-slate-500">{item.notes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-// --- 1. TYPE DEFINITIONS ---
-interface Item {
-  name: string;
-  qty: string;
-  unit: string;
-  note: string;
-}
+      {/* Security / Condition Info */}
+      <div className="mb-10 bg-slate-50 border border-slate-300 p-5 rounded">
+        <h3 className="text-sm font-bold uppercase mb-4 text-slate-800">Checklist Pemeriksaan Keamanan (Diisi oleh Security Gate)</h3>
+        <div className="flex gap-10">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div className="w-5 h-5 border-2 border-slate-400 rounded-sm flex items-center justify-center bg-white"></div>
+            <span className="text-sm font-medium text-slate-700">Kesesuaian Dokumen (DO/PO)</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div className="w-5 h-5 border-2 border-slate-400 rounded-sm flex items-center justify-center bg-white"></div>
+            <span className="text-sm font-medium text-slate-700">Kesesuaian Fisik & Kuantitas</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div className="w-5 h-5 border-2 border-slate-400 rounded-sm flex items-center justify-center bg-white"></div>
+            <span className="text-sm font-medium text-slate-700">Kondisi Segel / Pengamanan Aman</span>
+          </label>
+        </div>
+        <div className="mt-4 pt-3 border-t border-slate-200">
+          <p className="text-xs text-red-600 font-semibold italic">* Peringatan: Jika ada ketidaksesuaian checklist di atas, Gate Pass dibatalkan dan kendaraan dilarang melintas area pabrik.</p>
+        </div>
+      </div>
 
-interface GatePassData {
-  city: string;
-  date: string;
-  type: string; // KELUAR atau MASUK
-  noSurat: string;
-  carrierName: string;
-  carrierPhone: string;
-  vehicleNo: string;
-  companyOrigin: string;
-  items: Item[];
-  destination: string;
-  authorizedBy: string;
-  authorizedJob: string;
-}
+      {/* Signatures */}
+      <div className="grid grid-cols-4 gap-6 text-center mt-8">
+        <div className="flex flex-col items-center">
+          <p className="text-xs font-bold text-slate-600 mb-16 uppercase">Dibuat Oleh</p>
+          <div className="border-b-2 border-slate-400 w-full mb-2"></div>
+          <p className="text-sm font-bold text-slate-800">Admin Gudang</p>
+          <p className="text-xs text-slate-500">Tgl: __/__/____</p>
+        </div>
+        <div className="flex flex-col items-center">
+          <p className="text-xs font-bold text-slate-600 mb-16 uppercase">Disetujui Oleh</p>
+          <div className="border-b-2 border-slate-400 w-full mb-2"></div>
+          <p className="text-sm font-bold text-slate-800">Manager Logistik</p>
+          <p className="text-xs text-slate-500">Tgl: __/__/____</p>
+        </div>
+        <div className="flex flex-col items-center">
+          <p className="text-xs font-bold text-slate-600 mb-16 uppercase">Diperiksa Oleh</p>
+          <div className="border-b-2 border-slate-400 w-full mb-2"></div>
+          <p className="text-sm font-bold text-slate-800">Security Gate</p>
+          <p className="text-xs text-slate-500">Tgl: __/__/____</p>
+        </div>
+        <div className="flex flex-col items-center">
+          <p className="text-xs font-bold text-slate-600 mb-16 uppercase">Pembawa (Pengemudi)</p>
+          <div className="border-b-2 border-slate-400 w-full mb-2"></div>
+          <p className="text-sm font-bold text-slate-800">Nama Jelas & Ttd</p>
+          <p className="text-xs text-slate-500">Tgl: __/__/____</p>
+        </div>
+      </div>
 
-// --- 2. DATA DEFAULT ---
-const INITIAL_DATA: GatePassData = {
-  city: 'JAKARTA',
-  date: '', 
-  type: 'KELUAR',
-  noSurat: 'SKMB/001/I/2026',
-  carrierName: 'BUDI SETIADI',
-  carrierPhone: '0812-7788-9900',
-  vehicleNo: 'B 1234 ABC',
-  companyOrigin: 'PT. LOGISTIK JAYA',
-  items: [
-    { name: 'Laptop MacBook Pro 14"', qty: '2', unit: 'Unit', note: 'Perbaikan' },
-    { name: 'Monitor LG 24"', qty: '5', unit: 'Unit', note: 'Mutasi Kantor' },
-  ],
-  destination: 'Gudang Cabang Bekasi',
-  authorizedBy: 'SURYONO M.S.',
-  authorizedJob: 'Head of Security / Ops'
+      {/* Footer */}
+      <div className="mt-16 pt-5 border-t-2 border-slate-100 flex justify-between items-end">
+        <div className="text-xs text-slate-500 font-medium">
+          <p className="mb-1">Distribusi Dokumen:</p>
+          <p><span className="font-bold text-slate-700">Lembar 1 (Putih):</span> Security / Pos Jaga</p>
+          <p><span className="font-bold text-slate-700">Lembar 2 (Merah):</span> Arsip Gudang (Logistik)</p>
+          <p><span className="font-bold text-slate-700">Lembar 3 (Kuning):</span> Ekspedisi / Pengemudi</p>
+        </div>
+        <div className="text-right text-xs text-slate-400">
+          <p>Dokumen ini dicetak oleh sistem secara otomatis.</p>
+          <p>Waktu Cetak: 13/07/2026 10:30:10 WIB</p>
+          <p className="font-mono mt-1 text-slate-300">REF-ID: KLM-GP-8839201A</p>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default function IzinBarangPage() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat...</div>}>
-      <IzinBarangBuilder />
-    </Suspense>
-  );
-}
-
-function IzinBarangBuilder() {
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-  const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<GatePassData>(INITIAL_DATA);
-  useEffect(() => {
-    setIsClient(true);
-    const today = new Date().toISOString().split('T')[0];
-    setData(prev => ({ ...prev, date: today }));
-  }, []);
-
-  const handleDataChange = (field: keyof GatePassData, val: any) => {
-    setData(prev => ({ ...prev, [field]: val }));
-  };
-
-  const addItem = () => {
-    setData(prev => ({ ...prev, items: [...prev.items, { name: '', qty: '', unit: '', note: '' }] }));
-  };
-  
-  const removeItem = (idx: number) => {
-    const newItems = [...data.items];
-    newItems.splice(idx, 1);
-    setData(prev => ({ ...prev, items: newItems }));
-  };
-
-  const handleItemChange = (idx: number, field: keyof Item, val: string) => {
-    const newItems = [...data.items];
-    // @ts-ignore
-    newItems[idx][field] = val;
-    setData(prev => ({ ...prev, items: newItems }));
-  };
-
-  const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
-        const today = new Date().toISOString().split('T')[0];
-        setData({ ...INITIAL_DATA, date: today });
-    }
-  };
-
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Formal (Gate Pass)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Simpel (Surat Jalan)
-        </button>
-    </div>
-  );
-
-  const DocumentContent = () => {
-    const formatDateSafe = (dateString: string) => {
-      if(!dateString) return '...';
-      return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle:'full'});
-    };
-
-    return (
-      <div className="bg-white mx-auto flex flex-col box-border font-sans text-slate-900 p-[20mm] print:p-0" 
-           style={{ width: '210mm', minHeight: '296mm' }}>
-        
-        {templateId === 1 && (
-          <div className="flex flex-col h-full">
-              <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-8">
-                  <div>
-                      <h1 className="text-xl font-black uppercase tracking-tighter italic">Layanan<span className="text-emerald-600">Dokumen</span></h1>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Logistics & Gate Pass Division</p>
-                  </div>
-                  <div className="text-right">
-                      <div className={`px-4 py-1 rounded text-white font-black text-sm mb-1 ${data.type === 'KELUAR' ? 'bg-red-600 print:text-black print:border print:border-black' : 'bg-emerald-600 print:text-black print:border print:border-black'}`}>
-                          IZIN {data.type} BARANG
-                      </div>
-                      <p className="text-[10pt] font-mono font-bold">No: {data.noSurat}</p>
-                  </div>
-              </div>
-
-              <div className="space-y-6 flex-grow">
-                  <div className="grid grid-cols-2 gap-8 text-[10pt]">
-                      <div className="space-y-2">
-                          <h4 className="text-[10px] font-black text-slate-400 uppercase border-b pb-1">Detail Pembawa</h4>
-                          <div className="grid grid-cols-[80px_5px_1fr] gap-1"><span>Nama</span><span>:</span><span className="font-bold uppercase">{data.carrierName}</span></div>
-                          <div className="grid grid-cols-[80px_5px_1fr] gap-1"><span>Kendaraan</span><span>:</span><span className="font-mono">{data.vehicleNo}</span></div>
-                          <div className="grid grid-cols-[80px_5px_1fr] gap-1"><span>Asal/PT</span><span>:</span><span>{data.companyOrigin}</span></div>
-                      </div>
-                      <div className="space-y-2">
-                          <h4 className="text-[10px] font-black text-slate-400 uppercase border-b pb-1">Waktu & Tujuan</h4>
-                          <div className="grid grid-cols-[80px_5px_1fr] gap-1"><span>Tanggal</span><span>:</span><span>{formatDateSafe(data.date)}</span></div>
-                          <div className="grid grid-cols-[80px_5px_1fr] gap-1"><span>Lokasi</span><span>:</span><span>{data.city}</span></div>
-                          <div className="grid grid-cols-[80px_5px_1fr] gap-1"><span>Tujuan</span><span>:</span><span>{data.destination}</span></div>
-                      </div>
-                  </div>
-
-                  <div className="mt-8">
-                      <table className="w-full border-collapse text-[10pt]">
-                          <thead>
-                              <tr className="bg-slate-100 border-y-2 border-slate-900">
-                                  <th className="p-2 text-center text-xs w-12 font-black">NO</th>
-                                  <th className="p-2 text-left text-xs font-black">NAMA BARANG</th>
-                                  <th className="p-2 text-center text-xs w-20 font-black">QTY</th>
-                                  <th className="p-2 text-center text-xs w-24 font-black">SATUAN</th>
-                                  <th className="p-2 text-left text-xs font-black">KETERANGAN</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                              {data.items.map((item, idx) => (
-                                  <tr key={idx} className="border-b border-slate-200 break-inside-avoid">
-                                      <td className="p-2 text-center">{idx + 1}</td>
-                                      <td className="p-2 font-bold uppercase">{item.name}</td>
-                                      <td className="p-2 text-center">{item.qty}</td>
-                                      <td className="p-2 text-center uppercase text-xs">{item.unit}</td>
-                                      <td className="p-2 italic text-slate-600 text-sm">{item.note}</td>
-                                  </tr>
-                              ))}
-                          </tbody>
-                      </table>
-                  </div>
-
-                  <div className="mt-6 bg-slate-50 p-4 border border-dashed border-slate-300 rounded text-xs text-slate-500 italic text-justify break-inside-avoid">
-                      "Dengan ini menyatakan bahwa barang-barang tersebut di atas telah diperiksa dan diizinkan untuk {data.type === 'KELUAR' ? 'dikeluarkan dari' : 'masuk ke'} area perusahaan/instansi."
-                  </div>
-              </div>
-
-              <div className="shrink-0 mt-12 break-inside-avoid">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                      <div className="space-y-20">
-                          <p className="text-xs font-black uppercase border-b pb-1">Pembawa</p>
-                          <p className="text-sm font-bold underline uppercase">{data.carrierName}</p>
-                      </div>
-                      <div className="space-y-20">
-                          <p className="text-xs font-black uppercase border-b pb-1">Security</p>
-                          <p className="text-sm font-bold text-slate-300">( ............................ )</p>
-                      </div>
-                      <div className="space-y-20">
-                          <p className="text-xs font-black uppercase border-b pb-1">Pemberi Izin</p>
-                          <div className="relative">
-                              <p className="text-sm font-bold underline uppercase">{data.authorizedBy}</p>
-                              <p className="text-[9px] text-slate-500 uppercase">{data.authorizedJob}</p>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-        )}
-
-        {templateId === 2 && (
-          <div className="flex flex-col h-full font-serif text-black">
-              <div className="text-center border-b-4 border-double border-black pb-4 mb-6">
-                 <h1 className="text-2xl font-bold uppercase tracking-widest">SURAT JALAN</h1>
-                 <p className="text-sm">NO: {data.noSurat}</p>
-              </div>
-
-              <div className="flex justify-between items-start mb-6 text-sm">
-                 <div className="w-1/2">
-                    <p>Kepada Yth,</p>
-                    <p className="font-bold uppercase">{data.destination}</p>
-                    <p>{data.city}</p>
-                 </div>
-                 <div className="w-1/2 text-right">
-                    <p>Tanggal: {formatDateSafe(data.date)}</p>
-                    <p>Kendaraan: <strong>{data.vehicleNo}</strong></p>
-                 </div>
-              </div>
-
-              <table className="w-full border-collapse border border-black text-sm mb-6">
-                 <thead>
-                    <tr className="bg-slate-200">
-                       <th className="border border-black p-2 text-center w-10">No</th>
-                       <th className="border border-black p-2 text-left">Nama Barang</th>
-                       <th className="border border-black p-2 text-center w-20">Banyaknya</th>
-                    </tr>
-                 </thead>
-                 <tbody>
-                    {data.items.map((item, idx) => (
-                       <tr key={idx} className="break-inside-avoid">
-                          <td className="border border-black p-2 text-center">{idx + 1}</td>
-                          <td className="border border-black p-2 font-bold uppercase">{item.name}</td>
-                          <td className="border border-black p-2 text-center">{item.qty} {item.unit}</td>
-                       </tr>
-                    ))}
-                 </tbody>
-              </table>
-
-              <div className="mt-auto flex justify-between text-center text-sm break-inside-avoid">
-                 <div className="w-40"><p className="mb-16">Penerima,</p><p>( ............ )</p></div>
-                 <div className="w-40"><p className="mb-16">Sopir,</p><p className="font-bold underline">{data.carrierName}</p></div>
-                 <div className="w-40"><p className="mb-16">Hormat Kami,</p><p className="font-bold underline">{data.authorizedBy}</p></div>
-              </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  if (!isClient) return null;
-
-  return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
-      {/* GLOBAL CSS PRINT - FIXED TypeScript 2322 */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
-          .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
-          * { box-sizing: border-box !important; }
-        }
-      ` }} />
-
-      {/* NAVBAR */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 shrink-0 flex items-center px-4 justify-between">
-          <div className="flex items-center gap-4">
-             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2">
-                <ArrowLeftCircle size={20} className="text-emerald-400" />
-                <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
-             </Link>
-             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-             <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300">
-                <Truck size={16} /> <span className="uppercase tracking-widest">Gate Pass Creator</span>
-             </div>
-          </div>
-          <div className="flex items-center gap-3">
-             <div className="relative">
-                <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
-                  <LayoutTemplate size={14} className="text-blue-400" /> {templateId === 1 ? 'Formal' : 'Simpel'} <ChevronDown size={12} />
-                </button>
-                {showTemplateMenu && <TemplateMenu />}
-             </div>
-             <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95">
-                <Printer size={16}/> Cetak
-             </button>
-          </div>
-      </div>
-
-      <main className="max-w-[1600px] mx-auto p-4 flex flex-col md:flex-row gap-6 h-[calc(100vh-64px)] overflow-hidden relative print:block print:h-auto print:overflow-visible">
-        <div className={`no-print w-full md:w-[450px] bg-white rounded-xl border flex flex-col h-full transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50 rounded-t-xl">
-                <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Editor Data</h2>
-                <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors"><RotateCcw size={16}/></button>
-            </div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 md:pb-10 print:block print:overflow-visible print:bg-white">
-              <div className="bg-slate-50 p-2 rounded-xl grid grid-cols-2 gap-2 border">
-                  <button onClick={() => handleDataChange('type', 'KELUAR')} className={`py-2 rounded-lg text-[10px] font-bold ${data.type === 'KELUAR' ? 'bg-red-600 text-white shadow-md' : 'bg-white text-slate-400'}`}>KELUAR</button>
-                  <button onClick={() => handleDataChange('type', 'MASUK')} className={`py-2 rounded-lg text-[10px] font-bold ${data.type === 'MASUK' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-slate-400'}`}>MASUK</button>
-              </div>
-
-              <div className="space-y-4">
-                  <input className="w-full p-2.5 border rounded-lg text-sm font-bold uppercase" value={data.carrierName} onChange={e => handleDataChange('carrierName', e.target.value)} placeholder="Nama Pembawa" />
-                  <div className="grid grid-cols-2 gap-3">
-                      <input className="w-full p-2.5 border rounded-lg text-xs" value={data.vehicleNo} onChange={e => handleDataChange('vehicleNo', e.target.value)} placeholder="No. Polisi" />
-                      <input className="w-full p-2.5 border rounded-lg text-xs" value={data.companyOrigin} onChange={e => handleDataChange('companyOrigin', e.target.value)} placeholder="Asal Perusahaan" />
-                  </div>
-              </div>
-
-              <div className="border-t pt-4 space-y-4">
-                 <div className="flex justify-between items-center"><label className="text-[10px] font-black uppercase text-slate-400">Daftar Barang</label><button onClick={addItem} className="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold shadow-lg">+ TAMBAH</button></div>
-                 {data.items.map((item, idx) => (
-                   <div key={idx} className="bg-slate-50 p-3 rounded-lg border relative group animate-in slide-in-from-right-2">
-                      <input className="w-full p-1 bg-transparent border-b border-slate-200 mb-2 text-xs font-bold uppercase focus:ring-0 outline-none" placeholder="Nama Barang..." value={item.name} onChange={e => handleItemChange(idx, 'name', e.target.value)} />
-                      <div className="grid grid-cols-2 gap-2">
-                        <input className="w-full p-2 bg-white border rounded text-xs" placeholder="Qty (cth: 10)" value={item.qty} onChange={e => handleItemChange(idx, 'qty', e.target.value)} />
-                        <input className="w-full p-2 bg-white border rounded text-xs" placeholder="Satuan (cth: Dus)" value={item.unit} onChange={e => handleItemChange(idx, 'unit', e.target.value)} />
-                      </div>
-                      <button onClick={() => removeItem(idx)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg"><Trash2 size={12}/></button>
-                   </div>
-                 ))}
-              </div>
-
-              <div className="border-t pt-4 space-y-3">
-                 <input className="w-full p-2.5 border rounded-lg text-sm" value={data.destination} onChange={e => handleDataChange('destination', e.target.value)} placeholder="Tujuan Barang" />
-                 <input className="w-full p-2.5 border rounded-lg text-sm font-bold uppercase" value={data.authorizedBy} onChange={e => handleDataChange('authorizedBy', e.target.value)} placeholder="Nama Penanggung Jawab" />
-              </div>
-           </div>
-        </div>
-
-        {/* PREVIEW */}
-        <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:block print:overflow-visible print:bg-white`}>
-           <div className="origin-top transition-transform duration-300 transform scale-[0.35] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-120%] sm:mb-[-100mm] md:mb-[-40mm] lg:mb-[-10mm] xl:mb-10 mt-2 xl:mt-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
-                <DocumentContent />
-           </div>
-        </div>
-
-        </main>
-
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl flex p-1 shadow-2xl">
-          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-xl text-xs font-bold transition-all ${mobileView === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>EDITOR</button>
-          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold transition-all ${mobileView === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
-      </div>
-
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
-
-      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>
-    </div>
-  );
-}
+export default IzinBarangTemplate;

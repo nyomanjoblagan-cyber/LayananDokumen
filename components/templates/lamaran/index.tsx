@@ -1,429 +1,279 @@
-"use client";
+import React, { useState } from 'react';
 
-import React, { useState, useEffect, Suspense } from "react";
-import { Printer, Edit3, RotateCcw, ArrowLeftCircle, BookOpen } from "lucide-react";
-import Link from "next/link";
+interface ApplicationLetterData {
+  applicantName: string;
+  applicantAddress: string;
+  applicantEmail: string;
+  applicantPhone: string;
+  applicantLinkedIn: string;
+  
+  cityAndDate: string;
+  
+  recipientName: string;
+  recipientTitle: string;
+  companyName: string;
+  companyAddress: string;
 
-// Komponen Kertas A4
-const Kertas = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => {
-  return (
-    <div className={`bg-white shadow-2xl w-[210mm] min-h-[297mm] p-[25.4mm] text-black font-serif text-[12pt] leading-relaxed relative print:shadow-none print:w-full print:min-w-0 print:min-h-0 print:p-0 print:m-0 mx-auto ${className}`}>
-      {children}
-    </div>
-  );
-};
-
-interface LamaranData {
-    tempat: string;
-    tanggal: string;
-    namaTujuan: string;
-    jabatanTujuan: string;
-    namaPerusahaan: string;
-    alamatPerusahaan: string;
-    sumberInformasi: string;
-    posisiDilamar: string;
-    namaLengkap: string;
-    tempatTanggalLahir: string;
-    pendidikanTerakhir: string;
-    alamat: string;
-    noHp: string;
-    email: string;
-    lampiran: string[];
+  positionApplied: string;
+  sourceOfInformation: string;
+  
+  education: string;
+  yearsOfExperience: string;
+  keySkills: string;
+  expectedSalary: string;
+  
+  additionalInfo: string;
 }
 
-const INITIAL_DATA: LamaranData = {
-    tempat: "Jakarta",
-    tanggal: "12 Juli 2026",
-    namaTujuan: "HRD Manager",
-    jabatanTujuan: "Bapak/Ibu",
-    namaPerusahaan: "PT Teknologi Nusantara",
-    alamatPerusahaan: "Jl. Sudirman Kav. 21, Jakarta Selatan",
-    sumberInformasi: "LinkedIn",
-    posisiDilamar: "Frontend Developer",
-    namaLengkap: "Budi Santoso",
-    tempatTanggalLahir: "Bandung, 15 Agustus 1995",
-    pendidikanTerakhir: "S1 Teknik Informatika, Universitas Indonesia",
-    alamat: "Jl. Merdeka No. 45, Jakarta",
-    noHp: "081234567890",
-    email: "budi.santoso@email.com",
-    lampiran: ["Curriculum Vitae", "Fotokopi KTP", "Fotokopi Ijazah", "Fotokopi Transkrip Nilai"],
-};
+const JobApplicationTemplate: React.FC = () => {
+  const [formData, setFormData] = useState<ApplicationLetterData>({
+    applicantName: 'Budi Santoso, S.Kom., M.Sc.',
+    applicantAddress: 'Jl. Sudirman No. 45, Jakarta Selatan 12190',
+    applicantEmail: 'budi.santoso@email.com',
+    applicantPhone: '+62 812-3456-7890',
+    applicantLinkedIn: 'linkedin.com/in/budisantoso',
+    
+    cityAndDate: 'Jakarta, 24 Agustus 2026',
+    
+    recipientName: 'Bpk. Andi Wijaya',
+    recipientTitle: 'Direktur Sumber Daya Manusia (HRD)',
+    companyName: 'PT Teknologi Nusantara Global',
+    companyAddress: 'Gedung Cyber Tower Lt. 15\nJl. H.R. Rasuna Said Blok X5\nJakarta Selatan 12950',
+    
+    positionApplied: 'Senior Software Engineer',
+    sourceOfInformation: 'portal karir LinkedIn pada tanggal 20 Agustus 2026',
+    
+    education: 'S2 Ilmu Komputer dari Universitas Indonesia dengan IPK 3.85',
+    yearsOfExperience: '5',
+    keySkills: 'React, Node.js, TypeScript, dan Arsitektur Cloud (AWS)',
+    expectedSalary: 'Rp 25.000.000 - Rp 30.000.000',
+    
+    additionalInfo: 'Saya terbiasa memimpin tim dalam lingkungan Agile dan selalu berorientasi pada pencapaian target dengan kualitas terbaik.',
+  });
 
-const sumberOptions = [
-    "LinkedIn",
-    "JobStreet",
-    "Referensi",
-    "Website Perusahaan",
-    "Koran / Media Cetak",
-    "Media Sosial Lainnya",
-    "Lainnya"
-];
-
-const lampiranOptions = [
-    "Curriculum Vitae",
-    "Fotokopi KTP",
-    "Fotokopi Ijazah",
-    "Fotokopi Transkrip Nilai",
-    "Portofolio",
-    "Pas Foto Terbaru",
-    "Sertifikat Kompetensi",
-    "Surat Pengalaman Kerja",
-    "Surat Keterangan Sehat",
-    "SKCK"
-];
-
-export default function SuratLamaranTemplate() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor...</div>}>
-      <LamaranBuilder />
-    </Suspense>
-  );
-}
-
-function LamaranBuilder() {
-  const [isClient, setIsClient] = useState(false);
-  const [formData, setFormData] = useState<LamaranData>(INITIAL_DATA);
-  const [activeTab, setActiveTab] = useState<'surat' | 'lowongan' | 'pelamar' | 'lampiran'>('surat');
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const handleChange = (field: keyof LamaranData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleCheckboxChange = (option: string) => {
-    setFormData((prev) => {
-      const currentLampiran = prev.lampiran;
-      if (currentLampiran.includes(option)) {
-        return { ...prev, lampiran: currentLampiran.filter((item) => item !== option) };
-      } else {
-        return { ...prev, lampiran: [...currentLampiran, option] };
-      }
-    });
-  };
-
-  const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua perubahan akan hilang.')) {
-        setFormData({ ...INITIAL_DATA });
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handlePrint = () => {
     window.print();
   };
 
-  const generateOpeningParagraph = () => {
-    const { sumberInformasi, posisiDilamar, namaPerusahaan } = formData;
-    if (sumberInformasi === "Website Perusahaan") {
-      return `Berdasarkan informasi lowongan pekerjaan yang saya peroleh dari website resmi ${namaPerusahaan}, saya mengetahui bahwa perusahaan yang Bapak/Ibu pimpin sedang membuka lowongan pekerjaan untuk posisi ${posisiDilamar}.`;
-    } else if (sumberInformasi === "Referensi") {
-      return `Berdasarkan informasi yang saya terima dari referensi yang dapat dipercaya, saya mengetahui bahwa terdapat lowongan pekerjaan di ${namaPerusahaan} untuk posisi ${posisiDilamar}.`;
-    } else if (sumberInformasi === "Lainnya") {
-      return `Berdasarkan informasi lowongan pekerjaan yang saya peroleh, saya mengetahui bahwa ${namaPerusahaan} sedang membuka lowongan pekerjaan untuk menempati posisi ${posisiDilamar}.`;
-    } else {
-      return `Berdasarkan informasi lowongan pekerjaan yang saya peroleh dari ${sumberInformasi}, saya mengetahui bahwa ${namaPerusahaan} sedang membuka lowongan pekerjaan untuk posisi ${posisiDilamar}.`;
-    }
-  };
-
-  if (!isClient) return null;
-
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      {/* Print Safe CSS Block */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @media print {
-          body {
-            background-color: white;
-            -webkit-print-color-adjust: exact;
-          }
-          .no-print {
-            display: none !important;
-          }
-          .print-only {
-            display: block !important;
-          }
-          @page {
-            margin: 0;
-            size: A4;
-          }
-        }
-      `}} />
-
-      {/* TOP NAV BAR */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-              <ArrowLeftCircle size={20} className="text-emerald-400" />
-              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
-            </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <BookOpen size={16} className="text-emerald-500" /> <span>Surat Lamaran Kerja</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={handlePrint} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
+    <div className="min-h-screen bg-neutral-100 p-4 md:p-8 font-sans text-neutral-800 selection:bg-blue-200">
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
+        
+        {/* Form Section - Hidden on Print */}
+        <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-lg border border-neutral-200 print:hidden overflow-y-auto max-h-[90vh]">
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-slate-800">Kustomisasi Dokumen</h2>
+            <button 
+              onClick={handlePrint}
+              className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+              Cetak PDF
             </button>
           </div>
-      </div>
-
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
-        
-        {/* PANEL KIRI: FORM EDITOR */}
-        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50">
-              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Pengaturan Dokumen</h2>
-              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
-           </div>
-           
-           {/* TAB NAVIGATION */}
-           <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase">
-              <button onClick={() => setActiveTab('surat')} className={`flex-1 py-3 border-r ${activeTab === 'surat' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Surat</button>
-              <button onClick={() => setActiveTab('lowongan')} className={`flex-1 py-3 border-r ${activeTab === 'lowongan' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Lowongan</button>
-              <button onClick={() => setActiveTab('pelamar')} className={`flex-1 py-3 border-r ${activeTab === 'pelamar' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Pelamar</button>
-              <button onClick={() => setActiveTab('lampiran')} className={`flex-1 py-3 ${activeTab === 'lampiran' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Lampiran</button>
-           </div>
-
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
+          
+          <div className="space-y-6">
+            {/* Applicant Info Group */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-2">Data Pelamar</h3>
               
-              {activeTab === 'surat' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4">Informasi Surat & Tujuan</h3>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Surat</label>
-                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={formData.tempat} onChange={e => handleChange('tempat', e.target.value)} placeholder="Contoh: Jakarta" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Surat</label>
-                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={formData.tanggal} onChange={e => handleChange('tanggal', e.target.value)} placeholder="Contoh: 12 Juli 2026" />
-                  </div>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap & Gelar</label>
+                <input type="text" name="applicantName" value={formData.applicantName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Alamat Domisili</label>
+                <textarea name="applicantAddress" value={formData.applicantAddress} onChange={handleChange} rows={2} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+              </div>
 
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama/Jabatan Penerima</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={formData.namaTujuan} onChange={e => handleChange('namaTujuan', e.target.value)} placeholder="Contoh: HRD Manager" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                  <input type="email" name="applicantEmail" value={formData.applicantEmail} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
                 </div>
-                
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Sapaan</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={formData.jabatanTujuan} onChange={e => handleChange('jabatanTujuan', e.target.value)} placeholder="Contoh: Bapak/Ibu" />
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Perusahaan</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1 font-bold" value={formData.namaPerusahaan} onChange={e => handleChange('namaPerusahaan', e.target.value)} placeholder="Contoh: PT Teknologi Nusantara" />
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Perusahaan</label>
-                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-20" value={formData.alamatPerusahaan} onChange={e => handleChange('alamatPerusahaan', e.target.value)} placeholder="Alamat Perusahaan Tujuan" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">No. HP/WA</label>
+                  <input type="text" name="applicantPhone" value={formData.applicantPhone} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
                 </div>
               </div>
-              )}
+            </div>
 
-              {activeTab === 'lowongan' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-emerald-600 border-b pb-1 mb-4">Informasi Lowongan</h3>
-                
+            {/* Recipient & Company Info */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-2">Tujuan Surat</h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Kota & Tanggal</label>
+                <input type="text" name="cityAndDate" value={formData.cityAndDate} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Posisi yang Dilamar</label>
-                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1 text-emerald-700 bg-emerald-50" value={formData.posisiDilamar} onChange={e => handleChange('posisiDilamar', e.target.value)} placeholder="Contoh: Frontend Developer" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nama Penerima</label>
+                  <input type="text" name="recipientName" value={formData.recipientName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
                 </div>
-
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Sumber Informasi</label>
-                  <select className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" value={formData.sumberInformasi} onChange={e => handleChange('sumberInformasi', e.target.value)}>
-                    {sumberOptions.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Jabatan Penerima</label>
+                  <input type="text" name="recipientTitle" value={formData.recipientTitle} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
                 </div>
               </div>
-              )}
 
-              {activeTab === 'pelamar' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-amber-600 border-b pb-1 mb-4">Data Pribadi Pelamar</h3>
-                
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nama Perusahaan</label>
+                <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Alamat Perusahaan</label>
+                <textarea name="companyAddress" value={formData.companyAddress} onChange={handleChange} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+              </div>
+            </div>
+
+            {/* Job Application Details */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-2">Detail Lamaran & Kualifikasi</h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Posisi yang Dilamar</label>
+                <input type="text" name="positionApplied" value={formData.positionApplied} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Sumber Informasi Lowongan</label>
+                <input type="text" name="sourceOfInformation" value={formData.sourceOfInformation} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Latar Belakang Pendidikan</label>
+                <textarea name="education" value={formData.education} onChange={handleChange} rows={2} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Keahlian Utama (Skills)</label>
+                <textarea name="keySkills" value={formData.keySkills} onChange={handleChange} rows={2} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
-                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={formData.namaLengkap} onChange={e => handleChange('namaLengkap', e.target.value)} placeholder="Contoh: Budi Santoso" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Pengalaman (Tahun)</label>
+                  <input type="text" name="yearsOfExperience" value={formData.yearsOfExperience} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
                 </div>
-
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat, Tanggal Lahir</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={formData.tempatTanggalLahir} onChange={e => handleChange('tempatTanggalLahir', e.target.value)} placeholder="Contoh: Bandung, 15 Agustus 1995" />
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Pendidikan Terakhir</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={formData.pendidikanTerakhir} onChange={e => handleChange('pendidikanTerakhir', e.target.value)} placeholder="Contoh: S1 Teknik Informatika, UI" />
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Lengkap</label>
-                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-20" value={formData.alamat} onChange={e => handleChange('alamat', e.target.value)} placeholder="Domisili pelamar" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">No. HP / WhatsApp</label>
-                    <input className="w-full p-2 border rounded-lg text-sm mt-1" value={formData.noHp} onChange={e => handleChange('noHp', e.target.value)} placeholder="Contoh: 081234567890" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Email</label>
-                    <input type="email" className="w-full p-2 border rounded-lg text-sm mt-1" value={formData.email} onChange={e => handleChange('email', e.target.value)} placeholder="Contoh: budi@email.com" />
-                  </div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Ekspektasi Gaji</label>
+                  <input type="text" name="expectedSalary" value={formData.expectedSalary} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
                 </div>
               </div>
-              )}
 
-              {activeTab === 'lampiran' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-purple-600 border-b pb-1 mb-4">Daftar Lampiran</h3>
-                
-                <div className="grid grid-cols-1 gap-2">
-                  {lampiranOptions.map((opt) => (
-                    <label key={opt} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-slate-50 rounded-lg border border-transparent hover:border-slate-200 transition-all">
-                      <input
-                        type="checkbox"
-                        checked={formData.lampiran.includes(opt)}
-                        onChange={() => handleCheckboxChange(opt)}
-                        className="w-4 h-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500"
-                      />
-                      <span className="text-sm font-medium text-slate-700">{opt}</span>
-                    </label>
-                  ))}
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nilai Tambah / Info Lainnya</label>
+                <textarea name="additionalInfo" value={formData.additionalInfo} onChange={handleChange} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm" />
               </div>
-              )}
-           </div>
+            </div>
+
+          </div>
         </div>
 
-        {/* RIGHT PANEL: PREVIEW */}
-        <div className="flex-1 overflow-y-auto bg-slate-200 p-8 flex justify-center print:w-full print:p-0 print:m-0 print:bg-white print:overflow-visible print:block">
-          <Kertas>
-            {/* Tanggal */}
-            <div className="text-right mb-8">
-              <p>{formData.tempat}, {formData.tanggal}</p>
+        {/* Document Preview Section */}
+        <div className="w-full lg:w-2/3 flex justify-center print:w-full print:block">
+          {/* A4 Paper Dimensions: 210 x 297 mm */}
+          <div className="bg-white shadow-2xl print:shadow-none w-[210mm] min-h-[297mm] p-[25.4mm] text-[11pt] leading-[1.6] font-serif text-black mx-auto shrink-0 relative overflow-hidden group">
+            
+            {/* Header/Letterhead for Corporate Feel */}
+            <div className="border-b-2 border-black pb-4 mb-8 flex justify-between items-end">
+              <div>
+                <h1 className="text-2xl font-bold uppercase tracking-widest text-slate-800">{formData.applicantName}</h1>
+                <p className="text-sm text-slate-600 mt-1 font-sans">{formData.positionApplied} Professional</p>
+              </div>
+              <div className="text-right text-[9pt] font-sans text-slate-600 space-y-1">
+                <p>{formData.applicantAddress}</p>
+                <p>{formData.applicantEmail} | {formData.applicantPhone}</p>
+                <p>{formData.applicantLinkedIn}</p>
+              </div>
             </div>
 
-            {/* Lampiran & Hal */}
-            <div className="mb-8">
-              <table className="w-full">
-                <tbody>
-                  <tr>
-                    <td className="w-24 align-top">Hal</td>
-                    <td className="w-4 align-top">:</td>
-                    <td><strong>Lamaran Pekerjaan</strong></td>
-                  </tr>
-                  <tr>
-                    <td className="w-24 align-top">Lampiran</td>
-                    <td className="w-4 align-top">:</td>
-                    <td>{formData.lampiran.length > 0 ? `${formData.lampiran.length} Lembar` : '-'}</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="flex justify-between items-start mb-10">
+              <div className="w-1/2">
+                <p>{formData.cityAndDate}</p>
+                <br />
+                <p>Kepada Yth.,</p>
+                <p className="font-bold">{formData.recipientName}</p>
+                <p>{formData.recipientTitle}</p>
+                <p className="font-bold">{formData.companyName}</p>
+                <p className="whitespace-pre-wrap">{formData.companyAddress}</p>
+              </div>
             </div>
 
-            {/* Penerima */}
-            <div className="mb-8">
-              <p>Yth.</p>
-              <p><strong>{formData.namaTujuan}</strong></p>
-              <p>{formData.namaPerusahaan}</p>
-              <p className="whitespace-pre-line">{formData.alamatPerusahaan}</p>
+            <div className="mb-6">
+              <p>Perihal: <strong>Lamaran Pekerjaan – {formData.positionApplied}</strong></p>
             </div>
 
-            {/* Sapaan */}
-            <div className="mb-4">
+            <div className="space-y-4 text-justify">
               <p>Dengan hormat,</p>
+              
+              <p>
+                Menanggapi informasi lowongan pekerjaan yang dipublikasikan melalui {formData.sourceOfInformation}, 
+                bersama surat ini saya bermaksud menyampaikan ketertarikan saya untuk mengisi posisi 
+                <strong> {formData.positionApplied}</strong> di <strong>{formData.companyName}</strong>. 
+                Dengan rekam jejak profesional yang solid dan komitmen terhadap keunggulan operasional, 
+                saya yakin dapat memberikan kontribusi strategis bagi perusahaan yang Bapak/Ibu pimpin.
+              </p>
+
+              <p>
+                Sebagai profesional dengan pengalaman selama lebih dari {formData.yearsOfExperience} tahun di industri ini, 
+                saya telah mengembangkan kompetensi yang mendalam di bidang spesifik yang relevan dengan kebutuhan perusahaan. 
+                Latar belakang pendidikan saya, yaitu {formData.education}, telah membekali saya dengan 
+                landasan analitis dan pemecahan masalah yang tajam.
+              </p>
+
+              <p>
+                Sepanjang karir saya, saya telah menguasai dan mengaplikasikan berbagai keahlian kunci, 
+                di antaranya: {formData.keySkills}. {formData.additionalInfo} Saya terbiasa 
+                bekerja dalam ekosistem perusahaan yang dinamis, menuntut adaptabilitas tinggi, 
+                serta kolaborasi lintas divisi untuk mencapai sasaran bisnis.
+              </p>
+
+              <p>
+                Mengenai ekspektasi kompensasi, berdasarkan riset pasar dan kualifikasi yang saya tawarkan, 
+                saya mengajukan kisaran remunerasi sebesar {formData.expectedSalary}. Namun, saya 
+                sangat terbuka untuk mendiskusikan hal ini lebih lanjut, sejalan dengan struktur 
+                kompensasi yang berlaku di <strong>{formData.companyName}</strong> serta total 
+                benefit yang ditawarkan.
+              </p>
+
+              <p>
+                Bersama surat lamaran ini, turut saya lampirkan <em>Curriculum Vitae</em> (CV) dan 
+                portofolio dokumen pendukung lainnya sebagai bahan pertimbangan komprehensif Bapak/Ibu. 
+                Saya sangat menantikan kesempatan untuk dapat berdiskusi lebih lanjut dalam sesi 
+                wawancara guna memaparkan bagaimana kualifikasi saya dapat sejalan dengan visi dan 
+                kebutuhan <strong>{formData.companyName}</strong>.
+              </p>
+
+              <p>
+                Atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan, saya mengucapkan 
+                terima kasih yang sebesar-besarnya.
+              </p>
             </div>
 
-            {/* Paragraf Pembuka */}
-            <div className="mb-4 text-justify indent-8">
-              <p>{generateOpeningParagraph()}</p>
+            <div className="mt-12 space-y-16">
+              <p>Hormat saya,</p>
+              <div className="flex flex-col">
+                <p className="font-bold underline">{formData.applicantName}</p>
+                <p className="text-sm italic text-slate-600">Pelamar</p>
+              </div>
             </div>
 
-            <div className="mb-4 text-justify indent-8">
-              <p>Sehubungan dengan hal tersebut, saya yang bertanda tangan di bawah ini:</p>
-            </div>
-
-            {/* Data Pribadi */}
-            <div className="mb-6 pl-8">
-              <table className="w-full">
-                <tbody>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Nama</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1"><strong>{formData.namaLengkap}</strong></td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Tempat, Tanggal Lahir</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.tempatTanggalLahir}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Pendidikan Terakhir</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.pendidikanTerakhir}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Alamat</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.alamat}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">No. HP / WhatsApp</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.noHp}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Email</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.email}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Paragraf Tengah */}
-            <div className="mb-4 text-justify indent-8">
-              <p>Bermaksud mengajukan diri untuk mengisi posisi <strong>{formData.posisiDilamar}</strong> tersebut. Saya memiliki kondisi kesehatan yang baik, motivasi tinggi untuk belajar, serta mampu bekerja secara mandiri maupun dalam tim.</p>
-            </div>
-
-            {/* Lampiran List */}
-            <div className="mb-4 text-justify indent-8">
-              <p>Sebagai bahan pertimbangan Bapak/Ibu, bersama surat lamaran ini turut saya lampirkan dokumen berikut:</p>
-              <ol className="list-decimal pl-12 mt-2 space-y-1 indent-0">
-                {formData.lampiran.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ol>
-              {formData.lampiran.length === 0 && (
-                <p className="pl-4 mt-2 text-gray-500 italic text-sm indent-0">Belum ada lampiran yang dipilih.</p>
-              )}
-            </div>
-
-            {/* Penutup */}
-            <div className="mb-12 text-justify indent-8">
-              <p>Besar harapan saya agar {formData.jabatanTujuan} bersedia meluangkan waktu untuk memberikan kesempatan wawancara, sehingga saya dapat menjelaskan secara lebih detail mengenai kualifikasi dan potensi yang saya miliki.</p>
-              <p className="mt-2 indent-8">Demikian surat lamaran ini saya sampaikan. Atas perhatian dan waktu yang diberikan, saya ucapkan terima kasih.</p>
-            </div>
-
-            {/* TTD */}
-            <div className="flex flex-col items-end mr-8 mt-12">
-              <p className="mb-24">Hormat saya,</p>
-              <p className="font-bold border-b border-black inline-block px-2 min-w-[150px] text-center">{formData.namaLengkap}</p>
-            </div>
-          </Kertas>
+          </div>
         </div>
-      </main>
+
+      </div>
     </div>
   );
-}
+};
+
+export default JobApplicationTemplate;
