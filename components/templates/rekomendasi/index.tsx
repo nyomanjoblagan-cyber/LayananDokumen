@@ -1,13 +1,15 @@
-"use client";
+'use client';
 
-import React, { useState, useRef, useEffect, Suspense } from "react";
+import React, { useState, Suspense, useEffect } from 'react';
+import { 
+  Printer, ArrowLeftCircle, Edit3, RotateCcw, Building2, User, Star, PenTool
+} from 'lucide-react';
+import Link from 'next/link';
+import PrintWrapper from '@/components/PrintWrapper';
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import Link from 'next/link';
-import { 
-  Printer, Edit3, RotateCcw, ArrowLeftCircle, BookOpen, Eye
-} from 'lucide-react';
 
+// --- 1. TYPE DEFINITIONS ---
 interface RekomendasiData {
   kopSurat: {
     namaPerusahaan: string;
@@ -33,6 +35,7 @@ interface RekomendasiData {
   };
 }
 
+// --- 2. DATA DEFAULT ---
 const DEFAULT_DATA: RekomendasiData = {
   kopSurat: {
     namaPerusahaan: "PT BINA KARYA GEMILANG",
@@ -50,7 +53,7 @@ const DEFAULT_DATA: RekomendasiData = {
     tanggalMulai: "2020-02-15",
     tanggalSelesai: "2026-07-31",
   },
-  alasanRekomendasi: "Selama masa baktinya di perusahaan kami, yang bersangkutan telah menunjukkan kinerja yang sangat memuaskan, dedikasi yang tinggi, serta integritas yang baik. Yang bersangkutan mampu bekerja secara individu maupun dalam tim, dan selalu memberikan kontribusi positif terhadap pencapaian target perusahaan.",
+  alasanRekomendasi: "Selama masa baktinya di perusahaan kami, yang bersangkutan telah menunjukkan kinerja yang sangat memuaskan, dedikasi yang tinggi, serta integritas yang baik. Yang bersangkutan mampu bekerja secara mandiri maupun dalam tim, dan selalu memberikan kontribusi positif terhadap pencapaian target perusahaan.",
   alasanKeluar: "mengundurkan diri atas kemauan sendiri",
   penandatangan: {
     nama: "Siti Rahmawati, S.E., M.M.",
@@ -58,38 +61,35 @@ const DEFAULT_DATA: RekomendasiData = {
   },
 };
 
+// --- 3. KERTAS MUTLAK ---
 const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>
     {children}
   </div>
 );
 
-export default function RekomendasiTemplate() {
+// --- 4. KOMPONEN UTAMA ---
+export default function RekomendasiKerjaPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem Editor HRD...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat Rekomendasi...</div>}>
       <RekomendasiBuilder />
     </Suspense>
   );
 }
 
 function RekomendasiBuilder() {
-  const [data, setData] = useState<RekomendasiData>(DEFAULT_DATA);
-  const printRef = useRef<HTMLDivElement>(null);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [activeTab, setActiveTab] = useState<'kop' | 'surat' | 'karyawan' | 'penilaian'>('kop');
   const [isClient, setIsClient] = useState(false);
-  const [activeTab, setActiveTab] = useState<'kop' | 'surat' | 'karyawan' | 'penilaian' | 'ttd'>('kop');
+  const [data, setData] = useState<RekomendasiData>(DEFAULT_DATA);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const handlePrint = () => {
-    if (typeof window !== 'undefined') window.print();
-  };
-
   const handleReset = () => {
-    if (typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua perubahan akan hilang.')) {
-      setData({ ...DEFAULT_DATA });
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke setelan awal?')) {
+        setData(DEFAULT_DATA);
     }
   };
 
@@ -98,284 +98,302 @@ function RekomendasiBuilder() {
       const targetSection = prev[section];
       if (typeof targetSection === "object" && targetSection !== null) {
         return { ...prev, [section]: { ...targetSection, [field]: value } };
-      } else {
-        return { ...prev, [section]: value };
       }
+      return { ...prev, [section]: value };
     });
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "";
     try {
-      return format(new Date(dateString), "dd MMMM yyyy", { locale: id });
+      const date = new Date(dateString);
+      return format(date, "d MMMM yyyy", { locale: id });
     } catch {
       return dateString;
     }
   };
 
+  const DocumentContent = () => (
+    <Kertas>
+      {/* Kop Surat */}
+      <div className="border-b-4 border-black pb-4 mb-8 text-center break-inside-avoid">
+        <h1 className="text-2xl font-bold uppercase tracking-wider mb-1" style={{ fontSize: '18pt' }}>{data.kopSurat.namaPerusahaan}</h1>
+        <p className="text-sm mb-1">{data.kopSurat.alamat}</p>
+        <p className="text-sm">{data.kopSurat.kontak}</p>
+        <p className="text-sm">{data.kopSurat.website}</p>
+      </div>
+
+      {/* Judul Surat */}
+      <div className="text-center mb-10 break-inside-avoid">
+        <h2 className="text-xl font-bold uppercase tracking-wide border-b border-black inline-block pb-1">Surat Rekomendasi Kerja</h2>
+        <p className="mt-2 text-[11pt] uppercase">Nomor: {data.nomorSurat}</p>
+      </div>
+
+      {/* Pembuka */}
+      <div className="mb-6 break-inside-avoid text-justify">
+        <p>Yang bertanda tangan di bawah ini:</p>
+        <table className="w-full mt-2 ml-6">
+          <tbody>
+            <tr>
+              <td className="w-[150px] py-1">Nama</td>
+              <td className="w-4 py-1">:</td>
+              <td className="py-1 font-bold">{data.penandatangan.nama}</td>
+            </tr>
+            <tr>
+              <td className="py-1">Jabatan</td>
+              <td className="py-1">:</td>
+              <td className="py-1">{data.penandatangan.jabatan}</td>
+            </tr>
+            <tr>
+              <td className="py-1">Perusahaan</td>
+              <td className="py-1">:</td>
+              <td className="py-1 font-bold uppercase">{data.kopSurat.namaPerusahaan}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Isi - Identitas Karyawan */}
+      <div className="mb-6 break-inside-avoid text-justify">
+        <p>Dengan ini memberikan rekomendasi kerja kepada mantan karyawan kami:</p>
+        <table className="w-full mt-2 ml-6">
+          <tbody>
+            <tr>
+              <td className="w-[150px] py-1">Nama</td>
+              <td className="w-4 py-1">:</td>
+              <td className="py-1 font-bold">{data.karyawan.nama}</td>
+            </tr>
+            <tr>
+              <td className="py-1">NIK</td>
+              <td className="py-1">:</td>
+              <td className="py-1">{data.karyawan.nik}</td>
+            </tr>
+            <tr>
+              <td className="py-1">Jabatan Terakhir</td>
+              <td className="py-1">:</td>
+              <td className="py-1">{data.karyawan.jabatanTerakhir}</td>
+            </tr>
+            <tr>
+              <td className="py-1">Departemen</td>
+              <td className="py-1">:</td>
+              <td className="py-1">{data.karyawan.departemen}</td>
+            </tr>
+            <tr>
+              <td className="py-1">Masa Bekerja</td>
+              <td className="py-1">:</td>
+              <td className="py-1">{formatDate(data.karyawan.tanggalMulai)} s.d. {formatDate(data.karyawan.tanggalSelesai)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Rekomendasi & Alasan Keluar */}
+      <div className="mb-8 break-inside-avoid text-justify">
+        <p className="indent-8 mb-4 leading-relaxed">
+          {data.alasanRekomendasi}
+        </p>
+        <p className="indent-8 mb-4 leading-relaxed">
+          Yang bersangkutan mengakhiri masa tugasnya di perusahaan kami dikarenakan {data.alasanKeluar}. 
+          Kami sangat merekomendasikan Saudara/i <strong>{data.karyawan.nama}</strong> dan percaya bahwa beliau dapat menjadi aset yang sangat berharga bagi perusahaan yang Bapak/Ibu pimpin.
+        </p>
+        <p className="indent-8 leading-relaxed">
+          Demikian surat rekomendasi ini dibuat dengan sebenarnya agar dapat dipergunakan sebagaimana mestinya. Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.
+        </p>
+      </div>
+
+      {/* Tanda Tangan */}
+      <div className="flex justify-end mt-16 pr-8 break-inside-avoid shrink-0">
+        <div className="text-center w-64">
+          <p className="mb-1">Jakarta, {formatDate(data.tanggalSurat)}</p>
+          <p className="font-bold mb-24">{data.kopSurat.namaPerusahaan}</p>
+          <div className="relative">
+            <p className="font-bold underline">{data.penandatangan.nama}</p>
+            <p>{data.penandatangan.jabatan}</p>
+          </div>
+        </div>
+      </div>
+    </Kertas>
+  );
+
   if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 overflow-hidden">
+      
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
+          @page { size: A4 portrait; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
           * { box-sizing: border-box !important; }
         }
       ` }} />
-      
-      {/* HEADER NAV */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
+
+      {/* NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans shrink-0">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
               <ArrowLeftCircle size={20} className="text-blue-400" />
-              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">HR Dashboard</span>
+              <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <BookOpen size={16} className="text-blue-500" /> <span>Surat Referensi Kerja</span>
+            <div className="h-6 w-px bg-slate-700 mx-1"></div>
+            <div className="flex flex-col">
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Surat Rekomendasi Kerja</h1>
+              <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Reference Letter</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileView(prev => prev === 'editor' ? 'preview' : 'editor')} className="md:hidden bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-2">
-              {mobileView === 'editor' ? <><Eye size={16} /> Preview</> : <><Edit3 size={16} /> Editor</>}
-            </button>
-            <button onClick={handlePrint} className="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen Formal</span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-blue-600 hover:bg-blue-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
             </button>
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative print:hidden print:h-auto print:overflow-visible">
+      {/* MOBILE TABS */}
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-40 no-print font-sans shrink-0">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'editor' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500'}`}>
+          <Edit3 size={16} /> Editor
+        </button>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'preview' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500'}`}>
+          <Printer size={16} /> Preview
+        </button>
+      </div>
+
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative print:hidden">
         
-        {/* PANEL KIRI: FORM EDITOR */}
-        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50">
-              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-600" /> Form HRD</h2>
-              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
-           </div>
-           
-           {/* TAB NAVIGATION */}
-           <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase">
+        {/* EDITOR SIDEBAR */}
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] bg-white border-r border-slate-200 h-[calc(100vh-64px)] md:sticky md:top-16 z-30 no-print shadow-xl shrink-0`}>
+            <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
+                <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
+                  <Star size={18} className="text-blue-600" /> Editor Rekomendasi
+                </h2>
+                <button onClick={handleReset} className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-lg" title="Reset Form">
+                  <RotateCcw size={16}/>
+                </button>
+            </div>
+
+            {/* TAB NAVIGATION */}
+            <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase shrink-0">
               <button onClick={() => setActiveTab('kop')} className={`flex-1 py-3 border-r ${activeTab === 'kop' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Kop</button>
-              <button onClick={() => setActiveTab('surat')} className={`flex-1 py-3 border-r ${activeTab === 'surat' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Surat</button>
-              <button onClick={() => setActiveTab('karyawan')} className={`flex-1 py-3 border-r ${activeTab === 'karyawan' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Karyawan</button>
-              <button onClick={() => setActiveTab('penilaian')} className={`flex-1 py-3 border-r ${activeTab === 'penilaian' ? 'bg-white text-red-600 border-b-2 border-b-red-600' : 'text-slate-500 hover:bg-slate-200'}`}>Penilaian</button>
-              <button onClick={() => setActiveTab('ttd')} className={`flex-1 py-3 ${activeTab === 'ttd' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>TTD</button>
-           </div>
-
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
-              
-              {activeTab === 'kop' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4">Informasi Kop Perusahaan</h3>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Perusahaan</label>
-                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.kopSurat.namaPerusahaan} onChange={(e) => handleInputChange("kopSurat", "namaPerusahaan", e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Kantor</label>
-                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-20" value={data.kopSurat.alamat} onChange={(e) => handleInputChange("kopSurat", "alamat", e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Kontak (Telp/Fax/Email)</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.kopSurat.kontak} onChange={(e) => handleInputChange("kopSurat", "kontak", e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Website Resmi</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.kopSurat.website} onChange={(e) => handleInputChange("kopSurat", "website", e.target.value)} />
-                </div>
-              </div>
-              )}
-
-              {activeTab === 'surat' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-emerald-600 border-b pb-1 mb-4">Administrasi Surat</h3>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Referensi (No. Surat)</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1 font-mono" value={data.nomorSurat} onChange={(e) => handleInputChange("nomorSurat", "nomorSurat", e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Diterbitkan</label>
-                  <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.tanggalSurat} onChange={(e) => handleInputChange("tanggalSurat", "tanggalSurat", e.target.value)} />
-                </div>
-              </div>
-              )}
-
-              {activeTab === 'karyawan' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-amber-600 border-b pb-1 mb-4">Profil Karyawan</h3>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap & Gelar</label>
-                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.karyawan.nama} onChange={(e) => handleInputChange("karyawan", "nama", e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Induk Karyawan (NIK)</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.karyawan.nik} onChange={(e) => handleInputChange("karyawan", "nik", e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan Terakhir</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.karyawan.jabatanTerakhir} onChange={(e) => handleInputChange("karyawan", "jabatanTerakhir", e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Departemen / Divisi</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.karyawan.departemen} onChange={(e) => handleInputChange("karyawan", "departemen", e.target.value)} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setActiveTab('surat')} className={`flex-1 py-3 border-r ${activeTab === 'surat' ? 'bg-white text-indigo-600 border-b-2 border-b-indigo-600' : 'text-slate-500 hover:bg-slate-200'}`}>Surat & TTD</button>
+              <button onClick={() => setActiveTab('karyawan')} className={`flex-1 py-3 border-r ${activeTab === 'karyawan' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}>Karyawan</button>
+              <button onClick={() => setActiveTab('penilaian')} className={`flex-1 py-3 ${activeTab === 'penilaian' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Isi</button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent pb-32">
+                
+                {activeTab === 'kop' && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4 flex items-center gap-2"><Building2 size={14}/> Profil Perusahaan</h3>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Mulai Bergabung</label>
-                    <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.karyawan.tanggalMulai} onChange={(e) => handleInputChange("karyawan", "tanggalMulai", e.target.value)} />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Perusahaan</label>
+                    <input type="text" value={data.kopSurat.namaPerusahaan} onChange={(e) => handleInputChange('kopSurat', 'namaPerusahaan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs font-bold mt-1 focus:ring-2 focus:ring-blue-500 outline-none uppercase" />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Keluar</label>
-                    <input type="date" className="w-full p-2 border rounded-lg text-sm mt-1" value={data.karyawan.tanggalSelesai} onChange={(e) => handleInputChange("karyawan", "tanggalSelesai", e.target.value)} />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Perusahaan</label>
+                    <textarea value={data.kopSurat.alamat} onChange={(e) => handleInputChange('kopSurat', 'alamat', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 h-20 resize-none focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Kontak (Telp/Email)</label>
+                    <input type="text" value={data.kopSurat.kontak} onChange={(e) => handleInputChange('kopSurat', 'kontak', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Website</label>
+                    <input type="text" value={data.kopSurat.website} onChange={(e) => handleInputChange('kopSurat', 'website', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
                   </div>
                 </div>
-              </div>
-              )}
+                )}
 
-              {activeTab === 'penilaian' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-red-600 border-b pb-1 mb-4">Evaluasi & Pengakhiran</h3>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Evaluasi Kinerja & Karakter (Rekomendasi)</label>
-                  <textarea className="w-full p-2 border rounded-lg text-sm mt-1 h-32 leading-relaxed" value={data.alasanRekomendasi} onChange={(e) => handleInputChange("alasanRekomendasi", "alasanRekomendasi", e.target.value)} />
+                {activeTab === 'surat' && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <h3 className="text-xs font-black uppercase text-indigo-600 border-b pb-1 mb-4 flex items-center gap-2"><PenTool size={14}/> Surat & Penandatangan</h3>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Surat</label>
+                    <input type="text" value={data.nomorSurat} onChange={(e) => handleInputChange('nomorSurat', '', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none uppercase" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Terbit</label>
+                    <input type="date" value={data.tanggalSurat} onChange={(e) => handleInputChange('tanggalSurat', '', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  </div>
+                  
+                  <h3 className="text-xs font-black uppercase text-indigo-600 border-b pb-1 mb-4 mt-6">Penandatangan</h3>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Penandatangan</label>
+                    <input type="text" value={data.penandatangan.nama} onChange={(e) => handleInputChange('penandatangan', 'nama', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs font-bold mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan Penandatangan</label>
+                    <input type="text" value={data.penandatangan.jabatan} onChange={(e) => handleInputChange('penandatangan', 'jabatan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alasan Pengakhiran Hubungan Kerja</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.alasanKeluar} onChange={(e) => handleInputChange("alasanKeluar", "alasanKeluar", e.target.value)} placeholder="Contoh: Mengundurkan diri atas kemauan sendiri" />
-                  <p className="text-[9px] text-slate-400 mt-1">Ditulis dalam huruf kecil/kalimat lanjutan.</p>
-                </div>
-              </div>
-              )}
+                )}
 
-              {activeTab === 'ttd' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-purple-600 border-b pb-1 mb-4">Otorisasi HRD</h3>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Pimpinan / HRD</label>
-                  <input className="w-full p-2 border rounded-lg text-sm font-bold mt-1" value={data.penandatangan.nama} onChange={(e) => handleInputChange("penandatangan", "nama", e.target.value)} />
+                {activeTab === 'karyawan' && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <h3 className="text-xs font-black uppercase text-emerald-600 border-b pb-1 mb-4 flex items-center gap-2"><User size={14}/> Identitas Karyawan</h3>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Karyawan</label>
+                    <input type="text" value={data.karyawan.nama} onChange={(e) => handleInputChange('karyawan', 'nama', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs font-bold mt-1 focus:ring-2 focus:ring-emerald-500 outline-none uppercase" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">NIK / ID Karyawan</label>
+                    <input type="text" value={data.karyawan.nik} onChange={(e) => handleInputChange('karyawan', 'nik', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan Terakhir</label>
+                    <input type="text" value={data.karyawan.jabatanTerakhir} onChange={(e) => handleInputChange('karyawan', 'jabatanTerakhir', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Departemen</label>
+                    <input type="text" value={data.karyawan.departemen} onChange={(e) => handleInputChange('karyawan', 'departemen', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Masa Kerja Mulai</label>
+                      <input type="date" value={data.karyawan.tanggalMulai} onChange={(e) => handleInputChange('karyawan', 'tanggalMulai', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Masa Kerja Akhir</label>
+                      <input type="date" value={data.karyawan.tanggalSelesai} onChange={(e) => handleInputChange('karyawan', 'tanggalSelesai', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan Pimpinan / HRD</label>
-                  <input className="w-full p-2 border rounded-lg text-sm mt-1" value={data.penandatangan.jabatan} onChange={(e) => handleInputChange("penandatangan", "jabatan", e.target.value)} />
-                </div>
-              </div>
-              )}
+                )}
 
+                {activeTab === 'penilaian' && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <h3 className="text-xs font-black uppercase text-amber-600 border-b pb-1 mb-4 flex items-center gap-2"><Star size={14}/> Narasi Rekomendasi</h3>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Alasan Keluar / Pengunduran Diri</label>
+                    <textarea value={data.alasanKeluar} onChange={(e) => handleInputChange('alasanKeluar', '', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 h-20 resize-none focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed"></textarea>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Deskripsi Rekomendasi (Sifat Pekerja & Pencapaian)</label>
+                    <textarea value={data.alasanRekomendasi} onChange={(e) => handleInputChange('alasanRekomendasi', '', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 h-40 resize-none focus:ring-2 focus:ring-amber-500 outline-none leading-relaxed"></textarea>
+                  </div>
+                </div>
+                )}
+
+            </div>
+        </aside>
+
+        {/* PREVIEW AREA */}
+        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide`}>
+           <div className="scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 origin-top">
+              <DocumentContent />
            </div>
-        </div>
+        </main>
+      </div>
 
-        {/* Right Panel: Live Preview (A4 Paper) */}
-        <div className="flex-1 overflow-y-auto bg-slate-200 print:bg-white p-4 md:p-8 print:p-0 flex justify-center custom-scrollbar print:hidden print:overflow-visible">
-          <div id="print-only-root" className="w-full flex justify-center print:block print:h-auto print:static" ref={printRef}>
-            <Kertas>
-              {/* KOP SURAT CORPORATE */}
-              <div className="flex items-center justify-between border-b-4 border-black pb-4 mb-1">
-                <div className="flex-1 text-center">
-                  <h1 className="text-3xl font-black text-slate-900 tracking-wider mb-2 uppercase">{data.kopSurat.namaPerusahaan}</h1>
-                  <p className="text-[10pt] text-slate-700 leading-snug">{data.kopSurat.alamat}</p>
-                  <p className="text-[10pt] text-slate-700 leading-snug">{data.kopSurat.kontak} | Website: {data.kopSurat.website}</p>
-                </div>
-              </div>
-              <div className="border-b-[1px] border-black w-full mb-8"></div>
+      <div className="no-print hidden md:block">
+         <PrintWrapper documentName="Surat_Rekomendasi_Kerja" price={10000} />
+      </div>
 
-              {/* JUDUL SURAT */}
-              <div className="text-center mb-8">
-                <h2 className="text-xl font-bold uppercase underline tracking-wide">Surat Referensi Kerja</h2>
-                <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600 mt-1">Certificate Of Employment</h3>
-                <p className="text-[11pt] mt-2">Nomor: {data.nomorSurat}</p>
-              </div>
-
-              {/* ISI SURAT */}
-              <div className="text-justify leading-relaxed mt-8">
-                <p className="mb-4">
-                  Yang bertanda tangan di bawah ini, mewakili manajemen <strong>{data.kopSurat.namaPerusahaan}</strong>, menerangkan dengan sesungguhnya bahwa:
-                </p>
-
-                <div className="ml-8 mb-6">
-                  <table className="w-full">
-                    <tbody>
-                      <tr>
-                        <td className="w-48 py-1.5 align-top">Nama</td>
-                        <td className="w-4 py-1.5 align-top">:</td>
-                        <td className="font-bold py-1.5 uppercase">{data.karyawan.nama}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1.5 align-top">NIK / ID Karyawan</td>
-                        <td className="py-1.5 align-top">:</td>
-                        <td className="py-1.5">{data.karyawan.nik}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1.5 align-top">Jabatan Terakhir</td>
-                        <td className="py-1.5 align-top">:</td>
-                        <td className="py-1.5">{data.karyawan.jabatanTerakhir}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1.5 align-top">Departemen</td>
-                        <td className="py-1.5 align-top">:</td>
-                        <td className="py-1.5">{data.karyawan.departemen}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1.5 align-top">Masa Kerja</td>
-                        <td className="py-1.5 align-top">:</td>
-                        <td className="py-1.5">
-                          {formatDate(data.karyawan.tanggalMulai)} s/d {formatDate(data.karyawan.tanggalSelesai)}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <p className="mb-4 text-justify">
-                  Adalah benar pernah menjadi karyawan di perusahaan kami sesuai dengan masa kerja tersebut di atas. Hubungan kerja dengan yang bersangkutan telah berakhir dikarenakan <strong>{data.alasanKeluar}</strong>.
-                </p>
-
-                <p className="mb-4 text-justify">
-                  {data.alasanRekomendasi}
-                </p>
-
-                <p className="mb-12 text-justify">
-                  Kami mengucapkan terima kasih atas segala dedikasi dan kontribusi yang telah diberikan selama bergabung bersama <strong>{data.kopSurat.namaPerusahaan}</strong>, dan kami berharap Saudara/i {data.karyawan.nama.split(',')[0]} meraih kesuksesan di masa mendatang.
-                </p>
-
-                <p className="mb-8">
-                  Demikian Surat Referensi Kerja ini dibuat agar dapat dipergunakan sebagaimana mestinya oleh pihak-pihak yang berkepentingan.
-                </p>
-              </div>
-
-              {/* TANDA TANGAN */}
-              <div className="flex justify-between mt-12 break-inside-avoid">
-                <div className="w-1/2">
-                   {/* Optional QR / Stempel Area left empty for alignment */}
-                </div>
-                <div className="w-1/2 flex flex-col items-end text-right">
-                  <div className="text-left w-64 inline-block">
-                    <p className="mb-2">Jakarta, {formatDate(data.tanggalSurat)}</p>
-                    <p className="font-bold mb-24 uppercase">{data.kopSurat.namaPerusahaan}</p>
-                    
-                    <p className="font-bold underline">{data.penandatangan.nama}</p>
-                    <p className="text-slate-700">{data.penandatangan.jabatan}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* CORPORATE FOOTER DISCLAIMER */}
-              <div className="absolute bottom-[20mm] left-[20mm] right-[20mm] print:bottom-0 print:left-0 print:right-0 mt-20">
-                <div className="border-t-[1px] border-slate-300 pt-2 text-[8pt] text-slate-500 text-justify italic">
-                  *Dokumen ini diterbitkan secara sah oleh Departemen HRD {data.kopSurat.namaPerusahaan}. Surat ini bersifat rahasia dan diperuntukkan murni sebagai referensi profesional. Perusahaan tidak bertanggung jawab atas segala tindakan atau kewajiban di luar masa kerja yang tercantum.
-                </div>
-              </div>
-              
-            </Kertas>
-          </div>
-        </div>
-      </main>
+      {/* PRINT-ONLY ROOT */}
+      <div id="print-only-root" className="hidden print:block print:h-auto print:static">
+         <div className="bg-white"><DocumentContent /></div>
+      </div>
     </div>
   );
 }

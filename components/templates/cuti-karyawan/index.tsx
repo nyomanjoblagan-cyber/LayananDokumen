@@ -1,549 +1,435 @@
-"use client";
+'use client';
 
-import React, { useState, useRef, useEffect } from "react";
-import { Printer, ArrowLeftCircle, BookOpen, Edit3, RotateCcw, Building2, UserCircle, Calendar, CheckSquare } from "lucide-react";
-import Link from "next/link";
+import React, { useState, Suspense, useEffect } from 'react';
+import { 
+  Printer, ArrowLeftCircle, Edit3, RotateCcw, User, Calendar, Briefcase
+} from 'lucide-react';
+import Link from 'next/link';
+import PrintWrapper from '@/components/PrintWrapper';
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 
-interface FormData {
-  // Pihak Pertama (HRD / Perusahaan)
-  namaPihakPertama: string;
-  nikPihakPertama: string;
-  tempatLahirPihakPertama: string;
-  tanggalLahirPihakPertama: string;
-  pekerjaanPihakPertama: string;
-  alamatPihakPertama: string;
-
-  // Pihak Kedua (Karyawan)
-  namaPihakKedua: string;
-  nikPihakKedua: string;
-  tempatLahirPihakKedua: string;
-  tanggalLahirPihakKedua: string;
-  pekerjaanPihakKedua: string;
+// --- 1. TYPE DEFINITIONS ---
+interface CutiData {
+  namaKaryawan: string;
+  nik: string;
+  jabatan: string;
   departemen: string;
-  alamatPihakKedua: string;
-
-  // Detail Cuti
+  
   jenisCuti: string;
   tanggalMulai: string;
   tanggalSelesai: string;
   lamaCuti: string;
   alasanCuti: string;
-  cutiBerbayar: string;
-  sertakanBukti: string;
-
-  // Delegasi & Pengesahan
-  delegasiTugas: string;
+  
+  namaPengganti: string; // Orang yang menggantikan tugas sementara (Handover)
+  
   namaAtasan: string;
-  tempatDibuat: string;
-  tanggalPengajuan: string;
+  jabatanAtasan: string;
+  namaHRD: string;
+  
+  tempatTtd: string;
+  tanggalTtd: string;
 }
 
-const INITIAL_DATA: FormData = {
-  namaPihakPertama: "",
-  nikPihakPertama: "",
-  tempatLahirPihakPertama: "",
-  tanggalLahirPihakPertama: "",
-  pekerjaanPihakPertama: "HR Manager",
-  alamatPihakPertama: "",
-
-  namaPihakKedua: "",
-  nikPihakKedua: "",
-  tempatLahirPihakKedua: "",
-  tanggalLahirPihakKedua: "",
-  pekerjaanPihakKedua: "",
-  departemen: "",
-  alamatPihakKedua: "",
-
-  jenisCuti: "Tahunan",
-  tanggalMulai: "",
-  tanggalSelesai: "",
-  lamaCuti: "",
-  alasanCuti: "",
-  cutiBerbayar: "Ya",
-  sertakanBukti: "Tidak",
-
-  delegasiTugas: "",
-  namaAtasan: "",
-  tempatDibuat: "Jakarta",
-  tanggalPengajuan: new Date().toISOString().split("T")[0],
+// --- 2. DATA DEFAULT ---
+const DEFAULT_DATA: CutiData = {
+  namaKaryawan: 'Andi Pratama, S.Kom.',
+  nik: 'EMP-2023-0145',
+  jabatan: 'Software Engineer',
+  departemen: 'Information Technology (IT)',
+  
+  jenisCuti: 'Cuti Tahunan',
+  tanggalMulai: '',
+  tanggalSelesai: '',
+  lamaCuti: '3 Hari Kerja',
+  alasanCuti: 'Menyelesaikan urusan keluarga di kampung halaman.',
+  
+  namaPengganti: 'Budi Santoso',
+  
+  namaAtasan: 'Sarah Wijaya',
+  jabatanAtasan: 'IT Manager',
+  namaHRD: 'Bpk. Ahmad Faisal',
+  
+  tempatTtd: 'Jakarta',
+  tanggalTtd: '',
 };
 
-const Kertas = React.forwardRef<HTMLDivElement, { children: React.ReactNode }>(({ children }, ref) => (
-  <div
-    ref={ref}
-    className="bg-white shadow-lg w-[210mm] min-h-[297mm] px-[20mm] py-[20mm] text-black print:w-full print:min-w-0 print:min-h-0 print:shadow-none print:m-0 mx-auto"
-  >
+// --- 3. KERTAS MUTLAK ---
+const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-slate-900 font-sans leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>
     {children}
   </div>
-));
-Kertas.displayName = "Kertas";
+);
 
-export default function SuratCutiKaryawan() {
-  const [formData, setFormData] = useState<FormData>(INITIAL_DATA);
-  const [activeTab, setActiveTab] = useState<'pihak1' | 'pihak2' | 'cuti' | 'lainnya'>('pihak1');
+// --- 4. KOMPONEN UTAMA ---
+export default function SuratIzinCutiPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat Cuti...</div>}>
+      <CutiBuilder />
+    </Suspense>
+  );
+}
+
+function CutiBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [activeTab, setActiveTab] = useState<'karyawan' | 'cuti' | 'approval'>('karyawan');
   const [isClient, setIsClient] = useState(false);
+  const [data, setData] = useState<CutiData>(DEFAULT_DATA);
 
   useEffect(() => {
     setIsClient(true);
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const nextThreeDays = new Date();
+    nextThreeDays.setDate(nextThreeDays.getDate() + 3);
+
+    setData(prev => ({ 
+      ...prev, 
+      tanggalTtd: today.toISOString().split("T")[0],
+      tanggalMulai: tomorrow.toISOString().split("T")[0],
+      tanggalSelesai: nextThreeDays.toISOString().split("T")[0],
+    }));
   }, []);
 
-  const printRef = useRef<HTMLDivElement>(null);
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua perubahan akan hilang.')) {
-        setFormData({ ...INITIAL_DATA });
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke setelan awal?')) {
+        const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const nextThreeDays = new Date();
+        nextThreeDays.setDate(nextThreeDays.getDate() + 3);
+
+        setData({ 
+          ...DEFAULT_DATA,
+          tanggalTtd: today.toISOString().split("T")[0],
+          tanggalMulai: tomorrow.toISOString().split("T")[0],
+          tanggalSelesai: nextThreeDays.toISOString().split("T")[0],
+        });
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleInputChange = (field: keyof CutiData, value: string) => {
+    setData((prev) => ({ ...prev, [field]: value }));
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("id-ID", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(date);
+    if (!dateString) return '......';
+    try {
+      const date = new Date(dateString);
+      return format(date, "d MMMM yyyy", { locale: id });
+    } catch {
+      return dateString;
+    }
   };
 
-  const getHariFromDate = (dateString: string) => {
-    if (!dateString) return "[Hari]";
-    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    return days[new Date(dateString).getDay()];
-  };
+  const DocumentContent = () => (
+    <Kertas>
+      <style dangerouslySetInnerHTML={{__html: `
+        .cuti-table td { padding: 6px 8px 6px 0; vertical-align: top; font-size: 11pt; border-bottom: 1px solid #e2e8f0; }
+        .cuti-table tr:last-child td { border-bottom: none; }
+        .cuti-table td:nth-child(1) { width: 35%; font-weight: bold; }
+        .cuti-table td:nth-child(2) { width: 2%; text-align: center; }
+        .cuti-table td:nth-child(3) { width: 63%; }
+      `}} />
+
+      {/* Judul Surat */}
+      <div className="text-center mb-10 border-b-2 border-black pb-4 break-inside-avoid">
+        <h1 className="text-xl font-bold uppercase tracking-widest mb-1">FORMULIR PENGAJUAN CUTI KARYAWAN</h1>
+      </div>
+
+      {/* Pembuka */}
+      <div className="mb-6 break-inside-avoid">
+        <p>Saya yang bertanda tangan di bawah ini:</p>
+      </div>
+
+      {/* Identitas Karyawan */}
+      <div className="mb-8 pl-4 pr-4 break-inside-avoid">
+        <table className="w-full cuti-table border border-slate-200 px-4 py-2 rounded-lg bg-slate-50/50 block">
+          <tbody>
+            <tr>
+              <td>Nama Karyawan</td>
+              <td>:</td>
+              <td className="uppercase">{data.namaKaryawan}</td>
+            </tr>
+            <tr>
+              <td>NIK / ID Karyawan</td>
+              <td>:</td>
+              <td>{data.nik}</td>
+            </tr>
+            <tr>
+              <td>Jabatan</td>
+              <td>:</td>
+              <td>{data.jabatan}</td>
+            </tr>
+            <tr>
+              <td>Departemen / Divisi</td>
+              <td>:</td>
+              <td>{data.departemen}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mb-6 break-inside-avoid">
+        <p>Bermaksud untuk mengajukan izin cuti kerja dengan rincian sebagai berikut:</p>
+      </div>
+
+      {/* Detail Cuti */}
+      <div className="mb-8 pl-4 pr-4 break-inside-avoid">
+        <table className="w-full cuti-table border border-slate-200 px-4 py-2 rounded-lg bg-slate-50/50 block">
+          <tbody>
+            <tr>
+              <td>Jenis Cuti</td>
+              <td>:</td>
+              <td className="font-bold">{data.jenisCuti}</td>
+            </tr>
+            <tr>
+              <td>Tanggal Pelaksanaan Cuti</td>
+              <td>:</td>
+              <td>{formatDate(data.tanggalMulai)} <strong>s/d</strong> {formatDate(data.tanggalSelesai)}</td>
+            </tr>
+            <tr>
+              <td>Total Lama Cuti</td>
+              <td>:</td>
+              <td className="font-bold">{data.lamaCuti}</td>
+            </tr>
+            <tr>
+              <td>Alasan Pengajuan Cuti</td>
+              <td>:</td>
+              <td className="text-justify">{data.alasanCuti}</td>
+            </tr>
+            <tr>
+              <td>Delegasi Tugas (Handover)</td>
+              <td>:</td>
+              <td>Diserahkan sementara kepada rekan kerja: <strong>{data.namaPengganti || '..........................'}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Penutup */}
+      <div className="mb-12 break-inside-avoid text-justify">
+        <p>
+          Selama masa cuti, saya bertanggung jawab penuh untuk memastikan seluruh pekerjaan telah diserahterimakan dengan baik. Jika terdapat urusan yang sangat mendesak terkait pekerjaan, saya dapat dihubungi melalui kontak pribadi saya.
+        </p>
+        <p className="mt-4">
+          Demikian permohonan izin cuti ini saya sampaikan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.
+        </p>
+      </div>
+
+      {/* Pengesahan */}
+      <div className="break-inside-avoid">
+        <div className="mb-6 text-right pr-4">
+          <p>{data.tempatTtd}, {formatDate(data.tanggalTtd)}</p>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4 text-center text-sm border-t-2 border-black pt-8">
+          <div>
+            <p className="mb-20">Hormat Saya,<br/>Pemohon,</p>
+            <p className="font-bold underline uppercase">{data.namaKaryawan}</p>
+            <p>{data.jabatan}</p>
+          </div>
+          <div>
+            <p className="mb-20">Disetujui Oleh,<br/>Atasan Langsung,</p>
+            <p className="font-bold underline uppercase">{data.namaAtasan || '.......................'}</p>
+            <p>{data.jabatanAtasan || 'Atasan'}</p>
+          </div>
+          <div>
+            <p className="mb-20">Mengetahui,<br/>HRD / Personalia,</p>
+            <p className="font-bold underline uppercase">{data.namaHRD || '.......................'}</p>
+            <p>HRD Department</p>
+          </div>
+        </div>
+      </div>
+    </Kertas>
+  );
 
   if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      <style>{`
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 overflow-hidden">
+      
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page {
-            size: A4;
-            margin: 20mm;
-          }
-          body {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            background: white;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-          }
-          .no-print {
-            display: none !important;
-          }
-          .print-container {
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 100% !important;
-            height: auto !important;
-            min-width: 0 !important;
-            min-height: 0 !important;
-            overflow: visible !important;
-            background: white !important;
-          }
+          @page { size: A4 portrait; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .no-print { display: none !important; }
+          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
+          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          * { box-sizing: border-box !important; }
         }
-      `}</style>
+      ` }} />
 
-      {/* TOP NAV BAR */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between">
+      {/* NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans shrink-0">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-              <ArrowLeftCircle size={20} className="text-emerald-400" />
-              <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
+              <ArrowLeftCircle size={20} className="text-amber-400" />
+              <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <BookOpen size={16} className="text-emerald-500" /> <span>Formulir Legal Drafting: Cuti Karyawan</span>
+            <div className="h-6 w-px bg-slate-700 mx-1"></div>
+            <div className="flex flex-col">
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Surat Izin Cuti Karyawan</h1>
+              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Leave Application</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={handlePrint} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-amber-600 hover:bg-amber-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
             </button>
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+      {/* MOBILE TABS */}
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-40 no-print font-sans shrink-0">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'editor' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500'}`}>
+          <Edit3 size={16} /> Editor
+        </button>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'preview' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500'}`}>
+          <Printer size={16} /> Preview
+        </button>
+      </div>
+
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative print:hidden">
         
-        {/* PANEL KIRI: FORM EDITOR */}
-        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50">
-              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Pengaturan Dokumen</h2>
-              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
-           </div>
-           
-           {/* TAB NAVIGATION */}
-           <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase">
-              <button onClick={() => setActiveTab('pihak1')} className={`flex-1 py-3 border-r flex flex-col items-center gap-1 ${activeTab === 'pihak1' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}><Building2 size={14}/> HR / Persh</button>
-              <button onClick={() => setActiveTab('pihak2')} className={`flex-1 py-3 border-r flex flex-col items-center gap-1 ${activeTab === 'pihak2' ? 'bg-white text-emerald-600 border-b-2 border-b-emerald-600' : 'text-slate-500 hover:bg-slate-200'}`}><UserCircle size={14}/> Karyawan</button>
-              <button onClick={() => setActiveTab('cuti')} className={`flex-1 py-3 border-r flex flex-col items-center gap-1 ${activeTab === 'cuti' ? 'bg-white text-orange-600 border-b-2 border-b-orange-600' : 'text-slate-500 hover:bg-slate-200'}`}><Calendar size={14}/> Detail Cuti</button>
-              <button onClick={() => setActiveTab('lainnya')} className={`flex-1 py-3 flex flex-col items-center gap-1 ${activeTab === 'lainnya' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}><CheckSquare size={14}/> Delegasi & Sah</button>
-           </div>
+        {/* EDITOR SIDEBAR */}
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] bg-white border-r border-slate-200 h-[calc(100vh-64px)] md:sticky md:top-16 z-30 no-print shadow-xl shrink-0`}>
+            <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
+                <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
+                  <Calendar size={18} className="text-amber-600" /> Pengajuan Cuti
+                </h2>
+                <button onClick={handleReset} className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-lg" title="Reset Form">
+                  <RotateCcw size={16}/>
+                </button>
+            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:block print:overflow-visible print:bg-white">
-              
-              {activeTab === 'pihak1' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4">Pihak Pertama (HRD / Perusahaan)</h3>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap HR Manager / Perwakilan</label>
-                  <input type="text" name="namaPihakPertama" value={formData.namaPihakPertama} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Contoh: Budi Santoso" />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">NIK / No. Karyawan</label>
-                  <input type="text" name="nikPihakPertama" value={formData.nikPihakPertama} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Contoh: 1234567890" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Lahir</label>
-                    <input type="text" name="tempatLahirPihakPertama" value={formData.tempatLahirPihakPertama} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Kota" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Lahir</label>
-                    <input type="date" name="tanggalLahirPihakPertama" value={formData.tanggalLahirPihakPertama} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan</label>
-                  <input type="text" name="pekerjaanPihakPertama" value={formData.pekerjaanPihakPertama} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Contoh: HR Manager" />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Lengkap</label>
-                  <textarea name="alamatPihakPertama" value={formData.alamatPihakPertama} onChange={handleInputChange} rows={3} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Alamat sesuai KTP" />
-                </div>
-              </div>
-              )}
-
-              {activeTab === 'pihak2' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-emerald-600 border-b pb-1 mb-4">Pihak Kedua (Karyawan Pemohon)</h3>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap Karyawan</label>
-                  <input type="text" name="namaPihakKedua" value={formData.namaPihakKedua} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Sesuai KTP" />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">NIK / No. Karyawan</label>
-                  <input type="text" name="nikPihakKedua" value={formData.nikPihakKedua} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Nomor Induk Karyawan" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Lahir</label>
-                    <input type="text" name="tempatLahirPihakKedua" value={formData.tempatLahirPihakKedua} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Kota" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Lahir</label>
-                    <input type="date" name="tanggalLahirPihakKedua" value={formData.tanggalLahirPihakKedua} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan / Posisi</label>
-                    <input type="text" name="pekerjaanPihakKedua" value={formData.pekerjaanPihakKedua} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Contoh: Staff IT" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Departemen</label>
-                    <input type="text" name="departemen" value={formData.departemen} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Contoh: Information Technology" />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Lengkap</label>
-                  <textarea name="alamatPihakKedua" value={formData.alamatPihakKedua} onChange={handleInputChange} rows={3} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Alamat domisili saat ini" />
-                </div>
-              </div>
-              )}
-
-              {activeTab === 'cuti' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-orange-600 border-b pb-1 mb-4">Detail Pengajuan Cuti</h3>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Cuti</label>
-                  <select name="jenisCuti" value={formData.jenisCuti} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white">
-                    <option value="Tahunan">Cuti Tahunan</option>
-                    <option value="Besar">Cuti Besar / Panjang</option>
-                    <option value="Sakit">Cuti Sakit</option>
-                    <option value="Melahirkan">Cuti Melahirkan</option>
-                    <option value="Keperluan Penting">Cuti Keperluan Penting</option>
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Mulai</label>
-                    <input type="date" name="tanggalMulai" value={formData.tanggalMulai} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Selesai</label>
-                    <input type="date" name="tanggalSelesai" value={formData.tanggalSelesai} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Total Lama Cuti (Hari Kerja)</label>
-                  <input type="text" name="lamaCuti" value={formData.lamaCuti} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Misal: 3" />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alasan Cuti</label>
-                  <textarea name="alasanCuti" value={formData.alasanCuti} onChange={handleInputChange} rows={3} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Jelaskan alasan pengajuan cuti secara singkat" />
-                </div>
+            {/* TAB NAVIGATION */}
+            <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase shrink-0">
+              <button onClick={() => setActiveTab('karyawan')} className={`flex-1 py-3 border-r ${activeTab === 'karyawan' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Karyawan</button>
+              <button onClick={() => setActiveTab('cuti')} className={`flex-1 py-3 border-r ${activeTab === 'cuti' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Detail Cuti</button>
+              <button onClick={() => setActiveTab('approval')} className={`flex-1 py-3 ${activeTab === 'approval' ? 'bg-white text-indigo-600 border-b-2 border-b-indigo-600' : 'text-slate-500 hover:bg-slate-200'}`}>Approval</button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent pb-32">
                 
-                <div className="p-3 bg-orange-50 border border-orange-100 rounded-lg space-y-3 mt-4">
-                  <h4 className="text-[10px] font-bold text-orange-800 uppercase">Ketentuan Tambahan</h4>
+                {activeTab === 'karyawan' && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4 flex items-center gap-2"><User size={14}/> Identitas Pemohon</h3>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-600">Opsi Cuti Berbayar (Paid Leave)?</label>
-                    <select name="cutiBerbayar" value={formData.cutiBerbayar} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white">
-                      <option value="Ya">Ya (Gaji Dibayar Penuh)</option>
-                      <option value="Tidak">Tidak (Unpaid Leave / Potong Gaji)</option>
-                    </select>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
+                    <input type="text" value={data.namaKaryawan} onChange={(e) => handleInputChange('namaKaryawan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs font-bold mt-1 focus:ring-2 focus:ring-blue-500 outline-none uppercase" />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-600">Sertakan Bukti Pendukung (cth: Surat Dokter)?</label>
-                    <select name="sertakanBukti" value={formData.sertakanBukti} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white">
-                      <option value="Ya">Ya (Melampirkan Surat/Dokumen)</option>
-                      <option value="Tidak">Tidak Perlu</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              )}
-
-              {activeTab === 'lainnya' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-purple-600 border-b pb-1 mb-4">Delegasi & Pengesahan</h3>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Delegasi Tugas (PIC Pengganti)</label>
-                  <p className="text-[9px] text-slate-400 mt-1 mb-2">Nama rekan kerja yang menggantikan peran selama cuti.</p>
-                  <input type="text" name="delegasiTugas" value={formData.delegasiTugas} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Nama karyawan pengganti" />
-                </div>
-                
-                <div className="pt-2 border-t mt-4 space-y-3">
-                  <h4 className="text-[10px] font-bold text-purple-700 uppercase">Pengesahan Dokumen</h4>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Atasan Langsung</label>
-                    <input type="text" name="namaAtasan" value={formData.namaAtasan} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" placeholder="Nama manager/supervisor pemohon" />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">NIK / ID Karyawan</label>
+                    <input type="text" value={data.nik} onChange={(e) => handleInputChange('nik', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Dibuat</label>
-                      <input type="text" name="tempatDibuat" value={formData.tempatDibuat} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" />
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan</label>
+                      <input type="text" value={data.jabatan} onChange={(e) => handleInputChange('jabatan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Departemen</label>
+                      <input type="text" value={data.departemen} onChange={(e) => handleInputChange('departemen', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
+                    </div>
+                  </div>
+                </div>
+                )}
+
+                {activeTab === 'cuti' && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <h3 className="text-xs font-black uppercase text-amber-600 border-b pb-1 mb-4 flex items-center gap-2"><Calendar size={14}/> Jadwal & Rincian Cuti</h3>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Cuti</label>
+                    <select value={data.jenisCuti} onChange={(e) => handleInputChange('jenisCuti', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none font-bold text-amber-700 bg-amber-50">
+                      <option value="Cuti Tahunan">Cuti Tahunan</option>
+                      <option value="Cuti Melahirkan">Cuti Melahirkan</option>
+                      <option value="Cuti Sakit">Cuti Sakit</option>
+                      <option value="Cuti Menikah">Cuti Menikah</option>
+                      <option value="Cuti Alasan Penting / Urgent">Cuti Alasan Penting / Urgent</option>
+                      <option value="Cuti Besar">Cuti Besar</option>
+                      <option value="Cuti Di Luar Tanggungan Perusahaan (Unpaid Leave)">Cuti Di Luar Tanggungan Perusahaan (Unpaid Leave)</option>
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Mulai Cuti</label>
+                      <input type="date" value={data.tanggalMulai} onChange={(e) => handleInputChange('tanggalMulai', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Berakhir Cuti</label>
+                      <input type="date" value={data.tanggalSelesai} onChange={(e) => handleInputChange('tanggalSelesai', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Total Lama Cuti</label>
+                    <input type="text" value={data.lamaCuti} onChange={(e) => handleInputChange('lamaCuti', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none font-bold" placeholder="Cth: 3 Hari Kerja" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Alasan Cuti / Keterangan Tambahan</label>
+                    <textarea value={data.alasanCuti} onChange={(e) => handleInputChange('alasanCuti', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 h-20 resize-none focus:ring-2 focus:ring-amber-500 outline-none"></textarea>
+                  </div>
+                  <div className="pt-2 border-t">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Delegasi Pekerjaan (Nama Pengganti)</label>
+                    <input type="text" value={data.namaPengganti} onChange={(e) => handleInputChange('namaPengganti', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Cth: Budi Santoso" />
+                  </div>
+                </div>
+                )}
+
+                {activeTab === 'approval' && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <h3 className="text-xs font-black uppercase text-indigo-600 border-b pb-1 mb-4 flex items-center gap-2"><Briefcase size={14}/> Validasi & Pengesahan</h3>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat TTD</label>
+                      <input type="text" value={data.tempatTtd} onChange={(e) => handleInputChange('tempatTtd', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" />
                     </div>
                     <div>
                       <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Pengajuan</label>
-                      <input type="date" name="tanggalPengajuan" value={formData.tanggalPengajuan} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 bg-white" />
+                      <input type="date" value={data.tanggalTtd} onChange={(e) => handleInputChange('tanggalTtd', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" />
                     </div>
                   </div>
+                  
+                  <div className="space-y-3 pt-3 border-t">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Atasan Langsung</label>
+                        <input type="text" value={data.namaAtasan} onChange={(e) => handleInputChange('namaAtasan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan Atasan</label>
+                        <input type="text" value={data.jabatanAtasan} onChange={(e) => handleInputChange('jabatanAtasan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Nama HRD / Personalia</label>
+                        <input type="text" value={data.namaHRD} onChange={(e) => handleInputChange('namaHRD', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" />
+                      </div>
+                  </div>
                 </div>
-              </div>
-              )}
+                )}
+
+            </div>
+        </aside>
+
+        {/* PREVIEW AREA */}
+        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide`}>
+           <div className="scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 origin-top">
+              <DocumentContent />
            </div>
-        </div>
+        </main>
+      </div>
 
-        {/* Right Panel: Live Preview */}
-        <div className="flex-1 flex flex-col bg-gray-200 overflow-y-auto p-8 print-container items-center print:block print:overflow-visible print:bg-white">
-          <Kertas ref={printRef}>
-            {/* Document Header */}
-            <div className="text-center mb-8 border-b-2 border-black pb-4">
-              <h1 className="text-xl font-bold uppercase tracking-wider underline underline-offset-4">Perjanjian Pelaksanaan Cuti Karyawan</h1>
-              <p className="text-sm mt-2">Nomor: _____/HRD-CUTI/____/20__</p>
-            </div>
+      <div className="no-print hidden md:block">
+         <PrintWrapper documentName="Surat_Izin_Cuti" price={10000} />
+      </div>
 
-            {/* Document Body */}
-            <div className="space-y-6 text-sm leading-relaxed text-justify">
-              <div className="space-y-4">
-                <p>
-                  Pada hari ini, <strong>{getHariFromDate(formData.tanggalPengajuan)}</strong>, tanggal <strong>{formData.tanggalPengajuan ? formatDate(formData.tanggalPengajuan) : "[Tanggal]"}</strong>, bertempat di <strong>{formData.tempatDibuat || "[Tempat]"}</strong>, telah dibuat dan disepakati Perjanjian Pelaksanaan Cuti Karyawan (selanjutnya disebut &quot;Kesepakatan&quot;) oleh dan antara:
-                </p>
-
-                <div className="space-y-4 ml-4">
-                  <div className="flex gap-4">
-                    <div className="font-bold w-6">I.</div>
-                    <div className="flex-1">
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1">
-                        <div>Nama Lengkap</div><div>:</div>
-                        <div className="font-bold">{formData.namaPihakPertama || "[Nama Pihak Pertama]"}</div>
-                      </div>
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1">
-                        <div>NIK / No. Karyawan</div><div>:</div>
-                        <div>{formData.nikPihakPertama || "[NIK]"}</div>
-                      </div>
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1">
-                        <div>Tempat, Tanggal Lahir</div><div>:</div>
-                        <div>{formData.tempatLahirPihakPertama || "[Tempat]"}, {formData.tanggalLahirPihakPertama ? formatDate(formData.tanggalLahirPihakPertama) : "[Tanggal Lahir]"}</div>
-                      </div>
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1">
-                        <div>Jabatan</div><div>:</div>
-                        <div>{formData.pekerjaanPihakPertama || "[Jabatan]"}</div>
-                      </div>
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1 items-start">
-                        <div>Alamat Lengkap</div><div>:</div>
-                        <div>{formData.alamatPihakPertama || "[Alamat]"}</div>
-                      </div>
-                      <p className="mt-2 text-justify">
-                        Dalam hal ini bertindak untuk dan atas nama Perusahaan dalam kapasitasnya sebagai pemberi persetujuan dan pengesahan cuti, yang selanjutnya disebut sebagai <strong>PIHAK PERTAMA</strong>.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <div className="font-bold w-6">II.</div>
-                    <div className="flex-1">
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1">
-                        <div>Nama Lengkap</div><div>:</div>
-                        <div className="font-bold">{formData.namaPihakKedua || "[Nama Pihak Kedua]"}</div>
-                      </div>
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1">
-                        <div>NIK / No. Karyawan</div><div>:</div>
-                        <div>{formData.nikPihakKedua || "[NIK]"}</div>
-                      </div>
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1">
-                        <div>Tempat, Tanggal Lahir</div><div>:</div>
-                        <div>{formData.tempatLahirPihakKedua || "[Tempat]"}, {formData.tanggalLahirPihakKedua ? formatDate(formData.tanggalLahirPihakKedua) : "[Tanggal Lahir]"}</div>
-                      </div>
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1">
-                        <div>Posisi / Departemen</div><div>:</div>
-                        <div>{formData.pekerjaanPihakKedua || "[Posisi]"} / {formData.departemen || "[Departemen]"}</div>
-                      </div>
-                      <div className="grid grid-cols-[180px_10px_1fr] mb-1 items-start">
-                        <div>Alamat Lengkap</div><div>:</div>
-                        <div>{formData.alamatPihakKedua || "[Alamat]"}</div>
-                      </div>
-                      <p className="mt-2 text-justify">
-                        Dalam hal ini bertindak untuk dan atas nama diri sendiri selaku pemohon izin cuti, yang selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong>.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-justify mt-4">
-                  PIHAK PERTAMA dan PIHAK KEDUA yang selanjutnya secara bersama-sama disebut sebagai <strong>PARA PIHAK</strong>, menyatakan dengan itikad baik saling sepakat untuk mengikatkan diri dalam Kesepakatan Pelaksanaan Cuti Karyawan ini dengan ketentuan dan pasal-pasal sebagai berikut:
-                </p>
-              </div>
-
-              {/* PASAL-PASAL TANPA GRID/TABEL (Standar Notaris/Corporate) */}
-              <div className="mt-6 space-y-4">
-                <div className="text-center font-bold">Pasal 1<br/>DEFINISI DAN KETENTUAN UMUM</div>
-                <ol className="list-decimal text-justify space-y-2 ml-4 pl-4">
-                  <li>Cuti adalah keadaan tidak masuk kerja yang diizinkan dalam jangka waktu tertentu sesuai peraturan ketenagakerjaan Perusahaan dan perundang-undangan yang berlaku.</li>
-                  <li>Cuti yang diajukan oleh PIHAK KEDUA adalah jenis Cuti <strong>{formData.jenisCuti}</strong> dengan alasan pokok berupa: <em>{formData.alasanCuti || "[Uraian Alasan Cuti]"}</em>.</li>
-                </ol>
-
-                <div className="text-center font-bold mt-6">Pasal 2<br/>OBJEK KESEPAKATAN</div>
-                <ol className="list-decimal text-justify space-y-2 ml-4 pl-4">
-                  <li>PIHAK PERTAMA memberikan persetujuan izin pelaksanaan cuti kepada PIHAK KEDUA selama <strong>{formData.lamaCuti || "[X]"}</strong> hari kerja, terhitung secara efektif mulai tanggal <strong>{formData.tanggalMulai ? formatDate(formData.tanggalMulai) : "[Tanggal Mulai]"}</strong> sampai dengan tanggal <strong>{formData.tanggalSelesai ? formatDate(formData.tanggalSelesai) : "[Tanggal Selesai]"}</strong>.</li>
-                  <li>PIHAK KEDUA menyatakan menerima persetujuan izin cuti tersebut dan berjanji akan melaksanakan hak cutinya sesuai dengan ketentuan disiplin Perusahaan.</li>
-                  {formData.sertakanBukti === 'Ya' && (
-                    <li>Pelaksanaan cuti ini didasarkan pada dokumen lampiran pendukung berupa Surat Keterangan / Bukti yang sah, yang merupakan satu kesatuan tidak terpisahkan dari Kesepakatan ini.</li>
-                  )}
-                </ol>
-
-                <div className="text-center font-bold mt-6">Pasal 3<br/>HAK DAN KEWAJIBAN PIHAK PERTAMA</div>
-                <ol className="list-decimal text-justify space-y-2 ml-4 pl-4">
-                  <li>PIHAK PERTAMA berhak meminta laporan pertanggungjawaban atas pendelegasian tugas PIHAK KEDUA sebelum pelaksanaan cuti dimulai.</li>
-                  {formData.cutiBerbayar === 'Ya' ? (
-                    <li>PIHAK PERTAMA berkewajiban membayarkan upah dan hak-hak PIHAK KEDUA lainnya secara penuh yang timbul selama masa cuti, sesuai dengan ketentuan standar (<em>Paid Leave</em>) yang diatur oleh Perusahaan.</li>
-                  ) : (
-                    <li>PIHAK PERTAMA tidak berkewajiban membayarkan upah dasar dan tunjangan (<em>Unpaid Leave</em>) selama masa cuti yang dijalankan oleh PIHAK KEDUA, yang mana pemotongan upah akan dihitung secara proporsional berdasarkan jumlah absensi.</li>
-                  )}
-                </ol>
-
-                <div className="text-center font-bold mt-6">Pasal 4<br/>HAK DAN KEWAJIBAN PIHAK KEDUA</div>
-                <ol className="list-decimal text-justify space-y-2 ml-4 pl-4">
-                  <li>PIHAK KEDUA berhak mendapatkan waktu istirahat (cuti) tanpa diganggu oleh urusan pekerjaan operasional, kecuali dalam keadaan darurat operasional yang sangat mendesak.</li>
-                  <li>PIHAK KEDUA berkewajiban menyerahkan seluruh tugas dan tanggung jawab pekerjaannya untuk sementara waktu kepada Sdr/i. <strong>{formData.delegasiTugas || "[Nama PIC Pengganti]"}</strong> sebagai pelaksana tugas harian (PIC) guna menjaga kelangsungan kelancaran operasional Perusahaan.</li>
-                  <li>PIHAK KEDUA wajib untuk kembali masuk kerja secara normal pada hari kerja pertama setelah tanggal berakhirnya cuti yang disepakati sebagaimana tercantum pada Pasal 2 Kesepakatan ini.</li>
-                </ol>
-
-                <div className="text-center font-bold mt-6">Pasal 5<br/>SANKSI KETERLAMBATAN DAN MANGKIR</div>
-                <ol className="list-decimal text-justify space-y-2 ml-4 pl-4">
-                  <li>Apabila PIHAK KEDUA terlambat masuk kerja tanpa pemberitahuan resmi dan alasan yang sah melebihi masa cuti yang disepakati, maka PIHAK PERTAMA berhak memberikan sanksi administratif dan/atau Surat Peringatan sesuai dengan Peraturan Perusahaan.</li>
-                  <li>Keterlambatan sebagaimana dimaksud pada ayat (1) akan diperhitungkan dan dipotong secara langsung dari hak sisa cuti tahunan berjalan milik PIHAK KEDUA, atau dilakukan pemotongan upah jika kuota cuti tahunan telah habis.</li>
-                  <li>Apabila keterlambatan melebihi 5 (lima) hari kerja berturut-turut tanpa kabar dan keterangan tertulis, maka PIHAK KEDUA dapat dikategorikan mangkir dan dianggap mengundurkan diri secara sepihak (<em>Resign</em>).</li>
-                </ol>
-
-                <div className="text-center font-bold mt-6">Pasal 6<br/>KEADAAN MEMAKSA (FORCE MAJEURE)</div>
-                <ol className="list-decimal text-justify space-y-2 ml-4 pl-4">
-                  <li>Dalam hal PIHAK KEDUA mengalami keadaan memaksa yang mengakibatkan tidak dapat kembali bekerja tepat waktu (seperti bencana alam, kecelakaan, atau pembatasan perjalanan darurat oleh pemerintah), PIHAK KEDUA wajib segera memberitahukan hal tersebut kepada PIHAK PERTAMA selambat-lambatnya 1x24 (satu kali dua puluh empat) jam sejak kejadian tersebut.</li>
-                  <li>Perpanjangan hari cuti sebagai akibat dari Keadaan Memaksa sebagaimana dimaksud pada ayat (1) akan diatur dan diputuskan kemudian secara terpisah berdasarkan kebijaksanaan Manajemen Perusahaan.</li>
-                </ol>
-
-                <div className="text-center font-bold mt-6">Pasal 7<br/>PENYELESAIAN PERSELISIHAN</div>
-                <ol className="list-decimal text-justify space-y-2 ml-4 pl-4">
-                  <li>Segala perselisihan yang timbul sebagai akibat dari penafsiran dan/atau pelaksanaan Kesepakatan ini akan diselesaikan secara musyawarah untuk mufakat (Bipartit).</li>
-                  <li>Apabila penyelesaian secara musyawarah tidak mencapai mufakat, maka penyelesaian perselisihan dilanjutkan ke instansi yang berwenang di bidang ketenagakerjaan (Tripartit) sesuai dengan domisili hukum Perusahaan.</li>
-                </ol>
-
-                <div className="text-center font-bold mt-6">Pasal 8<br/>KETENTUAN PENUTUP</div>
-                <ol className="list-decimal text-justify space-y-2 ml-4 pl-4">
-                  <li>Kesepakatan Pelaksanaan Cuti Karyawan ini dibuat dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa paksaan maupun tekanan dari pihak mana pun.</li>
-                  <li>Dokumen ini merupakan bagian sah dari tata tertib administrasi HRD dan mengikat secara hukum bagi PARA PIHAK terhitung sejak ditandatangani.</li>
-                </ol>
-              </div>
-
-              {/* CLOSING & SIGNATURES */}
-              <div className="mt-8 text-justify">
-                <p>Demikian Kesepakatan ini dibuat dan ditandatangani di <strong>{formData.tempatDibuat || "[Tempat]"}</strong> pada tanggal <strong>{formData.tanggalPengajuan ? formatDate(formData.tanggalPengajuan) : "[Tanggal]"}</strong>, dicetak dan ditandatangani sebagai bukti persetujuan resmi pelaksanaan cuti karyawan yang sah.</p>
-              </div>
-
-              {/* TABLE APPROVAL FORM (Tabel Persetujuan HR & Atasan Langsung) */}
-              <div className="mt-12 text-sm w-full border border-black p-4 bg-transparent break-inside-avoid">
-                <table className="w-full text-center table-fixed border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="w-1/3 pb-20 font-bold uppercase border-r border-black align-top">
-                        PIHAK KEDUA<br/><span className="text-xs font-normal capitalize">(Pemohon Cuti)</span>
-                      </th>
-                      <th className="w-1/3 pb-20 font-bold uppercase border-r border-black align-top">
-                        MENYETUJUI<br/><span className="text-xs font-normal capitalize">(Atasan Langsung)</span>
-                      </th>
-                      <th className="w-1/3 pb-20 font-bold uppercase align-top">
-                        PIHAK PERTAMA<br/><span className="text-xs font-normal capitalize">(HR Manager / Perusahaan)</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border-r border-black font-bold underline underline-offset-4 pt-2">
-                        {formData.namaPihakKedua || "(Nama Lengkap Pemohon)"}
-                      </td>
-                      <td className="border-r border-black font-bold underline underline-offset-4 pt-2">
-                        {formData.namaAtasan || "(Nama Atasan Langsung)"}
-                      </td>
-                      <td className="font-bold underline underline-offset-4 pt-2">
-                        {formData.namaPihakPertama || "(Nama HR Manager)"}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border-r border-black text-xs pt-1">
-                        NIK. {formData.nikPihakKedua || "_________________"}
-                      </td>
-                      <td className="border-r border-black text-xs pt-1">
-                        Tgl. _________________
-                      </td>
-                      <td className="text-xs pt-1">
-                        NIK. {formData.nikPihakPertama || "_________________"}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-            </div>
-          </Kertas>
-        </div>
-      </main>
+      {/* PRINT-ONLY ROOT */}
+      <div id="print-only-root" className="hidden print:block print:h-auto print:static">
+         <div className="bg-white"><DocumentContent /></div>
+      </div>
     </div>
   );
 }
