@@ -26,8 +26,8 @@ const terbilang = (angka: number): string => {
 };
 
 // --- 2. ATURAN KERTAS MUTLAK ---
-const Kertas = ({ children, className = '', w = '210mm', h = '296mm' }: { children: React.ReactNode, className?: string, w?: string, h?: string }) => (
-  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 print:w-full print:min-w-0 print:min-h-0 h-auto ${className}`} style={{ width: w, minHeight: h, maxWidth: '100%' }}>
+const Kertas = ({ children, className = '', w = '210mm', h = '296mm', p = 'p-[20mm]' }: { children: React.ReactNode, className?: string, w?: string, h?: string, p?: string }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto ${p} print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 print:w-full print:min-w-0 print:min-h-0 h-auto ${className}`} style={{ width: w, minHeight: h, maxWidth: '100%' }}>
     {children}
   </div>
 );
@@ -174,9 +174,10 @@ function FinanceToolBuilder() {
     } catch { return dateStr; }
   };
 
-  const dims = (activeDocType === 'nota') ? { w: '105mm', h: '148mm' } : (activeDocType === 'kuitansi') ? { w: '210mm', h: '99mm' } : { w: '210mm', h: '296mm' };
+  const dims = (activeDocType === 'nota') ? { w: '148mm', h: '210mm' } : (activeDocType === 'kuitansi') ? { w: '210mm', h: '99mm' } : { w: '210mm', h: '296mm' };
+  const paperPadding = (activeDocType === 'nota') ? 'p-[12mm]' : 'p-[20mm]';
   const DocumentContent = () => (
-    <Kertas className="flex flex-col" w={dims.w} h={dims.h}>
+    <Kertas className="flex flex-col" w={dims.w} h={dims.h} p={paperPadding}>
       {activeDocType === 'invoice' && (
         <div className="flex-1 flex flex-col font-sans text-slate-800">
           {/* HEADER */}
@@ -364,38 +365,84 @@ function FinanceToolBuilder() {
 
 
       {activeDocType === 'nota' && (
-        <div className="flex-1 flex flex-col font-sans text-slate-900 print:-mt-4">
-           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-4 shrink-0">
-             <div className="flex gap-3">
-               {logo ? <img src={logo} className="w-12 h-12 object-contain grayscale" alt="logo" /> : <div className="w-12 h-12 bg-slate-200 flex items-center justify-center font-bold text-[8px] text-slate-400">LOGO</div>}
-               <div><h1 className="font-black text-lg leading-none uppercase">{data.senderName}</h1><p className="text-[8px] text-slate-500 leading-tight whitespace-pre-line mt-1">{data.senderInfo}</p></div>
+        <div className="flex-1 flex flex-col font-sans text-slate-800">
+           {/* HEADER */}
+           <div className="flex justify-between items-start border-b-2 border-slate-200 pb-4 mb-6">
+             <div className="w-[60%]">
+               {logo ? <img src={logo} className="w-16 h-16 object-contain mb-2" alt="logo" /> : <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center font-bold text-[10px] text-slate-400 mb-2">LOGO</div>}
+               <h1 className="font-black text-xl leading-tight uppercase text-slate-900">{data.senderName}</h1>
+               <p className="text-[9px] text-slate-500 leading-relaxed whitespace-pre-line mt-1">{data.senderInfo}</p>
              </div>
-             <div className="text-right"><h2 className="text-2xl font-black italic text-slate-300 -mt-2">NOTA</h2><p className="font-mono text-[9px] font-bold">No: {data.no}</p></div>
+             <div className="w-[40%] text-right">
+               <h2 className="text-3xl font-black tracking-tighter text-blue-600 uppercase">NOTA</h2>
+               <div className="mt-2 text-[10px] font-bold text-slate-700 bg-slate-50 inline-block px-3 py-1.5 rounded-md border border-slate-200">
+                 NO: {data.no}
+               </div>
+             </div>
            </div>
-           <div className="flex justify-between text-[10px] mb-4">
-              <div><p className="text-slate-400 uppercase text-[8px]">Kepada:</p><p className="font-bold uppercase">{data.receiverName}</p></div>
-              <div className="text-right"><p className="text-slate-400 uppercase text-[8px]">Tanggal:</p><p className="font-bold">{formatDateSafe(data.date)}</p></div>
-           </div>
-           <table className="w-full text-[10px] border-collapse flex-grow">
-              <thead className="bg-slate-100 uppercase text-[8px] font-bold">
-                <tr><th className="border border-slate-900 p-1.5 w-[30px]">NO</th><th className="border border-slate-900 p-1.5 text-left">NAMA BARANG</th><th className="border border-slate-900 p-1.5 w-[40px]">QTY</th><th className="border border-slate-900 p-1.5 w-[70px]">HARGA</th><th className="border border-slate-900 p-1.5 w-[80px]">TOTAL</th></tr>
-              </thead>
-              <tbody>
-                {data.items.map((item, i) => (
-                  <tr key={item.id}><td className="border border-slate-900 p-1.5 text-center">{i+1}</td><td className="border border-slate-900 p-1.5 uppercase font-medium">{item.name}</td><td className="border border-slate-900 p-1.5 text-center">{item.qty}</td><td className="border border-slate-900 p-1.5 text-right">{item.price.toLocaleString('id-ID')}</td><td className="border border-slate-900 p-1.5 text-right font-bold">{(item.qty * item.price).toLocaleString('id-ID')}</td></tr>
-                ))}
-              </tbody>
-           </table>
-           <div className="mt-4 shrink-0 flex justify-end">
-              <div className="flex border-2 border-slate-900 font-black text-xs uppercase">
-                <div className="px-3 py-1.5 bg-slate-900 text-white">Grand Total</div>
-                <div className="px-4 py-1.5 bg-white min-w-[100px] text-right">Rp {total.toLocaleString('id-ID')}</div>
+
+           {/* INFO KEPADA & TANGGAL */}
+           <div className="flex justify-between mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <div className="w-[60%]">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Kepada Yth:</p>
+                <p className="font-bold text-sm text-slate-800 uppercase">{data.receiverName}</p>
+                <p className="text-[10px] text-slate-500 mt-1 whitespace-pre-line max-w-[90%]">{data.receiverInfo}</p>
+              </div>
+              <div className="w-[40%] text-right">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Tanggal</p>
+                <p className="font-bold text-sm text-slate-800">{formatDateSafe(data.date)}</p>
               </div>
            </div>
-           <div className="flex justify-between items-end mt-4 text-[9px] uppercase font-bold text-slate-400 px-2">
-              <div className="text-center w-24"><p className="mb-10">Penerima</p><div className="border-b border-slate-300"></div></div>
-              <p className="italic lowercase font-normal text-[8px] max-w-[100px]">{data.footerNote}</p>
-              <div className="text-center w-24"><p className="mb-10">Hormat Kami</p><p className="text-slate-900">{data.signer}</p></div>
+
+           {/* TABEL BARANG */}
+           <div className="flex-grow">
+             <table className="w-full text-[11px] border-collapse">
+                <thead>
+                  <tr className="bg-slate-900 text-white uppercase text-[9px] tracking-widest">
+                    <th className="py-3 px-4 text-left rounded-tl-lg">Deskripsi Item</th>
+                    <th className="py-3 px-2 text-center w-12">Qty</th>
+                    <th className="py-3 px-3 text-right w-24">Harga</th>
+                    <th className="py-3 px-4 text-right w-32 rounded-tr-lg">Total</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {data.items.map((item, i) => (
+                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3 px-4 font-bold text-slate-800 uppercase">{item.name}</td>
+                      <td className="py-3 px-2 text-center text-slate-600 font-medium tabular-nums">{item.qty}</td>
+                      <td className="py-3 px-3 text-right text-slate-600 font-medium tabular-nums">{item.price.toLocaleString('id-ID')}</td>
+                      <td className="py-3 px-4 text-right font-black text-slate-900 tabular-nums">{(item.qty * item.price).toLocaleString('id-ID')}</td>
+                    </tr>
+                  ))}
+                  {[...Array(Math.max(0, 5 - data.items.length))].map((_, i) => (
+                    <tr key={i}><td className="py-3 px-4 h-[32px]"></td><td className="py-3 px-2"></td><td className="py-3 px-3"></td><td className="py-3 px-4"></td></tr>
+                  ))}
+                </tbody>
+             </table>
+           </div>
+
+           {/* TOTAL & TTD */}
+           <div className="mt-6 border-t-2 border-slate-200 pt-6">
+              <div className="flex justify-end mb-10">
+                <div className="w-[70%] flex items-center justify-between bg-blue-50/80 p-4 rounded-xl border border-blue-100">
+                  <span className="font-black text-blue-900 uppercase text-xs tracking-widest">Grand Total</span>
+                  <span className="font-black text-xl text-blue-700 tabular-nums">Rp {total.toLocaleString('id-ID')}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-end text-[10px]">
+                <div className="w-1/3">
+                  <p className="font-black text-slate-400 uppercase tracking-widest mb-16 text-center">Penerima</p>
+                  <div className="border-b-2 border-slate-300 w-3/4 mx-auto"></div>
+                </div>
+                <div className="w-1/3 text-center">
+                  <p className="italic text-slate-400 max-w-[150px] mx-auto leading-relaxed">{data.footerNote}</p>
+                </div>
+                <div className="w-1/3 text-center">
+                  <p className="font-black text-slate-400 uppercase tracking-widest mb-16">Hormat Kami</p>
+                  <p className="font-bold text-slate-900 uppercase border-b-2 border-slate-900 pb-1 w-max mx-auto px-4">{data.signer}</p>
+                </div>
+              </div>
            </div>
         </div>
       )}
