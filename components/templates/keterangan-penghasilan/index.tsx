@@ -345,7 +345,7 @@ function IncomeToolBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
+          @page { size: A4; margin: 25mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
