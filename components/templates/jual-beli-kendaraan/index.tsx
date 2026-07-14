@@ -374,7 +374,7 @@ function VehicleSaleBuilder() {
           .no-print { display: none !important; }
           .print-header-space { height: 15mm; } 
           .print-footer-space { height: 15mm; } 
-          .print-content-wrapper { padding: 0 15mm; width: 100%; box-sizing: border-box; }
+          .print-content-wrapper { padding: 15mm; width: 100%; box-sizing: border-box; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
         }
