@@ -97,8 +97,8 @@ function BelumMenikahBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* Judul Surat */}
-      <div className="text-center mb-10 break-inside-avoid">
-        <h1 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black inline-block pb-1">SURAT PERNYATAAN BELUM PERNAH MENIKAH</h1>
+      <div className="text-center mb-6 break-inside-avoid">
+        <h1 className="text-lg font-bold uppercase tracking-wide border-b-2 border-black inline-block pb-1">SURAT PERNYATAAN BELUM PERNAH MENIKAH</h1>
       </div>
 
       {/* Pembuka */}
@@ -150,34 +150,34 @@ function BelumMenikahBuilder() {
       </div>
 
       {/* Isi Pernyataan */}
-      <div className="mb-4 break-inside-avoid text-justify">
-        <p className="indent-8 mb-4 leading-relaxed">
+      <div className="mb-2 break-inside-avoid text-justify">
+        <p className="indent-8 mb-2 leading-relaxed">
           Dengan ini menyatakan dengan sesungguhnya dan berani mengangkat sumpah bahwa sampai saat surat pernyataan ini dibuat, saya <strong>belum pernah menikah (berstatus lajang)</strong> baik secara hukum agama, hukum adat, maupun hukum negara dengan siapapun.
         </p>
-        <p className="indent-8 mt-4 leading-relaxed">
+        <p className="indent-8 mt-2 leading-relaxed">
           Demikian surat pernyataan ini saya buat dengan sebenar-benarnya dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya paksaan dari pihak manapun, untuk dipergunakan sebagai kelengkapan <strong>{data.tujuanSurat}</strong>.
         </p>
-        <p className="indent-8 mt-4 leading-relaxed">
+        <p className="indent-8 mt-2 leading-relaxed">
           Apabila di kemudian hari ternyata pernyataan ini terbukti tidak benar, saya bersedia dituntut di muka pengadilan dan menerima segala tindakan hukum lainnya sesuai dengan peraturan perundang-undangan yang berlaku.
         </p>
       </div>
 
       {/* Tanda Tangan */}
       <div className="mt-4 break-inside-avoid shrink-0">
-        <div className="mb-4 text-right pr-4">
+        <div className="mb-2 text-right pr-4">
           <p>{data.tempatTtd}, {formatDate(data.tanggalTtd)}</p>
         </div>
         
         <div className="flex justify-between px-8 text-center mt-2">
           {data.namaWali ? (
           <div className="w-1/2 flex flex-col items-center">
-            <p className="mb-16">Mengetahui,<br/>{data.hubunganWali}</p>
+            <p className="mb-14">Mengetahui,<br/>{data.hubunganWali}</p>
             <p className="font-bold underline uppercase">{data.namaWali}</p>
           </div>
           ) : <div className="w-1/2"></div>}
           
           <div className="w-1/2 flex flex-col items-center">
-            <p className="mb-16">Yang Membuat Pernyataan,</p>
+            <p className="mb-14">Yang Membuat Pernyataan,</p>
             <p className="font-bold underline uppercase relative">
                <span className="absolute -left-12 -top-8 text-[9px] text-slate-500 font-normal border border-slate-400 border-dashed px-1 py-4 leading-none bg-white/60 -rotate-12">Materai<br/>10rb</span>
                {data.nama}
