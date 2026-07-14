@@ -1,20 +1,11 @@
 'use client';
 
-/**
- * FILE: PerintahBayarPage.tsx
- * STATUS: PRODUCTION READY (FULL FEATURE - FIXED DEPLOY)
- * DESC: Generator Surat Perintah Bayar (SPB) / Payment Order
- * FIX: Corporate Finance / ERP Theme Redesign
- */
-
-import { useState, Suspense, useEffect } from 'react';
+import React, { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeftCircle, Banknote, Building2, 
-  ChevronDown, Edit3, RotateCcw, CheckCircle2
+  Printer, ArrowLeftCircle, Edit3, RotateCcw, 
+  Eye, LayoutTemplate, Banknote, Building2, ChevronDown, Scale
 } from 'lucide-react';
 import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
@@ -55,20 +46,28 @@ const INITIAL_DATA: PaymentData = {
   treasurerJob: 'Bendahara Keuangan'
 };
 
+// --- 3. KERTAS MUTLAK ---
+const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-black font-sans leading-normal text-[10pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
+    {children}
+  </div>
+);
+
+// --- 4. KOMPONEN UTAMA ---
 export default function PerintahBayarPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 text-xs bg-slate-900 uppercase tracking-widest font-bold">Initializing ERP Module...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat Perintah Bayar...</div>}>
       <PaymentOrderBuilder />
     </Suspense>
   );
 }
 
 function PaymentOrderBuilder() {
-  // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<PaymentData>(INITIAL_DATA);
-  
+  const [templateId, setTemplateId] = useState<number>(1);
+
   useEffect(() => {
     setIsClient(true);
     const today = new Date().toISOString().split('T')[0];
@@ -94,12 +93,10 @@ function PaymentOrderBuilder() {
     }
   };
 
-  // --- KOMPONEN ISI SURAT (CORPORATE FINANCE THEME) ---
   const DocumentContent = () => (
-    <div className="bg-white flex flex-col box-border text-black leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto font-sans text-[10pt]">
-      
+    <Kertas>
       {/* HEADER / KOP */}
-      <div className="flex justify-between items-start border-b-2 border-black pb-6 mb-8 shrink-0">
+      <div className="flex justify-between items-start border-b-2 border-black pb-6 mb-8 shrink-0 break-inside-avoid">
         <div className="flex gap-4 items-center">
           <div className="w-14 h-14 bg-slate-900 text-white flex items-center justify-center print:border-2 print:border-black print:text-black print:bg-white rounded-sm shrink-0">
             <Building2 size={32} />
@@ -121,7 +118,7 @@ function PaymentOrderBuilder() {
               </tr>
               <tr>
                 <td className="py-1 pr-4 font-bold text-slate-500 print:text-black uppercase text-[8pt]">Date</td>
-                <td className="py-1">{isClient && data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: '2-digit', month: 'long', year: 'numeric'}) : ''}</td>
+                <td className="py-1">{data.date ? new Date(data.date).toLocaleDateString('id-ID', {day: '2-digit', month: 'long', year: 'numeric'}) : ''}</td>
               </tr>
               <tr>
                 <td className="py-1 pr-4 font-bold text-slate-500 print:text-black uppercase text-[8pt]">Location</td>
@@ -213,13 +210,13 @@ function PaymentOrderBuilder() {
            <span>Generated on: {isClient ? new Date().toLocaleString('en-GB') : ''}</span>
          </div>
       </div>
-    </div>
+    </Kertas>
   );
 
   if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col font-sans text-slate-200">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
@@ -230,161 +227,167 @@ function PaymentOrderBuilder() {
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
           * { box-sizing: border-box !important; }
         }
-        /* Custom Scrollbar for ERP look */
-        .erp-scrollbar::-webkit-scrollbar { width: 6px; }
-        .erp-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
-        .erp-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        .erp-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
       ` }} />
 
       {/* NAVBAR */}
-      <div className="no-print bg-slate-950 border-b border-slate-800 text-white shadow-md sticky top-0 z-50 h-14 flex items-center justify-between px-6">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-bold uppercase text-[10px] tracking-widest">
-            <ArrowLeftCircle size={16} /> Back to Hub
-          </Link>
-          <div className="h-4 w-px bg-slate-700 hidden md:block"></div>
-          <div className="hidden md:flex items-center gap-2 text-[11px] font-bold text-indigo-400 uppercase tracking-widest">
-            <CheckCircle2 size={14} /> <span>Financial Operations Module</span>
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-indigo-400" />
+              <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-1"></div>
+            <div className="flex flex-col">
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Surat Perintah Bayar</h1>
+              <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Enterprise Tools</span>
+            </div>
           </div>
-        </div>
-        <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-1.5 rounded text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all flex items-center gap-2 border border-indigo-400/30">
-          <Printer size={14}/> Print Voucher
+          <div className="flex items-center gap-3">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-indigo-600 hover:bg-indigo-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
+            </button>
+          </div>
+      </div>
+
+      {/* MOBILE TABS */}
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-40 no-print font-sans">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'editor' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500'}`}>
+          <Edit3 size={16} /> Editor
+        </button>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'preview' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-500'}`}>
+          <Printer size={16} /> Preview
         </button>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-56px)] print:hidden print:h-auto print:overflow-visible">
-        {/* SIDEBAR INPUT (ERP THEME) */}
-        <div className={`no-print w-full md:w-[420px] bg-slate-900 border-r border-slate-800 flex flex-col h-full absolute md:relative z-10 transition-transform duration-300 ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
-                <h2 className="font-bold text-[10px] uppercase text-slate-300 tracking-widest flex items-center gap-2">
-                  <Edit3 size={14} className="text-indigo-400" /> Voucher Entry
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative print:hidden">
+        
+        {/* EDITOR SIDEBAR */}
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[450px] lg:w-[500px] bg-white border-r border-slate-200 h-[calc(100vh-64px)] md:sticky md:top-16 z-30 no-print shadow-xl shrink-0`}>
+            <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
+                <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
+                  <Banknote size={18} className="text-indigo-600" /> Editor SPB
                 </h2>
-                <button onClick={handleReset} className="text-slate-500 hover:text-rose-400 transition-colors p-1" title="Reset Form">
-                  <RotateCcw size={14}/>
+                <button onClick={handleReset} className="text-slate-400 hover:text-indigo-500 transition-colors p-2 hover:bg-indigo-50 rounded-lg" title="Reset Form">
+                  <RotateCcw size={16}/>
                 </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-5 space-y-6 erp-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
                 
                 {/* SECTION 1 */}
                 <div className="space-y-4">
-                  <h3 className="text-[9px] font-bold uppercase text-slate-500 border-b border-slate-700 pb-2 tracking-[0.2em] flex items-center gap-2">
-                    <Building2 size={12}/> Corporate Entity
+                  <h3 className="font-bold text-slate-800 bg-slate-100 p-2 rounded border-l-4 border-slate-600 text-sm flex items-center gap-2">
+                    <Building2 size={14}/> Corporate Entity
                   </h3>
                   <div className="space-y-3">
                     <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Company Name</label>
-                      <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-xs font-bold text-slate-200 uppercase focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Company Name</label>
+                      <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none uppercase" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} />
                     </div>
                     <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Address</label>
-                      <textarea className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-xs text-slate-300 h-16 resize-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all" value={data.companyAddress} onChange={e => handleDataChange('companyAddress', e.target.value)} />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Address</label>
+                      <textarea className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 h-16 resize-none focus:ring-2 focus:ring-indigo-500 outline-none" value={data.companyAddress} onChange={e => handleDataChange('companyAddress', e.target.value)} />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Document No.</label>
-                        <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-xs font-mono text-indigo-300 focus:border-indigo-500 outline-none transition-all uppercase" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} />
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Document No.</label>
+                        <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none uppercase" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} />
                       </div>
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Location</label>
-                        <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-xs text-slate-300 focus:border-indigo-500 outline-none transition-all uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Location</label>
+                        <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none uppercase" value={data.city} onChange={e => handleDataChange('city', e.target.value)} />
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* SECTION 2 */}
-                <div className="space-y-4 pt-2">
-                  <h3 className="text-[9px] font-bold uppercase text-slate-500 border-b border-slate-700 pb-2 tracking-[0.2em] flex items-center gap-2">
-                    <Banknote size={12}/> Beneficiary Details
+                <div className="space-y-4">
+                  <h3 className="font-bold text-slate-800 bg-indigo-50 p-2 rounded border-l-4 border-indigo-600 text-sm flex items-center gap-2">
+                    <Banknote size={14}/> Beneficiary Details
                   </h3>
                   <div className="space-y-3">
                     <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Payee Name</label>
-                      <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-xs font-bold text-slate-200 uppercase focus:border-indigo-500 outline-none transition-all" value={data.recipientName} onChange={e => handleDataChange('recipientName', e.target.value)} />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Payee Name</label>
+                      <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none uppercase" value={data.recipientName} onChange={e => handleDataChange('recipientName', e.target.value)} />
                     </div>
                     
                     <div className="grid grid-cols-[1fr_2fr] gap-3">
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Bank</label>
-                        <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-xs text-slate-300 focus:border-indigo-500 outline-none transition-all" value={data.recipientBank} onChange={e => handleDataChange('recipientBank', e.target.value)} />
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Bank</label>
+                        <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" value={data.recipientBank} onChange={e => handleDataChange('recipientBank', e.target.value)} />
                       </div>
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Account No.</label>
-                        <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-xs font-mono text-slate-300 focus:border-indigo-500 outline-none transition-all" value={data.recipientAccount} onChange={e => handleDataChange('recipientAccount', e.target.value)} />
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Account No.</label>
+                        <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" value={data.recipientAccount} onChange={e => handleDataChange('recipientAccount', e.target.value)} />
                       </div>
                     </div>
 
                     <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Amount (IDR)</label>
-                      <input className="w-full p-3 bg-slate-950 border border-slate-700 rounded text-sm font-black text-emerald-400 focus:border-indigo-500 outline-none transition-all" type="number" value={data.amount} onChange={e => handleDataChange('amount', parseInt(e.target.value) || 0)} />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Amount (IDR)</label>
+                      <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm font-black text-emerald-600 focus:ring-2 focus:ring-indigo-500 outline-none" type="number" value={data.amount} onChange={e => handleDataChange('amount', parseInt(e.target.value) || 0)} />
                     </div>
                     
                     <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Amount in Words</label>
-                      <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-[10px] text-slate-400 italic focus:border-indigo-500 outline-none transition-all" value={data.amountText} onChange={e => handleDataChange('amountText', e.target.value)} placeholder="Terbilang..." />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Amount in Words</label>
+                      <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-[10px] text-slate-600 italic focus:ring-2 focus:ring-indigo-500 outline-none" value={data.amountText} onChange={e => handleDataChange('amountText', e.target.value)} placeholder="Terbilang..." />
                     </div>
 
                     <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Description / Purpose</label>
-                      <textarea className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-xs text-slate-300 h-24 focus:border-indigo-500 outline-none transition-all leading-relaxed" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Description / Purpose</label>
+                      <textarea className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 h-24 focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed resize-none" value={data.purpose} onChange={e => handleDataChange('purpose', e.target.value)} />
                     </div>
                   </div>
                 </div>
 
                 {/* SECTION 3 */}
-                <div className="space-y-4 pt-2">
-                  <h3 className="text-[9px] font-bold uppercase text-slate-500 border-b border-slate-700 pb-2 tracking-[0.2em] flex items-center gap-2">
-                    <ChevronDown size={12}/> Approval Matrix
+                <div className="space-y-4">
+                  <h3 className="font-bold text-slate-800 bg-amber-50 p-2 rounded border-l-4 border-amber-600 text-sm flex items-center gap-2">
+                    <ChevronDown size={14}/> Approval Matrix
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Prepared By</label>
-                        <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-[10px] font-bold text-slate-200 uppercase focus:border-indigo-500 outline-none transition-all" value={data.treasurerName} onChange={e => handleDataChange('treasurerName', e.target.value)} />
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Prepared By</label>
+                        <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none uppercase" value={data.treasurerName} onChange={e => handleDataChange('treasurerName', e.target.value)} />
                       </div>
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Job Title</label>
-                        <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-[10px] text-slate-400 focus:border-indigo-500 outline-none transition-all" value={data.treasurerJob} onChange={e => handleDataChange('treasurerJob', e.target.value)} />
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Job Title</label>
+                        <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" value={data.treasurerJob} onChange={e => handleDataChange('treasurerJob', e.target.value)} />
                       </div>
                     </div>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Approved By</label>
-                        <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-[10px] font-bold text-slate-200 uppercase focus:border-indigo-500 outline-none transition-all" value={data.approverName} onChange={e => handleDataChange('approverName', e.target.value)} />
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Approved By</label>
+                        <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none uppercase" value={data.approverName} onChange={e => handleDataChange('approverName', e.target.value)} />
                       </div>
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Job Title</label>
-                        <input className="w-full p-2 bg-slate-950 border border-slate-700 rounded text-[10px] text-slate-400 focus:border-indigo-500 outline-none transition-all" value={data.approverJob} onChange={e => handleDataChange('approverJob', e.target.value)} />
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Job Title</label>
+                        <input className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" value={data.approverJob} onChange={e => handleDataChange('approverJob', e.target.value)} />
                       </div>
                     </div>
                   </div>
                 </div>
+
+                <div className="pb-10"></div>
             </div>
-        </div>
+        </aside>
 
         {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-800 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static erp-scrollbar`}>
-            <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.85] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block print:shadow-none">
-                <DocumentContent />
-            </div>
-        </div>
-      </main>
-
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 h-12 bg-slate-950 border border-slate-800 rounded-lg flex p-1 shadow-2xl z-50 font-sans font-bold">
-          <button onClick={() => setMobileView('editor')} className={`flex-1 rounded-md text-[10px] uppercase tracking-widest transition-all ${mobileView === 'editor' ? 'bg-indigo-600 text-white' : 'text-slate-500'}`}>Data Entry</button>
-          <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-md text-[10px] uppercase tracking-widest transition-all ${mobileView === 'preview' ? 'bg-slate-800 text-white' : 'text-slate-500'}`}>Doc Preview</button>
+        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide`}>
+           <div className="scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 origin-top">
+              <DocumentContent />
+           </div>
+        </main>
       </div>
 
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+      <div className="no-print hidden md:block">
          <PrintWrapper documentName="Payment Voucher" price={10000} />
       </div>
 
+      {/* PRINT-ONLY ROOT */}
       <div id="print-only-root" className="hidden print:h-auto print:static">
-        <div className="bg-white"><DocumentContent /></div>
+         <div className="bg-white"><DocumentContent /></div>
       </div>
     </div>
   );
