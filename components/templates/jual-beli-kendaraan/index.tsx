@@ -106,24 +106,60 @@ function VehicleSaleBuilder() {
                       <ol className="list-decimal pl-6 mb-4 text-justify space-y-4">
                         <li className="pl-2">
                             <div className="font-bold uppercase">{data.p1Name}</div>
-                            <ul className="list-none pl-0 space-y-1 mt-1 font-normal">
-                            <li><span className="inline-block w-52">Nomor Induk Kependudukan</span>: {data.p1Nik}</li>
-                            <li><span className="inline-block w-52">Tempat, Tanggal Lahir</span>: {data.p1BirthPlace}, {formatDateSafe(data.p1BirthDate)}</li>
-                            <li><span className="inline-block w-52">Pekerjaan</span>: {data.p1Job}</li>
-                            <li><span className="inline-block w-52 align-top">Alamat Sesuai KTP</span><span className="inline-block w-4 align-top">:</span><span className="inline-block w-[calc(100%-230px)] align-top">{data.p1Address}</span></li>
-                            </ul>
+                            <table className="w-full text-left font-normal mt-1 border-collapse">
+                               <tbody>
+                                   <tr>
+                                       <td className="w-52 align-top py-0.5">Nomor Induk Kependudukan</td>
+                                       <td className="w-4 align-top py-0.5">:</td>
+                                       <td className="align-top py-0.5">{data.p1Nik}</td>
+                                   </tr>
+                                   <tr>
+                                       <td className="w-52 align-top py-0.5">Tempat, Tanggal Lahir</td>
+                                       <td className="w-4 align-top py-0.5">:</td>
+                                       <td className="align-top py-0.5">{data.p1BirthPlace}, {formatDateSafe(data.p1BirthDate)}</td>
+                                   </tr>
+                                   <tr>
+                                       <td className="w-52 align-top py-0.5">Pekerjaan</td>
+                                       <td className="w-4 align-top py-0.5">:</td>
+                                       <td className="align-top py-0.5">{data.p1Job}</td>
+                                   </tr>
+                                   <tr>
+                                       <td className="w-52 align-top py-0.5">Alamat Sesuai KTP</td>
+                                       <td className="w-4 align-top py-0.5">:</td>
+                                       <td className="align-top py-0.5">{data.p1Address}</td>
+                                   </tr>
+                               </tbody>
+                            </table>
                             <p className="mt-2">
                             Selaku pemilik sah kendaraan, yang untuk selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK PERTAMA (PENJUAL)</strong>.
                             </p>
                         </li>
                         <li className="pl-2">
                             <div className="font-bold uppercase">{data.p2Name}</div>
-                            <ul className="list-none pl-0 space-y-1 mt-1 font-normal">
-                            <li><span className="inline-block w-52">Nomor Induk Kependudukan</span>: {data.p2Nik}</li>
-                            <li><span className="inline-block w-52">Tempat, Tanggal Lahir</span>: {data.p2BirthPlace}, {formatDateSafe(data.p2BirthDate)}</li>
-                            <li><span className="inline-block w-52">Pekerjaan</span>: {data.p2Job}</li>
-                            <li><span className="inline-block w-52 align-top">Alamat Sesuai KTP</span><span className="inline-block w-4 align-top">:</span><span className="inline-block w-[calc(100%-230px)] align-top">{data.p2Address}</span></li>
-                            </ul>
+                            <table className="w-full text-left font-normal mt-1 border-collapse">
+                               <tbody>
+                                   <tr>
+                                       <td className="w-52 align-top py-0.5">Nomor Induk Kependudukan</td>
+                                       <td className="w-4 align-top py-0.5">:</td>
+                                       <td className="align-top py-0.5">{data.p2Nik}</td>
+                                   </tr>
+                                   <tr>
+                                       <td className="w-52 align-top py-0.5">Tempat, Tanggal Lahir</td>
+                                       <td className="w-4 align-top py-0.5">:</td>
+                                       <td className="align-top py-0.5">{data.p2BirthPlace}, {formatDateSafe(data.p2BirthDate)}</td>
+                                   </tr>
+                                   <tr>
+                                       <td className="w-52 align-top py-0.5">Pekerjaan</td>
+                                       <td className="w-4 align-top py-0.5">:</td>
+                                       <td className="align-top py-0.5">{data.p2Job}</td>
+                                   </tr>
+                                   <tr>
+                                       <td className="w-52 align-top py-0.5">Alamat Sesuai KTP</td>
+                                       <td className="w-4 align-top py-0.5">:</td>
+                                       <td className="align-top py-0.5">{data.p2Address}</td>
+                                   </tr>
+                               </tbody>
+                            </table>
                             <p className="mt-2">
                             Selaku pembeli kendaraan, yang untuk selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK KEDUA (PEMBELI)</strong>.
                             </p>

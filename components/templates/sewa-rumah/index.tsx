@@ -213,12 +213,30 @@ function RentalAgreementBuilder() {
                 <li className="pl-2">
                   <div className="flex flex-col space-y-1">
                     <span className="font-bold uppercase">{data.ownerName}</span>
-                    <div className="ml-4 space-y-1">
-                      <div className="flex"><div className="w-40 shrink-0">NIK</div><div className="w-4 shrink-0">:</div><div>{data.ownerNik}</div></div>
-                      <div className="flex"><div className="w-40 shrink-0">Tempat, Tgl Lahir</div><div className="w-4 shrink-0">:</div><div>{data.ownerPob}, {formatDateSafe(data.ownerDob)}</div></div>
-                      <div className="flex"><div className="w-40 shrink-0">Pekerjaan</div><div className="w-4 shrink-0">:</div><div>{data.ownerOccupation}</div></div>
-                      <div className="flex"><div className="w-40 shrink-0">Alamat</div><div className="w-4 shrink-0">:</div><div>{data.ownerAddress}</div></div>
-                    </div>
+                    <table className="w-full text-left font-normal mt-1 ml-4 border-collapse">
+                       <tbody>
+                           <tr>
+                               <td className="w-40 align-top py-0.5">NIK</td>
+                               <td className="w-4 align-top py-0.5">:</td>
+                               <td className="align-top py-0.5">{data.ownerNik}</td>
+                           </tr>
+                           <tr>
+                               <td className="w-40 align-top py-0.5">Tempat, Tgl Lahir</td>
+                               <td className="w-4 align-top py-0.5">:</td>
+                               <td className="align-top py-0.5">{data.ownerPob}, {formatDateSafe(data.ownerDob)}</td>
+                           </tr>
+                           <tr>
+                               <td className="w-40 align-top py-0.5">Pekerjaan</td>
+                               <td className="w-4 align-top py-0.5">:</td>
+                               <td className="align-top py-0.5">{data.ownerOccupation}</td>
+                           </tr>
+                           <tr>
+                               <td className="w-40 align-top py-0.5">Alamat</td>
+                               <td className="w-4 align-top py-0.5">:</td>
+                               <td className="align-top py-0.5">{data.ownerAddress}</td>
+                           </tr>
+                       </tbody>
+                    </table>
                     <p className="mt-2">
                       Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK PERTAMA (YANG MENYEWAKAN)</strong>.
                     </p>
@@ -228,12 +246,30 @@ function RentalAgreementBuilder() {
                 <li className="pl-2">
                   <div className="flex flex-col space-y-1">
                     <span className="font-bold uppercase">{data.tenantName}</span>
-                    <div className="ml-4 space-y-1">
-                      <div className="flex"><div className="w-40 shrink-0">NIK</div><div className="w-4 shrink-0">:</div><div>{data.tenantNik}</div></div>
-                      <div className="flex"><div className="w-40 shrink-0">Tempat, Tgl Lahir</div><div className="w-4 shrink-0">:</div><div>{data.tenantPob}, {formatDateSafe(data.tenantDob)}</div></div>
-                      <div className="flex"><div className="w-40 shrink-0">Pekerjaan</div><div className="w-4 shrink-0">:</div><div>{data.tenantOccupation}</div></div>
-                      <div className="flex"><div className="w-40 shrink-0">Alamat</div><div className="w-4 shrink-0">:</div><div>{data.tenantAddress}</div></div>
-                    </div>
+                    <table className="w-full text-left font-normal mt-1 ml-4 border-collapse">
+                       <tbody>
+                           <tr>
+                               <td className="w-40 align-top py-0.5">NIK</td>
+                               <td className="w-4 align-top py-0.5">:</td>
+                               <td className="align-top py-0.5">{data.tenantNik}</td>
+                           </tr>
+                           <tr>
+                               <td className="w-40 align-top py-0.5">Tempat, Tgl Lahir</td>
+                               <td className="w-4 align-top py-0.5">:</td>
+                               <td className="align-top py-0.5">{data.tenantPob}, {formatDateSafe(data.tenantDob)}</td>
+                           </tr>
+                           <tr>
+                               <td className="w-40 align-top py-0.5">Pekerjaan</td>
+                               <td className="w-4 align-top py-0.5">:</td>
+                               <td className="align-top py-0.5">{data.tenantOccupation}</td>
+                           </tr>
+                           <tr>
+                               <td className="w-40 align-top py-0.5">Alamat</td>
+                               <td className="w-4 align-top py-0.5">:</td>
+                               <td className="align-top py-0.5">{data.tenantAddress}</td>
+                           </tr>
+                       </tbody>
+                    </table>
                     <p className="mt-2">
                       Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK KEDUA (PENYEWA)</strong>.
                     </p>

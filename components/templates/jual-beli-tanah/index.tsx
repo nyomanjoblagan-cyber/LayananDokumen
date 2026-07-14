@@ -176,31 +176,35 @@ function LandSaleBuilder() {
               <div className="flex flex-row mb-4 text-justify break-inside-avoid">
                   <div className="w-8 shrink-0 font-bold">I.</div>
                   <div className="flex-1">
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Nama Lengkap</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div className="font-bold uppercase">{data.p1Name}</div>
-                      </div>
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Nomor Induk Kependudukan (NIK)</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div>{data.p1Nik}</div>
-                      </div>
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Tempat, Tanggal Lahir</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div>{data.p1Pob}, {formatDateSafe(data.p1Dob)}</div>
-                      </div>
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Pekerjaan</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div>{data.p1Job}</div>
-                      </div>
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Alamat Lengkap</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div>{data.p1Address}</div>
-                      </div>
+                      <table className="w-full text-left border-collapse">
+                          <tbody>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Nama Lengkap</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5 font-bold uppercase">{data.p1Name}</td>
+                              </tr>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Nomor Induk Kependudukan (NIK)</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5">{data.p1Nik}</td>
+                              </tr>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Tempat, Tanggal Lahir</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5">{data.p1Pob}, {formatDateSafe(data.p1Dob)}</td>
+                              </tr>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Pekerjaan</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5">{data.p1Job}</td>
+                              </tr>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Alamat Lengkap</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5">{data.p1Address}</td>
+                              </tr>
+                          </tbody>
+                      </table>
                       <div className="mt-2">
                           Dalam hal ini bertindak untuk dan atas nama diri sendiri {data.p1Spouse ? `serta telah mendapat persetujuan dari suami/istri sah yang bernama ${data.p1Spouse}` : ''}, yang selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK PERTAMA (PENJUAL)</strong>.
                       </div>
@@ -210,31 +214,35 @@ function LandSaleBuilder() {
               <div className="flex flex-row mb-6 text-justify break-inside-avoid">
                   <div className="w-8 shrink-0 font-bold">II.</div>
                   <div className="flex-1">
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Nama Lengkap</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div className="font-bold uppercase">{data.p2Name}</div>
-                      </div>
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Nomor Induk Kependudukan (NIK)</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div>{data.p2Nik}</div>
-                      </div>
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Tempat, Tanggal Lahir</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div>{data.p2Pob}, {formatDateSafe(data.p2Dob)}</div>
-                      </div>
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Pekerjaan</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div>{data.p2Job}</div>
-                      </div>
-                      <div className="flex flex-row">
-                          <div className="w-56 shrink-0">Alamat Lengkap</div>
-                          <div className="w-4 shrink-0">:</div>
-                          <div>{data.p2Address}</div>
-                      </div>
+                      <table className="w-full text-left border-collapse">
+                          <tbody>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Nama Lengkap</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5 font-bold uppercase">{data.p2Name}</td>
+                              </tr>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Nomor Induk Kependudukan (NIK)</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5">{data.p2Nik}</td>
+                              </tr>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Tempat, Tanggal Lahir</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5">{data.p2Pob}, {formatDateSafe(data.p2Dob)}</td>
+                              </tr>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Pekerjaan</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5">{data.p2Job}</td>
+                              </tr>
+                              <tr>
+                                  <td className="w-56 align-top py-0.5">Alamat Lengkap</td>
+                                  <td className="w-4 align-top py-0.5">:</td>
+                                  <td className="align-top py-0.5">{data.p2Address}</td>
+                              </tr>
+                          </tbody>
+                      </table>
                       <div className="mt-2">
                           Dalam hal ini bertindak untuk dan atas nama diri sendiri, yang selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK KEDUA (PEMBELI)</strong>.
                       </div>
