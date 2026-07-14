@@ -100,6 +100,7 @@ function FinanceToolBuilder() {
   const [logo, setLogo] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<FinanceData>(INITIAL_DATA);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -154,17 +155,20 @@ function FinanceToolBuilder() {
   };
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir B2B ke awal?')) {
-      const today = new Date();
-      const thirtyDaysLater = new Date();
-      thirtyDaysLater.setDate(today.getDate() + 30);
-      setData({ 
-        ...INITIAL_DATA, 
-        date: today.toISOString().split('T')[0],
-        dueDate: thirtyDaysLater.toISOString().split('T')[0]
-      });
-      setLogo(null);
-    }
+    setShowResetModal(true);
+  };
+
+  const confirmReset = () => {
+    const today = new Date();
+    const thirtyDaysLater = new Date();
+    thirtyDaysLater.setDate(today.getDate() + 30);
+    setData({ 
+      ...INITIAL_DATA, 
+      date: today.toISOString().split('T')[0],
+      dueDate: thirtyDaysLater.toISOString().split('T')[0]
+    });
+    setLogo(null);
+    setShowResetModal(false);
   };
 
   const formatDateSafe = (dateStr: string) => {
@@ -295,68 +299,76 @@ function FinanceToolBuilder() {
       )}
 
       {activeDocType === 'kuitansi' && (
-        <div className="flex-1 flex flex-col font-sans text-slate-800">
-          <div className="border-4 border-double border-slate-900 p-8 flex-grow flex flex-col justify-between">
+        <div className="flex-1 flex flex-col font-sans text-slate-800 relative z-0">
+          
+          {/* Watermark/Decoration */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 -translate-y-1/2 translate-x-1/4"></div>
+
+          <div className="bg-white/80 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 rounded-3xl flex-grow flex flex-col justify-between">
             {/* HEADER KUITANSI */}
-            <div className="flex justify-between items-start border-b-4 border-slate-900 pb-6">
+            <div className="flex justify-between items-start border-b-2 border-slate-100 pb-5">
               <div className="flex gap-4 items-center">
                 {logo ? (
-                  <img src={logo} className="h-16 w-auto object-contain" alt="Company Logo" />
+                  <img src={logo} className="h-12 w-auto object-contain" alt="Company Logo" />
                 ) : (
-                  <div className="h-16 w-16 bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs">LOGO</div>
+                  <div className="h-12 w-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 font-bold text-[10px]">LOGO</div>
                 )}
                 <div>
-                  <h2 className="text-xl font-black uppercase text-slate-900">{data.senderName}</h2>
-                  <p className="text-[9px] text-slate-500 mt-1 uppercase max-w-[200px]">{data.senderInfo.split('\n')[0]}</p>
+                  <h2 className="text-lg font-black uppercase text-slate-900 tracking-tight">{data.senderName}</h2>
+                  <p className="text-[9px] text-slate-500 mt-1 uppercase max-w-[250px] font-medium tracking-wide">{data.senderInfo.split('\n')[0]}</p>
                 </div>
               </div>
               <div className="text-right">
-                <h1 className="text-4xl font-black italic tracking-tighter text-slate-900">OFFICIAL RECEIPT</h1>
-                <p className="font-mono text-sm font-bold text-slate-600 mt-2">No. {data.no}</p>
+                <h1 className="text-3xl font-black tracking-tighter text-blue-600 uppercase">OFFICIAL RECEIPT</h1>
+                <div className="mt-2 text-xs font-bold text-slate-600 bg-slate-50 inline-block px-3 py-1.5 rounded-lg border border-slate-100">
+                  NO. {data.no}
+                </div>
               </div>
             </div>
             
             {/* BODY KUITANSI */}
-            <div className="space-y-8 py-12">
-               <div className="flex items-end gap-4">
-                 <span className="w-48 uppercase text-xs font-black text-slate-500 tracking-widest">Telah Terima Dari</span>
-                 <div className="flex-1 border-b-2 border-slate-400 px-2 font-black uppercase text-lg text-slate-900">
-                   : {data.receiverName}
+            <div className="space-y-6 py-6">
+               <div className="flex gap-4 items-end">
+                 <span className="w-40 uppercase text-[10px] font-black text-slate-400 tracking-widest pb-1">Telah Terima Dari</span>
+                 <div className="flex-1 border-b-2 border-slate-200 pb-1 font-black uppercase text-sm text-slate-800">
+                   {data.receiverName}
                  </div>
                </div>
                
-               <div className="flex items-end gap-4">
-                 <span className="w-48 uppercase text-xs font-black text-slate-500 tracking-widest">Uang Sejumlah</span>
-                 <div className="flex-1 border-b-2 border-slate-400 bg-slate-100 px-4 py-2 font-black italic text-slate-800 text-sm border-dashed">
-                   # {terbilangText} #
+               <div className="flex gap-4 items-center">
+                 <span className="w-40 uppercase text-[10px] font-black text-slate-400 tracking-widest">Uang Sejumlah</span>
+                 <div className="flex-1 bg-blue-50/80 rounded-xl px-5 py-3 font-bold italic text-blue-800 text-xs border border-blue-100">
+                   Terbilang: {terbilangText} Rupiah
                  </div>
                </div>
                
-               <div className="flex items-end gap-4">
-                 <span className="w-48 uppercase text-xs font-black text-slate-500 tracking-widest">Untuk Pembayaran</span>
-                 <div className="flex-1 border-b-2 border-slate-400 px-2 uppercase text-sm font-bold text-slate-800 leading-relaxed">
-                   : {data.items.map(i => i.name).join(', ')}
+               <div className="flex gap-4 items-end">
+                 <span className="w-40 uppercase text-[10px] font-black text-slate-400 tracking-widest pb-1">Untuk Pembayaran</span>
+                 <div className="flex-1 border-b-2 border-slate-200 pb-1 uppercase text-xs font-bold text-slate-800 leading-relaxed">
+                   {data.items.map(i => i.name).join(', ')}
                    {data.notes && ` - ${data.notes}`}
                  </div>
                </div>
             </div>
 
             {/* FOOTER KUITANSI */}
-            <div className="flex justify-between items-end border-t border-slate-200 pt-8 mt-auto">
-              <div className="flex flex-col gap-4">
-                <div className="bg-slate-900 text-white px-8 py-4 text-3xl font-black shadow-xl rounded-sm tabular-nums tracking-tight">
-                  Rp {total.toLocaleString('id-ID')}
+            <div className="flex justify-between items-end mt-auto pt-4">
+              <div className="flex flex-col gap-3">
+                <div className="bg-slate-900 text-white px-6 py-3.5 text-2xl font-black rounded-2xl shadow-xl shadow-slate-900/20 tabular-nums tracking-tight border border-slate-800 flex items-center gap-3 w-max">
+                  <span className="text-sm font-medium text-slate-400">Rp</span> {total.toLocaleString('id-ID')}
                 </div>
-                <div className="text-[10px] text-slate-500 font-bold uppercase w-64 border border-slate-200 p-2 bg-slate-50">
-                  <span className="text-slate-800 border-b border-slate-200 block pb-1 mb-1">Transfer Info:</span>
-                  {data.bankDetails.split('\n').slice(0, 3).join('\n')}
-                </div>
+                {data.bankDetails && (
+                  <div className="text-[9px] text-slate-500 font-medium w-64 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                    <span className="text-slate-700 font-black block mb-1.5 uppercase text-[8px] tracking-widest">Transfer Info:</span>
+                    <span className="whitespace-pre-line leading-relaxed">{data.bankDetails.split('\n').slice(0, 3).join('\n')}</span>
+                  </div>
+                )}
               </div>
-              <div className="text-center w-72">
-                <p className="text-xs mb-2 uppercase font-black text-slate-500">{data.city}, {formatDateSafe(data.date)}</p>
-                <p className="text-xs font-bold text-slate-800 uppercase mb-16">{data.senderName}</p>
-                <p className="font-black border-b-2 border-slate-900 uppercase text-sm pb-1 leading-none">{data.signer}</p>
-                <p className="text-[10px] text-slate-500 mt-1 uppercase font-bold">{data.signerRole}</p>
+              <div className="text-center w-64">
+                <p className="text-[10px] mb-2 uppercase font-bold text-slate-500">{data.city}, {formatDateSafe(data.date)}</p>
+                <p className="text-xs font-black text-slate-800 uppercase mb-16">{data.senderName}</p>
+                <p className="font-bold border-b-2 border-slate-300 uppercase text-xs pb-1.5">{data.signer}</p>
+                <p className="text-[9px] text-slate-500 mt-2 uppercase font-black tracking-widest">{data.signerRole}</p>
               </div>
             </div>
           </div>
@@ -641,6 +653,25 @@ function FinanceToolBuilder() {
       <div id="print-only-root" className="hidden print:h-auto print:static">
          <DocumentContent />
       </div>
+
+      {/* RESET MODAL */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-100">
+                <Trash2 size={40} />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Reset Formulir?</h3>
+              <p className="text-sm text-slate-500 mb-8 leading-relaxed">Seluruh data yang sudah Anda isi pada dokumen B2B ini akan dihapus secara permanen. Anda yakin?</p>
+              <div className="flex gap-4">
+                <button onClick={() => setShowResetModal(false)} className="flex-1 py-3.5 rounded-2xl font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">Batal</button>
+                <button onClick={confirmReset} className="flex-1 py-3.5 rounded-2xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-lg shadow-red-200 border border-red-600">Ya, Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
