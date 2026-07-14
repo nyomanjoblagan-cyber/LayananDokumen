@@ -100,8 +100,7 @@ function POToolBuilder() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // --- STATE SYSTEM ---
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
@@ -153,15 +152,16 @@ function POToolBuilder() {
   };
 
   const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
-        const today = new Date().toISOString().split('T')[0];
-        const nextWeek = new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0];
-        setData({ ...INITIAL_DATA, date: today, deliveryDate: nextWeek });
-        setLogo(null);
-    }
+    setShowResetModal(true);
   };
 
-  const activeTemplateName = templateId === 1 ? 'Industrial' : 'Corporate';
+  const confirmReset = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const nextWeek = new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0];
+    setData({ ...INITIAL_DATA, date: today, deliveryDate: nextWeek });
+    setLogo(null);
+    setShowResetModal(false);
+  };
 
   const DocumentContent = () => {
     const formatDateSafe = (dateString: string) => {
@@ -172,67 +172,77 @@ function POToolBuilder() {
     };
 
     return (
-      <Kertas className={templateId === 1 ? 'font-serif' : 'font-sans'}>
+      <Kertas className="font-sans flex flex-col h-full bg-white relative z-0">
+        
+        {/* Dekorasi Air / Latar Premium */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-50/50 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/4"></div>
+
         {/* HEADER PO */}
-        <div className="flex justify-between items-start mb-6 border-b-2 border-slate-900 pb-4 shrink-0">
-          <div className="flex items-center gap-4">
+        <div className="flex justify-between items-start mb-6 border-b-2 border-slate-100 pb-5 shrink-0">
+          <div className="flex items-center gap-5">
             {logo ? (
               <img src={logo} className="h-16 w-16 object-contain block" alt="Logo" />
             ) : (
-              <div className="w-16 h-16 bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 print:hidden">
-                <Building2 size={24} />
+              <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 font-bold text-[10px] print:hidden shadow-inner">
+                LOGO
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-black uppercase leading-tight tracking-tighter text-slate-900">{data.companyName}</h1>
-              <div className="text-[9pt] text-slate-600 whitespace-pre-line leading-tight mt-1">{data.companyInfo}</div>
+              <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">{data.companyName}</h1>
+              <div className="text-[10px] text-slate-500 whitespace-pre-line leading-relaxed mt-1">{data.companyInfo}</div>
             </div>
           </div>
           <div className="text-right">
-            <h2 className={`text-3xl font-black uppercase tracking-tighter leading-none mb-1 ${templateId === 2 ? 'text-blue-800' : 'text-slate-900'}`}>PURCHASE ORDER</h2>
-            <div className="text-sm font-bold font-mono text-slate-800">{data.no}</div>
-            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Date: {formatDateSafe(data.date)}</div>
+            <h2 className="text-4xl font-black uppercase tracking-tighter text-blue-600 mb-1">PURCHASE ORDER</h2>
+            <div className="text-xs font-bold font-mono text-slate-700 bg-slate-50 inline-block px-3 py-1.5 rounded-lg border border-slate-100">{data.no}</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Date: {formatDateSafe(data.date)}</div>
           </div>
         </div>
 
         {/* VENDOR & SHIP INFO */}
-        <div className="grid grid-cols-2 gap-6 mb-6 text-[9.5pt] shrink-0 break-inside-avoid">
-          <div className={`p-4 border border-slate-300 rounded-lg ${templateId === 2 ? 'bg-slate-50 border-l-4 border-l-blue-600' : 'bg-transparent border-l-4 border-l-slate-900'}`}>
-            <div className="font-bold uppercase text-[8pt] text-slate-500 mb-2 tracking-widest">To (Vendor):</div>
-            <div className="font-black text-slate-900 uppercase text-sm">{data.vendorName}</div>
-            <div className="font-bold text-slate-700 mt-1">Attn: {data.vendorContact}</div>
-            <div className="text-slate-600 leading-snug mt-1">{data.vendorAddress}</div>
+        <div className="grid grid-cols-2 gap-6 mb-8 text-[9.5pt] shrink-0 break-inside-avoid">
+          <div className="p-5 border border-slate-100 rounded-2xl bg-slate-50/50 shadow-sm">
+            <div className="font-black uppercase text-[8px] text-slate-400 mb-3 tracking-widest flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span> To (Vendor)
+            </div>
+            <div className="font-black text-slate-900 uppercase text-sm mb-1">{data.vendorName}</div>
+            <div className="font-bold text-slate-600 mb-2">Attn: {data.vendorContact}</div>
+            <div className="text-slate-500 leading-relaxed text-xs">{data.vendorAddress}</div>
           </div>
-          <div className={`p-4 border border-slate-300 rounded-lg ${templateId === 2 ? 'bg-slate-50 border-l-4 border-l-emerald-600' : 'bg-transparent border-l-4 border-l-slate-900'}`}>
-            <div className="font-bold uppercase text-[8pt] text-slate-500 mb-2 tracking-widest">Ship To:</div>
-            <div className="font-black text-slate-900 uppercase text-sm">{data.shipToName}</div>
-            <div className="text-slate-600 leading-snug mt-1">{data.shipToAddress}</div>
-            <div className="text-[10px] mt-2 font-bold text-slate-700">Delivery Via: <span className="uppercase text-emerald-600">{data.shipVia}</span></div>
+          <div className="p-5 border border-slate-100 rounded-2xl bg-blue-50/30 shadow-sm relative overflow-hidden">
+            <div className="font-black uppercase text-[8px] text-slate-400 mb-3 tracking-widest flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Ship To
+            </div>
+            <div className="font-black text-slate-900 uppercase text-sm mb-1">{data.shipToName}</div>
+            <div className="text-slate-500 leading-relaxed text-xs mb-3">{data.shipToAddress}</div>
+            <div className="text-[10px] font-bold text-slate-500 inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-100">
+              Delivery Via: <span className="uppercase text-emerald-600 font-black">{data.shipVia}</span>
+            </div>
           </div>
         </div>
 
         {/* TABLE ITEMS */}
         <div className="flex-grow mb-6">
-          <table className="w-full border-collapse text-[10pt]">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className={`${templateId === 2 ? 'bg-blue-800 text-white border-blue-800' : 'bg-slate-900 text-white border-slate-900'} uppercase text-[8pt] font-black border`}>
-                <th className="p-2 text-center w-10 border-r border-slate-700">#</th>
-                <th className="p-2 text-left border-r border-slate-700">Description of Goods/Services</th>
-                <th className="p-2 text-center w-20 border-r border-slate-700">Qty</th>
-                <th className="p-2 text-center w-20 border-r border-slate-700">Unit</th>
-                <th className="p-2 text-right w-28 border-r border-slate-700">Unit Price</th>
-                <th className="p-2 text-right w-32">Total Amount</th>
+              <tr className="bg-slate-900 text-white uppercase text-[8px] tracking-widest">
+                <th className="py-3 px-3 text-center w-10 rounded-tl-xl font-black">#</th>
+                <th className="py-3 px-3 font-black">Description of Goods / Services</th>
+                <th className="py-3 px-3 text-center w-16 font-black">Qty</th>
+                <th className="py-3 px-3 text-center w-16 font-black">Unit</th>
+                <th className="py-3 px-3 text-right w-28 font-black">Unit Price</th>
+                <th className="py-3 px-4 text-right w-36 rounded-tr-xl font-black">Total Amount</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-xs">
               {data.items.map((item, idx) => (
-                <tr key={idx} className="border-b border-x border-slate-300 break-inside-avoid">
-                  <td className="p-2 text-center text-slate-600 border-r border-slate-300">{idx + 1}</td>
-                  <td className="p-2 font-bold text-slate-900 border-r border-slate-300">{item.name}</td>
-                  <td className="p-2 text-center border-r border-slate-300">{item.qty}</td>
-                  <td className="p-2 text-center border-r border-slate-300">{item.unit}</td>
-                  <td className="p-2 text-right border-r border-slate-300">{item.price.toLocaleString('id-ID')}</td>
-                  <td className="p-2 text-right font-bold text-slate-900">{(item.qty * item.price).toLocaleString('id-ID')}</td>
+                <tr key={idx} className="break-inside-avoid hover:bg-slate-50 transition-colors">
+                  <td className="py-3 px-3 text-center text-slate-400 font-bold">{idx + 1}</td>
+                  <td className="py-3 px-3 font-bold text-slate-800 uppercase">{item.name}</td>
+                  <td className="py-3 px-3 text-center font-bold text-slate-600">{item.qty}</td>
+                  <td className="py-3 px-3 text-center font-bold text-slate-600">{item.unit}</td>
+                  <td className="py-3 px-3 text-right font-bold text-slate-600">{item.price.toLocaleString('id-ID')}</td>
+                  <td className="py-3 px-4 text-right font-black text-slate-900">{(item.qty * item.price).toLocaleString('id-ID')}</td>
                 </tr>
               ))}
             </tbody>
@@ -240,39 +250,39 @@ function POToolBuilder() {
         </div>
 
         {/* TOTALS & TERMS */}
-        <div className="grid grid-cols-12 gap-6 break-inside-avoid shrink-0">
-          <div className="col-span-7 space-y-4">
-            <div className="border border-slate-300 p-3 rounded-lg bg-slate-50">
-              <div className="font-bold uppercase text-[8pt] text-slate-500 mb-1 border-b border-slate-200 pb-1">Terms & Conditions</div>
-              <div className="grid grid-cols-3 gap-2 text-[9pt] mt-2">
-                <div className="text-slate-500 font-bold">Payment Terms:</div>
-                <div className="col-span-2 text-slate-900 font-semibold">{data.termsPayment}</div>
-                <div className="text-slate-500 font-bold">Delivery Terms:</div>
-                <div className="col-span-2 text-slate-900 font-semibold">{data.termsDelivery}</div>
-                <div className="text-slate-500 font-bold">Delivery Date:</div>
-                <div className="col-span-2 text-slate-900 font-semibold text-emerald-700">{formatDateSafe(data.deliveryDate)}</div>
+        <div className="grid grid-cols-12 gap-8 break-inside-avoid shrink-0">
+          <div className="col-span-7 space-y-5">
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+              <div className="font-black uppercase text-[8px] text-slate-400 mb-3 tracking-widest border-b border-slate-200 pb-2">Terms & Conditions</div>
+              <div className="grid grid-cols-3 gap-y-3 text-[10px] mt-2">
+                <div className="text-slate-500 font-bold uppercase tracking-wide">Payment Terms:</div>
+                <div className="col-span-2 text-slate-800 font-black">{data.termsPayment}</div>
+                <div className="text-slate-500 font-bold uppercase tracking-wide">Delivery Terms:</div>
+                <div className="col-span-2 text-slate-800 font-black">{data.termsDelivery}</div>
+                <div className="text-slate-500 font-bold uppercase tracking-wide">Delivery Date:</div>
+                <div className="col-span-2 text-emerald-600 font-black bg-emerald-50 px-2 py-0.5 rounded w-max inline-block border border-emerald-100">{formatDateSafe(data.deliveryDate)}</div>
               </div>
             </div>
             
             <div>
-              <div className="font-bold uppercase text-[8pt] text-slate-500 mb-1">Special Notes / Instructions:</div>
-              <div className="text-[9pt] text-slate-700 whitespace-pre-line leading-relaxed">{data.notes}</div>
+              <div className="font-black uppercase text-[8px] text-slate-400 mb-2 tracking-widest">Special Notes / Instructions</div>
+              <div className="text-[10px] text-slate-600 whitespace-pre-line leading-relaxed italic bg-slate-50/50 p-3 rounded-xl border border-slate-100 border-l-4 border-l-slate-300">{data.notes}</div>
             </div>
           </div>
           
-          <div className="col-span-5">
-            <div className="border border-slate-300 rounded-lg overflow-hidden">
-              <div className="flex justify-between p-2 border-b border-slate-200 text-[10pt]">
-                <span className="font-bold text-slate-600">Subtotal</span>
-                <span className="font-bold text-slate-900">Rp {subtotal.toLocaleString('id-ID')}</span>
+          <div className="col-span-5 flex flex-col justify-end pb-1">
+            <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-white">
+              <div className="flex justify-between p-3.5 border-b border-slate-50 text-xs bg-slate-50/50">
+                <span className="font-bold text-slate-500 uppercase tracking-widest text-[9px]">Subtotal</span>
+                <span className="font-bold text-slate-800 tabular-nums">Rp {subtotal.toLocaleString('id-ID')}</span>
               </div>
-              <div className="flex justify-between p-2 border-b border-slate-200 text-[10pt]">
-                <span className="font-bold text-slate-600">VAT / PPN ({data.taxRate}%)</span>
-                <span className="font-bold text-slate-900">Rp {taxAmount.toLocaleString('id-ID')}</span>
+              <div className="flex justify-between p-3.5 border-b border-slate-50 text-xs bg-slate-50/50">
+                <span className="font-bold text-slate-500 uppercase tracking-widest text-[9px]">VAT / PPN ({data.taxRate}%)</span>
+                <span className="font-bold text-slate-800 tabular-nums">Rp {taxAmount.toLocaleString('id-ID')}</span>
               </div>
-              <div className={`flex justify-between p-3 text-[12pt] font-black ${templateId === 2 ? 'bg-blue-800 text-white' : 'bg-slate-900 text-white'}`}>
-                <span>TOTAL</span>
-                <span>Rp {total.toLocaleString('id-ID')}</span>
+              <div className="flex justify-between items-center p-4 bg-slate-900 text-white shadow-inner">
+                <span className="font-black tracking-widest text-[10px] uppercase text-slate-300">Total</span>
+                <span className="text-xl font-black tabular-nums tracking-tight">Rp {total.toLocaleString('id-ID')}</span>
               </div>
             </div>
           </div>
@@ -280,10 +290,11 @@ function POToolBuilder() {
 
         {/* SIGNATURES */}
         <div className="mt-12 flex justify-end shrink-0 break-inside-avoid">
-          <div className="text-center w-64">
-             <p className="text-[9pt] font-black uppercase text-slate-500 tracking-widest mb-16">Authorized Signature</p>
-             <p className="font-black underline uppercase text-[11pt] text-slate-900">{data.signer}</p>
-             <p className="text-[9pt] font-bold text-slate-600 mt-1">{data.signerJob}</p>
+          <div className="text-center w-64 pt-6 relative">
+             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-slate-200 rounded-full"></div>
+             <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest mb-16">Authorized Signature</p>
+             <p className="font-black uppercase text-sm text-slate-900 border-b-2 border-slate-900 pb-1 w-max mx-auto px-4">{data.signer}</p>
+             <p className="text-[9px] font-bold text-slate-500 mt-1.5 uppercase tracking-widest">{data.signerJob}</p>
           </div>
         </div>
       </Kertas>
@@ -310,17 +321,6 @@ function POToolBuilder() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
-                <LayoutTemplate size={14} className="text-blue-400" /> {activeTemplateName} <ChevronDown size={12} />
-              </button>
-              {showTemplateMenu && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 1 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Industrial Standard {templateId === 1 && <Check size={14}/>}</button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-xs font-bold flex items-center justify-between ${templateId === 2 ? 'text-emerald-700 bg-emerald-50' : ''}`}>Corporate Modern {templateId === 2 && <Check size={14}/>}</button>
-                </div>
-              )}
-            </div>
             <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Print PO</span>
             </button>
@@ -421,7 +421,25 @@ function POToolBuilder() {
          <PrintWrapper documentName="Dokumen" price={10000} />
       </div>
 
-      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>
+      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div>      </div>
+      {/* RESET MODAL */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-100">
+                <Trash2 size={40} />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Reset Formulir?</h3>
+              <p className="text-sm text-slate-500 mb-8 leading-relaxed">Seluruh data yang sudah Anda isi pada dokumen ini akan dihapus secara permanen. Anda yakin?</p>
+              <div className="flex gap-4">
+                <button onClick={() => setShowResetModal(false)} className="flex-1 py-3.5 rounded-2xl font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">Batal</button>
+                <button onClick={confirmReset} className="flex-1 py-3.5 rounded-2xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-lg shadow-red-200 border border-red-600">Ya, Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
