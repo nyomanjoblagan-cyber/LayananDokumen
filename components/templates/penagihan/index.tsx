@@ -317,7 +317,7 @@ function PenagihanToolBuilder() {
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
+          @page { size: A4; margin: 20mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
@@ -489,13 +489,17 @@ function PenagihanToolBuilder() {
         {/* PREVIEW AREA */}
         <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide`}>
            <div className="scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 origin-top">
-              <div id="print-only-root" className="print:static"><DocumentContent /></div>
+              <DocumentContent />
            </div>
         </main>
       </div>
 
       <div className="no-print hidden md:block">
          <PrintWrapper documentName="Surat Penagihan" price={10000} />
+      </div>
+
+      <div id="print-only-root" className="hidden print:h-auto print:static">
+         <div className="bg-white"><DocumentContent /></div>
       </div>
     </div>
   );
