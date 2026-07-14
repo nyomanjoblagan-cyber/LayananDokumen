@@ -29,7 +29,7 @@ interface OrderItem {
 }
 
 interface ProcurementData {
-  docType: 'PURCHASE ORDER' | 'ORDER CONFIRMATION';
+  docType: 'ORDER CONFIRMATION';
   docNo: string;
   docDate: string;
   estDeliveryDate: string;
@@ -62,7 +62,7 @@ interface ProcurementData {
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: ProcurementData = {
-  docType: 'PURCHASE ORDER',
+  docType: 'ORDER CONFIRMATION',
   docNo: 'PO/2026/08/001-A',
   docDate: '',
   estDeliveryDate: '',
@@ -550,7 +550,6 @@ function ProcurementBuilder() {
                     <div className="col-span-2">
                        <label className="text-[10px] font-bold text-slate-500 mb-1 block">Document Type</label>
                        <select className="w-full p-2 border border-slate-300 rounded-lg text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50" value={data.docType} onChange={e => handleDataChange('docType', e.target.value)}>
-                          <option value="PURCHASE ORDER">Purchase Order (PO)</option>
                           <option value="ORDER CONFIRMATION">Order Confirmation (OC)</option>
                        </select>
                     </div>
