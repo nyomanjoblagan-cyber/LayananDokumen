@@ -150,7 +150,7 @@ function BelumMenikahBuilder() {
       </div>
 
       {/* Isi Pernyataan */}
-      <div className="mb-8 break-inside-avoid text-justify">
+      <div className="mb-4 break-inside-avoid text-justify">
         <p className="indent-8 mb-4 leading-relaxed">
           Dengan ini menyatakan dengan sesungguhnya dan berani mengangkat sumpah bahwa sampai saat surat pernyataan ini dibuat, saya <strong>belum pernah menikah (berstatus lajang)</strong> baik secara hukum agama, hukum adat, maupun hukum negara dengan siapapun.
         </p>
@@ -163,7 +163,7 @@ function BelumMenikahBuilder() {
       </div>
 
       {/* Tanda Tangan */}
-      <div className="mt-8 break-inside-avoid shrink-0">
+      <div className="mt-4 break-inside-avoid shrink-0">
         <div className="mb-4 text-right pr-4">
           <p>{data.tempatTtd}, {formatDate(data.tanggalTtd)}</p>
         </div>
@@ -171,13 +171,13 @@ function BelumMenikahBuilder() {
         <div className="flex justify-between px-8 text-center mt-2">
           {data.namaWali ? (
           <div className="w-1/2 flex flex-col items-center">
-            <p className="mb-20">Mengetahui,<br/>{data.hubunganWali}</p>
+            <p className="mb-16">Mengetahui,<br/>{data.hubunganWali}</p>
             <p className="font-bold underline uppercase">{data.namaWali}</p>
           </div>
           ) : <div className="w-1/2"></div>}
           
           <div className="w-1/2 flex flex-col items-center">
-            <p className="mb-20">Yang Membuat Pernyataan,</p>
+            <p className="mb-16">Yang Membuat Pernyataan,</p>
             <p className="font-bold underline uppercase relative">
                <span className="absolute -left-12 -top-8 text-[9px] text-slate-500 font-normal border border-slate-400 border-dashed px-1 py-4 leading-none bg-white/60 -rotate-12">Materai<br/>10rb</span>
                {data.nama}
