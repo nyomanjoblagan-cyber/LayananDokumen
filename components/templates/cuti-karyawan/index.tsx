@@ -212,34 +212,34 @@ function CutiBuilder() {
       </div>
 
       {/* Penutup */}
-      <div className="mb-12 break-inside-avoid text-justify">
+      <div className="mb-8 break-inside-avoid text-justify">
         <p>
           Selama masa cuti, saya bertanggung jawab penuh untuk memastikan seluruh pekerjaan telah diserahterimakan dengan baik. Jika terdapat urusan yang sangat mendesak terkait pekerjaan, saya dapat dihubungi melalui kontak pribadi saya.
         </p>
-        <p className="mt-4">
+        <p className="mt-2">
           Demikian permohonan izin cuti ini saya sampaikan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.
         </p>
       </div>
 
       {/* Pengesahan */}
-      <div className="break-inside-avoid">
-        <div className="mb-6 text-right pr-4">
+      <div className="break-inside-avoid shrink-0">
+        <div className="mb-4 text-right pr-4">
           <p>{data.tempatTtd}, {formatDate(data.tanggalTtd)}</p>
         </div>
         
-        <div className="grid grid-cols-3 gap-4 text-center text-sm border-t-2 border-black pt-8">
+        <div className="grid grid-cols-3 gap-4 text-center text-sm border-t-2 border-black pt-4">
           <div>
-            <p className="mb-20">Hormat Saya,<br/>Pemohon,</p>
+            <p className="mb-16">Hormat Saya,<br/>Pemohon,</p>
             <p className="font-bold underline uppercase">{data.namaKaryawan}</p>
             <p>{data.jabatan}</p>
           </div>
           <div>
-            <p className="mb-20">Disetujui Oleh,<br/>Atasan Langsung,</p>
+            <p className="mb-16">Disetujui Oleh,<br/>Atasan Langsung,</p>
             <p className="font-bold underline uppercase">{data.namaAtasan || '.......................'}</p>
             <p>{data.jabatanAtasan || 'Atasan'}</p>
           </div>
           <div>
-            <p className="mb-20">Mengetahui,<br/>HRD / Personalia,</p>
+            <p className="mb-16">Mengetahui,<br/>HRD / Personalia,</p>
             <p className="font-bold underline uppercase">{data.namaHRD || '.......................'}</p>
             <p>HRD Department</p>
           </div>
