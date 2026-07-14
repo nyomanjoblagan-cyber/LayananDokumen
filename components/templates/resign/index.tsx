@@ -168,11 +168,11 @@ function ResignBuilder() {
       </div>
 
       {/* Ucapan Terima Kasih */}
-      <div className="mb-12 break-inside-avoid whitespace-pre-line text-justify indent-8">
+      <div className="mb-6 break-inside-avoid whitespace-pre-line text-justify indent-8">
         {data.ucapanTerimaKasih}
       </div>
 
-      <div className="mb-16 break-inside-avoid text-justify">
+      <div className="mb-8 break-inside-avoid text-justify">
         <p className="indent-8">
           Demikian surat pengunduran diri ini saya sampaikan dengan sebenarnya. Atas perhatian dan kerjasamanya, saya ucapkan terima kasih.
         </p>
@@ -181,7 +181,7 @@ function ResignBuilder() {
       {/* Tanda Tangan */}
       <div className="flex justify-end text-center break-inside-avoid shrink-0">
         <div className="w-64">
-          <p className="mb-24">Hormat saya,</p>
+          <p className="mb-16">Hormat saya,</p>
           <p className="font-bold underline">{data.namaKaryawan}</p>
         </div>
       </div>
