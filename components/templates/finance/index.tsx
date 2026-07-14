@@ -174,8 +174,8 @@ function FinanceToolBuilder() {
     } catch { return dateStr; }
   };
 
-  const dims = (activeDocType === 'nota') ? { w: '148mm', h: '210mm' } : (activeDocType === 'kuitansi') ? { w: '210mm', h: '99mm' } : { w: '210mm', h: '296mm' };
-  const paperPadding = (activeDocType === 'nota') ? 'p-[12mm]' : 'p-[20mm]';
+  const dims = (activeDocType === 'nota') ? { w: '105mm', h: '148mm' } : (activeDocType === 'kuitansi') ? { w: '210mm', h: '99mm' } : { w: '210mm', h: '296mm' };
+  const paperPadding = (activeDocType === 'nota') ? 'p-[6mm]' : 'p-[20mm]';
   const DocumentContent = () => (
     <Kertas className="flex flex-col" w={dims.w} h={dims.h} p={paperPadding}>
       {activeDocType === 'invoice' && (
@@ -367,80 +367,80 @@ function FinanceToolBuilder() {
       {activeDocType === 'nota' && (
         <div className="flex-1 flex flex-col font-sans text-slate-800">
            {/* HEADER */}
-           <div className="flex justify-between items-start border-b-2 border-slate-200 pb-4 mb-6">
+           <div className="flex justify-between items-start border-b border-slate-200 pb-3 mb-4">
              <div className="w-[60%]">
-               {logo ? <img src={logo} className="w-16 h-16 object-contain mb-2" alt="logo" /> : <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center font-bold text-[10px] text-slate-400 mb-2">LOGO</div>}
-               <h1 className="font-black text-xl leading-tight uppercase text-slate-900">{data.senderName}</h1>
-               <p className="text-[9px] text-slate-500 leading-relaxed whitespace-pre-line mt-1">{data.senderInfo}</p>
+               {logo ? <img src={logo} className="w-10 h-10 object-contain mb-1" alt="logo" /> : <div className="w-8 h-8 bg-slate-100 rounded flex items-center justify-center font-bold text-[6px] text-slate-400 mb-1">LOGO</div>}
+               <h1 className="font-black text-xs leading-tight uppercase text-slate-900">{data.senderName}</h1>
+               <p className="text-[7px] text-slate-500 leading-relaxed whitespace-pre-line mt-0.5">{data.senderInfo}</p>
              </div>
              <div className="w-[40%] text-right">
-               <h2 className="text-3xl font-black tracking-tighter text-blue-600 uppercase">NOTA</h2>
-               <div className="mt-2 text-[10px] font-bold text-slate-700 bg-slate-50 inline-block px-3 py-1.5 rounded-md border border-slate-200">
+               <h2 className="text-xl font-black tracking-tighter text-blue-600 uppercase">NOTA</h2>
+               <div className="mt-1 text-[8px] font-bold text-slate-700 bg-slate-50 inline-block px-2 py-1 rounded border border-slate-200">
                  NO: {data.no}
                </div>
              </div>
            </div>
 
            {/* INFO KEPADA & TANGGAL */}
-           <div className="flex justify-between mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+           <div className="flex justify-between mb-4 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
               <div className="w-[60%]">
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Kepada Yth:</p>
-                <p className="font-bold text-sm text-slate-800 uppercase">{data.receiverName}</p>
-                <p className="text-[10px] text-slate-500 mt-1 whitespace-pre-line max-w-[90%]">{data.receiverInfo}</p>
+                <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Kepada Yth:</p>
+                <p className="font-bold text-[10px] text-slate-800 uppercase">{data.receiverName}</p>
+                <p className="text-[8px] text-slate-500 mt-0.5 whitespace-pre-line max-w-[95%]">{data.receiverInfo}</p>
               </div>
               <div className="w-[40%] text-right">
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Tanggal</p>
-                <p className="font-bold text-sm text-slate-800">{formatDateSafe(data.date)}</p>
+                <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Tanggal</p>
+                <p className="font-bold text-[9px] text-slate-800">{formatDateSafe(data.date)}</p>
               </div>
            </div>
 
            {/* TABEL BARANG */}
            <div className="flex-grow">
-             <table className="w-full text-[11px] border-collapse">
+             <table className="w-full text-[9px] border-collapse">
                 <thead>
-                  <tr className="bg-slate-900 text-white uppercase text-[9px] tracking-widest">
-                    <th className="py-3 px-4 text-left rounded-tl-lg">Deskripsi Item</th>
-                    <th className="py-3 px-2 text-center w-12">Qty</th>
-                    <th className="py-3 px-3 text-right w-24">Harga</th>
-                    <th className="py-3 px-4 text-right w-32 rounded-tr-lg">Total</th>
+                  <tr className="bg-slate-900 text-white uppercase text-[7px] tracking-widest">
+                    <th className="py-2 px-2 text-left rounded-tl-md">Deskripsi Item</th>
+                    <th className="py-2 px-1 text-center w-8">Qty</th>
+                    <th className="py-2 px-1 text-right w-16">Harga</th>
+                    <th className="py-2 px-2 text-right w-20 rounded-tr-md">Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {data.items.map((item, i) => (
                     <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-3 px-4 font-bold text-slate-800 uppercase">{item.name}</td>
-                      <td className="py-3 px-2 text-center text-slate-600 font-medium tabular-nums">{item.qty}</td>
-                      <td className="py-3 px-3 text-right text-slate-600 font-medium tabular-nums">{item.price.toLocaleString('id-ID')}</td>
-                      <td className="py-3 px-4 text-right font-black text-slate-900 tabular-nums">{(item.qty * item.price).toLocaleString('id-ID')}</td>
+                      <td className="py-2 px-2 font-bold text-slate-800 uppercase">{item.name}</td>
+                      <td className="py-2 px-1 text-center text-slate-600 font-medium tabular-nums">{item.qty}</td>
+                      <td className="py-2 px-1 text-right text-slate-600 font-medium tabular-nums">{item.price.toLocaleString('id-ID')}</td>
+                      <td className="py-2 px-2 text-right font-black text-slate-900 tabular-nums">{(item.qty * item.price).toLocaleString('id-ID')}</td>
                     </tr>
                   ))}
                   {[...Array(Math.max(0, 5 - data.items.length))].map((_, i) => (
-                    <tr key={i}><td className="py-3 px-4 h-[32px]"></td><td className="py-3 px-2"></td><td className="py-3 px-3"></td><td className="py-3 px-4"></td></tr>
+                    <tr key={i}><td className="py-2 px-2 h-[24px]"></td><td className="py-2 px-1"></td><td className="py-2 px-1"></td><td className="py-2 px-2"></td></tr>
                   ))}
                 </tbody>
              </table>
            </div>
 
            {/* TOTAL & TTD */}
-           <div className="mt-6 border-t-2 border-slate-200 pt-6">
-              <div className="flex justify-end mb-10">
-                <div className="w-[70%] flex items-center justify-between bg-blue-50/80 p-4 rounded-xl border border-blue-100">
-                  <span className="font-black text-blue-900 uppercase text-xs tracking-widest">Grand Total</span>
-                  <span className="font-black text-xl text-blue-700 tabular-nums">Rp {total.toLocaleString('id-ID')}</span>
+           <div className="mt-4 border-t-2 border-slate-200 pt-4">
+              <div className="flex justify-end mb-6">
+                <div className="w-[85%] flex items-center justify-between bg-blue-50/80 p-2.5 rounded-lg border border-blue-100">
+                  <span className="font-black text-blue-900 uppercase text-[8px] tracking-widest">Grand Total</span>
+                  <span className="font-black text-sm text-blue-700 tabular-nums">Rp {total.toLocaleString('id-ID')}</span>
                 </div>
               </div>
 
-              <div className="flex justify-between items-end text-[10px]">
+              <div className="flex justify-between items-end text-[8px]">
                 <div className="w-1/3">
-                  <p className="font-black text-slate-400 uppercase tracking-widest mb-16 text-center">Penerima</p>
-                  <div className="border-b-2 border-slate-300 w-3/4 mx-auto"></div>
+                  <p className="font-black text-slate-400 uppercase tracking-widest mb-10 text-center">Penerima</p>
+                  <div className="border-b border-slate-300 w-3/4 mx-auto"></div>
+                </div>
+                <div className="w-1/3 text-center px-1">
+                  <p className="italic text-slate-400 text-[6px] leading-relaxed">{data.footerNote}</p>
                 </div>
                 <div className="w-1/3 text-center">
-                  <p className="italic text-slate-400 max-w-[150px] mx-auto leading-relaxed">{data.footerNote}</p>
-                </div>
-                <div className="w-1/3 text-center">
-                  <p className="font-black text-slate-400 uppercase tracking-widest mb-16">Hormat Kami</p>
-                  <p className="font-bold text-slate-900 uppercase border-b-2 border-slate-900 pb-1 w-max mx-auto px-4">{data.signer}</p>
+                  <p className="font-black text-slate-400 uppercase tracking-widest mb-10">Hormat Kami</p>
+                  <p className="font-bold text-slate-900 uppercase border-b border-slate-900 pb-0.5 w-max mx-auto px-2">{data.signer}</p>
                 </div>
               </div>
            </div>
