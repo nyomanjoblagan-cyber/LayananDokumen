@@ -107,7 +107,7 @@ function BelumMenikahBuilder() {
       </div>
 
       {/* Identitas */}
-      <div className="mb-6 pl-4 break-inside-avoid text-justify">
+      <div className="mb-6 ml-8 break-inside-avoid text-justify">
         <table className="w-full">
           <tbody>
             <tr>
@@ -155,34 +155,33 @@ function BelumMenikahBuilder() {
           Dengan ini menyatakan dengan sesungguhnya dan berani mengangkat sumpah bahwa sampai saat surat pernyataan ini dibuat, saya <strong>belum pernah menikah (berstatus lajang)</strong> baik secara hukum agama, hukum adat, maupun hukum negara dengan siapapun.
         </p>
         <p className="indent-8 mt-4 leading-relaxed">
-          Demikian surat pernyataan ini saya buat dengan sebenar-benarnya dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya paksaan dari pihak manapun, untuk dipergunakan sebagai <strong>{data.tujuanSurat}</strong>.
+          Demikian surat pernyataan ini saya buat dengan sebenar-benarnya dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya paksaan dari pihak manapun, untuk dipergunakan sebagai kelengkapan <strong>{data.tujuanSurat}</strong>.
         </p>
         <p className="indent-8 mt-4 leading-relaxed">
-          Apabila di kemudian hari ternyata pernyataan ini terbukti tidak benar, saya bersedia dituntut di muka pengadilan dan menerima segala sanksi atau tindakan hukum lainnya sesuai dengan peraturan perundang-undangan yang berlaku.
+          Apabila di kemudian hari ternyata pernyataan ini terbukti tidak benar, saya bersedia dituntut di muka pengadilan dan menerima segala tindakan hukum lainnya sesuai dengan peraturan perundang-undangan yang berlaku.
         </p>
       </div>
 
       {/* Tanda Tangan */}
-      <div className="mt-12 break-inside-avoid shrink-0">
-        <div className="mb-6 text-right pr-4">
+      <div className="mt-8 break-inside-avoid shrink-0">
+        <div className="mb-4 text-right pr-4">
           <p>{data.tempatTtd}, {formatDate(data.tanggalTtd)}</p>
         </div>
         
-        <div className="flex justify-between px-8 text-center mt-4">
+        <div className="flex justify-between px-8 text-center mt-2">
           {data.namaWali ? (
           <div className="w-1/2 flex flex-col items-center">
-            <p className="mb-2">Mengetahui,<br/>{data.hubunganWali}</p>
-            <div className="h-20 flex items-center justify-center relative my-2"></div>
+            <p className="mb-20">Mengetahui,<br/>{data.hubunganWali}</p>
             <p className="font-bold underline uppercase">{data.namaWali}</p>
           </div>
           ) : <div className="w-1/2"></div>}
           
           <div className="w-1/2 flex flex-col items-center">
-            <p className="mb-2">Yang Membuat Pernyataan,</p>
-            <div className="h-20 flex items-center justify-center relative my-2">
-               <div className="absolute text-[10px] text-slate-400 border border-slate-300 px-2 py-6 border-dashed z-0 bg-white/50">Materai<br/>10.000</div>
-            </div>
-            <p className="font-bold underline uppercase relative z-10">{data.nama}</p>
+            <p className="mb-20">Yang Membuat Pernyataan,</p>
+            <p className="font-bold underline uppercase relative">
+               <span className="absolute -left-12 -top-8 text-[9px] text-slate-500 font-normal border border-slate-400 border-dashed px-1 py-4 leading-none bg-white/60 -rotate-12">Materai<br/>10rb</span>
+               {data.nama}
+            </p>
           </div>
         </div>
       </div>
