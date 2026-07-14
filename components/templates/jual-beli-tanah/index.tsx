@@ -146,7 +146,7 @@ function LandSaleBuilder() {
   const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
 
   const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-[20mm] text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] min-h-[296mm] h-auto ${className}`}>
+    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] min-h-[296mm] h-auto ${className}`}>
       {children}
     </div>
   );
@@ -524,7 +524,7 @@ function LandSaleBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4; margin: 15mm; } 
           body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
