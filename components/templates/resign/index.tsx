@@ -1,23 +1,15 @@
-"use client";
+'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, 
-  ArrowLeftCircle,
-  BookOpen,
-  Edit3,
-  RotateCcw
+  Printer, ArrowLeftCircle, Edit3, RotateCcw, BookOpen
 } from 'lucide-react';
 import { format, addMonths } from 'date-fns';
 import { id } from 'date-fns/locale';
 import Link from 'next/link';
+import PrintWrapper from '@/components/PrintWrapper';
 
-const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 h-auto ${className}`}>
-    {children}
-  </div>
-);
-
+// --- 1. TYPE DEFINITIONS ---
 interface ResignData {
   pihak1Nama: string;
   pihak1NIK: string;
@@ -48,65 +40,75 @@ interface ResignData {
   tanggunganPajak: string;
 }
 
-export default function ResignTemplate() {
-  const printRef = useRef<HTMLDivElement>(null);
-  const [isClient, setIsClient] = useState(false);
+// --- 2. DATA DEFAULT ---
+const getInitialData = (): ResignData => {
+  const today = new Date();
+  const nextMonth = addMonths(today, 1);
+  return {
+    pihak1Nama: 'Hendro Wijaya',
+    pihak1NIK: '3171234567890001',
+    pihak1TempatLahir: 'Jakarta',
+    pihak1TanggalLahir: '1980-05-15',
+    pihak1Pekerjaan: 'HR Manager',
+    pihak1Alamat: 'Jl. Sudirman Kav. 45, Jakarta Selatan',
+    companyName: 'PT INDONESIA MAJU SEJAHTERA',
+    companyAddress: 'Gedung Menara Mulia, Lantai 5, Jl. Gatot Subroto, Jakarta',
+
+    pihak2Nama: 'Budi Santoso',
+    pihak2NIK: '3201234567890002',
+    pihak2TempatLahir: 'Bandung',
+    pihak2TanggalLahir: '1990-10-20',
+    pihak2Pekerjaan: 'Senior Software Engineer',
+    pihak2Alamat: 'Jl. Merdeka No. 10, RT 01/RW 02, Kota Bandung',
+
+    tempatSurat: 'Jakarta',
+    tanggalSurat: format(today, 'yyyy-MM-dd'),
+    tanggalEfektif: format(nextMonth, 'yyyy-MM-dd'),
+
+    klausulHandover: true,
+    klausulAset: true,
+    klausulNDA: true,
+    klausulPelepasan: true,
+    
+    metodePembayaran: 'Transfer Bank',
+    tanggunganPajak: 'Perusahaan',
+  };
+};
+
+// --- 3. KERTAS MUTLAK ---
+const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>
+    {children}
+  </div>
+);
+
+// --- 4. KOMPONEN UTAMA ---
+export default function ResignTemplatePage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Resign...</div>}>
+      <ResignBuilder />
+    </Suspense>
+  );
+}
+
+function ResignBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pihak1' | 'pihak2' | 'resign' | 'klausul'>('pihak1');
+  const [isClient, setIsClient] = useState(false);
+  const [data, setData] = useState<ResignData>(getInitialData());
 
   useEffect(() => {
     setIsClient(true);
   }, []);
-  
-  const getInitialData = (): ResignData => {
-    const today = new Date();
-    const nextMonth = addMonths(today, 1);
-    return {
-      pihak1Nama: 'Hendro Wijaya',
-      pihak1NIK: '3171234567890001',
-      pihak1TempatLahir: 'Jakarta',
-      pihak1TanggalLahir: '1980-05-15',
-      pihak1Pekerjaan: 'HR Manager',
-      pihak1Alamat: 'Jl. Sudirman Kav. 45, Jakarta Selatan',
-      companyName: 'PT INDONESIA MAJU SEJAHTERA',
-      companyAddress: 'Gedung Menara Mulia, Lantai 5, Jl. Gatot Subroto, Jakarta',
-
-      pihak2Nama: 'Budi Santoso',
-      pihak2NIK: '3201234567890002',
-      pihak2TempatLahir: 'Bandung',
-      pihak2TanggalLahir: '1990-10-20',
-      pihak2Pekerjaan: 'Senior Software Engineer',
-      pihak2Alamat: 'Jl. Merdeka No. 10, RT 01/RW 02, Kota Bandung',
-
-      tempatSurat: 'Jakarta',
-      tanggalSurat: format(today, 'yyyy-MM-dd'),
-      tanggalEfektif: format(nextMonth, 'yyyy-MM-dd'),
-
-      klausulHandover: true,
-      klausulAset: true,
-      klausulNDA: true,
-      klausulPelepasan: true,
-      
-      metodePembayaran: 'Transfer Bank',
-      tanggunganPajak: 'Perusahaan',
-    };
-  };
-
-  const [data, setData] = useState<ResignData>(getInitialData());
-
-  const handlePrint = () => {
-    window.print();
-  };
 
   const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua perubahan akan hilang.')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke setelan awal?')) {
         setData(getInitialData());
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setData((prev) => ({ ...prev, [name]: checked }));
@@ -133,18 +135,192 @@ export default function ResignTemplate() {
     }
   };
 
+  const DocumentContent = () => (
+    <Kertas>
+      {/* JUDUL */}
+      <div className="text-center mb-10 break-inside-avoid">
+        <h1 className="text-xl font-bold uppercase underline underline-offset-4 tracking-wide mb-1">
+          KESEPAKATAN BERSAMA PENGUNDURAN DIRI
+        </h1>
+        <p className="text-[11pt]">ANTARA</p>
+        <p className="text-[11pt] font-bold uppercase">{data.companyName}</p>
+        <p className="text-[11pt]">DENGAN</p>
+        <p className="text-[11pt] font-bold uppercase">{data.pihak2Nama}</p>
+      </div>
+
+      {/* PENDAHULUAN */}
+      <div className="mb-6 text-justify break-inside-avoid">
+        <p className="mb-4">
+          Pada hari ini, <strong>{getDayName(data.tanggalSurat)}</strong> tanggal <strong>{formatDateIndo(data.tanggalSurat)}</strong>, bertempat di <strong>{data.tempatSurat}</strong>, dibuat dan ditandatangani Kesepakatan Bersama Pengunduran Diri (selanjutnya disebut "<strong>Kesepakatan Bersama</strong>") oleh dan antara:
+        </p>
+      </div>
+
+      {/* PIHAK PERTAMA */}
+      <div className="mb-6 break-inside-avoid">
+        <p className="font-bold mb-2">1. Pihak Pertama (Perusahaan)</p>
+        <table className="w-full ml-4">
+          <tbody>
+            <tr>
+              <td className="w-[180px] py-1 align-top">Nama Perusahaan</td>
+              <td className="w-4 py-1 align-top">:</td>
+              <td className="py-1 align-top font-bold uppercase">{data.companyName}</td>
+            </tr>
+            <tr>
+              <td className="py-1 align-top">Alamat Perusahaan</td>
+              <td className="py-1 align-top">:</td>
+              <td className="py-1 align-top">{data.companyAddress}</td>
+            </tr>
+            <tr>
+              <td className="py-1 align-top">Diwakili Oleh</td>
+              <td className="py-1 align-top">:</td>
+              <td className="py-1 align-top font-bold">{data.pihak1Nama}</td>
+            </tr>
+            <tr>
+              <td className="py-1 align-top">Jabatan</td>
+              <td className="py-1 align-top">:</td>
+              <td className="py-1 align-top">{data.pihak1Pekerjaan}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="mt-2 ml-4 text-justify">
+          Dalam hal ini bertindak untuk dan atas nama {data.companyName}, yang selanjutnya disebut <strong>PIHAK PERTAMA</strong>.
+        </p>
+      </div>
+
+      {/* PIHAK KEDUA */}
+      <div className="mb-8 break-inside-avoid">
+        <p className="font-bold mb-2">2. Pihak Kedua (Karyawan)</p>
+        <table className="w-full ml-4">
+          <tbody>
+            <tr>
+              <td className="w-[180px] py-1 align-top">Nama</td>
+              <td className="w-4 py-1 align-top">:</td>
+              <td className="py-1 align-top font-bold">{data.pihak2Nama}</td>
+            </tr>
+            <tr>
+              <td className="py-1 align-top">NIK</td>
+              <td className="py-1 align-top">:</td>
+              <td className="py-1 align-top">{data.pihak2NIK}</td>
+            </tr>
+            <tr>
+              <td className="py-1 align-top">Tempat, Tanggal Lahir</td>
+              <td className="py-1 align-top">:</td>
+              <td className="py-1 align-top">{data.pihak2TempatLahir}, {formatDateIndo(data.pihak2TanggalLahir)}</td>
+            </tr>
+            <tr>
+              <td className="py-1 align-top">Pekerjaan/Jabatan</td>
+              <td className="py-1 align-top">:</td>
+              <td className="py-1 align-top">{data.pihak2Pekerjaan}</td>
+            </tr>
+            <tr>
+              <td className="py-1 align-top">Alamat</td>
+              <td className="py-1 align-top">:</td>
+              <td className="py-1 align-top text-justify">{data.pihak2Alamat}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="mt-2 ml-4 text-justify">
+          Selanjutnya disebut <strong>PIHAK KEDUA</strong>.
+        </p>
+      </div>
+
+      <div className="mb-6 text-justify break-inside-avoid">
+        <p>PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama disebut <strong>PARA PIHAK</strong>, menerangkan dan menyepakati hal-hal sebagai berikut:</p>
+      </div>
+
+      {/* KLAUSUL - PASAL */}
+      <div className="space-y-6 text-justify">
+        <div className="break-inside-avoid">
+          <p className="font-bold text-center mb-2">PASAL 1<br/>PENGUNDURAN DIRI KARYAWAN</p>
+          <p className="ml-8 -indent-4 mb-2">
+            1. PIHAK KEDUA telah mengajukan permohonan pengunduran diri secara sukarela dari jabatannya di perusahaan PIHAK PERTAMA.
+          </p>
+          <p className="ml-8 -indent-4">
+            2. PIHAK PERTAMA menyetujui permohonan pengunduran diri tersebut, sehingga hubungan kerja antara PARA PIHAK berakhir terhitung sejak tanggal <strong>{formatDateIndo(data.tanggalEfektif)}</strong>.
+          </p>
+        </div>
+
+        {data.klausulHandover && (
+          <div className="break-inside-avoid break-before-auto">
+            <p className="font-bold text-center mb-2 mt-6">PASAL 2<br/>SERAH TERIMA PEKERJAAN (HANDOVER)</p>
+            <p className="ml-8 -indent-4">
+              1. PIHAK KEDUA berkewajiban melakukan serah terima seluruh tugas, pekerjaan, data, dan tanggung jawab kepada PIHAK PERTAMA atau pihak lain yang ditunjuk oleh PIHAK PERTAMA, selambat-lambatnya sebelum tanggal efektif pengunduran diri.
+            </p>
+          </div>
+        )}
+
+        {data.klausulAset && (
+          <div className="break-inside-avoid break-before-auto">
+            <p className="font-bold text-center mb-2 mt-6">PASAL 3<br/>PENGEMBALIAN ASET PERUSAHAAN</p>
+            <p className="ml-8 -indent-4">
+              1. PIHAK KEDUA wajib mengembalikan seluruh fasilitas, barang, inventaris, dan/atau dokumen milik PIHAK PERTAMA (seperti laptop, kartu identitas, kunci akses, kendaraan, dll) dalam keadaan baik selambat-lambatnya pada hari terakhir bekerja.
+            </p>
+          </div>
+        )}
+
+        {(data.klausulNDA || data.klausulPelepasan) && (
+          <div className="break-inside-avoid break-before-auto">
+            <p className="font-bold text-center mb-2 mt-6">PASAL 4<br/>KLAUSUL TAMBAHAN</p>
+            {data.klausulNDA && (
+              <p className="ml-8 -indent-4 mb-2">
+                - PIHAK KEDUA terikat pada kewajiban menjaga kerahasiaan data dan informasi rahasia milik PIHAK PERTAMA (Non-Disclosure Agreement) baik selama maupun setelah berakhirnya hubungan kerja.
+              </p>
+            )}
+            {data.klausulPelepasan && (
+              <p className="ml-8 -indent-4">
+                - Dengan ditandatanganinya Kesepakatan Bersama ini, PARA PIHAK saling membebaskan dari segala tuntutan hukum, baik perdata maupun pidana, di masa yang akan datang sehubungan dengan pemutusan hubungan kerja ini.
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="break-inside-avoid break-before-auto">
+          <p className="font-bold text-center mb-2 mt-6">PASAL 5<br/>HAK DAN KEWAJIBAN KEUANGAN</p>
+          <p className="ml-8 -indent-4 mb-2">
+            1. PIHAK PERTAMA akan membayarkan seluruh hak PIHAK KEDUA (seperti sisa gaji, uang pisah, atau kompensasi cuti yang belum diambil jika ada) sesuai dengan Peraturan Perusahaan yang berlaku.
+          </p>
+          <p className="ml-8 -indent-4 mb-2">
+            2. Pembayaran hak tersebut akan dilakukan melalui metode <strong>{data.metodePembayaran}</strong> ke rekening PIHAK KEDUA.
+          </p>
+          <p className="ml-8 -indent-4">
+            3. Beban pajak atas hak yang diterima PIHAK KEDUA menjadi tanggungan <strong>{data.tanggunganPajak}</strong> sesuai peraturan perpajakan yang berlaku.
+          </p>
+        </div>
+      </div>
+
+      {/* PENUTUP */}
+      <div className="mt-8 mb-12 text-justify break-inside-avoid">
+        <p>
+          Demikian Kesepakatan Bersama ini dibuat dengan sebenarnya dalam keadaan sadar dan tanpa paksaan dari pihak manapun, dibuat dalam rangkap 2 (dua) yang masing-masing dibubuhi meterai secukupnya dan mempunyai kekuatan hukum yang sama.
+        </p>
+      </div>
+
+      {/* TANDA TANGAN */}
+      <div className="flex justify-between items-end mt-16 px-8 break-inside-avoid shrink-0">
+        <div className="text-center w-64">
+          <p className="mb-24">PIHAK PERTAMA,<br/>{data.companyName}</p>
+          <p className="font-bold underline">{data.pihak1Nama}</p>
+          <p>{data.pihak1Pekerjaan}</p>
+        </div>
+        <div className="text-center w-64">
+          <p className="mb-24">PIHAK KEDUA,<br/>Karyawan</p>
+          <p className="font-bold underline">{data.pihak2Nama}</p>
+        </div>
+      </div>
+    </Kertas>
+  );
+
   if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 overflow-hidden">
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
+          @page { size: A4 portrait; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
           * { box-sizing: border-box !important; }
         }
       ` }} />
@@ -157,23 +333,33 @@ export default function ResignTemplate() {
               <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Dashboard</span>
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-tighter">
-               <BookOpen size={16} className="text-emerald-500" /> <span>Generator Kesepakatan Pengunduran Diri</span>
+            <div className="hidden md:flex flex-col">
+               <span className="font-black text-sm tracking-widest uppercase text-white">Generator Resign</span>
+               <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Corporate Legal</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); handlePrint(); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden print:h-auto print:overflow-visible">
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-40 no-print font-sans">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'editor' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500'}`}>
+          <Edit3 size={16} /> Editor
+        </button>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'preview' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500'}`}>
+          <Printer size={16} /> Preview
+        </button>
+      </div>
+
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] md:h-[calc(100vh-64px)] relative print:hidden">
         
         {/* PANEL KIRI: FORM EDITOR */}
-        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-           <div className="p-4 border-b flex justify-between items-center bg-slate-50">
-              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Pengaturan Dokumen</h2>
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] bg-white border-r border-slate-200 h-[calc(100vh-64px)] md:sticky md:top-16 z-30 no-print shadow-xl shrink-0`}>
+           <div className="p-4 border-b flex justify-between items-center bg-slate-50 shrink-0">
+              <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-emerald-500" /> Pengaturan Dokumen</h2>
               <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
            </div>
            
@@ -185,360 +371,163 @@ export default function ResignTemplate() {
               <button onClick={() => setActiveTab('klausul')} className={`flex-1 py-3 ${activeTab === 'klausul' ? 'bg-white text-red-600 border-b-2 border-b-red-600' : 'text-slate-500 hover:bg-slate-200'}`}>Klausul</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
+           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32">
               
               {activeTab === 'pihak1' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-4 animate-in fade-in duration-300">
                 <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4">Informasi Pihak Pertama (Perusahaan)</h3>
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap (Wakil)</label>
-                  <input type="text" name="pihak1Nama" value={data.pihak1Nama} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm font-bold mt-1" />
+                  <input type="text" name="pihak1Nama" value={data.pihak1Nama} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm font-bold mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 uppercase">NIK Wakil Perusahaan</label>
-                  <input type="text" name="pihak1NIK" value={data.pihak1NIK} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Lahir</label>
-                    <input type="text" name="pihak1TempatLahir" value={data.pihak1TempatLahir} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Lahir</label>
-                    <input type="date" name="pihak1TanggalLahir" value={data.pihak1TanggalLahir} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
-                  </div>
+                  <input type="text" name="pihak1NIK" value={data.pihak1NIK} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan Wakil</label>
-                  <input type="text" name="pihak1Pekerjaan" value={data.pihak1Pekerjaan} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
+                  <input type="text" name="pihak1Pekerjaan" value={data.pihak1Pekerjaan} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Wakil (KTP)</label>
-                  <textarea name="pihak1Alamat" value={data.pihak1Alamat} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 h-20" />
-                </div>
-                
-                <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4 mt-6">Entitas Perusahaan</h3>
-                <div>
+                <div className="pt-3 border-t">
                   <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Perusahaan</label>
-                  <input type="text" name="companyName" value={data.companyName} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm font-bold mt-1" />
+                  <input type="text" name="companyName" value={data.companyName} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm font-bold uppercase mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Perusahaan</label>
-                  <textarea name="companyAddress" value={data.companyAddress} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 h-20" />
+                  <textarea name="companyAddress" value={data.companyAddress} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 h-20 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
                 </div>
               </div>
               )}
 
               {activeTab === 'pihak2' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-4 animate-in fade-in duration-300">
                 <h3 className="text-xs font-black uppercase text-emerald-600 border-b pb-1 mb-4">Informasi Pihak Kedua (Karyawan)</h3>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
-                  <input type="text" name="pihak2Nama" value={data.pihak2Nama} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm font-bold mt-1" />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Karyawan</label>
+                  <input type="text" name="pihak2Nama" value={data.pihak2Nama} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm font-bold mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">NIK Karyawan</label>
-                  <input type="text" name="pihak2NIK" value={data.pihak2NIK} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">NIK KTP Karyawan</label>
+                  <input type="text" name="pihak2NIK" value={data.pihak2NIK} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Lahir</label>
-                    <input type="text" name="pihak2TempatLahir" value={data.pihak2TempatLahir} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
+                    <input type="text" name="pihak2TempatLahir" value={data.pihak2TempatLahir} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Lahir</label>
-                    <input type="date" name="pihak2TanggalLahir" value={data.pihak2TanggalLahir} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
+                    <input type="date" name="pihak2TanggalLahir" value={data.pihak2TanggalLahir} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Pekerjaan / Jabatan Terakhir</label>
-                  <input type="text" name="pihak2Pekerjaan" value={data.pihak2Pekerjaan} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan Saat Ini</label>
+                  <input type="text" name="pihak2Pekerjaan" value={data.pihak2Pekerjaan} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat (KTP)</label>
-                  <textarea name="pihak2Alamat" value={data.pihak2Alamat} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 h-20" />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Alamat Sesuai KTP</label>
+                  <textarea name="pihak2Alamat" value={data.pihak2Alamat} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 h-20 focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
                 </div>
               </div>
               )}
 
               {activeTab === 'resign' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-amber-600 border-b pb-1 mb-4">Waktu dan Tempat Kesepakatan</h3>
+              <div className="space-y-4 animate-in fade-in duration-300">
+                <h3 className="text-xs font-black uppercase text-amber-600 border-b pb-1 mb-4">Jadwal Pengunduran Diri</h3>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat Penandatanganan</label>
+                  <input type="text" name="tempatSurat" value={data.tempatSurat} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-amber-500 outline-none" />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Kota Penandatanganan</label>
-                    <input type="text" name="tempatSurat" value={data.tempatSurat} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal TTD Kesepakatan</label>
+                    <input type="date" name="tanggalSurat" value={data.tanggalSurat} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-amber-500 outline-none" />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Dokumen</label>
-                    <input type="date" name="tanggalSurat" value={data.tanggalSurat} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1" />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Efektif Resign</label>
+                    <input type="date" name="tanggalEfektif" value={data.tanggalEfektif} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-amber-500 outline-none font-bold text-amber-700" />
                   </div>
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Efektif Pengunduran Diri</label>
-                  <input type="date" name="tanggalEfektif" value={data.tanggalEfektif} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 font-bold text-rose-700" />
                 </div>
               </div>
               )}
 
               {activeTab === 'klausul' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-xs font-black uppercase text-red-600 border-b pb-1 mb-4">Pengaturan Klausul & Finansial</h3>
+              <div className="space-y-4 animate-in fade-in duration-300">
+                <h3 className="text-xs font-black uppercase text-red-600 border-b pb-1 mb-4">Pengaturan Klausul</h3>
                 
-                <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="space-y-3 bg-red-50 p-4 rounded-xl border border-red-100">
                   <label className="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="klausulHandover" checked={data.klausulHandover} onChange={handleInputChange} className="mt-1 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500" />
-                    <span className="text-sm text-slate-700">
-                      <strong className="block text-slate-900 mb-0.5">Wajib Handover</strong>
-                      Karyawan wajib melakukan serah terima tugas sebelum hak-haknya dicairkan.
-                    </span>
+                    <input type="checkbox" name="klausulHandover" checked={data.klausulHandover} onChange={handleInputChange} className="mt-1 accent-red-600" />
+                    <div>
+                      <span className="block text-sm font-bold text-red-800">Sertakan Klausul Handover</span>
+                      <span className="block text-[10px] text-red-600">Kewajiban serah terima pekerjaan ke pihak perusahaan.</span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" name="klausulAset" checked={data.klausulAset} onChange={handleInputChange} className="mt-1 accent-red-600" />
+                    <div>
+                      <span className="block text-sm font-bold text-red-800">Sertakan Klausul Aset</span>
+                      <span className="block text-[10px] text-red-600">Kewajiban mengembalikan barang/aset perusahaan.</span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" name="klausulNDA" checked={data.klausulNDA} onChange={handleInputChange} className="mt-1 accent-red-600" />
+                    <div>
+                      <span className="block text-sm font-bold text-red-800">Sertakan Klausul NDA</span>
+                      <span className="block text-[10px] text-red-600">Kewajiban menjaga kerahasiaan perusahaan (Non-Disclosure).</span>
+                    </div>
                   </label>
                   
                   <label className="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="klausulAset" checked={data.klausulAset} onChange={handleInputChange} className="mt-1 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500" />
-                    <span className="text-sm text-slate-700">
-                      <strong className="block text-slate-900 mb-0.5">Pengembalian Aset</strong>
-                      Kewajiban pengembalian aset (laptop, dokumen, dsb) dengan kewajiban ganti rugi jika hilang/rusak.
-                    </span>
-                  </label>
-
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="klausulNDA" checked={data.klausulNDA} onChange={handleInputChange} className="mt-1 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500" />
-                    <span className="text-sm text-slate-700">
-                      <strong className="block text-slate-900 mb-0.5">Post-Employment NDA</strong>
-                      Kewajiban menjaga kerahasiaan perusahaan (Non-Disclosure) secara penuh purna-kerja.
-                    </span>
-                  </label>
-
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="klausulPelepasan" checked={data.klausulPelepasan} onChange={handleInputChange} className="mt-1 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500" />
-                    <span className="text-sm text-slate-700">
-                      <strong className="block text-slate-900 mb-0.5">Release & Discharge</strong>
-                      Klausul bahwa kesepakatan ini bersifat final, membebaskan tuntutan, dan tanpa paksaan.
-                    </span>
+                    <input type="checkbox" name="klausulPelepasan" checked={data.klausulPelepasan} onChange={handleInputChange} className="mt-1 accent-red-600" />
+                    <div>
+                      <span className="block text-sm font-bold text-red-800">Sertakan Klausul Pelepasan Tuntutan</span>
+                      <span className="block text-[10px] text-red-600">Kesepakatan tidak saling menuntut di kemudian hari.</span>
+                    </div>
                   </label>
                 </div>
 
-                <div className="space-y-4 mt-6">
+                <div className="pt-4 border-t space-y-3">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Metode Pembayaran Hak Akhir</label>
-                    <select name="metodePembayaran" value={data.metodePembayaran} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Metode Pembayaran Hak/Pesangon</label>
+                    <select name="metodePembayaran" value={data.metodePembayaran} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-red-500 outline-none">
                       <option value="Transfer Bank">Transfer Bank</option>
-                      <option value="Tunai">Tunai</option>
                       <option value="Cek Giro">Cek Giro</option>
+                      <option value="Tunai Keras">Tunai Keras</option>
                     </select>
                   </div>
-                  
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggungan Pajak Pembayaran</label>
-                    <select name="tanggunganPajak" value={data.tanggunganPajak} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1">
-                      <option value="Perusahaan">Ditanggung Perusahaan (Net)</option>
-                      <option value="Karyawan">Ditanggung Karyawan (Gross)</option>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggungan Pajak Pesangon/Hak</label>
+                    <select name="tanggunganPajak" value={data.tanggunganPajak} onChange={handleInputChange} className="w-full p-2 border rounded-lg text-sm mt-1 focus:ring-2 focus:ring-red-500 outline-none">
+                      <option value="Perusahaan">Perusahaan</option>
+                      <option value="Karyawan">Karyawan</option>
+                      <option value="Ditanggung Bersama (50:50)">Ditanggung Bersama (50:50)</option>
                     </select>
                   </div>
                 </div>
               </div>
               )}
            </div>
-        </div>
+        </aside>
 
-        {/* Right Panel - Live Preview */}
-        <div className="flex-1 h-full overflow-y-auto bg-slate-400 p-4 md:p-8 print:p-0 print:w-full print:bg-white print:overflow-visible flex justify-center print:hidden">
-          <div id="print-only-root" className="w-full flex justify-center print:block print:h-auto print:static">
-            <div ref={printRef}>
-              <Kertas>
-                <div className="text-center mb-8">
-                  <h1 className="font-bold text-lg uppercase underline">KESEPAKATAN BERSAMA</h1>
-                  <h2 className="font-bold text-md uppercase">PENYELESAIAN HUBUNGAN KERJA DAN PENGUNDURAN DIRI</h2>
-                </div>
-
-                <div className="mb-6 text-justify">
-                  <p>
-                    Pada hari ini, <strong>{getDayName(data.tanggalSurat)}</strong> tanggal <strong>{formatDateIndo(data.tanggalSurat)}</strong>, bertempat di <strong>{data.tempatSurat}</strong>, telah dibuat dan ditandatangani Kesepakatan Bersama Penyelesaian Hubungan Kerja dan Pengunduran Diri ("<strong>Perjanjian</strong>") oleh dan antara:
-                  </p>
-                </div>
-
-                <div className="mb-6 space-y-4 text-justify">
-                  <div className="flex">
-                    <div className="w-8 shrink-0">1.</div>
-                    <div className="flex-1">
-                      <div className="space-y-1 mb-2">
-                        <div className="flex"><span className="w-48 shrink-0">Nama Lengkap</span><span>: <strong>{data.pihak1Nama}</strong></span></div>
-                        <div className="flex"><span className="w-48 shrink-0">NIK</span><span>: {data.pihak1NIK}</span></div>
-                        <div className="flex"><span className="w-48 shrink-0">Tempat, Tanggal Lahir</span><span>: {data.pihak1TempatLahir}, {formatDateIndo(data.pihak1TanggalLahir)}</span></div>
-                        <div className="flex"><span className="w-48 shrink-0">Pekerjaan</span><span>: {data.pihak1Pekerjaan}</span></div>
-                        <div className="flex"><span className="w-48 shrink-0">Alamat (Sesuai KTP)</span><span>: {data.pihak1Alamat}</span></div>
-                      </div>
-                      <p>
-                        Dalam hal ini bertindak dalam jabatannya tersebut, dari dan oleh karenanya sah bertindak untuk dan atas nama <strong>{data.companyName}</strong>, suatu badan hukum yang berkedudukan di {data.companyAddress}, selanjutnya dalam Perjanjian ini disebut sebagai "<strong>PIHAK PERTAMA</strong>".
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex">
-                    <div className="w-8 shrink-0">2.</div>
-                    <div className="flex-1">
-                      <div className="space-y-1 mb-2">
-                        <div className="flex"><span className="w-48 shrink-0">Nama Lengkap</span><span>: <strong>{data.pihak2Nama}</strong></span></div>
-                        <div className="flex"><span className="w-48 shrink-0">NIK</span><span>: {data.pihak2NIK}</span></div>
-                        <div className="flex"><span className="w-48 shrink-0">Tempat, Tanggal Lahir</span><span>: {data.pihak2TempatLahir}, {formatDateIndo(data.pihak2TanggalLahir)}</span></div>
-                        <div className="flex"><span className="w-48 shrink-0">Pekerjaan</span><span>: {data.pihak2Pekerjaan}</span></div>
-                        <div className="flex"><span className="w-48 shrink-0">Alamat (Sesuai KTP)</span><span>: {data.pihak2Alamat}</span></div>
-                      </div>
-                      <p>
-                        Dalam hal ini bertindak untuk dan atas nama diri sendiri selaku karyawan, selanjutnya dalam Perjanjian ini disebut sebagai "<strong>PIHAK KEDUA</strong>".
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-6 text-justify">
-                  <p className="mb-2">
-                    PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut "<strong>PARA PIHAK</strong>" dan secara sendiri-sendiri disebut "<strong>PIHAK</strong>".
-                  </p>
-                  <p className="mb-2">
-                    PARA PIHAK terlebih dahulu menerangkan hal-hal sebagai berikut:
-                  </p>
-                  <div className="ml-6 space-y-1">
-                    <div className="flex"><span className="w-6 shrink-0">a.</span><p>Bahwa PIHAK KEDUA adalah karyawan PIHAK PERTAMA yang menjabat sebagai {data.pihak2Pekerjaan}.</p></div>
-                    <div className="flex"><span className="w-6 shrink-0">b.</span><p>Bahwa PIHAK KEDUA telah mengajukan permohonan pengunduran diri secara sukarela dan tanpa paksaan dari pihak manapun dari jabatannya di perusahaan PIHAK PERTAMA.</p></div>
-                    <div className="flex"><span className="w-6 shrink-0">c.</span><p>Bahwa PIHAK PERTAMA dapat menerima permohonan pengunduran diri yang diajukan oleh PIHAK KEDUA tersebut.</p></div>
-                  </div>
-                  <p className="mt-4">
-                    Berdasarkan hal-hal tersebut di atas, PARA PIHAK sepakat untuk mengikatkan diri dalam Perjanjian ini dengan syarat-syarat dan ketentuan-ketentuan sebagai berikut:
-                  </p>
-                </div>
-
-                {/* PASAL 1 */}
-                <div className="mb-4">
-                  <h3 className="font-bold text-center">PASAL 1</h3>
-                  <h3 className="font-bold text-center mb-2">PERNYATAAN PENGUNDURAN DIRI</h3>
-                  <div className="space-y-1 text-justify ml-4">
-                    <div className="flex"><span className="w-6 shrink-0">1.</span><p>PIHAK KEDUA dengan ini menyatakan mengundurkan diri secara sukarela dan tanpa paksaan dari pihak manapun dari jabatannya di perusahaan PIHAK PERTAMA.</p></div>
-                    <div className="flex"><span className="w-6 shrink-0">2.</span><p>PIHAK PERTAMA dengan ini menerima pengunduran diri PIHAK KEDUA, sehingga dengan demikian hubungan kerja antara PARA PIHAK secara resmi berakhir.</p></div>
-                  </div>
-                </div>
-
-                {/* PASAL 2 */}
-                <div className="mb-4">
-                  <h3 className="font-bold text-center">PASAL 2</h3>
-                  <h3 className="font-bold text-center mb-2">TANGGAL EFEKTIF DAN SERAH TERIMA TUGAS</h3>
-                  <div className="space-y-1 text-justify ml-4">
-                    <div className="flex"><span className="w-6 shrink-0">1.</span><p>PARA PIHAK sepakat bahwa tanggal efektif berakhirnya hubungan kerja adalah pada tanggal <strong>{formatDateIndo(data.tanggalEfektif)}</strong>.</p></div>
-                    {data.klausulHandover && (
-                      <>
-                        <div className="flex"><span className="w-6 shrink-0">2.</span><p>Sebelum tanggal efektif sebagaimana dimaksud pada Ayat 1 Pasal ini, PIHAK KEDUA wajib melaksanakan serah terima tugas (<em>handover</em>) secara komprehensif kepada PIHAK PERTAMA atau pihak lain yang ditunjuk oleh PIHAK PERTAMA.</p></div>
-                        <div className="flex"><span className="w-6 shrink-0">3.</span><p>PIHAK PERTAMA berhak menahan penyerahan Surat Keterangan Kerja (Paklaring) dan/atau hak-hak finansial PIHAK KEDUA apabila proses serah terima tugas belum diselesaikan dengan baik oleh PIHAK KEDUA.</p></div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* PASAL 3 */}
-                <div className="mb-4">
-                  <h3 className="font-bold text-center">PASAL 3</h3>
-                  <h3 className="font-bold text-center mb-2">PENYERAHAN ASET PERUSAHAAN</h3>
-                  <div className="space-y-1 text-justify ml-4">
-                    {data.klausulAset ? (
-                      <>
-                        <div className="flex"><span className="w-6 shrink-0">1.</span><p>PIHAK KEDUA wajib mengembalikan seluruh aset, inventaris, fasilitas, dan dokumen fisik maupun elektronik yang merupakan milik PIHAK PERTAMA selambat-lambatnya pada tanggal efektif pengunduran diri.</p></div>
-                        <div className="flex"><span className="w-6 shrink-0">2.</span><p>Segala bentuk kerusakan atau kehilangan atas aset PIHAK PERTAMA yang disebabkan oleh kelalaian PIHAK KEDUA akan menjadi tanggung jawab penuh PIHAK KEDUA dan kewajiban ganti rugi tersebut dapat diperhitungkan secara langsung dengan hak-hak finansial PIHAK KEDUA.</p></div>
-                      </>
-                    ) : (
-                      <div className="flex"><span className="w-6 shrink-0">1.</span><p>Mengenai penyelesaian aset atau inventaris perusahaan yang berada dalam penguasaan PIHAK KEDUA, PARA PIHAK akan menyelesaikannya secara musyawarah sebelum berakhirnya hubungan kerja.</p></div>
-                    )}
-                  </div>
-                </div>
-
-                {/* PASAL 4 */}
-                <div className="mb-4">
-                  <h3 className="font-bold text-center">PASAL 4</h3>
-                  <h3 className="font-bold text-center mb-2">HAK DAN KEWAJIBAN FINANSIAL</h3>
-                  <div className="space-y-1 text-justify ml-4">
-                    <div className="flex"><span className="w-6 shrink-0">1.</span><p>PIHAK PERTAMA sepakat untuk membayarkan seluruh sisa gaji, uang penggantian hak, dan/atau hak-hak finansial lainnya yang timbul dari berakhirnya hubungan kerja ini kepada PIHAK KEDUA sesuai dengan peraturan perusahaan dan peraturan perundang-undangan ketenagakerjaan yang berlaku.</p></div>
-                    <div className="flex"><span className="w-6 shrink-0">2.</span><p>Pembayaran hak-hak finansial tersebut akan dilakukan oleh PIHAK PERTAMA kepada PIHAK KEDUA melalui metode <strong>{data.metodePembayaran}</strong>.</p></div>
-                    <div className="flex"><span className="w-6 shrink-0">3.</span><p>Segala kewajiban pajak yang timbul akibat pembayaran hak-hak finansial sebagaimana dimaksud pada Ayat 1 Pasal ini akan <strong>{data.tanggunganPajak === 'Perusahaan' ? 'ditanggung dan dibayarkan oleh PIHAK PERTAMA (Pajak Ditanggung Perusahaan / Net)' : 'ditanggung sepenuhnya oleh PIHAK KEDUA (Pajak Ditanggung Karyawan / Gross) sesuai dengan peraturan perundang-undangan perpajakan yang berlaku'}</strong>.</p></div>
-                    <div className="flex"><span className="w-6 shrink-0">4.</span><p>Dengan dilakukannya pembayaran secara lunas sebagaimana dimaksud pada Ayat 1 dan 2 Pasal ini, maka PIHAK KEDUA menyatakan bahwa PIHAK PERTAMA telah memenuhi seluruh kewajiban finansialnya kepada PIHAK KEDUA secara penuh tanpa ada yang tertinggal.</p></div>
-                  </div>
-                </div>
-
-                {/* PASAL 5 */}
-                <div className="mb-4">
-                  <h3 className="font-bold text-center">PASAL 5</h3>
-                  <h3 className="font-bold text-center mb-2">KOMITMEN KERAHASIAAN (NON-DISCLOSURE AGREEMENT)</h3>
-                  <div className="space-y-1 text-justify ml-4">
-                    {data.klausulNDA ? (
-                      <>
-                        <div className="flex"><span className="w-6 shrink-0">1.</span><p>PIHAK KEDUA mengikatkan diri dan berjanji untuk senantiasa menjaga kerahasiaan seluruh informasi, data, rahasia dagang, strategi bisnis, daftar klien, kode sumber (<em>source code</em>), dan dokumen-dokumen milik PIHAK PERTAMA (selanjutnya disebut "<strong>Informasi Rahasia</strong>") secara berkelanjutan meskipun hubungan kerja antara PARA PIHAK telah berakhir.</p></div>
-                        <div className="flex"><span className="w-6 shrink-0">2.</span><p>PIHAK KEDUA dilarang secara tegas untuk menyebarluaskan, membocorkan, menduplikasi, atau menggunakan Informasi Rahasia tersebut untuk kepentingan pribadi maupun pihak ketiga tanpa izin tertulis sebelumnya dari PIHAK PERTAMA.</p></div>
-                        <div className="flex"><span className="w-6 shrink-0">3.</span><p>Setiap pelanggaran terhadap ketentuan komitmen kerahasiaan ini memberikan hak mutlak kepada PIHAK PERTAMA untuk menuntut ganti rugi secara perdata maupun memproses PIHAK KEDUA secara pidana sesuai dengan ketentuan hukum yang berlaku di Negara Republik Indonesia.</p></div>
-                      </>
-                    ) : (
-                      <div className="flex"><span className="w-6 shrink-0">1.</span><p>PIHAK KEDUA diimbau untuk senantiasa menjaga nama baik PIHAK PERTAMA dan menjaga informasi penting perusahaan meskipun hubungan kerja telah berakhir dengan sebaik-baiknya.</p></div>
-                    )}
-                  </div>
-                </div>
-
-                {/* PASAL 6 */}
-                <div className="mb-4">
-                  <h3 className="font-bold text-center">PASAL 6</h3>
-                  <h3 className="font-bold text-center mb-2">SIFAT FINAL DAN PELEPASAN TUNTUTAN</h3>
-                  <div className="space-y-1 text-justify ml-4">
-                    {data.klausulPelepasan ? (
-                      <>
-                        <div className="flex"><span className="w-6 shrink-0">1.</span><p>PARA PIHAK menyatakan dan sepakat bahwa Perjanjian ini bersifat final, mengikat, dan merupakan penyelesaian menyeluruh atas segala hak dan kewajiban yang timbul dari maupun berhubungan dengan hubungan kerja antara PARA PIHAK.</p></div>
-                        <div className="flex"><span className="w-6 shrink-0">2.</span><p>PIHAK KEDUA dengan ini memberikan pembebasan dan pelepasan (<em>release and discharge</em>) secara mutlak dan penuh kepada PIHAK PERTAMA, para direktur, dewan komisaris, pemegang saham, karyawan, dan seluruh afiliasinya dari segala bentuk tuntutan, gugatan, atau klaim hukum di kemudian hari, baik di pengadilan maupun di luar pengadilan, di instansi ketenagakerjaan, kepolisian, maupun forum penyelesaian lainnya.</p></div>
-                        <div className="flex"><span className="w-6 shrink-0">3.</span><p>PIHAK KEDUA menyatakan dan menjamin bahwa pengunduran diri serta penandatanganan Perjanjian ini dilakukan dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya tekanan, paksaan, paksaan finansial, atau ancaman dari pihak manapun juga.</p></div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex"><span className="w-6 shrink-0">1.</span><p>PARA PIHAK menyatakan bahwa Perjanjian ini ditandatangani secara sukarela dan tanpa ada paksaan dari pihak manapun juga.</p></div>
-                        <div className="flex"><span className="w-6 shrink-0">2.</span><p>PARA PIHAK sepakat untuk menyelesaikan segala urusan terkait pengakhiran hubungan kerja secara kekeluargaan dan beritikad baik.</p></div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* PASAL 7 */}
-                <div className="mb-4 break-inside-avoid">
-                  <h3 className="font-bold text-center">PASAL 7</h3>
-                  <h3 className="font-bold text-center mb-2">PENYELESAIAN SENGKETA</h3>
-                  <div className="space-y-1 text-justify ml-4">
-                    <div className="flex"><span className="w-6 shrink-0">1.</span><p>Segala perselisihan yang timbul di kemudian hari akibat penafsiran maupun pelaksanaan Perjanjian ini akan diselesaikan oleh PARA PIHAK secara musyawarah untuk mencapai mufakat.</p></div>
-                    <div className="flex"><span className="w-6 shrink-0">2.</span><p>Apabila penyelesaian secara musyawarah tidak tercapai dalam waktu 30 (tiga puluh) hari kalender, maka PARA PIHAK sepakat untuk menyelesaikannya secara hukum melalui Kepaniteraan Pengadilan Hubungan Industrial pada Pengadilan Negeri setempat.</p></div>
-                  </div>
-                </div>
-
-                {/* PASAL 8 */}
-                <div className="mb-8 break-inside-avoid">
-                  <h3 className="font-bold text-center">PASAL 8</h3>
-                  <h3 className="font-bold text-center mb-2">PENUTUP</h3>
-                  <div className="space-y-1 text-justify ml-4">
-                    <div className="flex"><span className="w-6 shrink-0">1.</span><p>Demikian Perjanjian ini dibuat dan ditandatangani pada hari dan tanggal sebagaimana disebutkan pada awal Perjanjian, dibuat dalam rangkap 2 (dua) yang keduanya dibubuhi meterai yang cukup, dan masing-masing mempunyai kekuatan pembuktian hukum yang sama bagi PARA PIHAK.</p></div>
-                  </div>
-                </div>
-
-                {/* SIGNATURES */}
-                <div className="flex justify-between mt-12 pt-8 break-inside-avoid">
-                  <div className="w-1/2 text-center">
-                    <p className="mb-1"><strong>PIHAK PERTAMA</strong></p>
-                    <p className="mb-24">{data.companyName}</p>
-                    <p className="font-bold underline">{data.pihak1Nama}</p>
-                    <p>{data.pihak1Pekerjaan}</p>
-                  </div>
-                  <div className="w-1/2 text-center">
-                    <p className="mb-1"><strong>PIHAK KEDUA</strong></p>
-                    <p className="mb-24">Karyawan</p>
-                    <p className="font-bold underline">{data.pihak2Nama}</p>
-                    <p>NIK: {data.pihak2NIK}</p>
-                  </div>
-                </div>
-              </Kertas>
-            </div>
-          </div>
-        </div>
-
+        {/* Right Panel: Preview */}
+        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide`}>
+           <div className="scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 origin-top">
+              <DocumentContent />
+           </div>
+        </main>
       </main>
+
+      <div className="no-print hidden md:block">
+         <PrintWrapper documentName="Kesepakatan_Resign" price={10000} />
+      </div>
+
+      {/* PRINT-ONLY ROOT */}
+      <div id="print-only-root" className="hidden print:block print:h-auto print:static">
+         <div className="bg-white"><DocumentContent /></div>
+      </div>
     </div>
   );
 }
