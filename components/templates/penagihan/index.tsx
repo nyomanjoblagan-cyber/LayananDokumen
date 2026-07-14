@@ -356,7 +356,7 @@ function PenagihanToolBuilder() {
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative print:hidden">
         {/* EDITOR SIDEBAR */}
         <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[400px] lg:w-[450px] bg-white border-r border-slate-200 h-[calc(100vh-64px)] md:sticky md:top-16 z-30 no-print shadow-xl shrink-0`}>
           <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
