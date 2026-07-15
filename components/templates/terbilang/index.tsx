@@ -168,7 +168,7 @@ export default function TerbilangTemplate() {
 
             <div className="kuitansi-border flex-1 p-6 flex flex-col relative bg-orange-50/20">
               {/* Background Watermark (Optional) */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+              <div className="absolute inset-0 flex items-center justify-center  ">
                 <span className="text-[120px] font-black transform -rotate-12 uppercase">{data.namaPerusahaan}</span>
               </div>
 
@@ -231,7 +231,7 @@ export default function TerbilangTemplate() {
                   
                   <div className="relative">
                     {/* Stamp Placeholder */}
-                    <div className="absolute left-1/2 -top-16 -translate-x-1/2 w-24 h-24 border-[3px] border-blue-800 rounded-full flex flex-col items-center justify-center opacity-30 transform -rotate-12 pointer-events-none">
+                    <div className="absolute left-1/2 -top-16 -translate-x-1/2 w-24 h-24 border-[3px] border-blue-800 rounded-full flex flex-col items-center justify-center  transform -rotate-12 ">
                       <span className="text-[7px] font-bold uppercase tracking-widest">{data.namaPerusahaan}</span>
                       <span className="text-[12px] font-black text-blue-800 my-1">FINANCE</span>
                     </div>

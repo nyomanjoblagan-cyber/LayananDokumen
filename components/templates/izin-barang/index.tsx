@@ -322,7 +322,7 @@ export default function IzinBarangTemplate() {
               <div className="pb-2">
                 <p className="mb-16 font-bold uppercase">Diperiksa Oleh,</p>
                 <div className="relative inline-block">
-                  <div className="absolute left-1/2 -top-10 -translate-x-1/2 w-16 h-16 border-2 border-red-600 rounded-full flex flex-col items-center justify-center opacity-30 transform -rotate-12 pointer-events-none">
+                  <div className="absolute left-1/2 -top-10 -translate-x-1/2 w-16 h-16 border-2 border-red-600 rounded-full flex flex-col items-center justify-center  transform -rotate-12 ">
                     <span className="text-[6px] font-bold text-red-600 uppercase">SECURITY</span>
                     <span className="text-[10px] font-black text-red-600 my-1">PASSED</span>
                   </div>

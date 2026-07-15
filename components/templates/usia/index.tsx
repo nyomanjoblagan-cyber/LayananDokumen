@@ -307,7 +307,7 @@ export default function UsiaTemplate() {
                 <p className="font-bold mb-24">{data.jabatanPejabat}</p>
                 <div className="relative">
                   {/* Stamp Placeholder */}
-                  <div className="absolute left-0 -top-16 w-24 h-24 border-2 border-purple-800 rounded-full flex flex-col items-center justify-center opacity-30 transform -rotate-12 pointer-events-none">
+                  <div className="absolute left-0 -top-16 w-24 h-24 border-2 border-purple-800 rounded-full flex flex-col items-center justify-center  transform -rotate-12 ">
                     <span className="text-[6px] font-bold uppercase tracking-widest">{data.namaInstansi}</span>
                     <span className="text-[6px] font-black my-1">PEMDES</span>
                   </div>

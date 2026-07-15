@@ -102,7 +102,7 @@ function MedicalCertificateBuilder() {
               </div>
               
               {/* WATERMARK BG */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-0">
+              <div className="absolute inset-0 flex items-center justify-center   z-0">
                   <BadgePlus className="w-96 h-96" />
               </div>
               

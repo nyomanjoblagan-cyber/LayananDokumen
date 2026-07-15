@@ -363,7 +363,7 @@ function WithdrawalBuilder() {
              <button onClick={handleReset} className="text-slate-500 hover:text-red-600 transition-colors flex items-center gap-1 text-[10px] font-bold bg-slate-100 px-2 py-1 rounded"><RotateCcw size={12}/> RESET</button>
            </div>
            
- <div className="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar pb-32 font-sans print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar pb-32 font-sans print:flex print:overflow-visible print:bg-white">
               
               {/* SEGMEN 1: INFO SURAT */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -493,7 +493,7 @@ function WithdrawalBuilder() {
                            <option value="Lunas/Tunai">Lunas/Tunai saat penandatanganan</option>
                            <option value="Cicilan">Cicilan/Restrukturisasi Terjadwal</option>
                          </select>
-                         <ChevronDown size={14} className="absolute right-3 top-3 pointer-events-none text-purple-400" />
+                         <ChevronDown size={14} className="absolute right-3 top-3  text-purple-400" />
                        </div>
                      </div>
                      <div>
@@ -507,7 +507,7 @@ function WithdrawalBuilder() {
                            <option value="Ditanggung Pihak Pertama">Ditanggung Pihak Pertama (Pemohon)</option>
                            <option value="Bebas Biaya">Bebaskan Biaya / Ditanggung Bersama</option>
                          </select>
-                         <ChevronDown size={14} className="absolute right-3 top-3 pointer-events-none text-purple-400" />
+                         <ChevronDown size={14} className="absolute right-3 top-3  text-purple-400" />
                        </div>
                      </div>
                    </div>
@@ -518,7 +518,7 @@ function WithdrawalBuilder() {
         </div>
 
         {/* PREVIEW AREA */}
- <div className={`flex-1 h-full bg-slate-300 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:overflow-visible print:bg-white print:static print:p-0`}>
+ <div className={`flex-1 h-full bg-slate-300 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:flex print:overflow-visible print:bg-white print:static print:p-0`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                 <DocumentContent />
             </div>

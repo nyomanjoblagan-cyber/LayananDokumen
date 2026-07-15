@@ -300,7 +300,7 @@ function PenagihanToolBuilder() {
           
           <div className="border-b border-slate-900 pb-1 mb-1 relative">
             {/* Stamp Placeholder Context */}
-            <div className="absolute -top-12 -left-6 border-4 border-red-700/20 text-red-700/20 rounded-full w-24 h-24 flex items-center justify-center transform -rotate-12 pointer-events-none">
+            <div className="absolute -top-12 -left-6 border-4 border-red-700/20 text-red-700/20 rounded-full w-24 h-24 flex items-center justify-center transform -rotate-12 ">
               <span className="font-bold text-xs text-center leading-tight">LEGAL<br/>DEPT</span>
             </div>
             <p className="font-bold text-sm uppercase">{formData.namaPejabat}</p>

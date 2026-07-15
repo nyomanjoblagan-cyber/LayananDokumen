@@ -381,7 +381,7 @@ function JointVentureBuilder() {
                 <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
             </div>
 
- <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-32 md:pb-10 custom-scrollbar font-sans bg-slate-50/50 print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-32 md:pb-10 custom-scrollbar font-sans bg-slate-50/50 print:flex print:overflow-visible print:bg-white">
               
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4 relative overflow-hidden group">
                  <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
@@ -447,12 +447,12 @@ function JointVentureBuilder() {
                  <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-700 block uppercase tracking-wide">Rasio Pembagian Keuntungan (Profit %)</label>
                     <div className="flex items-center gap-3">
- <div className="flex-1 flex items-center border rounded-lg overflow-hidden bg-white shadow-sm print:overflow-visible print:bg-white">
+ <div className="flex-1 flex items-center border rounded-lg overflow-hidden bg-white shadow-sm print:flex print:overflow-visible print:bg-white">
                           <span className="text-[10px] font-black bg-slate-100 p-2.5 text-slate-500 w-14 text-center border-r">P1 %</span>
                           <input className="w-full p-2.5 text-sm text-center font-black text-slate-800 outline-none" type="number" value={data.profitP1} onChange={e => handleDataChange('profitP1', e.target.value)} />
                        </div>
                        <span className="font-bold text-slate-300">:</span>
- <div className="flex-1 flex items-center border rounded-lg overflow-hidden bg-white shadow-sm print:overflow-visible print:bg-white">
+ <div className="flex-1 flex items-center border rounded-lg overflow-hidden bg-white shadow-sm print:flex print:overflow-visible print:bg-white">
                           <span className="text-[10px] font-black bg-slate-100 p-2.5 text-slate-500 w-14 text-center border-r">P2 %</span>
                           <input className="w-full p-2.5 text-sm text-center font-black text-slate-800 outline-none" type="number" value={data.profitP2} onChange={e => handleDataChange('profitP2', e.target.value)} />
                        </div>
@@ -462,12 +462,12 @@ function JointVentureBuilder() {
                  <div className="space-y-2 pt-2">
                     <label className="text-[10px] font-black text-slate-700 block uppercase tracking-wide">Rasio Tanggungan Kerugian (Loss %)</label>
                     <div className="flex items-center gap-3">
- <div className="flex-1 flex items-center border border-rose-200 rounded-lg overflow-hidden bg-white shadow-sm print:overflow-visible print:bg-white">
+ <div className="flex-1 flex items-center border border-rose-200 rounded-lg overflow-hidden bg-white shadow-sm print:flex print:overflow-visible print:bg-white">
                           <span className="text-[10px] font-black bg-rose-50 p-2.5 text-rose-600 w-14 text-center border-r border-rose-200">P1 %</span>
                           <input className="w-full p-2.5 text-sm text-center font-black text-rose-700 outline-none" type="number" value={data.lossP1} onChange={e => handleDataChange('lossP1', e.target.value)} />
                        </div>
                        <span className="font-bold text-slate-300">:</span>
- <div className="flex-1 flex items-center border border-rose-200 rounded-lg overflow-hidden bg-white shadow-sm print:overflow-visible print:bg-white">
+ <div className="flex-1 flex items-center border border-rose-200 rounded-lg overflow-hidden bg-white shadow-sm print:flex print:overflow-visible print:bg-white">
                           <span className="text-[10px] font-black bg-rose-50 p-2.5 text-rose-600 w-14 text-center border-r border-rose-200">P2 %</span>
                           <input className="w-full p-2.5 text-sm text-center font-black text-rose-700 outline-none" type="number" value={data.lossP2} onChange={e => handleDataChange('lossP2', e.target.value)} />
                        </div>
@@ -528,8 +528,8 @@ function JointVentureBuilder() {
          </div>
 
          {/* PANEL KANAN - DOKUMEN PREVIEW */}
- <div className={`no-print flex-1 bg-slate-200/60 relative overflow-hidden flex flex-col items-center ${activeTab === 'editor' ? 'hidden md:flex' : 'flex'} print:overflow-visible print:bg-white print:static`}>
- <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:overflow-visible print:bg-white">
+ <div className={`no-print flex-1 bg-slate-200/60 relative overflow-hidden flex flex-col items-center ${activeTab === 'editor' ? 'hidden md:flex' : 'flex'} print:flex print:overflow-visible print:bg-white print:static`}>
+ <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:flex print:overflow-visible print:bg-white">
                 <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-300mm] md:mb-10 mt-2 md:mt-0 shadow-2xl flex flex-col items-center print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                    <div className="bg-white shadow-2xl mx-auto overflow-hidden relative border border-slate-200" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                       <DocumentContent />

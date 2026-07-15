@@ -313,7 +313,7 @@ export default function RujukanTemplate() {
                   <p className="text-[9pt]">SIP. {data.sipDokter}</p>
                   
                   {/* Cap/Stempel */}
-                  <div className="absolute -left-16 -top-16 w-24 h-24 border-2 border-purple-700 rounded-full flex items-center justify-center opacity-30 pointer-events-none transform -rotate-12">
+                  <div className="absolute -left-16 -top-16 w-24 h-24 border-2 border-purple-700 rounded-full flex items-center justify-center   transform -rotate-12">
                     <span className="text-purple-700 font-bold text-[8px] text-center uppercase px-2">{data.namaFaskes}</span>
                   </div>
                 </div>

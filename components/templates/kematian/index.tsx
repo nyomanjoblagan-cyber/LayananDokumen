@@ -452,7 +452,7 @@ function KematianBuilder() {
               <button onClick={() => setActiveTab('opsi')} className={`flex-1 py-3 ${activeTab === 'opsi' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Opsi</button>
            </div>
 
- <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:flex print:overflow-visible print:bg-white">
               
               {activeTab === 'pihak1' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -611,7 +611,7 @@ function KematianBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className="flex-1 bg-slate-200 overflow-y-auto relative p-4 md:p-8 custom-scrollbar print:p-0 print:bg-white print:overflow-visible print:static">
+        <div className="flex-1 bg-slate-200 overflow-y-auto relative p-4 md:p-8 custom-scrollbar print:p-0 print:bg-white print:flex print:overflow-visible print:static">
           <DocumentContent />
         </div>
 

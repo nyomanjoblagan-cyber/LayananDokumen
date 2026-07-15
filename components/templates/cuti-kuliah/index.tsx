@@ -461,8 +461,8 @@ export default function SuratCutiAkademik() {
          </div>
 
          {/* PREVIEW PANEL */}
- <div className={`flex-1 bg-slate-200 relative overflow-hidden flex flex-col items-center md:block ${activeTab === 'preview' ? 'block' : 'hidden'} print:overflow-visible print:bg-white print:static`}>
- <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:overflow-visible print:bg-white print:p-0">
+ <div className={`flex-1 bg-slate-200 relative overflow-hidden flex flex-col items-center md:block ${activeTab === 'preview' ? 'block' : 'hidden'} print:flex print:overflow-visible print:bg-white print:static`}>
+ <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:flex print:overflow-visible print:bg-white print:p-0">
                 <div className="origin-top transition-transform duration-300 transform scale-[0.6] md:scale-100 mb-[-120mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                    <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
                       <ContentInside />

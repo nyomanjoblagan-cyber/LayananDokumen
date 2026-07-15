@@ -194,7 +194,7 @@ function PaklaringBuilder() {
           
           <div className="relative">
             {/* Stamp */}
-            <div className="absolute -left-12 -top-16 w-32 h-32 border-4 border-blue-800 rounded-full flex items-center justify-center opacity-40 transform -rotate-12 pointer-events-none">
+            <div className="absolute -left-12 -top-16 w-32 h-32 border-4 border-blue-800 rounded-full flex items-center justify-center  transform -rotate-12 ">
               <div className="border-2 border-blue-800 rounded-full w-28 h-28 flex items-center justify-center p-2 text-center">
                 <span className="text-blue-800 font-bold text-xs uppercase">
                   {data.namaPerusahaan}

@@ -504,7 +504,7 @@ function GadaiBuilder() {
         </div>
 
         {/* PREVIEW AREA */}
- <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-0 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'} print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 h-full bg-slate-200/50 rounded-xl flex flex-col items-center p-0 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'} print:flex print:overflow-visible print:bg-white print:static`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl flex flex-col items-center print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                 <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col shadow-2xl">
                   <ContentInside />

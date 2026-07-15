@@ -249,8 +249,8 @@ function B2BShippingLabelBuilder() {
     <div className="min-h-screen bg-slate-950 flex flex-col font-sans text-slate-100 overflow-hidden relative">
       
       {/* BACKGROUND ELEMENTS */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/30 via-slate-950 to-black z-0 pointer-events-none"></div>
-      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-emerald-600/10 blur-[120px] rounded-full z-0 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/30 via-slate-950 to-black z-0 "></div>
+      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-emerald-600/10 blur-[120px] rounded-full z-0 "></div>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
@@ -308,7 +308,7 @@ function B2BShippingLabelBuilder() {
              <button onClick={() => setActiveTab('cargo')} className={`flex-1 p-3 text-center transition-colors border-b-2 ${activeTab === 'cargo' ? 'border-blue-500 text-blue-400 bg-blue-500/10' : 'border-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>Cargo</button>
            </div>
 
- <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:flex print:overflow-visible print:bg-white">
               
               {/* PRESETS */}
               <div className="mb-6 p-1 bg-slate-950/50 rounded-xl border border-white/5 flex gap-1">
@@ -422,7 +422,7 @@ function B2BShippingLabelBuilder() {
         </div>
 
         {/* PREVIEW CANVAS */}
- <div className={`flex-1 h-full flex flex-col items-center justify-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 h-full flex flex-col items-center justify-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:flex print:overflow-visible print:bg-white print:static`}>
             
             <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-[10px] font-mono text-emerald-400 flex items-center gap-2 no-print shadow-xl">
                <span className="relative flex h-2 w-2">
@@ -444,7 +444,7 @@ function B2BShippingLabelBuilder() {
       </div>
       
       {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 absolute bottom-0 left-0 right-0 z-0 opacity-0 pointer-events-none">
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 absolute bottom-0 left-0 right-0 z-0  ">
          {/* Hidden in UI but present for logic if needed */}
          <PrintWrapper documentName="B2B Logistics BOL" price={15000} />
       </div>

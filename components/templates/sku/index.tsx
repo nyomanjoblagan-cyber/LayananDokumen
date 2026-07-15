@@ -486,7 +486,7 @@ function SkuBuilder() {
               <button onClick={() => setActiveTab('opsi')} className={`flex-1 py-3 ${activeTab === 'opsi' ? 'bg-white text-orange-600 border-b-2 border-b-orange-600' : 'text-slate-500 hover:bg-slate-200'}`}>Klausul</button>
            </div>
 
- <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:flex print:overflow-visible print:bg-white">
               
               {activeTab === 'desa' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -702,7 +702,7 @@ function SkuBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
- <div className={`flex-1 bg-slate-500 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:block' : 'block'} print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 bg-slate-500 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:block' : 'block'} print:flex print:overflow-visible print:bg-white print:static`}>
            <div className="md:hidden sticky top-0 bg-slate-800 text-white p-3 flex justify-between items-center z-50 shadow-md">
              <button onClick={() => setMobileView('editor')} className="flex items-center gap-2 text-xs font-bold uppercase">
                <ArrowLeft size={16} /> Kembali ke Editor

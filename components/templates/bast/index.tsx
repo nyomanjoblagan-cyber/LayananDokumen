@@ -423,7 +423,7 @@ function BastBuilder() {
               <button onClick={() => setActiveTab('klausul')} className={`flex-1 py-3 border-r ${activeTab === 'klausul' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Klausul</button>
            </div>
 
- <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:flex print:overflow-visible print:bg-white">
               
               {activeTab === 'pihak1' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -594,7 +594,7 @@ function BastBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
- <div className={`flex-1 bg-slate-200 overflow-y-auto relative transition-transform ${mobileView === 'editor' ? 'translate-x-full print:translate-x-0 md:translate-x-0 hidden md:block' : 'translate-x-0 block'} md:block print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 bg-slate-200 overflow-y-auto relative transition-transform ${mobileView === 'editor' ? 'translate-x-full print:translate-x-0 md:translate-x-0 hidden md:block' : 'translate-x-0 block'} md:block print:flex print:overflow-visible print:bg-white print:static`}>
           
           <div className="md:hidden sticky top-0 bg-slate-800 text-white p-3 z-10 flex justify-between items-center shadow-md no-print">
             <span className="text-xs font-bold uppercase">Preview Dokumen</span>

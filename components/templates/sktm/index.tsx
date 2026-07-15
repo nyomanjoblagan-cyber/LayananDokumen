@@ -473,7 +473,7 @@ function SktmBuilder() {
               <button onClick={() => setActiveTab('ketentuan')} className={`flex-1 py-3 ${activeTab === 'ketentuan' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Ketentuan SKTM</button>
            </div>
 
- <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:flex print:overflow-visible print:bg-white">
               
               {activeTab === 'pihak1' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -643,7 +643,7 @@ function SktmBuilder() {
         </div>
 
         {/* PANEL KANAN: LIVE PREVIEW & PDF RENDERER */}
- <div className={`flex-1 bg-slate-500 overflow-y-auto w-full absolute md:relative z-0 ${mobileView === 'editor' ? 'hidden md:block' : 'block'} print:overflow-visible print:bg-white print:static`} style={{ height: '100%' }}>
+ <div className={`flex-1 bg-slate-500 overflow-y-auto w-full absolute md:relative z-0 ${mobileView === 'editor' ? 'hidden md:block' : 'block'} print:flex print:overflow-visible print:bg-white print:static`} style={{ height: '100%' }}>
             {/* LIVE PREVIEW CONTAINER (Untuk UI web) */}
             <div className="p-8 print:hidden flex justify-center min-w-min">
                 <div className="scale-100 origin-top shadow-2xl transition-transform duration-300 hover:shadow-3xl">

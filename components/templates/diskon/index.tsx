@@ -293,7 +293,7 @@ export default function DiskonTemplate() {
                 <p className="font-bold mb-24">{data.namaPerusahaan}</p>
                 <div className="relative">
                   {/* Stamp */}
-                  <div className="absolute left-1/2 -top-16 -translate-x-1/2 w-28 h-28 border-[3px] border-orange-800 rounded-full flex flex-col items-center justify-center opacity-30 transform -rotate-12 pointer-events-none">
+                  <div className="absolute left-1/2 -top-16 -translate-x-1/2 w-28 h-28 border-[3px] border-orange-800 rounded-full flex flex-col items-center justify-center  transform -rotate-12 ">
                     <span className="text-[8px] font-bold uppercase tracking-widest">{data.namaPerusahaan}</span>
                     <span className="text-[16px] font-black text-orange-800 my-1">APPROVED</span>
                     <span className="text-[7px]">DIRECTOR</span>

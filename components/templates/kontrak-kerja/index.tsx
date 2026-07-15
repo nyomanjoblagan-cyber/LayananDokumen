@@ -426,7 +426,7 @@ function ContractToolBuilder() {
              <button onClick={() => window.location.reload()} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Data"><RotateCcw size={16}/></button>
           </div>
           
- <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:flex print:overflow-visible print:bg-white">
              
              {/* SECTION 1: SETTING */}
              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -572,7 +572,7 @@ function ContractToolBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
- <div className={`flex-1 h-full bg-slate-200/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 h-full bg-slate-200/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:flex print:overflow-visible print:bg-white print:static`}>
            <div className="origin-top transition-transform duration-300 transform scale-[0.45] sm:scale-[0.55] md:scale-[0.85] lg:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                <Kertas><ContractDocument /></Kertas>
            </div>
