@@ -50,8 +50,8 @@ const DEFAULT_DATA: BelumMenikahData = {
 };
 
 // --- 3. KERTAS MUTLAK ---
-const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>
+const Kertas = ({ children, className = '', templateId = 1 }: { children: React.ReactNode, className?: string, templateId?: number }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-slate-900 leading-relaxed relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'} ${className}`}>
     {children}
   </div>
 );
@@ -70,6 +70,22 @@ function BelumMenikahBuilder() {
   const [activeTab, setActiveTab] = useState<'identitas' | 'isi'>('identitas');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<BelumMenikahData>(DEFAULT_DATA);
+  const [templateId, setTemplateId] = useState<number>(1);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+  
+  const TemplateMenu = () => (
+      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-blue-50 text-blue-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+              Format Legal Formal (Serif)
+          </button>
+          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+              Format Compact Rapi (Sans)
+          </button>
+      </div>
+  );
 
   useEffect(() => {
     setIsClient(true);
@@ -95,7 +111,7 @@ function BelumMenikahBuilder() {
   };
 
   const DocumentContent = () => (
-    <Kertas>
+    <Kertas templateId={templateId}>
       {/* Judul Surat */}
       <div className="text-center mb-6 break-inside-avoid">
         <h1 className="text-lg font-bold uppercase tracking-wide border-b-2 border-black inline-block pb-1">SURAT PERNYATAAN BELUM PERNAH MENIKAH</h1>
@@ -217,7 +233,14 @@ function BelumMenikahBuilder() {
               <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Legal Documents</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative">
+            <div className="relative">
+                <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all text-white">
+                    <CheckCircle size={16} className="text-blue-400"/> 
+                    <span className="hidden md:inline">{activeTemplateName}</span>
+                </button>
+                {showTemplateMenu && <TemplateMenu />}
+            </div>
             <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-blue-600 hover:bg-blue-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
             </button>
@@ -337,7 +360,7 @@ function BelumMenikahBuilder() {
         </aside>
 
         {/* PREVIEW AREA */}
-        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide`}>
+        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide print:hidden`}>
            <div className="scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 origin-top">
               <DocumentContent />
            </div>

@@ -82,6 +82,8 @@ function StatusToolBuilder() {
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [templateId, setTemplateId] = useState<number>(2); 
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [formatId, setFormatId] = useState<number>(1);
+  const [showFormatMenu, setShowFormatMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logo, setLogo] = useState<string | null>(null);
   const [data, setData] = useState<StatusData>(INITIAL_DATA);
@@ -127,6 +129,17 @@ function StatusToolBuilder() {
     </div>
   );
 
+  const FormatMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setFormatId(1); setShowFormatMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${formatId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${formatId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> Legal Formal (Serif)
+        </button>
+        <button onClick={() => {setFormatId(2); setShowFormatMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${formatId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${formatId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> Compact Rapi (Sans)
+        </button>
+    </div>
+  );
+
   const ContentInside = () => {
     const formatDate = (dateString: string) => {
         if(!dateString) return '...';
@@ -138,7 +151,7 @@ function StatusToolBuilder() {
 
     if (templateId === 1) {
       return (
-        <div className="font-serif text-[11pt] text-slate-900 leading-relaxed">
+        <div className={`text-slate-900 leading-relaxed ${formatId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'}`}>
            <div className="text-center mb-8">
               <h2 className="text-lg font-bold uppercase tracking-wide">PENGURUS RT ... RW ...</h2>
               <h1 className="text-xl font-black uppercase tracking-wider">{data.village}</h1>
@@ -174,7 +187,7 @@ function StatusToolBuilder() {
       );
     } else {
       return (
-        <div className="font-serif text-[11pt] text-slate-900 leading-relaxed">
+        <div className={`text-slate-900 leading-relaxed ${formatId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'}`}>
            <div className="text-center border-b-4 border-double border-black pb-3 mb-6 relative">
               {logo && <img src={logo} className="h-24 w-auto object-contain absolute left-4 top-0 grayscale" alt="logo" />}
               <div className="px-10">
@@ -251,6 +264,12 @@ function StatusToolBuilder() {
             </div>
             <div className="flex items-center gap-3">
                <div className="hidden md:flex relative">
+                  <button onClick={() => setShowFormatMenu(!showFormatMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
+                    <span className="text-blue-400">❖</span><span>{formatId === 1 ? 'Legal (Serif)' : 'Compact (Sans)'}</span><ChevronDown size={14} className="text-slate-500"/>
+                  </button>
+                  {showFormatMenu && <FormatMenu />}
+               </div>
+               <div className="hidden md:flex relative">
                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
                     <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Pengantar RT/RW' : 'Resmi Kelurahan'}</span><ChevronDown size={14} className="text-slate-500"/>
                   </button>
@@ -270,7 +289,7 @@ function StatusToolBuilder() {
       </header>
 
       {/* REVISED MAIN: Dibuat relative agar print-only-root bisa absolute sempurna saat di-print */}
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative print:hidden">
          
          <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
