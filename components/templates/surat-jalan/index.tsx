@@ -2,12 +2,10 @@
 
 /**
  * FILE: SuratJalanTemplate.tsx
- * STATUS: PRODUCTION READY (UI/UX STANDARDIZED)
+ * STATUS: PRODUCTION READY (PRINT CUT-OFF FIXED)
  * DESC: Generator Surat Jalan (Delivery Order) B2B
  * FEATURES:
- * - Standardized Enterprise Navy Header
- * - Single DOM Print Architecture (Absolute Print Isolation)
- * - Strict A4 Print Layout with Scoped Margins
+ * - Natural Flow Print Architecture (No Clipping)
  */
 
 import React, { useState } from 'react';
@@ -69,22 +67,25 @@ export default function SuratJalanTemplate() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800 relative">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       
-      {/* CSS PRINT FIXED (ISOLASI ABSOLUT) */}
+      {/* 
+        CSS PRINT FIXED (THE BULLETPROOF PATCH) 
+        html, body dipaksa h-auto agar tidak kepotong.
+        #print-only-root dikembalikan ke static flow.
+      */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4 portrait; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: absolute !important; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
           * { box-sizing: border-box !important; }
         }
         .sj-table th { padding: 8px; border: 1px solid #000; background-color: #f3f4f6; text-align: center; font-size: 10pt; font-weight: bold; }
         .sj-table td { padding: 6px 8px; border: 1px solid #000; font-size: 10pt; }
       ` }} />
 
-      {/* HEADER NAVY STANDAR (Sama seperti SP Karyawan & Status Menikah) */}
       <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
          <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -96,7 +97,6 @@ export default function SuratJalanTemplate() {
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Surat Jalan <span className="text-indigo-400">Generator</span></h1></div>
             </div>
             <div className="flex items-center gap-3">
-               {/* Tombol Print dipindah ke atas sini, seragam dengan yang lain */}
                <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95">
                  <Printer size={18}/> <span className="hidden sm:inline">Cetak Dokumen</span>
                </button>
@@ -104,17 +104,17 @@ export default function SuratJalanTemplate() {
          </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] relative">
+      {/* REVISI KRUSIAL: print:h-auto print:overflow-visible print:block membebaskan tinggi saat print */}
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:h-auto print:overflow-visible print:block">
         
         {/* Sidebar Form */}
-        <div className="no-print w-full md:w-[480px] lg:w-[540px] bg-white border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 relative shadow-xl md:shadow-none">
+        <div className="no-print w-full md:w-[480px] lg:w-[540px] bg-white border-r border-slate-200 flex flex-col h-full z-10">
           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
               <h2 className="font-bold text-slate-700 flex items-center gap-2"><Truck size={18} className="text-indigo-600" /> Form Surat Jalan</h2>
           </div>
           
           <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar">
             
-            {/* Field Data (Tidak Ada Perubahan, Tetap Solid) */}
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
               <h3 className="font-semibold text-slate-700 mb-3 text-xs uppercase tracking-wider">Info Dokumen</h3>
               <div className="space-y-3">
@@ -206,7 +206,6 @@ export default function SuratJalanTemplate() {
                         <label className="block text-[10px] font-bold text-slate-500 uppercase">Nama Barang</label>
                         <input type="text" value={item.namaBarang} onChange={(e) => handleItemChange(item.id, 'namaBarang', e.target.value)} className="w-full p-1.5 text-sm border border-slate-200 rounded bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Nama/Deskripsi" />
                       </div>
-                      
                       <div className="col-span-4 md:col-span-3">
                         <label className="block text-[10px] font-bold text-slate-500 uppercase">Qty</label>
                         <input type="number" value={item.qty} onChange={(e) => handleItemChange(item.id, 'qty', parseInt(e.target.value) || 0)} className="w-full p-1.5 text-sm border border-slate-200 rounded bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-center" />
@@ -252,13 +251,11 @@ export default function SuratJalanTemplate() {
           </div>
         </div>
 
-        {/* Print Preview Area */}
-        <div className="flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block">
+        {/* REVISI KRUSIAL: print:h-auto print:overflow-visible melepaskan pengekangan tinggi */}
+        <div className="flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block print:h-auto print:w-full">
            
-          {/* ROOT CETAK UTAMA */}
           <div id="print-only-root" className="bg-white text-black shadow-2xl print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 mx-auto" style={{ width: '210mm', minHeight: '297mm', padding: '15mm', fontFamily: 'Arial, sans-serif' }}>
             
-            {/* Kop Surat */}
             <div className="flex border-b-2 border-black pb-3 mb-6">
               <div className="w-16 h-16 bg-gray-200 border border-gray-400 flex items-center justify-center mr-4">
                 <span className="text-gray-500 font-bold text-[10px] text-center leading-tight">LOGO</span>
@@ -273,7 +270,6 @@ export default function SuratJalanTemplate() {
               </div>
             </div>
 
-            {/* Header Info */}
             <div className="flex justify-between mb-6 text-[10pt]">
               <div className="w-1/2 pr-4">
                 <p className="font-bold mb-1">Kepada Yth:</p>
@@ -289,37 +285,13 @@ export default function SuratJalanTemplate() {
                       <td className="w-4">:</td>
                       <td className="font-bold text-[11pt]">{data.nomorSJ}</td>
                     </tr>
-                    <tr>
-                      <td className="py-1">Tanggal</td>
-                      <td>:</td>
-                      <td>{data.tanggal}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">No. PO / Referensi</td>
-                      <td>:</td>
-                      <td className="font-mono">{data.noPO || '-'}</td>
-                    </tr>
+                    <tr><td className="py-1">Tanggal</td><td>:</td><td>{data.tanggal}</td></tr>
+                    <tr><td className="py-1">No. PO / Ref</td><td>:</td><td className="font-mono">{data.noPO || '-'}</td></tr>
                     <tr><td colSpan={3} className="py-2"></td></tr>
-                    <tr>
-                      <td className="py-1">Kendaraan</td>
-                      <td>:</td>
-                      <td>{data.jenisKendaraan}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">No. Polisi</td>
-                      <td>:</td>
-                      <td className="font-bold">{data.nopol}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">Sopir</td>
-                      <td>:</td>
-                      <td>{data.namaSopir}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">No. Segel</td>
-                      <td>:</td>
-                      <td className="font-mono">{data.noSegel || '-'}</td>
-                    </tr>
+                    <tr><td className="py-1">Kendaraan</td><td>:</td><td>{data.jenisKendaraan}</td></tr>
+                    <tr><td className="py-1">No. Polisi</td><td>:</td><td className="font-bold">{data.nopol}</td></tr>
+                    <tr><td className="py-1">Sopir</td><td>:</td><td>{data.namaSopir}</td></tr>
+                    <tr><td className="py-1">No. Segel</td><td>:</td><td className="font-mono">{data.noSegel || '-'}</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -341,7 +313,7 @@ export default function SuratJalanTemplate() {
                 </thead>
                 <tbody>
                   {items.map((item, idx) => (
-                    <tr key={item.id} className="h-8">
+                    <tr key={item.id} className="h-8 break-inside-avoid">
                       <td className="text-center">{idx + 1}</td>
                       <td className="font-mono text-[9pt] text-center">{item.kodeBarang}</td>
                       <td>{item.namaBarang}</td>
@@ -357,11 +329,11 @@ export default function SuratJalanTemplate() {
               </table>
             </div>
 
-            <div className="mb-8 border border-gray-400 p-2 text-[9pt] italic">
+            <div className="mb-8 border border-gray-400 p-2 text-[9pt] italic break-inside-avoid">
               <strong>Catatan:</strong> {data.catatan}
             </div>
 
-            <div className="grid grid-cols-3 gap-4 text-center text-[10pt] mt-4">
+            <div className="grid grid-cols-3 gap-4 text-center text-[10pt] mt-4 break-inside-avoid">
               <div>
                 <p className="mb-20">Penerima,</p>
                 <p className="font-bold underline">{data.penerimaTtd}</p>
@@ -384,13 +356,12 @@ export default function SuratJalanTemplate() {
               </div>
             </div>
 
-            <div className="mt-16 text-[8pt] flex justify-between text-gray-500 border-t border-gray-300 pt-2">
+            <div className="mt-16 text-[8pt] flex justify-between text-gray-500 border-t border-gray-300 pt-2 break-inside-avoid">
               <span>Lembar 1: Penagihan | Lembar 2: Arsip Pengirim | Lembar 3: Arsip Penerima</span>
               <span>Dokumen Surat Jalan Cetak</span>
             </div>
           </div>
           
-          {/* Paywall Modal Injected here silently */}
           <div className="no-print mt-8 w-full max-w-[210mm] mx-auto pb-20">
             <PrintWrapper documentName="Surat Jalan B2B" price={15000} />
           </div>
