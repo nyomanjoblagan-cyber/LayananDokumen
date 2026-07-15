@@ -145,8 +145,21 @@ function LandSaleBuilder() {
 
   const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
 
+  const TemplateMenu = () => (
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-blue-50 text-blue-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+            Format Legal Formal (Serif)
+        </button>
+        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+            Format Compact Rapi (Sans)
+        </button>
+    </div>
+  );
+
   const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-serif leading-relaxed text-[11pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] min-h-[296mm] h-auto ${className}`}>
+    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'} leading-relaxed relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] min-h-[296mm] h-auto ${className}`}>
       {children}
     </div>
   );
@@ -544,14 +557,22 @@ function LandSaleBuilder() {
                <BookOpen size={16} className="text-emerald-500" /> <span>Legal Draft - Jual Beli Tanah</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative">
+            <div className="relative">
+                <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all">
+                    <LayoutTemplate size={16} className="text-blue-400"/> 
+                    <span className="hidden md:inline">{activeTemplateName}</span>
+                    <ChevronDown size={14} className="text-slate-400" />
+                </button>
+                {showTemplateMenu && <TemplateMenu />}
+            </div>
             <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
