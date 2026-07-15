@@ -157,6 +157,23 @@ export default function AhliWarisDesaPage() {
 function VillageHeirBuilder() {
   // --- STATE MANAGEMENT ---
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
+  const [templateId, setTemplateId] = useState<number>(1);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+  
+  const TemplateMenu = () => (
+      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-blue-50 text-blue-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+              Format Legal Formal (Serif)
+          </button>
+          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+              Format Compact Rapi (Sans)
+          </button>
+      </div>
+  );
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logo, setLogo] = useState<string | null>(null);
   const [data, setData] = useState<DocumentState>(INITIAL_DATA);
@@ -287,7 +304,7 @@ function VillageHeirBuilder() {
     else hutangText = "menjadi tanggung jawab mutlak PARA PIHAK secara pribadi dan ditanggung secara proporsional, tanpa mengurangi nilai pokok harta peninggalan secara langsung.";
 
     return (
-       <div className="font-serif text-[11pt] text-black leading-snug">
+       <div className={`${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'} text-black leading-snug`}>
           {/* KOP SURAT */}
           <div className="flex items-center border-b-[3px] border-double border-black pb-4 mb-6 text-center relative break-inside-avoid">
              {logo && <img src={logo} className="w-24 h-24 object-contain absolute left-0 top-0 grayscale" alt="Logo Instansi" />}
@@ -524,7 +541,14 @@ function VillageHeirBuilder() {
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Akta Waris <span className="text-emerald-400">Desa</span></h1></div>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 relative">
+               <div className="relative">
+                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg transition-all text-white">
+                      <LayoutTemplate size={18} className="text-blue-400"/> 
+                      <span className="hidden md:inline">{activeTemplateName}</span>
+                  </button>
+                  {showTemplateMenu && <TemplateMenu />}
+               </div>
                <button 
                  onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
@@ -535,7 +559,7 @@ function VillageHeirBuilder() {
          </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden">
          {/* SIDEBAR EDITOR */}
          <div className={`no-print w-full md:w-[460px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
@@ -677,7 +701,7 @@ function VillageHeirBuilder() {
       </div>
 
       {/* PRINT PORTAL */}
-      <div id="print-only-root" className="hidden print:h-auto print:static">
+      <div id="print-only-root" className="hidden print:block print:h-auto print:static">
          <table className="print-table w-full">
             <thead><tr><td><div style={{ height: '15mm' }}>&nbsp;</div></td></tr></thead>
             <tbody>
