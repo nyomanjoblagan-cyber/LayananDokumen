@@ -52,9 +52,25 @@ export default function SuratCutiAkademik() {
   const handleDataChange = (field: string, value: string) => {
     setData((prev) => ({ ...prev, [field]: value }));
   };
+  const [templateId, setTemplateId] = useState<number>(1);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+
+  const TemplateMenu = () => (
+      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+              Format Legal Formal (Serif)
+          </button>
+          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+              Format Compact Rapi (Sans)
+          </button>
+      </div>
+  );
 
   const ContentInside = () => (
-    <div className="text-black font-serif text-[11pt] leading-snug">
+    <div className={`text-black leading-snug ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'}`}>
       <div className="text-center mb-6">
          <h1 className="text-[13pt] font-bold uppercase underline">PERJANJIAN PELAKSANAAN CUTI AKADEMIK</h1>
          <p className="text-[11pt]">Nomor: 045/UTN/CUTI/VIII/2024</p>
@@ -314,9 +330,18 @@ export default function SuratCutiAkademik() {
                <p className="text-xs text-slate-500 font-medium">Perjanjian Pelaksanaan Cuti Akademik</p>
             </div>
          </div>
+         <div className="flex items-center gap-3 relative">
+            <div className="relative">
+                <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all text-white">
+                    <span className="text-emerald-400">❖</span> 
+                    <span className="hidden md:inline">{activeTemplateName}</span>
+                </button>
+                {showTemplateMenu && <TemplateMenu />}
+            </div>
+         </div>
       </header>
 
-      <main className="flex-1 flex flex-col md:flex-row relative print:block print:h-auto print:overflow-visible">
+      <main className="flex-1 flex flex-col md:flex-row relative print:hidden">
          {/* EDITOR PANEL */}
          <div className={`w-full md:w-[450px] bg-white border-r border-slate-200 overflow-y-auto custom-scrollbar md:block ${activeTab === 'editor' ? 'block' : 'hidden'} print:hidden relative z-10`}>
             <div className="p-6 space-y-8">
