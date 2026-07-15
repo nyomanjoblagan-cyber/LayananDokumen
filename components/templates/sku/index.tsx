@@ -441,7 +441,7 @@ function SkuBuilder() {
           @page { size: A4; margin: 20mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: relative; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
           .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
           .break-after-auto { break-after: auto !important; page-break-after: auto !important; }
@@ -711,12 +711,18 @@ function SkuBuilder() {
              </button>
            </div>
 
-           <div className="p-4 md:p-8 min-h-max flex justify-center w-full" id="print-only-root">
+           <div className="p-4 md:p-8 min-h-max flex justify-center w-full">
                <DocumentContent />
            </div>
         </div>
 
       </main>
+
+      <div id="print-only-root" className="hidden print:block print:h-auto print:static">
+          <div className="bg-white print:p-0">
+             <DocumentContent />
+          </div>
+      </div>
     </div>
   );
 }

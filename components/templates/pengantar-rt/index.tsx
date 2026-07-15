@@ -402,7 +402,7 @@ function PengantarRtBuilder() {
           @page { size: A4; margin: 15mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: relative; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
           * { box-sizing: border-box !important; }
         }
@@ -677,12 +677,18 @@ function PengantarRtBuilder() {
 
         {/* PANEL KANAN: PREVIEW SURAT */}
         <div className={`flex-1 bg-slate-400/20 overflow-y-auto w-full absolute md:relative inset-0 transition-transform duration-300 md:translate-x-0 ${mobileView === 'preview' ? 'translate-x-0 z-20' : 'translate-x-full z-0'} print:hidden print:overflow-visible print:bg-white print:static`}>
-           <div className="min-h-full p-4 md:p-8 flex items-start justify-center" id="print-only-root">
+           <div className="min-h-full p-4 md:p-8 flex items-start justify-center">
                <DocumentContent />
            </div>
         </div>
 
       </main>
+
+      <div id="print-only-root" className="hidden print:block print:h-auto print:static">
+          <div className="bg-white print:p-0">
+             <DocumentContent />
+          </div>
+      </div>
     </div>
   );
 }

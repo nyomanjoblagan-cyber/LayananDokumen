@@ -415,7 +415,7 @@ function SktmBuilder() {
           @page { size: A4; margin: 15mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
+          #print-only-root { display: block !important; position: relative; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
           .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
           .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
           * { box-sizing: border-box !important; }
@@ -643,12 +643,6 @@ function SktmBuilder() {
 
         {/* PANEL KANAN: LIVE PREVIEW & PDF RENDERER */}
         <div className={`flex-1 bg-slate-500 overflow-y-auto w-full absolute md:relative z-0 ${mobileView === 'editor' ? 'hidden md:block' : 'block'} print:hidden print:overflow-visible print:bg-white print:static`} style={{ height: '100%' }}>
-            
-            {/* INVISIBLE PRINT CONTAINER (Hanya muncul saat CTRL+P) */}
-            <div id="print-only-root" className="hidden print:block bg-white w-full print:h-auto print:static">
-               <DocumentContent />
-            </div>
-
             {/* LIVE PREVIEW CONTAINER (Untuk UI web) */}
             <div className="p-8 print:hidden flex justify-center min-w-min">
                 <div className="scale-100 origin-top shadow-2xl transition-transform duration-300 hover:shadow-3xl">
@@ -659,7 +653,15 @@ function SktmBuilder() {
             {/* Spacer for mobile scroll */}
             <div className="h-32 md:hidden"></div>
         </div>
+
       </main>
+
+      {/* INVISIBLE PRINT CONTAINER (Hanya muncul saat CTRL+P) */}
+      <div id="print-only-root" className="hidden print:block bg-white w-full print:h-auto print:static">
+          <div className="bg-white print:p-0">
+             <DocumentContent />
+          </div>
+      </div>
     </div>
   );
 }
