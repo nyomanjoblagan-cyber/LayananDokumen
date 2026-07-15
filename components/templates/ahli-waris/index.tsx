@@ -9,6 +9,23 @@ import PrintWrapper from '@/components/PrintWrapper';
 
 export default function AhliWarisTemplate() {
     const [activeTab, setActiveTab] = useState<'editor'|'preview'>('editor');
+    const [templateId, setTemplateId] = useState<number>(1);
+    const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+    const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+    
+    const TemplateMenu = () => (
+        <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+            <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-blue-50 text-blue-700' : ''}`}>
+                <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+                Format Legal Formal (Serif)
+            </button>
+            <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : ''}`}>
+                <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+                Format Compact Rapi (Sans)
+            </button>
+        </div>
+    );
+
     const [data, setData] = useState({
         judulPernyataan: "SURAT PERNYATAAN DAN KESEPAKATAN AHLI WARIS",
         hukumWaris: "Hukum Perdata (Burgerlijk Wetboek)",
@@ -123,7 +140,7 @@ export default function AhliWarisTemplate() {
     };
 
     const ContentInside = () => (
-        <div className="text-black font-serif leading-relaxed text-[11pt] md:text-[12pt] text-justify max-w-none">
+        <div className={`text-black ${templateId === 1 ? 'font-serif text-[11pt] md:text-[11pt]' : 'font-sans text-[10pt] md:text-[10pt]'} leading-relaxed text-justify max-w-none`}>
             <h1 className="text-center font-bold text-[14pt] md:text-[16pt] uppercase underline mb-2 tracking-wide">
                 {data.judulPernyataan}
             </h1>
@@ -325,7 +342,14 @@ export default function AhliWarisTemplate() {
                             <FileText size={16} className="text-blue-400" /> <span>Ahli Waris Builder</span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 relative">
+                        <div className="relative">
+                            <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all">
+                                <FileText size={16} className="text-blue-400"/> 
+                                <span className="hidden md:inline">{activeTemplateName}</span>
+                            </button>
+                            {showTemplateMenu && <TemplateMenu />}
+                        </div>
                         <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
                             <Printer size={16} /> <span className="hidden sm:inline">Cetak Dokumen</span>
                         </button>
@@ -333,7 +357,7 @@ export default function AhliWarisTemplate() {
                 </div>
             </div>
 
-            <main className="flex-1 flex flex-col md:flex-row overflow-hidden print:block print:h-auto print:overflow-visible h-[calc(100vh-64px)]">
+            <main className="flex-1 flex flex-col md:flex-row overflow-hidden print:hidden h-[calc(100vh-64px)]">
                 <div className={`w-full md:w-[450px] lg:w-[500px] bg-white border-r border-slate-200 flex flex-col z-10 transition-transform duration-300 ${activeTab === 'editor' ? 'translate-x-0' : '-translate-x-full absolute md:relative md:translate-x-0'} print:hidden h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] overflow-y-auto`}>
                     <div className="p-4 md:p-6 bg-slate-900 text-white sticky top-0 z-20 shadow-md">
                         <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
@@ -516,20 +540,41 @@ export default function AhliWarisTemplate() {
                                 {data.saksi.map((s, idx) => (
                                     <div key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2 relative">
                                         <button onClick={() => removeSaksi(idx)} className="absolute top-2 right-2 text-slate-400 hover:text-red-500"><Trash2 size={14}/></button>
-                                        <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Nama Lengkap" value={s.nama} onChange={e => updateSaksi(idx, 'nama', e.target.value)} />
-                                        <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="NIK" value={s.nik} onChange={e => updateSaksi(idx, 'nik', e.target.value)} />
-                                        <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Pekerjaan / Jabatan (Misal: Ketua RT)" value={s.pekerjaan} onChange={e => updateSaksi(idx, 'pekerjaan', e.target.value)} />
-                                        <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Alamat" value={s.alamat} onChange={e => updateSaksi(idx, 'alamat', e.target.value)} />
+                                        <div className="space-y-1">
+                                            <label className="text-[9px] font-bold text-slate-500 uppercase">Nama Lengkap Saksi</label>
+                                            <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Nama Lengkap" value={s.nama} onChange={e => updateSaksi(idx, 'nama', e.target.value)} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[9px] font-bold text-slate-500 uppercase">NIK Saksi</label>
+                                            <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="NIK" value={s.nik} onChange={e => updateSaksi(idx, 'nik', e.target.value)} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[9px] font-bold text-slate-500 uppercase">Pekerjaan / Jabatan</label>
+                                            <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Pekerjaan (Misal: Ketua RT)" value={s.pekerjaan} onChange={e => updateSaksi(idx, 'pekerjaan', e.target.value)} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[9px] font-bold text-slate-500 uppercase">Alamat Saksi</label>
+                                            <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Alamat" value={s.alamat} onChange={e => updateSaksi(idx, 'alamat', e.target.value)} />
+                                        </div>
                                     </div>
                                 ))}
                             </div>
 
                             <div className="space-y-3 pt-3 border-t border-slate-100">
                                 <label className="text-xs font-bold text-slate-600 block bg-blue-50 p-2 rounded text-center border border-blue-100 text-blue-800">Pejabat Kelurahan / Desa</label>
-                                <input className="w-full p-2 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none uppercase font-bold" placeholder="Nama Lurah/Kades" value={data.pejabat.nama} onChange={e => handlePejabatChange('nama', e.target.value)} />
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-slate-500 uppercase">Nama Lurah / Kepala Desa</label>
+                                    <input className="w-full p-2 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none uppercase font-bold" placeholder="Nama Lengkap Pejabat" value={data.pejabat.nama} onChange={e => handlePejabatChange('nama', e.target.value)} />
+                                </div>
                                 <div className="grid grid-cols-2 gap-2">
-                                    <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Jabatan" value={data.pejabat.jabatan} onChange={e => handlePejabatChange('jabatan', e.target.value)} />
-                                    <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="NIP" value={data.pejabat.nip} onChange={e => handlePejabatChange('nip', e.target.value)} />
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase">Jabatan</label>
+                                        <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Jabatan (Lurah/Kades)" value={data.pejabat.jabatan} onChange={e => handlePejabatChange('jabatan', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase">NIP</label>
+                                        <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="NIP (Bila ada)" value={data.pejabat.nip} onChange={e => handlePejabatChange('nip', e.target.value)} />
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
@@ -545,10 +590,19 @@ export default function AhliWarisTemplate() {
 
                             <div className="space-y-3 pt-3 border-t border-slate-100">
                                 <label className="text-xs font-bold text-slate-600 block bg-amber-50 p-2 rounded text-center border border-amber-100 text-amber-800">Pejabat Kecamatan</label>
-                                <input className="w-full p-2 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none uppercase font-bold" placeholder="Nama Camat" value={data.camat.nama} onChange={e => handleCamatChange('nama', e.target.value)} />
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-slate-500 uppercase">Nama Camat</label>
+                                    <input className="w-full p-2 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none uppercase font-bold" placeholder="Nama Lengkap Pejabat" value={data.camat.nama} onChange={e => handleCamatChange('nama', e.target.value)} />
+                                </div>
                                 <div className="grid grid-cols-2 gap-2">
-                                    <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Jabatan" value={data.camat.jabatan} onChange={e => handleCamatChange('jabatan', e.target.value)} />
-                                    <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="NIP" value={data.camat.nip} onChange={e => handleCamatChange('nip', e.target.value)} />
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase">Jabatan</label>
+                                        <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Jabatan (Camat)" value={data.camat.jabatan} onChange={e => handleCamatChange('jabatan', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase">NIP</label>
+                                        <input className="w-full p-2 border border-slate-300 rounded text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="NIP (Bila ada)" value={data.camat.nip} onChange={e => handleCamatChange('nip', e.target.value)} />
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
