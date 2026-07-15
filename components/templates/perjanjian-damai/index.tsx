@@ -356,6 +356,7 @@ function DamaiBuilder() {
                       </div>
                   </div>
                 </div>
+                </div>
                 <div className="text-right mt-auto text-[10px] text-slate-300 italic font-sans">Halaman 3 dari 3</div>
             </div>
           </>
