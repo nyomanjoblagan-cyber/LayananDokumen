@@ -245,7 +245,7 @@ export default function AhliWarisTemplate() {
                 </div>
             </div>
 
-            <div className="mt-8 mb-4">
+            <div className="mt-8 mb-4 break-inside-avoid">
                 <p className="text-center font-bold mb-6">PARA AHLI WARIS,</p>
                 <div className="flex flex-wrap justify-center gap-x-8 gap-y-16 mt-6">
                     {data.ahliWaris.map((aw, idx) => (
@@ -264,7 +264,7 @@ export default function AhliWarisTemplate() {
                 </div>
             </div>
 
-            <div className="mt-10 mb-8">
+            <div className="mt-10 mb-8 break-inside-avoid">
                 <p className="mb-6 font-bold text-center">SAKSI-SAKSI,</p>
                 <div className="flex flex-wrap justify-center gap-x-8 gap-y-16">
                     {data.saksi.map((s, idx) => (
@@ -302,6 +302,12 @@ export default function AhliWarisTemplate() {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+            <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                    @page { size: A4; margin: 15mm; }
+                    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+            `}} />
             <main className="flex-1 flex flex-col md:flex-row overflow-hidden print:hidden print:h-auto print:overflow-visible">
                 <div className={`w-full md:w-[450px] lg:w-[500px] bg-white border-r border-slate-200 flex flex-col z-10 transition-transform duration-300 ${activeTab === 'editor' ? 'translate-x-0' : '-translate-x-full absolute md:relative md:translate-x-0'} print:hidden h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] overflow-y-auto`}>
                     <div className="p-4 md:p-6 bg-slate-900 text-white sticky top-0 z-20 shadow-md">
