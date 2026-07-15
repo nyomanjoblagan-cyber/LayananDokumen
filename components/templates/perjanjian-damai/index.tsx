@@ -319,12 +319,14 @@ function DamaiBuilder() {
                       </ol>
                   </div>
 
+                </div>
+
+                <div className="break-inside-avoid shrink-0" style={{ pageBreakInside: 'avoid' }}>
                   <p className="mt-8 text-justify indent-8">
                     Demikian Perjanjian Perdamaian ini dibuat dan ditandatangani oleh PARA PIHAK dalam keadaan sehat jasmani dan rohani, secara sadar, tanpa adanya paksaan, tekanan, maupun tipu muslihat dari pihak manapun.
                   </p>
-                </div>
 
-                <div className="mt-12 shrink-0 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+                  <div className="mt-12">
                   <div className="grid grid-cols-2 gap-8 text-center mb-12">
                       <div>
                           <p className="mb-2 font-bold uppercase text-[10pt]">PIHAK PERTAMA</p>
