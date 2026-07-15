@@ -131,10 +131,27 @@ function DistributorBuilder() {
     }
   };
 
+  const [templateId, setTemplateId] = useState<number>(1);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+
+  const TemplateMenu = () => (
+      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+              Format Legal Formal (Serif)
+          </button>
+          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+              Format Compact Rapi (Sans)
+          </button>
+      </div>
+  );
+
   // --- KONTEN SURAT (PRINT READY) ---
   const ContentInside = () => {
     return (
-      <div className="font-serif text-[11pt] leading-relaxed text-black">
+      <div className={`leading-relaxed text-black ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'}`}>
          {/* JUDUL */}
          <div className="text-center font-bold mb-8">
             <h1 className="text-[14pt] uppercase underline decoration-2 underline-offset-4 mb-1">PERJANJIAN KEAGENAN DAN DISTRIBUSI</h1>
@@ -367,7 +384,14 @@ function DistributorBuilder() {
                <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
                <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Distributor <span className="text-emerald-400">Builder</span></h1></div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 relative">
+               <div className="relative">
+                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all text-white h-[40px]">
+                       <span className="text-emerald-400">❖</span> 
+                       <span className="hidden md:inline">{activeTemplateName}</span>
+                   </button>
+                   {showTemplateMenu && <TemplateMenu />}
+               </div>
                <button 
                  onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
@@ -378,7 +402,7 @@ function DistributorBuilder() {
          </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden">
          {/* EDITOR SIDEBAR */}
          <div className={`no-print w-full md:w-[460px] lg:w-[500px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
