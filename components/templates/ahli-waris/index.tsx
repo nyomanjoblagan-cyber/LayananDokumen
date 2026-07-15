@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
     Edit3, Eye, Trash2, Plus, Users, User, ShieldAlert, 
-    Scale, FileText, CheckCircle 
+    Scale, FileText, CheckCircle, ArrowLeftCircle, Printer
 } from 'lucide-react';
 import PrintWrapper from '@/components/PrintWrapper';
 
