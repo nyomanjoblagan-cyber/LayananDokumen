@@ -333,7 +333,7 @@ function PenghasilanOrtuBuilder() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-900/50 active:scale-95 flex items-center gap-2 transition-all duration-300">
+            <button onClick={() => window.dispatchEvent(new Event('open-print-modal'))} className="bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-900/50 active:scale-95 flex items-center gap-2 transition-all duration-300">
               <Printer size={16} /> <span className="hidden md:inline">Cetak / Export PDF</span>
             </button>
           </div>
@@ -545,7 +545,7 @@ function PenghasilanOrtuBuilder() {
                   </div>
                 </div>
 
-                <button onClick={() => window.print()} className="w-full mt-6 bg-emerald-600 hover:bg-emerald-500 text-white p-4 rounded-xl text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-900/50">
+                <button onClick={() => window.dispatchEvent(new Event('open-print-modal'))} className="w-full mt-6 bg-emerald-600 hover:bg-emerald-500 text-white p-4 rounded-xl text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-900/50">
                   <Printer size={18} /> Selesai & Cetak Surat
                 </button>
               </div>
@@ -585,3 +585,4 @@ function PenghasilanOrtuBuilder() {
     </div>
   );
 }
+

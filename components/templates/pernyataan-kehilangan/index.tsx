@@ -278,7 +278,7 @@ function LossReportBuilder() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
@@ -433,3 +433,4 @@ function LossReportBuilder() {
     </div>
   );
 }
+

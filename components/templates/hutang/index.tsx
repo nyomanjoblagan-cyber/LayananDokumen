@@ -616,7 +616,7 @@ function DebtAgreementBuilder() {
                 </div>
               )}
             </div>
-            <button onClick={() => { window.print(); setShowDonation(true); }} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
+            <button onClick={() => { window.dispatchEvent(new Event('open-print-modal')); setShowDonation(true); }} className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
               <Printer size={16} /> <span className="hidden md:inline">Cetak MS Word</span>
             </button>
           </div>
@@ -755,3 +755,4 @@ function DebtAgreementBuilder() {
     </div>
   );
 }
+

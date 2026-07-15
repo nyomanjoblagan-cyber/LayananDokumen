@@ -265,7 +265,7 @@ function SuratDinasBuilder() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+            <button onClick={() => window.dispatchEvent(new Event('open-print-modal'))} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
@@ -446,7 +446,7 @@ function SuratDinasBuilder() {
             
             {/* MOBILE FLOATING BUTTON */}
             <div className="md:hidden fixed bottom-6 right-6 z-20">
-               <button onClick={() => window.print()} className="bg-emerald-600 text-white p-4 rounded-full shadow-2xl flex items-center justify-center">
+               <button onClick={() => window.dispatchEvent(new Event('open-print-modal'))} className="bg-emerald-600 text-white p-4 rounded-full shadow-2xl flex items-center justify-center">
                   <Printer size={24} />
                </button>
             </div>
@@ -468,3 +468,4 @@ function SuratDinasBuilder() {
     </div>
   );
 }
+

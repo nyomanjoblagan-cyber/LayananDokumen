@@ -58,7 +58,7 @@ export default function SuratKeteranganBebasNarkoba() {
   };
 
   const handlePrint = () => {
-    window.print();
+    window.dispatchEvent(new Event('open-print-modal'));
   };
 
   return (
@@ -471,3 +471,4 @@ export default function SuratKeteranganBebasNarkoba() {
     </div>
   );
 }
+

@@ -225,7 +225,7 @@ function MedicalCertificateBuilder() {
           </div>
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => { if(typeof window !== 'undefined') window.print(); }} 
+              onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-sm hover:shadow-md active:scale-95 flex items-center gap-2 transition-all">
               <Printer className="w-4 h-4" /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
@@ -422,3 +422,4 @@ function MedicalCertificateBuilder() {
     </div>
   );
 }
+

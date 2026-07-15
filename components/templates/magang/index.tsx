@@ -145,7 +145,7 @@ function MagangBuilder() {
                <button onClick={() => setMobileView('editor')} className={`px-3 py-1 text-xs font-bold rounded ${mobileView==='editor'?'bg-blue-600 text-white':'bg-slate-700 text-slate-300'}`}>FORM</button>
                <button onClick={() => setMobileView('preview')} className={`px-3 py-1 text-xs font-bold rounded ${mobileView==='preview'?'bg-blue-600 text-white':'bg-slate-700 text-slate-300'}`}>DOC</button>
             </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
@@ -603,3 +603,4 @@ function MagangBuilder() {
     </div>
   );
 }
+

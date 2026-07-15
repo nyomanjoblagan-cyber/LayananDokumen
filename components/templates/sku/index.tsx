@@ -461,7 +461,7 @@ function SkuBuilder() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
@@ -706,7 +706,7 @@ function SkuBuilder() {
              <button onClick={() => setMobileView('editor')} className="flex items-center gap-2 text-xs font-bold uppercase">
                <ArrowLeft size={16} /> Kembali ke Editor
              </button>
-             <button onClick={() => { if(typeof window !== 'undefined') window.print(); }} className="bg-emerald-500 px-3 py-1.5 rounded flex items-center gap-2 text-xs font-bold uppercase active:scale-95 transition-transform">
+             <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-500 px-3 py-1.5 rounded flex items-center gap-2 text-xs font-bold uppercase active:scale-95 transition-transform">
                <Printer size={14} /> Cetak
              </button>
            </div>
@@ -726,3 +726,4 @@ function SkuBuilder() {
     </div>
   );
 }
+

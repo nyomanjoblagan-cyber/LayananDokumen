@@ -99,7 +99,7 @@ function SktmBuilder() {
 
   useEffect(() => {
     setIsClient(true);
-    const handlePrint = () => window.print();
+    const handlePrint = () => window.dispatchEvent(new Event('open-print-modal'));
     window.addEventListener('open-print-modal', handlePrint);
     return () => window.removeEventListener('open-print-modal', handlePrint);
   }, []);
@@ -665,3 +665,4 @@ function SktmBuilder() {
     </div>
   );
 }
+

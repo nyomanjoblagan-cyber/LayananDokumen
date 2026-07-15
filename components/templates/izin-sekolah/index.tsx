@@ -519,7 +519,7 @@ function IzinBuilder() {
           <FileText size={18} style={{ color: 'var(--primary)' }} />
           <span>Generator Surat Izin</span>
         </div>
-        <button onClick={() => window.print()} className="btn-primary">
+        <button onClick={() => window.dispatchEvent(new Event('open-print-modal'))} className="btn-primary">
           <Printer size={16} />
           <span>Cetak PDF</span>
         </button>
@@ -808,3 +808,4 @@ function IzinBuilder() {
     </div>
   );
 }
+

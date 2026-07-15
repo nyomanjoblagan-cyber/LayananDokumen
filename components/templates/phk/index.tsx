@@ -76,7 +76,7 @@ export default function SuratPHKTemplate() {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {
-    window.print();
+    window.dispatchEvent(new Event('open-print-modal'));
   };
 
   const handleReset = () => {
@@ -658,3 +658,4 @@ export default function SuratPHKTemplate() {
     </div>
   );
 }
+
