@@ -410,7 +410,7 @@ function LossReportBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN (KERTAS) */}
-        <div className={`flex-1 bg-slate-400/20 overflow-y-auto relative p-4 md:p-8 print:p-0 print:bg-white transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0' : 'translate-x-0'} absolute md:relative w-full h-full print:block print:overflow-visible print:static`}>
+        <div className={`flex-1 bg-slate-400/20 overflow-y-auto relative p-4 md:p-8 print:p-0 print:bg-white transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0' : 'translate-x-0'} absolute md:relative w-full h-full print:block print:overflow-visible print:static print:translate-x-0`}>
            <DocumentContent />
         </div>
 

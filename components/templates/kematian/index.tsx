@@ -611,7 +611,7 @@ function KematianBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className="flex-1 bg-slate-200 overflow-y-auto relative p-4 md:p-8 custom-scrollbar no-print-area print:p-0 print:bg-white print:overflow-visible print:hidden print:static">
+        <div className="flex-1 bg-slate-200 overflow-y-auto relative p-4 md:p-8 custom-scrollbar print:p-0 print:bg-white print:overflow-visible print:static">
           <DocumentContent />
         </div>
 
