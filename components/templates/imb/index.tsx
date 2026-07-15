@@ -108,7 +108,7 @@ function IMBBuilder() {
     };
 
     return (
-      <div className="bg-white mx-auto flex flex-col box-border print:m-0 print:border-none print:shadow-none p-[25mm] print:p-0 text-slate-900 font-serif text-[11pt]" 
+      <div className="bg-white mx-auto flex flex-col box-border print:m-0 print:border-none print:shadow-none p-[25mm] print:p-[20mm] text-slate-900 font-serif text-[11pt]" 
            style={{ width: '210mm', minHeight: '297mm' }}>
         
         {/* HEADER / TANGGAL */}
@@ -207,7 +207,7 @@ function IMBBuilder() {
       {/* GLOBAL CSS PRINT */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
+          @page { size: A4; margin: 0; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
