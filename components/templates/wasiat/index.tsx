@@ -184,7 +184,7 @@ function TestamentBuilder() {
       <div className={`text-black leading-relaxed print:text-black ${isClassic ? 'font-serif' : 'font-sans'} text-[11pt]`}>
         
         {/* --- HALAMAN 1 : PENDAHULUAN & IDENTITAS --- */}
-        <div className="w-[210mm] min-h-[297mm] p-[25mm] bg-white shadow-[0_0_40px_rgba(0,0,0,0.1)] print:shadow-none mx-auto mb-8 print:mb-0 box-border flex flex-col relative break-after-page print:w-full print:h-auto print:min-h-0 print:m-0 border border-slate-200 print:border-none">
+        <div className="w-[210mm] min-h-[297mm] p-[25mm] print:p-0 bg-white shadow-[0_0_40px_rgba(0,0,0,0.1)] print:shadow-none mx-auto mb-8 print:mb-0 box-border flex flex-col relative break-after-page print:w-full print:h-auto print:min-h-0 print:m-0 border border-slate-200 print:border-none">
           
           {/* Header */}
           <div className="text-center mb-12 border-b-4 border-double border-slate-900 pb-6 print:border-black">
@@ -266,7 +266,7 @@ function TestamentBuilder() {
         </div>
 
         {/* --- HALAMAN 2 : PEMBAGIAN HARTA --- */}
-        <div className="w-[210mm] min-h-[297mm] p-[25mm] bg-white shadow-[0_0_40px_rgba(0,0,0,0.1)] print:shadow-none mx-auto mb-8 print:mb-0 box-border flex flex-col relative break-after-page print:w-full print:h-auto print:min-h-0 print:m-0 border border-slate-200 print:border-none">
+        <div className="w-[210mm] min-h-[297mm] p-[25mm] print:p-0 bg-white shadow-[0_0_40px_rgba(0,0,0,0.1)] print:shadow-none mx-auto mb-8 print:mb-0 box-border flex flex-col relative break-after-page print:w-full print:h-auto print:min-h-0 print:m-0 border border-slate-200 print:border-none">
           <div className="flex-grow space-y-6 text-justify">
             
             <div className="space-y-6">
@@ -317,7 +317,7 @@ function TestamentBuilder() {
         </div>
 
         {/* --- HALAMAN 3 : AMANAT & PENGESAHAN --- */}
-        <div className="w-[210mm] min-h-[297mm] p-[25mm] bg-white shadow-[0_0_40px_rgba(0,0,0,0.1)] print:shadow-none mx-auto mb-8 print:mb-0 box-border flex flex-col relative break-after-page print:w-full print:h-auto print:min-h-0 print:m-0 border border-slate-200 print:border-none">
+        <div className="w-[210mm] min-h-[297mm] p-[25mm] print:p-0 bg-white shadow-[0_0_40px_rgba(0,0,0,0.1)] print:shadow-none mx-auto mb-8 print:mb-0 box-border flex flex-col relative break-after-page print:w-full print:h-auto print:min-h-0 print:m-0 border border-slate-200 print:border-none">
           <div className="flex-grow space-y-6 text-justify">
             
             <div className="space-y-4">
@@ -397,7 +397,7 @@ function TestamentBuilder() {
       {/* GLOBAL PRINT STYLES */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4 portrait; margin: 0; } 
+          @page { size: A4 portrait; margin: 15mm; } 
           body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
           #print-area { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }

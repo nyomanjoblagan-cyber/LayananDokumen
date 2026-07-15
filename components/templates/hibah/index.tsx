@@ -157,40 +157,64 @@ function GrantLetterBuilder() {
            </div>
 
            <div className="space-y-6 flex-grow text-[11pt] font-serif leading-relaxed text-justify overflow-hidden">
-              <p>Pada hari ini, tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di {data.city}, kami yang bertanda tangan di bawah ini:</p>
+              <p>Pada hari ini, tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <span className="font-bold uppercase">{data.city}</span>, kami yang bertanda tangan di bawah ini:</p>
               
               <div className="space-y-3">
                  <div className="flex gap-4 break-inside-avoid">
                     <span className="w-4 font-bold">1.</span>
-                    <div className="flex-grow italic border-l-2 border-slate-100 pl-4">
-                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama</span><span>:</span><span className="font-bold uppercase">{data.grantorName}</span></div>
+                    <div className="flex-grow italic border-l-2 border-slate-300 print:border-black pl-4">
+                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama Lengkap</span><span>:</span><span className="font-bold uppercase">{data.grantorName}</span></div>
                        <div className="grid grid-cols-[140px_10px_1fr]"><span>NIK</span><span>:</span><span className="font-mono">{data.grantorNik}</span></div>
-                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Alamat</span><span>:</span><span>{data.grantorAddress}</span></div>
-                       <p className="mt-1">Selanjutnya disebut sebagai <b>PIHAK PERTAMA (PEMBERI HIBAH)</b>.</p>
+                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Usia</span><span>:</span><span>{data.grantorAge} Tahun</span></div>
+                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Alamat Lengkap</span><span>:</span><span>{data.grantorAddress}</span></div>
+                       <p className="mt-2 text-[10pt]">Selanjutnya dalam surat perjanjian ini disebut sebagai <b className="uppercase">PIHAK PERTAMA (PEMBERI HIBAH)</b>.</p>
                     </div>
                  </div>
 
                  <div className="flex gap-4 break-inside-avoid">
                     <span className="w-4 font-bold">2.</span>
-                    <div className="flex-grow italic border-l-2 border-slate-100 pl-4">
-                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama</span><span>:</span><span className="font-bold uppercase">{data.granteeName}</span></div>
+                    <div className="flex-grow italic border-l-2 border-slate-300 print:border-black pl-4">
+                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama Lengkap</span><span>:</span><span className="font-bold uppercase">{data.granteeName}</span></div>
                        <div className="grid grid-cols-[140px_10px_1fr]"><span>NIK</span><span>:</span><span className="font-mono">{data.granteeNik}</span></div>
-                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Alamat</span><span>:</span><span>{data.granteeAddress}</span></div>
-                       <p className="mt-1">Selanjutnya disebut sebagai <b>PIHAK KEDUA (PENERIMA HIBAH)</b>.</p>
+                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Usia</span><span>:</span><span>{data.granteeAge} Tahun</span></div>
+                       <div className="grid grid-cols-[140px_10px_1fr]"><span>Alamat Lengkap</span><span>:</span><span>{data.granteeAddress}</span></div>
+                       <p className="mt-2 text-[10pt]">Selanjutnya dalam surat perjanjian ini disebut sebagai <b className="uppercase">PIHAK KEDUA (PENERIMA HIBAH)</b>.</p>
                     </div>
                  </div>
               </div>
 
-              <p className="break-inside-avoid">Dengan ini PIHAK PERTAMA menyatakan menghibahkan secara sukarela kepada PIHAK KEDUA, berupa objek hibah sebagai berikut:</p>
+              <p className="break-inside-avoid">Kedua belah pihak dengan ini menerangkan dan menyatakan telah mufakat dan setuju untuk membuat <strong>Perjanjian Hibah</strong> dengan syarat-syarat dan ketentuan-ketentuan yang diatur dalam pasal-pasal sebagai berikut:</p>
               
-              <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 font-sans text-[10pt] break-inside-avoid">
-                 <p className="font-bold underline mb-1 uppercase tracking-tight">{data.objectType}</p>
-                 <p className="leading-relaxed">{data.objectDetail}</p>
+              <div className="break-inside-avoid">
+                  <p className="font-bold text-center underline mb-2">PASAL 1 : OBJEK HIBAH</p>
+                  <p>PIHAK PERTAMA dengan ini menghibahkan secara sukarela, mutlak, dan tidak dapat ditarik kembali kepada PIHAK KEDUA, berupa <span className="font-bold">{data.objectType}</span> dengan rincian dan spesifikasi sebagai berikut:</p>
+                  <div className="bg-slate-50 print:bg-transparent p-5 rounded-xl border border-slate-200 print:border-black font-sans text-[10pt] mt-3 italic text-justify">
+                     {data.objectDetail}
+                  </div>
               </div>
 
-              <p className="break-inside-avoid">Semenjak surat ini ditandatangani, maka objek hibah tersebut sepenuhnya menjadi hak milik PIHAK KEDUA. PIHAK PERTAMA menjamin bahwa objek hibah tersebut bebas dari sengketa atau tuntutan pihak lain.</p>
-              
-              <p className="break-inside-avoid">Demikian surat hibah ini dibuat dengan sebenar-benarnya tanpa ada paksaan dari pihak manapun.</p>
+              <div className="break-inside-avoid mt-4">
+                  <p className="font-bold text-center underline mb-2">PASAL 2 : PENYERAHAN DAN STATUS KEPEMILIKAN</p>
+                  <ol className="list-decimal pl-5 space-y-1">
+                      <li>Sejak ditandatanganinya Surat Perjanjian Hibah ini, maka hak kepemilikan, penguasaan, dan segala manfaat serta risiko atas objek hibah sebagaimana dimaksud dalam Pasal 1 sepenuhnya beralih dari PIHAK PERTAMA dan menjadi hak milik mutlak PIHAK KEDUA.</li>
+                      <li>PIHAK KEDUA berhak untuk melakukan segala tindakan hukum atas objek hibah tersebut, termasuk namun tidak terbatas pada melakukan proses balik nama (mutasi) dokumen kepemilikan pada instansi yang berwenang.</li>
+                  </ol>
+              </div>
+
+              <div className="break-inside-avoid mt-4">
+                  <p className="font-bold text-center underline mb-2">PASAL 3 : JAMINAN PEMBERI HIBAH</p>
+                  <p>PIHAK PERTAMA menjamin sepenuhnya bahwa objek hibah tersebut adalah benar-benar milik PIHAK PERTAMA yang sah, tidak sedang dalam status sengketa, tidak dalam keadaan disita, dan bebas dari segala macam beban tanggungan atau sitaan dari pihak manapun.</p>
+              </div>
+
+              <div className="break-inside-avoid mt-4">
+                  <p className="font-bold text-center underline mb-2">PASAL 4 : BIAYA-BIAYA</p>
+                  <p>Segala biaya yang timbul sehubungan dengan pembuatan Surat Hibah ini, serta biaya yang diperlukan untuk proses peralihan hak (balik nama), pajak-pajak, dan biaya administrasi lainnya sepenuhnya menjadi tanggung jawab dan beban PIHAK KEDUA.</p>
+              </div>
+
+              <div className="break-inside-avoid mt-4">
+                  <p className="font-bold text-center underline mb-2">PASAL 5 : PENUTUP</p>
+                  <p>Demikian Surat Perjanjian Hibah ini dibuat dan ditandatangani oleh kedua belah pihak dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya paksaan maupun tekanan dari pihak manapun. Surat perjanjian ini dibuat dalam rangkap 2 (dua) yang masing-masing dibubuhi meterai secukupnya dan memiliki kekuatan hukum yang sama.</p>
+              </div>
            </div>
 
            <div className="shrink-0 mt-auto pt-10 border-t-2 border-slate-100 break-inside-avoid">

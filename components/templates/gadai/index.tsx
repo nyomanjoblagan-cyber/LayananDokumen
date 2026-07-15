@@ -367,7 +367,7 @@ function GadaiBuilder() {
       {/* CSS PRINT FIXED - NO CSS GRIDS FOR TEXT, JUST FLEX AND MARGINS */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4 portrait; margin: 0; }
+          @page { size: A4 portrait; margin: 15mm; }
           .no-print { display: none !important; }
           body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           #print-only-root { display: block !important; position: relative; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
