@@ -7,7 +7,7 @@
  * FEATURES:
  * - Strict A4 Print Layout (MS Word standard via HTML semantics)
  * - Mobile Menu Fixed
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * - Integrated Ad Banner Space & MONETISASI Donation Modal
  * - Klausul Korporat: Target Penjualan Minimal & Hak Pencabutan Lisensi Sepihak
  */
 

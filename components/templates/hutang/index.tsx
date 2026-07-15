@@ -9,7 +9,7 @@
  * - Auto Calculation & Presets (Personal/Business)
  * - Standardisasi Identitas Pihak KTP (Nama, NIK, TTL, Pekerjaan, Alamat)
  * - Strict Word-like Print Layout (No CSS Grids in Document)
- * - Integrated Saweria Donation Modal
+ * - Integrated MONETISASI Donation Modal
  */
 
 import { useState, Suspense, useEffect } from 'react';
@@ -19,8 +19,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// IMPORT KOMPONEN SAKTI
-import DocumentServices from '@/components/DocumentServices';
+import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface DebtData {
@@ -734,8 +733,10 @@ function DebtAgreementBuilder() {
                 <DocumentContent />
             </div>
             
-            {/* INJEKSI KOMPONEN MONETISASI */}
-            <DocumentServices showDonation={showDonation} setShowDonation={setShowDonation} />
+            {/* AREA TOMBOL MONETISASI */}
+            <div className="mt-8 no-print w-full max-w-4xl mx-auto p-4 mb-20">
+               <PrintWrapper documentName="Perjanjian Hutang Piutang" price={15000} />
+            </div>
         </div>
 
       </main>

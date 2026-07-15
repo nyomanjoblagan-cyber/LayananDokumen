@@ -8,7 +8,7 @@
  * - Dual Template (Logistics Formal vs Incident Report)
  * - Strict A4 Print Layout
  * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * - Integrated Ad Banner Space & MONETISASI Donation Modal
  */
 
 import { useState, Suspense, useRef, useEffect } from 'react';

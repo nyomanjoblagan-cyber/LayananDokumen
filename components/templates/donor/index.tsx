@@ -8,7 +8,7 @@
  * - Dual Template (PMI Standard vs Hospital Report)
  * - Auto Date Format (Timezone Safe)
  * - Strict A4 Print Layout
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * - Integrated Ad Banner Space & MONETISASI Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';

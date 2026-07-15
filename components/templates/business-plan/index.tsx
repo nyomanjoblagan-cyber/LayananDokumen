@@ -9,7 +9,7 @@
  * - Mobile Menu Fixed
  * - Strict A4 Print Layout
  * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * - Integrated Ad Banner Space & MONETISASI Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
@@ -290,7 +290,7 @@ function PlanBuilder() {
                   {showTemplateMenu && <TemplateMenu />}
                </div>
 
-               {/* TOMBOL CETAK & TRIGGER SAWERIA */}
+               {/* TOMBOL CETAK & TRIGGER MONETISASI */}
                <button 
                  onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"

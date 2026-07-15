@@ -8,7 +8,7 @@
  * - Dual Template (Formal Akta vs Sederhana)
  * - Full Editor UI with Logo Upload
  * - Strict A4 Print Layout with Page Break Protection
- * - Integrated Saweria Donation Modal
+ * - Integrated MONETISASI Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';

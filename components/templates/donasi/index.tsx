@@ -10,7 +10,7 @@
  * - Mobile Menu Fixed
  * - Strict A4 Print Layout
  * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & Saweria Donation Modal
+ * - Integrated Ad Banner Space & MONETISASI Donation Modal
  */
 
 import { useState, useRef, Suspense, useEffect } from 'react';
