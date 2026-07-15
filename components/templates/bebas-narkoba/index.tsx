@@ -41,6 +41,103 @@ const INITIAL_DATA = {
 export default function SuratKeteranganBebasNarkoba() {
   const [formData, setFormData] = useState(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'instansi' | 'dokter' | 'pasien' | 'hasil'>('pasien');
+  const [templateId, setTemplateId] = useState<number>(1);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+  
+  const TemplateMenu = () => (
+      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-blue-50 text-blue-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+              Format Legal Formal (Serif)
+          </button>
+          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
+              Format Compact Rapi (Sans)
+          </button>
+      </div>
+  );
+
+  const DocumentContent = () => (
+    <div className={`bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] p-[15mm] text-black ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'} print:w-full print:max-w-none print:shadow-none print:m-0 print:p-0 relative group`}>
+      {/* Kop Surat Section */}
+      <div className="border-b-[4px] border-double border-black pb-3 mb-6 relative">
+         <div className="absolute left-0 top-0 w-24 h-24 border-2 border-gray-300 border-dashed rounded-full flex items-center justify-center text-gray-400 text-xs no-print opacity-50 group-hover:opacity-100 transition-opacity">
+           [ Logo Instansi ]
+         </div>
+         <div className="text-center px-24">
+           <h2 className="text-lg font-bold tracking-wider uppercase m-0 leading-tight">{formData.instansi || "[NAMA INSTANSI]"}</h2>
+           {formData.daerah && <h3 className="text-md font-bold uppercase m-0 leading-tight">{formData.daerah}</h3>}
+           <h1 className="text-2xl font-black uppercase tracking-widest mt-1 mb-1 leading-tight">{formData.satker || "[NAMA RUMAH SAKIT / KLINIK]"}</h1>
+           <p className="text-sm m-0 leading-snug">{formData.alamatInstansi || "[Alamat Lengkap Instansi]"}</p>
+         </div>
+      </div>
+
+      <div className="text-center mb-8">
+        <h1 className="text-xl font-bold underline underline-offset-4 mb-1">SURAT KETERANGAN HASIL PEMERIKSAAN NARKOBA</h1>
+        <p className="text-sm font-bold">Nomor: {formData.noSurat || "___________________________"}</p>
+      </div>
+
+      <div className="mb-6 space-y-2 text-justify leading-relaxed">
+        <p>Yang bertanda tangan di bawah ini menerangkan dengan sesungguhnya bahwa:</p>
+        <table className="w-full mt-2 ml-4">
+          <tbody>
+            <tr><td className="w-48 py-1 align-top">Nama Dokter Pemeriksa</td><td className="w-4 py-1 align-top">:</td><td className="py-1 font-bold uppercase">{formData.dokterNama || "_______________________"}</td></tr>
+            <tr><td className="w-48 py-1 align-top">NRP / NIP</td><td className="w-4 py-1 align-top">:</td><td className="py-1">{formData.dokterNrp || "_______________________"}</td></tr>
+            <tr><td className="w-48 py-1 align-top">Jabatan</td><td className="w-4 py-1 align-top">:</td><td className="py-1">{formData.dokterJabatan || "_______________________"}</td></tr>
+          </tbody>
+        </table>
+        <p className="mt-4">Telah melakukan pemeriksaan fisik dan tes laboratorium atas permintaan dari / terhadap seseorang yang bernama:</p>
+        <table className="w-full mt-2 ml-4">
+          <tbody>
+            <tr><td className="w-48 py-1 align-top">Nama Terperiksa</td><td className="w-4 py-1 align-top">:</td><td className="py-1 font-bold uppercase">{formData.pasienNama || "_______________________"}</td></tr>
+            <tr><td className="w-48 py-1 align-top">Tempat, Tanggal Lahir</td><td className="w-4 py-1 align-top">:</td><td className="py-1">{formData.pasienTempatLahir || "___________"}, {formData.pasienTanggalLahir ? new Date(formData.pasienTanggalLahir).toLocaleDateString("id-ID", {day: "numeric", month: "long", year: "numeric"}) : "___________"}</td></tr>
+            <tr><td className="w-48 py-1 align-top">Jenis Kelamin</td><td className="w-4 py-1 align-top">:</td><td className="py-1">{formData.pasienJenisKelamin || "_______________________"}</td></tr>
+            <tr><td className="w-48 py-1 align-top">Agama</td><td className="w-4 py-1 align-top">:</td><td className="py-1">{formData.pasienAgama || "_______________________"}</td></tr>
+            <tr><td className="w-48 py-1 align-top">Pekerjaan</td><td className="w-4 py-1 align-top">:</td><td className="py-1">{formData.pasienPekerjaan || "_______________________"}</td></tr>
+            <tr><td className="w-48 py-1 align-top">No. Induk Kependudukan</td><td className="w-4 py-1 align-top">:</td><td className="py-1">{formData.pasienNik || "_______________________"}</td></tr>
+            <tr><td className="w-48 py-1 align-top">Alamat Domisili</td><td className="w-4 py-1 align-top">:</td><td className="py-1">{formData.pasienAlamat || "_______________________"}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mb-6 space-y-3 text-justify leading-relaxed">
+        <p>Telah dilakukan anamnesa, pemeriksaan fisik, serta uji saring (Rapid Test) Narkotika, Psikotropika, dan Zat Adiktif (NAPZA) lainnya melalui spesimen Urine yang dilakukan pada tanggal {formData.tanggalDikeluarkan ? new Date(formData.tanggalDikeluarkan).toLocaleDateString("id-ID", {day: "numeric", month: "long", year: "numeric"}) : "____"} dengan hasil pemeriksaan sebagai berikut:</p>
+        <div className="ml-8 my-4 border border-black p-4 inline-block w-[80%] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+           <table className="w-full">
+              <tbody>
+                <tr><td className="py-1 font-semibold">1. Amphetamine (AMP)</td><td className="py-1">:</td><td className="py-1 font-bold">{formData.hasilAmp}</td></tr>
+                <tr><td className="py-1 font-semibold">2. Methamphetamine (MET)</td><td className="py-1">:</td><td className="py-1 font-bold">{formData.hasilMet}</td></tr>
+                <tr><td className="py-1 font-semibold">3. Marijuana/THC</td><td className="py-1">:</td><td className="py-1 font-bold">{formData.hasilThc}</td></tr>
+                <tr><td className="py-1 font-semibold">4. Morphine/Opiate (MOP)</td><td className="py-1">:</td><td className="py-1 font-bold">{formData.hasilMop}</td></tr>
+                <tr><td className="py-1 font-semibold">5. Benzodiazepine (BZO)</td><td className="py-1">:</td><td className="py-1 font-bold">{formData.hasilBzo}</td></tr>
+                <tr><td className="py-1 font-semibold">6. Cocaine (COC)</td><td className="py-1">:</td><td className="py-1 font-bold">{formData.hasilCoc}</td></tr>
+              </tbody>
+           </table>
+        </div>
+        <p>Berdasarkan hasil pemeriksaan tersebut di atas, maka yang bersangkutan pada saat ini dinyatakan <span className="font-bold underline">TIDAK DITEMUKAN TANDA-TANDA KETERGANTUNGAN ATAU PENYALAHGUNAAN NARKOBA</span>.</p>
+        <p>Demikian Surat Keterangan Hasil Pemeriksaan Narkoba ini dibuat dengan sebenarnya untuk dipergunakan sebagai kelengkapan administrasi <strong>{formData.keperluan || "......................................................."}</strong>.</p>
+      </div>
+
+      <div className="flex justify-between mt-12 items-end">
+        <div className="w-32 h-40 border-2 border-black flex items-center justify-center text-xs text-gray-500 font-sans tracking-wide ml-8 mb-4">
+           <div className="text-center">PAS FOTO<br/>3 x 4</div>
+        </div>
+        <div className="text-center w-80 mr-8">
+          <p className="mb-1">Dikeluarkan di : {formData.tempatDikeluarkan || ".................."}</p>
+          <p className="mb-1">Pada tanggal &nbsp;&nbsp;: {formData.tanggalDikeluarkan ? new Date(formData.tanggalDikeluarkan).toLocaleDateString("id-ID", {day: "numeric", month: "long", year: "numeric"}) : ".................."}</p>
+          <p className="mb-24 font-bold">{formData.dokterJabatan || "DOKTER PEMERIKSA"}</p>
+          <div className="relative inline-block w-full">
+             <div className="absolute left-[-40px] top-[-50px] w-28 h-28 border-4 border-blue-800 rounded-full flex items-center justify-center opacity-30 -rotate-12 z-0 no-print group-hover:opacity-10 transition-opacity">
+                <div className="text-[8px] font-bold text-center text-blue-800">STEMPEL INSTANSI <br/> KEDOKTERAN</div>
+             </div>
+            <p className="font-bold underline z-10 relative bg-transparent uppercase tracking-wider">{formData.dokterNama || "........................................"}</p>
+            <p className="text-sm font-semibold mt-1">{formData.dokterNrp || "NRP/NIP. ......................."}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -98,14 +195,21 @@ export default function SuratKeteranganBebasNarkoba() {
                <ShieldAlert size={16} className="text-blue-500" /> <span>Legal Draft - SKHPN (Standar Medis/Polri)</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative">
+            <div className="relative">
+                <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all">
+                    <ShieldAlert size={16} className="text-blue-400"/> 
+                    <span className="hidden md:inline">{activeTemplateName}</span>
+                </button>
+                {showTemplateMenu && <TemplateMenu />}
+            </div>
             <button onClick={handlePrint} className="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
             </button>
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:overflow-visible print:h-auto print:block">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <div className="no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full relative z-10 transition-transform">
@@ -294,184 +398,18 @@ export default function SuratKeteranganBebasNarkoba() {
         </div>
 
         {/* Live Preview Panel (Right) */}
-        <div className="flex-1 p-4 md:p-8 bg-gray-300 overflow-y-auto flex justify-center print:p-0 print:w-full print:min-w-0 print:min-h-0 print:block print:overflow-visible print:bg-white custom-scrollbar shadow-inner">
-          {/* Kertas A4 */}
-          <div className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] p-[15mm] text-black font-serif print:w-full print:max-w-none print:shadow-none print:m-0 print:p-0 relative group">
-            
-            {/* Kop Surat Section */}
-            <div className="border-b-[4px] border-double border-black pb-3 mb-6 relative">
-               {/* Dummy Logo Area - Police/Hospital standard usually has a logo on the left */}
-               <div className="absolute left-0 top-0 w-24 h-24 border-2 border-gray-300 border-dashed rounded-full flex items-center justify-center text-gray-400 text-xs no-print opacity-50 group-hover:opacity-100 transition-opacity">
-                 [ Logo Instansi ]
-               </div>
-               
-               <div className="text-center px-24">
-                 <h2 className="text-lg font-bold tracking-wider uppercase m-0 leading-tight">{formData.instansi || "[NAMA INSTANSI]"}</h2>
-                 {formData.daerah && <h3 className="text-md font-bold uppercase m-0 leading-tight">{formData.daerah}</h3>}
-                 <h1 className="text-2xl font-black uppercase tracking-widest mt-1 mb-1 leading-tight">{formData.satker || "[NAMA RUMAH SAKIT / KLINIK]"}</h1>
-                 <p className="text-sm m-0 leading-snug">{formData.alamatInstansi || "[Alamat Lengkap Instansi]"}</p>
-               </div>
-            </div>
-
-            {/* Judul Surat */}
-            <div className="text-center mb-8">
-              <h1 className="text-xl font-bold underline underline-offset-4 mb-1">
-                SURAT KETERANGAN HASIL PEMERIKSAAN NARKOBA
-              </h1>
-              <p className="text-sm font-semibold">Nomor : {formData.noSurat || "______________________"}</p>
-            </div>
-
-            {/* Pendahuluan */}
-            <div className="mb-4 text-justify leading-relaxed">
-              <p className="mb-2">Yang bertanda tangan di bawah ini, <strong>{formData.dokterNama || "[Nama Dokter]"}</strong>, {formData.dokterJabatan || "[Jabatan]"} pada {formData.satker || "[Nama Instansi/RS]"}, menerangkan dengan sesungguhnya bahwa:</p>
-              
-              <table className="w-full ml-8 mt-4 mb-6">
-                <tbody>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Nama Lengkap</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1 font-bold uppercase">{formData.pasienNama || "_______________________"}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Tempat, Tanggal Lahir</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">
-                      {formData.pasienTempatLahir || "_______________________"},{" "}
-                      {formData.pasienTanggalLahir
-                        ? new Date(formData.pasienTanggalLahir).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })
-                        : "_______________________"}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Jenis Kelamin</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.pasienJenisKelamin || "_______________________"}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Agama</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.pasienAgama || "_______________________"}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Pekerjaan</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.pasienPekerjaan || "_______________________"}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">No. Induk Kependudukan</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.pasienNik || "_______________________"}</td>
-                  </tr>
-                  <tr>
-                    <td className="w-48 py-1 align-top">Alamat Domisili</td>
-                    <td className="w-4 py-1 align-top">:</td>
-                    <td className="py-1">{formData.pasienAlamat || "_______________________"}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Hasil Pemeriksaan */}
-            <div className="mb-6 space-y-3 text-justify leading-relaxed">
-              <p>
-                Telah dilakukan anamnesa, pemeriksaan fisik, serta uji saring (Rapid Test) Narkotika, Psikotropika, dan Zat Adiktif (NAPZA) lainnya melalui spesimen Urine yang dilakukan pada tanggal {formData.tanggalDikeluarkan ? new Date(formData.tanggalDikeluarkan).toLocaleDateString("id-ID", {day: "numeric", month: "long", year: "numeric"}) : "____"} dengan hasil pemeriksaan sebagai berikut:
-              </p>
-              
-              <div className="ml-8 my-4 border border-black p-4 inline-block w-[80%] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
-                 <table className="w-full">
-                    <tbody>
-                      <tr>
-                        <td className="py-1 font-semibold">1. Amphetamine (AMP)</td>
-                        <td className="py-1">:</td>
-                        <td className="py-1 font-bold">{formData.hasilAmp}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 font-semibold">2. Methamphetamine (MET)</td>
-                        <td className="py-1">:</td>
-                        <td className="py-1 font-bold">{formData.hasilMet}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 font-semibold">3. Marijuana/THC</td>
-                        <td className="py-1">:</td>
-                        <td className="py-1 font-bold">{formData.hasilThc}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 font-semibold">4. Morphine/Opiate (MOP)</td>
-                        <td className="py-1">:</td>
-                        <td className="py-1 font-bold">{formData.hasilMop}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 font-semibold">5. Benzodiazepine (BZO)</td>
-                        <td className="py-1">:</td>
-                        <td className="py-1 font-bold">{formData.hasilBzo}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 font-semibold">6. Cocaine (COC)</td>
-                        <td className="py-1">:</td>
-                        <td className="py-1 font-bold">{formData.hasilCoc}</td>
-                      </tr>
-                    </tbody>
-                 </table>
-              </div>
-
-              <p>
-                Berdasarkan hasil pemeriksaan tersebut di atas, maka yang bersangkutan pada saat ini dinyatakan <span className="font-bold underline">TIDAK DITEMUKAN TANDA-TANDA KETERGANTUNGAN ATAU PENYALAHGUNAAN NARKOBA</span>.
-              </p>
-              <p>
-                Demikian Surat Keterangan Hasil Pemeriksaan Narkoba ini dibuat dengan sebenarnya untuk dipergunakan sebagai kelengkapan administrasi <strong>{formData.keperluan || "......................................................."}</strong>.
-              </p>
-            </div>
-
-            {/* TTD Bagian Bawah */}
-            <div className="flex justify-between mt-12 items-end">
-              
-              {/* Foto Pasien (Optional Space) */}
-              <div className="w-32 h-40 border-2 border-black flex items-center justify-center text-xs text-gray-500 font-sans tracking-wide ml-8 mb-4">
-                 <div className="text-center">
-                    PAS FOTO<br/>3 x 4
-                 </div>
-              </div>
-
-              {/* TTD Dokter */}
-              <div className="text-center w-80 mr-8">
-                <p className="mb-1">
-                  Dikeluarkan di : {formData.tempatDikeluarkan || ".................."}
-                </p>
-                <p className="mb-1">
-                  Pada tanggal &nbsp;&nbsp;: {formData.tanggalDikeluarkan
-                    ? new Date(formData.tanggalDikeluarkan).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
-                    : ".................."}
-                </p>
-                <p className="mb-24 font-bold">{formData.dokterJabatan || "DOKTER PEMERIKSA"}</p>
-                
-                <div className="relative inline-block w-full">
-                   {/* Stempel Instansi Dummy */}
-                   <div className="absolute left-[-40px] top-[-50px] w-28 h-28 border-4 border-blue-800 rounded-full flex items-center justify-center opacity-30 -rotate-12 z-0 no-print group-hover:opacity-10 transition-opacity">
-                      <div className="text-[8px] font-bold text-center text-blue-800">
-                         STEMPEL INSTANSI <br/> KEDOKTERAN
-                      </div>
-                   </div>
-                  <p className="font-bold underline z-10 relative bg-transparent uppercase tracking-wider">{formData.dokterNama || "........................................"}</p>
-                  <p className="text-sm font-semibold mt-1">{formData.dokterNrp || "NRP/NIP. ......................."}</p>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
+        <div className="flex-1 p-4 md:p-8 bg-gray-300 overflow-y-auto flex justify-center custom-scrollbar shadow-inner">
+          <DocumentContent />
         </div>
       </main>
     
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
          <PrintWrapper documentName="Dokumen_bebas_narkoba" price={15000} />
+      </div>
+
+      {/* PRINT PORTAL OUTSIDE MAIN */}
+      <div id="print-only-root" className="hidden print:block print:w-full print:h-auto print:static">
+          <DocumentContent />
       </div>
     </div>
   );
