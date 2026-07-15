@@ -333,7 +333,7 @@ export default function AhliWarisTemplate() {
                 </div>
             </div>
 
-            <main className="flex-1 flex flex-col md:flex-row overflow-hidden print:hidden print:h-auto print:overflow-visible h-[calc(100vh-64px)]">
+            <main className="flex-1 flex flex-col md:flex-row overflow-hidden print:block print:h-auto print:overflow-visible h-[calc(100vh-64px)]">
                 <div className={`w-full md:w-[450px] lg:w-[500px] bg-white border-r border-slate-200 flex flex-col z-10 transition-transform duration-300 ${activeTab === 'editor' ? 'translate-x-0' : '-translate-x-full absolute md:relative md:translate-x-0'} print:hidden h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] overflow-y-auto`}>
                     <div className="p-4 md:p-6 bg-slate-900 text-white sticky top-0 z-20 shadow-md">
                         <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">

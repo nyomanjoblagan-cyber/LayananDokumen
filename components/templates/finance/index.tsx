@@ -503,9 +503,9 @@ function FinanceToolBuilder() {
           </div>
       </div>
 
-      <main className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6 h-[calc(100vh-64px)] overflow-hidden relative print:hidden print:h-auto print:overflow-visible">
+      <main className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6 h-[calc(100vh-64px)] overflow-hidden relative print:block print:h-auto print:overflow-visible">
         {/* EDITOR SIDEBAR */}
-        <div className={`no-print w-full md:w-[500px] bg-white rounded-xl border border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform shadow-xl md:shadow-none ${mobileMode === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        <div className={`no-print w-full md:w-[500px] bg-white rounded-xl border border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform shadow-xl md:shadow-none ${mobileMode === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
            <div className="bg-slate-50 p-4 border-b flex justify-between items-center">
               <h3 className="text-xs font-black uppercase text-slate-700 flex items-center gap-2"><Building2 size={16} className="text-blue-600"/> B2B Enterprise Data</h3>
               <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase tracking-tighter">{activeDocType}</span>

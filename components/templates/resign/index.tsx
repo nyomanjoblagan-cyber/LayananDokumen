@@ -232,7 +232,7 @@ function ResignBuilder() {
         </button>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden relative print:hidden h-[calc(100vh-64px)]">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden relative print:block h-[calc(100vh-64px)]">
         
         {/* PANEL KIRI: FORM EDITOR */}
         <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] bg-white border-r border-slate-200 h-full md:sticky md:top-16 z-30 no-print shadow-xl shrink-0`}>

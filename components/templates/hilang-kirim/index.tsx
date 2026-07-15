@@ -307,7 +307,7 @@ function LostPackageBuilder() {
         </div>
       </div>
 
-      <main className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden print:hidden print:h-auto print:overflow-visible">
+      <main className="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-64px)] overflow-hidden print:block print:h-auto print:overflow-visible">
         
         {/* INPUT SIDEBAR */}
         <div className={`no-print w-full lg:w-[450px] shrink-0 h-full overflow-y-auto pr-2 pb-20 space-y-6 font-sans ${mobileView === 'preview' ? 'hidden lg:block' : 'block'} custom-scrollbar`}>

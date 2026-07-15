@@ -288,10 +288,10 @@ function B2BShippingLabelBuilder() {
           </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] relative z-10 print:hidden print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] relative z-10 print:block print:h-auto print:overflow-visible">
         
         {/* EDITOR SIDEBAR */}
-        <div className={`no-print w-full md:w-[480px] bg-slate-900/60 backdrop-blur-xl border-r border-white/10 flex flex-col h-full absolute md:relative z-20 transition-transform duration-300 ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        <div className={`no-print w-full md:w-[480px] bg-slate-900/60 backdrop-blur-xl border-r border-white/10 flex flex-col h-full absolute md:relative z-20 transition-transform duration-300 ${mobileView === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-5 border-b border-white/10 flex justify-between items-center shrink-0">
                <h2 className="font-black text-xs uppercase tracking-widest text-white flex items-center gap-2">
                  <ShieldCheck size={16} className="text-indigo-400" /> Freight Parameters

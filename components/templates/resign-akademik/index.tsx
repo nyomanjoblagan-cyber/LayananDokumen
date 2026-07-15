@@ -355,9 +355,9 @@ function WithdrawalBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        <div className={`no-print w-full md:w-[450px] bg-slate-50 border-r border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-white font-sans shadow-sm z-10">
              <h2 className="font-black text-xs uppercase text-slate-800 flex items-center gap-2"><Edit3 size={16} className="text-blue-600" /> Form Data Legal</h2>
              <button onClick={handleReset} className="text-slate-500 hover:text-red-600 transition-colors flex items-center gap-1 text-[10px] font-bold bg-slate-100 px-2 py-1 rounded"><RotateCcw size={12}/> RESET</button>

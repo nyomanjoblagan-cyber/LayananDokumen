@@ -283,14 +283,14 @@ function VisaSponsorBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden print:h-auto print:overflow-visible relative">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible relative">
         
         {/* BACKGROUND ACCENT */}
         <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-emerald-900/10 rounded-full blur-[120px] pointer-events-none no-print"></div>
         <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-blue-900/10 rounded-full blur-[100px] pointer-events-none no-print"></div>
 
         {/* SIDEBAR INPUT */}
-        <div className={`no-print w-full md:w-[420px] bg-slate-900/80 backdrop-blur-xl border-r border-slate-800 flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        <div className={`no-print w-full md:w-[420px] bg-slate-900/80 backdrop-blur-xl border-r border-slate-800 flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900">
              <h2 className="font-black text-[11px] uppercase text-slate-300 flex items-center gap-2 tracking-[0.15em]"><Edit3 size={16} className="text-emerald-400" /> Document Editor</h2>
              <button onClick={handleReset} className="text-slate-500 hover:text-red-400 transition-colors" title="Reset All Data"><RotateCcw size={18}/></button>

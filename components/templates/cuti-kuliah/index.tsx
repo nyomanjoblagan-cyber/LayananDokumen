@@ -316,7 +316,7 @@ export default function SuratCutiAkademik() {
          </div>
       </header>
 
-      <main className="flex-1 flex flex-col md:flex-row relative print:hidden print:h-auto print:overflow-visible">
+      <main className="flex-1 flex flex-col md:flex-row relative print:block print:h-auto print:overflow-visible">
          {/* EDITOR PANEL */}
          <div className={`w-full md:w-[450px] bg-white border-r border-slate-200 overflow-y-auto custom-scrollbar md:block ${activeTab === 'editor' ? 'block' : 'hidden'} print:hidden relative z-10`}>
             <div className="p-6 space-y-8">

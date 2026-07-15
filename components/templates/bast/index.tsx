@@ -406,10 +406,10 @@ function BastBuilder() {
           </div>
       </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
-        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        <div className={`no-print w-full md:w-[480px] bg-white border-r flex flex-col h-full absolute md:relative z-10 transition-transform ${mobileView === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-4 border-b flex justify-between items-center bg-slate-50">
               <h2 className="font-black text-xs uppercase text-slate-700 flex items-center gap-2"><Edit3 size={16} className="text-blue-500" /> Pengaturan Dokumen</h2>
               <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors" title="Reset Form"><RotateCcw size={16}/></button>
@@ -594,7 +594,7 @@ function BastBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className={`flex-1 bg-slate-200 overflow-y-auto relative transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0 hidden md:block' : 'translate-x-0 block'} md:block print:hidden print:overflow-visible print:bg-white print:static`}>
+        <div className={`flex-1 bg-slate-200 overflow-y-auto relative transition-transform ${mobileView === 'editor' ? 'translate-x-full print:translate-x-0 md:translate-x-0 hidden md:block' : 'translate-x-0 block'} md:block print:hidden print:overflow-visible print:bg-white print:static`}>
           
           <div className="md:hidden sticky top-0 bg-slate-800 text-white p-3 z-10 flex justify-between items-center shadow-md no-print">
             <span className="text-xs font-bold uppercase">Preview Dokumen</span>

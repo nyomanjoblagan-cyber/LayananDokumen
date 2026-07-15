@@ -241,7 +241,7 @@ function MedicalCertificateBuilder() {
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:block print:h-auto print:overflow-visible">
         
         {/* PANEL KIRI: FORM EDITOR */}
-        <aside className={`no-print w-full md:w-[480px] bg-white border-r border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform duration-300 shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        <aside className={`no-print w-full md:w-[480px] bg-white border-r border-slate-200 flex flex-col h-full absolute md:relative z-10 transition-transform duration-300 shadow-xl md:shadow-none ${mobileView === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div className="flex items-center gap-3">
                  <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
@@ -415,7 +415,7 @@ function MedicalCertificateBuilder() {
         </aside>
         
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className={`flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 flex justify-center w-full h-full custom-scrollbar transition-transform ${mobileView === 'editor' ? 'translate-x-full md:translate-x-0 hidden md:flex' : 'translate-x-0 flex'} print:block print:overflow-visible print:bg-white`}>
+        <div className={`flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 flex justify-center w-full h-full custom-scrollbar transition-transform ${mobileView === 'editor' ? 'translate-x-full print:translate-x-0 md:translate-x-0 hidden md:flex' : 'translate-x-0 flex'} print:block print:overflow-visible print:bg-white`}>
             <DocumentContent />
         </div>
         

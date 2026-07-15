@@ -459,7 +459,7 @@ function TestamentBuilder() {
       <main className="flex-1 flex overflow-hidden relative print:block print:h-auto print:overflow-visible">
         
         {/* --- LEFT PANEL: EDITOR --- */}
-        <div className={`no-print absolute inset-0 md:relative md:inset-auto md:w-[500px] lg:w-[600px] bg-white border-r border-slate-200 flex flex-col z-20 transition-transform duration-300 ${mobileView === 'preview' ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        <div className={`no-print absolute inset-0 md:relative md:inset-auto md:w-[500px] lg:w-[600px] bg-white border-r border-slate-200 flex flex-col z-20 transition-transform duration-300 ${mobileView === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
           <div className="h-14 bg-slate-50 border-b flex items-center justify-between px-6 shrink-0">
             <h2 className="font-black text-xs uppercase tracking-widest text-slate-600 flex items-center gap-2">
               <Edit3 size={14} className="text-blue-500" /> Editor Wasiat
