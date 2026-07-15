@@ -344,7 +344,7 @@ function BelumMenikahBuilder() {
         </main>
       </div>
 
-      <div className="no-print hidden md:block">
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
          <PrintWrapper documentName="Surat_Pernyataan_Belum_Menikah" price={10000} />
       </div>
 

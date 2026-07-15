@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import PrintWrapper from '@/components/PrintWrapper';
 
 interface Props {
   data?: any; // Allow passing data to populate the form if needed in the future
@@ -557,6 +558,10 @@ export default function SuratPermohonanKPR({ data }: Props) {
                 </tbody>
             </table>
         </div>
+    
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen_kpr" price={15000} />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, Suspense, useEffect } from 'react';
+import PrintWrapper from '@/components/PrintWrapper';
 import { 
   Printer, RotateCcw, ArrowLeftCircle, BookOpen, Edit3, FileText, User, Building, Settings
 } from 'lucide-react';
@@ -688,6 +689,10 @@ function PengantarRtBuilder() {
           <div className="bg-white print:p-0">
              <DocumentContent />
           </div>
+      </div>
+    
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen_pengantar_rt" price={15000} />
       </div>
     </div>
   );

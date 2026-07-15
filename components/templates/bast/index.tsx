@@ -607,6 +607,10 @@ function BastBuilder() {
           </div>
         </div>
       </main>
+    
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen_bast" price={15000} />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
+import PrintWrapper from '@/components/PrintWrapper';
 import { 
   Printer, ArrowLeftCircle, FileText, Edit3, Eye, RotateCcw,
   User, Building, Info, Calendar
@@ -805,6 +806,10 @@ function IzinBuilder() {
         </button>
       </div>
 
+    
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen_izin_sekolah" price={15000} />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import PrintWrapper from '@/components/PrintWrapper';
 import { Printer, ArrowLeftCircle, BookOpen, Edit3, RotateCcw, Building2, User, AlertTriangle, DollarSign, CreditCard } from "lucide-react";
 import Link from 'next/link';
 
@@ -655,6 +656,10 @@ export default function SuratPHKTemplate() {
           </Kertas>
         </div>
       </main>
+    
+      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
+         <PrintWrapper documentName="Dokumen_phk" price={15000} />
+      </div>
     </div>
   );
 }
