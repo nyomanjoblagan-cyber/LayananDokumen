@@ -232,9 +232,9 @@ export default function SuratJalanTemplate() {
       </div>
 
       {/* Print Preview Area */}
-      <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar">
-        <div className="flex flex-col items-center w-full">
-          <div ref={printRef} className="print-safe-area bg-white text-black shadow-2xl mx-auto" style={{ width: '210mm', minHeight: '297mm', padding: '15mm', fontFamily: 'Arial, sans-serif' }}>
+      <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar print:overflow-visible print:h-auto print:block">
+         <div className="flex flex-col items-center w-full print:block print:h-auto">
+          <div ref={printRef} className="print-safe-area bg-white text-black shadow-2xl mx-auto print:shadow-none" style={{ width: '210mm', minHeight: '297mm', padding: '15mm', fontFamily: 'Arial, sans-serif' }}>
             <style dangerouslySetInnerHTML={{__html: `
               @media print {
                 @page { size: A4 portrait; margin: 15mm; }
