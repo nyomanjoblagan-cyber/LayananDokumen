@@ -49,6 +49,9 @@ interface RentalData {
   totalPrice: string;
   insuranceType: string;
   deductible: string;
+  overtimePenalty: string;
+  usageArea: string;
+  courtJurisdiction: string;
 }
 
 // --- 2. DATA DEFAULT ---
@@ -79,7 +82,10 @@ const INITIAL_DATA: RentalData = {
   rentalPrice: 'Rp 450.000,- / Hari',
   totalPrice: 'Rp 1.350.000,-',
   insuranceType: 'All Risk (Comprehensive)',
-  deductible: 'Rp 3.000.000,- (Tiga Juta Rupiah)'
+  deductible: 'Rp 3.000.000,- (Tiga Juta Rupiah)',
+  overtimePenalty: 'Rp 50.000,- / Jam',
+  usageArea: 'Pulau Bali',
+  courtJurisdiction: 'Pengadilan Negeri Denpasar'
 };
 
 export default function SewaKendaraanPage() {
@@ -191,9 +197,10 @@ function VehicleRentalBuilder() {
 
           <div className="break-inside-avoid mt-4">
               <h3 className="font-black text-[10pt] uppercase tracking-widest border-b-2 border-slate-900 print:border-black inline-block mb-2">PASAL 2: MASA SEWA & BIAYA</h3>
-              <ul className="list-disc pl-5 space-y-1">
+              <ul className="list-disc pl-5 space-y-1 text-justify">
                   <li>Masa sewa disepakati selama <strong>{data.rentalDuration}</strong>, terhitung mulai tanggal <strong>{formatDateSafe(data.startDate)}</strong> hingga <strong>{formatDateSafe(data.endDate)}</strong>.</li>
                   <li>Harga sewa disepakati sebesar <strong>{data.rentalPrice}</strong>, sehingga total biaya sewa adalah <strong>{data.totalPrice}</strong>.</li>
+                  <li>Apabila terjadi keterlambatan pengembalian kendaraan dari waktu yang telah disepakati, PIHAK KEDUA wajib membayar denda keterlambatan sebesar <strong>{data.overtimePenalty}</strong>. Keterlambatan lebih dari 4 (empat) jam akan dihitung sebagai tambahan sewa 1 (satu) hari penuh.</li>
               </ul>
           </div>
 
@@ -217,7 +224,25 @@ function VehicleRentalBuilder() {
           
           <div className="break-inside-avoid mt-4">
               <h3 className="font-black text-[10pt] uppercase tracking-widest border-b-2 border-slate-900 print:border-black inline-block mb-2">PASAL 5: KEHILANGAN UNIT</h3>
-              <p>Apabila terjadi kehilangan kendaraan akibat kelalaian PIHAK KEDUA, pencurian, atau penggelapan, maka PIHAK KEDUA <strong>wajib mengganti senilai harga kendaraan</strong> yang disewa dengan spesifikasi dan tahun pembuatan yang sama, atau membayarkan nilai uang yang setara dengan harga pasaran kendaraan tersebut selambat-lambatnya 30 (tiga puluh) hari sejak dinyatakan hilang.</p>
+              <p className="text-justify">Apabila terjadi kehilangan kendaraan akibat kelalaian PIHAK KEDUA, pencurian, atau penggelapan, maka PIHAK KEDUA <strong>wajib mengganti senilai harga kendaraan</strong> yang disewa dengan spesifikasi dan tahun pembuatan yang sama, atau membayarkan nilai uang yang setara dengan harga pasaran kendaraan tersebut selambat-lambatnya 30 (tiga puluh) hari sejak dinyatakan hilang.</p>
+          </div>
+
+          <div className="break-inside-avoid mt-4">
+              <h3 className="font-black text-[10pt] uppercase tracking-widest border-b-2 border-slate-900 print:border-black inline-block mb-2">PASAL 6: PENGGUNAAN & PERAWATAN</h3>
+              <ul className="list-disc pl-5 space-y-1 text-justify">
+                  <li>Kendaraan hanya diizinkan untuk digunakan di dalam wilayah batas operasional: <strong>{data.usageArea}</strong>. Membawa kendaraan keluar dari wilayah tersebut tanpa izin tertulis dari PIHAK PERTAMA adalah pelanggaran perjanjian.</li>
+                  <li>PIHAK KEDUA <strong>dilarang keras</strong> menyewakan kembali (<em>sub-lease</em>), memindahtangankan, atau menggadaikan kendaraan kepada pihak lain.</li>
+                  <li>Untuk sewa jangka panjang, biaya perawatan rutin (penggantian oli, kanvas rem) menjadi tanggung jawab PIHAK PERTAMA, sedangkan kerusakan akibat kelalaian pemakaian (ban bocor, velg pecah) menjadi tanggung jawab PIHAK KEDUA.</li>
+              </ul>
+          </div>
+
+          <div className="break-inside-avoid mt-4">
+              <h3 className="font-black text-[10pt] uppercase tracking-widest border-b-2 border-slate-900 print:border-black inline-block mb-2">PASAL 7: PENYELESAIAN SENGKETA & FORCE MAJEURE</h3>
+              <ul className="list-disc pl-5 space-y-1 text-justify">
+                  <li>Apabila terjadi perselisihan, kedua belah pihak sepakat untuk menyelesaikannya secara kekeluargaan melalui musyawarah.</li>
+                  <li>Apabila musyawarah tidak mencapai mufakat, maka kedua belah pihak sepakat untuk memilih domisili hukum yang sah dan tidak berubah di Kepaniteraan <strong>{data.courtJurisdiction}</strong>.</li>
+                  <li>Keterlambatan atau kegagalan pemenuhan kewajiban oleh salah satu pihak yang disebabkan oleh keadaan memaksa (<em>Force Majeure</em>) seperti bencana alam, huru-hara, atau kebijakan pemerintah, dapat diselesaikan secara musyawarah tanpa tuntutan ganti rugi.</li>
+              </ul>
           </div>
 
           <p className="pt-4 text-justify mt-4">Demikian Surat Perjanjian ini dibuat dalam 2 (dua) rangkap bermaterai cukup dan mempunyai kekuatan hukum yang sama, ditandatangani oleh kedua belah pihak dalam keadaan sadar dan tanpa paksaan dari pihak manapun.</p>
@@ -365,6 +390,19 @@ function VehicleRentalBuilder() {
                  <div className="space-y-1">
                      <label className="text-[9px] font-bold text-slate-400">TOTAL BIAYA SEWA</label>
                      <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none font-bold" value={data.totalPrice} onChange={e => handleDataChange('totalPrice', e.target.value)} placeholder="Total Biaya" />
+                 </div>
+                 
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">DENDA OVERTIME</label>
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.overtimePenalty} onChange={e => handleDataChange('overtimePenalty', e.target.value)} placeholder="Misal: Rp 50.000 / Jam" />
+                 </div>
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">BATAS WILAYAH OPERASIONAL</label>
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.usageArea} onChange={e => handleDataChange('usageArea', e.target.value)} placeholder="Misal: Pulau Bali" />
+                 </div>
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">DOMISILI HUKUM PENGADILAN</label>
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.courtJurisdiction} onChange={e => handleDataChange('courtJurisdiction', e.target.value)} placeholder="Misal: Pengadilan Negeri Denpasar" />
                  </div>
                  
                  <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-amber-500 outline-none font-mono" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
