@@ -1,4 +1,5 @@
 'use client';
+import PrintWrapper from '@/components/PrintWrapper';
 
 import { useState, Suspense, useEffect } from 'react';
 import { 
