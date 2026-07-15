@@ -326,35 +326,74 @@ function VehicleRentalBuilder() {
               
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-blue-600 border-b pb-1 tracking-widest flex items-center gap-2"><Key size={12}/> Pihak I (Pemilik)</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.ownerName} onChange={e => handleDataChange('ownerName', e.target.value)} placeholder="Nama Pemilik Kendaraan" />
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none" value={data.ownerCompany} onChange={e => handleDataChange('ownerCompany', e.target.value)} placeholder="Nama Perusahaan (Opsional)" />
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.ownerNik} onChange={e => handleDataChange('ownerNik', e.target.value)} placeholder="NIK Pemilik" />
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.ownerAddress} onChange={e => handleDataChange('ownerAddress', e.target.value)} placeholder="Alamat Lengkap Pemilik" />
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">NAMA PEMILIK</label>
+                     <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" value={data.ownerName} onChange={e => handleDataChange('ownerName', e.target.value)} placeholder="Nama Pemilik Kendaraan" />
+                 </div>
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">NAMA PERUSAHAAN (OPSIONAL)</label>
+                     <input className="w-full p-2 border rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none" value={data.ownerCompany} onChange={e => handleDataChange('ownerCompany', e.target.value)} placeholder="Nama Perusahaan" />
+                 </div>
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">NIK PEMILIK</label>
+                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono" value={data.ownerNik} onChange={e => handleDataChange('ownerNik', e.target.value)} placeholder="NIK KTP" />
+                 </div>
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">ALAMAT LENGKAP</label>
+                     <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-blue-500 outline-none" value={data.ownerAddress} onChange={e => handleDataChange('ownerAddress', e.target.value)} placeholder="Alamat Lengkap" />
+                 </div>
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-emerald-600 border-b pb-1 tracking-widest flex items-center gap-2"><UserCircle2 size={12}/> Pihak II (Penyewa)</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.renterName} onChange={e => handleDataChange('renterName', e.target.value)} placeholder="Nama Penyewa" />
-                 <div className="grid grid-cols-2 gap-3">
-                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.renterNik} onChange={e => handleDataChange('renterNik', e.target.value)} placeholder="NIK Penyewa" />
-                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.renterPhone} onChange={e => handleDataChange('renterPhone', e.target.value)} placeholder="No. HP" />
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">NAMA PENYEWA</label>
+                     <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.renterName} onChange={e => handleDataChange('renterName', e.target.value)} placeholder="Nama Lengkap Penyewa" />
                  </div>
-                 <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.renterAddress} onChange={e => handleDataChange('renterAddress', e.target.value)} placeholder="Alamat Penyewa" />
+                 <div className="grid grid-cols-2 gap-3">
+                     <div className="space-y-1">
+                         <label className="text-[9px] font-bold text-slate-400">NIK PENYEWA</label>
+                         <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.renterNik} onChange={e => handleDataChange('renterNik', e.target.value)} placeholder="NIK KTP" />
+                     </div>
+                     <div className="space-y-1">
+                         <label className="text-[9px] font-bold text-slate-400">NO. HANDPHONE</label>
+                         <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none font-mono" value={data.renterPhone} onChange={e => handleDataChange('renterPhone', e.target.value)} placeholder="No. HP Aktif" />
+                     </div>
+                 </div>
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">ALAMAT PENYEWA</label>
+                     <textarea className="w-full p-2 border rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.renterAddress} onChange={e => handleDataChange('renterAddress', e.target.value)} placeholder="Alamat Lengkap Sesuai KTP" />
+                 </div>
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-red-600 border-b pb-1 tracking-widest flex items-center gap-2"><Car size={12}/> Kendaraan</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-red-500 outline-none" value={data.vehicleModel} onChange={e => handleDataChange('vehicleModel', e.target.value)} placeholder="Merk & Tipe Kendaraan" />
-                 <div className="grid grid-cols-2 gap-3">
-                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none font-black uppercase" value={data.plateNumber} onChange={e => handleDataChange('plateNumber', e.target.value)} placeholder="No. Polisi" />
-                    <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-red-500 outline-none font-mono uppercase" value={data.frameNumber} onChange={e => handleDataChange('frameNumber', e.target.value)} placeholder="No. Rangka" />
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">MERK & TIPE KENDARAAN</label>
+                     <input className="w-full p-2 border rounded-lg text-xs font-bold uppercase focus:ring-2 focus:ring-red-500 outline-none" value={data.vehicleModel} onChange={e => handleDataChange('vehicleModel', e.target.value)} placeholder="Misal: Toyota Avanza Veloz 2024" />
                  </div>
-                 <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-red-500 outline-none font-mono uppercase" value={data.engineNumber} onChange={e => handleDataChange('engineNumber', e.target.value)} placeholder="No. Mesin" />
+                 <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400">NOMOR POLISI</label>
+                        <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-red-500 outline-none font-black uppercase" value={data.plateNumber} onChange={e => handleDataChange('plateNumber', e.target.value)} placeholder="DK 1234 AB" />
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400">NOMOR RANGKA</label>
+                        <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-red-500 outline-none font-mono uppercase" value={data.frameNumber} onChange={e => handleDataChange('frameNumber', e.target.value)} placeholder="MHFW..." />
+                    </div>
+                 </div>
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">NOMOR MESIN</label>
+                     <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-red-500 outline-none font-mono uppercase" value={data.engineNumber} onChange={e => handleDataChange('engineNumber', e.target.value)} placeholder="1NR-FE..." />
+                 </div>
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
                  <h3 className="text-[10px] font-black uppercase text-purple-600 border-b pb-1 tracking-widest flex items-center gap-2"><ShieldCheck size={12}/> Asuransi & Proteksi</h3>
-                 <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.insuranceType} onChange={e => handleDataChange('insuranceType', e.target.value)} placeholder="Jenis Asuransi (cth: All Risk)" />
+                 <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-slate-400">JENIS ASURANSI</label>
+                    <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.insuranceType} onChange={e => handleDataChange('insuranceType', e.target.value)} placeholder="Cth: All Risk (Comprehensive)" />
+                 </div>
                  <div className="space-y-1">
                     <label className="text-[9px] font-bold text-slate-400">BIAYA DEDUCTIBLE / OR KLAIM</label>
                     <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-purple-500 outline-none" value={data.deductible} onChange={e => handleDataChange('deductible', e.target.value)} placeholder="Biaya OR Asuransi" />
@@ -405,7 +444,10 @@ function VehicleRentalBuilder() {
                      <input className="w-full p-2 border rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none" value={data.courtJurisdiction} onChange={e => handleDataChange('courtJurisdiction', e.target.value)} placeholder="Misal: Pengadilan Negeri Denpasar" />
                  </div>
                  
-                 <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-amber-500 outline-none font-mono" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
+                 <div className="space-y-1">
+                     <label className="text-[9px] font-bold text-slate-400">NOMOR SURAT PERJANJIAN</label>
+                     <input className="w-full p-2 border rounded-lg text-[10px] focus:ring-2 focus:ring-amber-500 outline-none font-mono" value={data.docNo} onChange={e => handleDataChange('docNo', e.target.value)} placeholder="Nomor Surat" />
+                 </div>
               </div>
            </div>
         </div>
