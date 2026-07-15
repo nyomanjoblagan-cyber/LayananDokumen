@@ -304,11 +304,35 @@ export default function AhliWarisTemplate() {
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
             <style dangerouslySetInnerHTML={{ __html: `
                 @media print {
-                    @page { size: A4; margin: 15mm; }
-                    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    @page { size: A4 portrait; margin: 15mm; }
+                    body { background: white; margin: 0; padding: 0; width: 100%; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    .no-print { display: none !important; }
+                    #print-only-root { display: block !important; position: relative; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
+                    .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
                 }
             `}} />
-            <main className="flex-1 flex flex-col md:flex-row overflow-hidden print:hidden print:h-auto print:overflow-visible">
+
+            {/* HEADER NAVBAR */}
+            <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 font-sans shrink-0">
+                <div className="max-w-[1600px] mx-auto px-4 h-full flex justify-between items-center">
+                    <div className="flex items-center gap-6">
+                        <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-bold uppercase tracking-widest text-xs">
+                            <ArrowLeftCircle size={20} className="text-emerald-400" /> Dashboard
+                        </Link>
+                        <div className="h-6 w-px bg-slate-700 mx-2 hidden md:block"></div>
+                        <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-widest">
+                            <FileText size={16} className="text-blue-400" /> <span>Ahli Waris Builder</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+                            <Printer size={16} /> <span className="hidden sm:inline">Cetak Dokumen</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <main className="flex-1 flex flex-col md:flex-row overflow-hidden print:hidden print:h-auto print:overflow-visible h-[calc(100vh-64px)]">
                 <div className={`w-full md:w-[450px] lg:w-[500px] bg-white border-r border-slate-200 flex flex-col z-10 transition-transform duration-300 ${activeTab === 'editor' ? 'translate-x-0' : '-translate-x-full absolute md:relative md:translate-x-0'} print:hidden h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] overflow-y-auto`}>
                     <div className="p-4 md:p-6 bg-slate-900 text-white sticky top-0 z-20 shadow-md">
                         <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
@@ -553,7 +577,7 @@ export default function AhliWarisTemplate() {
                 </div>
             </main>
 
-            <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 md:mb-4">
+            <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 md:mb-4 hidden">
                 <PrintWrapper documentName="Akta_Pernyataan_Ahli_Waris" price={45000} />
             </div>
 
@@ -563,19 +587,9 @@ export default function AhliWarisTemplate() {
             </div>
 
             <div id="print-only-root" className="hidden print:block print:h-auto print:static">
-                <table className="print-table w-full">
-                    <thead><tr><td><div style={{ height: '15mm' }}>&nbsp;</div></td></tr></thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div className="print-content-wrapper max-w-none">
-                                    <ContentInside />
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
-                </table>
+                <div className="bg-white print:p-0">
+                    <ContentInside />
+                </div>
             </div>
         </div>
     );

@@ -427,7 +427,7 @@ function GrantLetterBuilder() {
       </div>
 
       <div id="print-only-root" className="hidden print:h-auto print:static">
-         <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col p-[20mm]">
+         <div style={{ width: '210mm', minHeight: '297mm' }} className="bg-white flex flex-col p-[20mm] print:p-0">
             <HibahContent />
          </div>
       </div>

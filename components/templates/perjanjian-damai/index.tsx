@@ -427,7 +427,7 @@ function DamaiBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4 portrait; margin: 0; } 
+          @page { size: A4 portrait; margin: 15mm; } 
           body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
