@@ -351,7 +351,7 @@ function IzinKeramaianBuilder() {
               <button onClick={() => setActiveTab('pengaturan')} className={`flex-1 py-3 ${activeTab === 'pengaturan' ? 'bg-white text-purple-600 border-b-2 border-b-purple-600' : 'text-slate-500 hover:bg-slate-200'}`}>Pengaturan</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:overflow-visible print:bg-white">
               
               {activeTab === 'pemohon' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -518,7 +518,7 @@ function IzinKeramaianBuilder() {
         </div>
 
         {/* PANEL KANAN: LIVE PREVIEW DOKUMEN */}
-        <div className={`flex-1 h-full bg-slate-200/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 h-full bg-slate-200/50 flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:overflow-visible print:bg-white print:static`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-[0.9] xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                 <DocumentContent />
             </div>

@@ -372,7 +372,7 @@ function PenghasilanOrtuBuilder() {
               </button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-6 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white relative print:static">
+ <div className="flex-1 overflow-y-auto p-6 custom-scrollbar pb-32 print:overflow-visible print:bg-white relative print:static">
               
               {activeTab === 'ortu' && (
               <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -556,7 +556,7 @@ function PenghasilanOrtuBuilder() {
         </div>
 
         {/* PANEL KANAN: LIVE PREVIEW DOKUMEN */}
-        <div className={`flex-1 h-full bg-[#111111] flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static print:p-0`}>
+ <div className={`flex-1 h-full bg-[#111111] flex flex-col items-center p-4 md:p-8 overflow-y-auto relative custom-scrollbar ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:overflow-visible print:bg-white print:static print:p-0`}>
             
             {/* Desktop Preview Header */}
             <div className="no-print w-full max-w-[210mm] mb-4 flex justify-between items-center px-4 py-2 bg-neutral-800/50 rounded-xl border border-neutral-700/50 backdrop-blur-sm">

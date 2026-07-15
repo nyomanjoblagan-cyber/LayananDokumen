@@ -510,7 +510,7 @@ function FinanceToolBuilder() {
               <h3 className="text-xs font-black uppercase text-slate-700 flex items-center gap-2"><Building2 size={16} className="text-blue-600"/> B2B Enterprise Data</h3>
               <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase tracking-tighter">{activeDocType}</span>
            </div>
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 md:pb-10 print:hidden print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 md:pb-10 print:overflow-visible print:bg-white">
               
               {/* SENDER INFO */}
               <div className="space-y-4">
@@ -632,7 +632,7 @@ function FinanceToolBuilder() {
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-200/80 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileMode === 'editor' ? 'hidden md:flex' : 'flex'} custom-scrollbar print:hidden print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 h-full bg-slate-200/80 rounded-xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileMode === 'editor' ? 'hidden md:flex' : 'flex'} custom-scrollbar print:overflow-visible print:bg-white print:static`}>
           <div className="origin-top transition-transform duration-300 transform scale-[0.35] sm:scale-[0.55] md:scale-[0.7] lg:scale-[0.85] xl:scale-100 mb-[-150%] sm:mb-[-100mm] md:mb-[-40mm] lg:mb-[-10mm] xl:mb-10 mt-2 xl:mt-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
              <DocumentContent />
           </div>

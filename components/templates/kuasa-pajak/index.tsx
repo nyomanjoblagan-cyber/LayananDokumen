@@ -398,7 +398,7 @@ function TaxProxyBuilder() {
              <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors p-1" title="Reset Formulir"><RotateCcw size={16}/></button>
            </div>
            
-           <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:hidden print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar pb-32 font-sans print:overflow-visible print:bg-white">
               
               {/* META INFO */}
               <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4">
@@ -627,7 +627,7 @@ function TaxProxyBuilder() {
            </div>
         </div>
 
-        <div className={`flex-1 h-full bg-slate-300/50 rounded-tl-2xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 h-full bg-slate-300/50 rounded-tl-2xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:overflow-visible print:bg-white print:static`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.7] lg:scale-[0.8] xl:scale-[0.95] 2xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-50mm] lg:mb-[-20mm] xl:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
                 <ProxyContent />
             </div>

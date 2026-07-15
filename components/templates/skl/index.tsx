@@ -282,7 +282,7 @@ function SKLBuilder() {
                <button onClick={handleReset} className="text-slate-400 hover:text-red-500 transition-colors bg-white p-1.5 rounded-md border shadow-sm"><RotateCcw size={14}/></button>
            </div>
            
-           <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar pb-32 font-sans print:hidden print:overflow-visible print:bg-white bg-slate-50/50">
+ <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar pb-32 font-sans print:overflow-visible print:bg-white bg-slate-50/50">
               
               {/* DATA KAMPUS */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
@@ -357,7 +357,7 @@ function SKLBuilder() {
         </div>
 
         {/* PREVIEW AREA */}
-        <div className={`flex-1 h-full bg-slate-200/80 rounded-tl-2xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 h-full bg-slate-200/80 rounded-tl-2xl flex flex-col items-center p-4 md:p-8 overflow-y-auto relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:overflow-visible print:bg-white print:static`}>
             <div className="origin-top transition-transform duration-300 transform scale-[0.40] sm:scale-[0.55] md:scale-[0.8] lg:scale-0.9 xl:scale-100 mb-[-180mm] sm:mb-[-100mm] md:mb-[-20mm] lg:mb-0 shadow-2xl shrink-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block rounded-sm ring-1 ring-slate-900/5">
                 <DocumentContent />
             </div>

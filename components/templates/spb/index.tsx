@@ -259,7 +259,7 @@ function PaymentOrderBuilder() {
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative print:hidden">
+ <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative ">
         
         {/* EDITOR SIDEBAR */}
         <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[450px] lg:w-[500px] bg-white border-r border-slate-200 h-[calc(100vh-64px)] md:sticky md:top-16 z-30 no-print shadow-xl shrink-0`}>

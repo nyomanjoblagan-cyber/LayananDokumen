@@ -291,7 +291,7 @@ function SuratDinasBuilder() {
               <button onClick={() => setActiveTab('ttd')} className={`flex-1 min-w-[80px] py-3 ${activeTab === 'ttd' ? 'bg-white text-red-600 border-b-2 border-b-red-600' : 'text-slate-500 hover:bg-slate-200'}`}>TTD</button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:hidden print:overflow-visible print:bg-white">
+ <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-32 print:overflow-visible print:bg-white">
               
               {activeTab === 'kop' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -433,13 +433,13 @@ function SuratDinasBuilder() {
         </div>
 
         {/* PANEL KANAN: PREVIEW DOKUMEN */}
-        <div className={`flex-1 bg-slate-200/50 overflow-y-auto h-full flex flex-col relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:hidden print:overflow-visible print:bg-white print:static`}>
+ <div className={`flex-1 bg-slate-200/50 overflow-y-auto h-full flex flex-col relative ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'} print:overflow-visible print:bg-white print:static`}>
             <div className="md:hidden p-3 bg-white border-b flex justify-between items-center sticky top-0 z-10 shadow-sm">
                 <button onClick={() => setMobileView('editor')} className="text-sm font-bold flex items-center gap-2 text-slate-600"><ArrowLeft size={16}/> Kembali Edit</button>
                 <div className="text-xs font-bold text-slate-400 uppercase">Preview Mode</div>
             </div>
             
-            <div className="flex-1 p-4 md:p-8 overflow-y-auto custom-scrollbar flex justify-center pb-32 print:hidden print:overflow-visible print:bg-white">
+ <div className="flex-1 p-4 md:p-8 overflow-y-auto custom-scrollbar flex justify-center pb-32 print:overflow-visible print:bg-white">
                  <div id="print-only-root" className="w-full flex justify-center print:h-auto print:static">
                      <DocumentContent />
                  </div>
