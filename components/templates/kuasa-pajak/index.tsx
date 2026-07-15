@@ -184,7 +184,7 @@ function TaxProxyBuilder() {
     };
 
     return (
-      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] w-[210mm] min-h-[296mm] print:min-h-0 p-[25mm] shadow-2xl print:shadow-none print:m-0 print:p-[25mm] print:w-full mx-auto relative">
+      <div className="bg-white flex flex-col box-border font-serif text-slate-900 leading-normal text-[11pt] w-[210mm] min-h-[296mm] print:min-h-0 p-[25mm] shadow-2xl print:shadow-none print:m-0 print:p-0 print:w-full mx-auto relative">
         
         {/* JUDUL DOKUMEN */}
         <div className="text-center mb-10 shrink-0">

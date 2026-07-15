@@ -450,7 +450,7 @@ function FranchiseBuilder() {
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-            @page { size: A4 portrait; margin: 0; }
+            @page { size: A4 portrait; margin: 15mm; }
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; min-width: 210mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             #print-only-root { display: block !important; position: relative; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
@@ -611,11 +611,7 @@ function FranchiseBuilder() {
       </div>
 
       <div id="print-only-root" className="hidden print:h-auto print:static">
-         <table className="print-table">
-            <thead><tr><td><div style={{ height: '25mm' }}>&nbsp;</div></td></tr></thead>
-            <tbody><tr><td><div className="print-content-wrapper"><ContentInside /></div></td></tr></tbody>
-            <tfoot><tr><td><div style={{ height: '25mm' }}>&nbsp;</div></td></tr></tfoot>
-         </table>
+         <div className="bg-white print:p-0"><ContentInside /></div>
       </div>
     </div>
   );

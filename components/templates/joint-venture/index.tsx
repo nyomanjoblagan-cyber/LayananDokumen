@@ -345,7 +345,7 @@ function JointVentureBuilder() {
       {/* GLOBAL STYLES FOR PRINTING PROTOCOL */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4; margin: 15mm; } 
           body { background: white; margin: 0; padding: 0; min-width: 210mm; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
@@ -551,7 +551,7 @@ function JointVentureBuilder() {
       </div>
 
       {/* HIDDEN PRINT TARGET (PURE HTML/CSS FOR MS WORD PROTOCOL) */}
-      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white p-[20mm]"><DocumentContent /></div></div>
+      <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white p-[20mm] print:p-0"><DocumentContent /></div></div>
     </div>
   );
 }
