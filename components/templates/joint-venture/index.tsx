@@ -546,7 +546,7 @@ function JointVentureBuilder() {
       </div>
 
       {/* WRAPPER KOMPONEN MONETISASI / PRINTING */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 hidden">
+      <div id="print-options" className="no-print">
          <PrintWrapper documentName="Dokumen_JointVenture_Corporate" price={25000} />
       </div>
 

@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
     Edit3, Eye, Trash2, Plus, Users, User, ShieldAlert, 
     Scale, FileText, CheckCircle 
@@ -577,7 +578,7 @@ export default function AhliWarisTemplate() {
                 </div>
             </main>
 
-            <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 md:mb-4 hidden">
+            <div id="print-options" className="no-print">
                 <PrintWrapper documentName="Akta_Pernyataan_Ahli_Waris" price={45000} />
             </div>
 

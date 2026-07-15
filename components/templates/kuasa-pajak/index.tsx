@@ -639,7 +639,7 @@ function TaxProxyBuilder() {
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs transition-colors ${mobileView === 'preview' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-400'}`}>PREVIEW</button>
       </div>
 
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10 hidden">
+      <div id="print-options" className="no-print">
          <PrintWrapper documentName="Surat Kuasa Pengurusan Pajak" price={25000} />
       </div>
 
