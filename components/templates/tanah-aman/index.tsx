@@ -122,7 +122,7 @@ function LandSafetyBuilder() {
       <div className={`text-slate-900 leading-normal print:text-black ${templateId === 2 ? 'font-sans' : 'font-serif'}`}>
         
         {/* HALAMAN 1 */}
-        <div className="w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 p-[20mm] md:p-[25mm] print:p-[20mm] bg-white shadow-2xl print:shadow-none box-border flex flex-col mb-10 print:mb-0 print:break-after-page overflow-hidden relative border-b print:border-none">
+        <div className="w-[210mm] print:w-full print:min-w-0 min-h-[296mm] print:min-h-0 p-[20mm] md:p-[25mm] print:p-0 bg-white shadow-2xl print:shadow-none box-border flex flex-col mb-10 print:mb-0 print:break-after-page overflow-hidden relative border-b print:border-none">
           {/* KOP */}
           <div className={`flex items-center gap-6 border-b-4 border-double border-black pb-4 mb-8 text-center shrink-0`}>
             {logo ? (
@@ -141,7 +141,7 @@ function LandSafetyBuilder() {
 
           {/* JUDUL */}
           <div className="text-center mb-8 shrink-0">
-            <h2 className="text-xl font-black underline uppercase decoration-2 underline-offset-8 tracking-widest text-slate-900">SURAT PERNYATAAN FISIK & TIDAK SENGKETA</h2>
+            <h2 className="text-2xl font-black underline uppercase decoration-2 underline-offset-8 tracking-widest text-slate-900">SURAT PERNYATAAN FISIK & TIDAK SENGKETA</h2>
             <p className="text-[10pt] font-mono mt-4 font-bold text-slate-400 print:text-black uppercase">NOMOR Register: {data.docNo}</p>
           </div>
 
@@ -247,7 +247,7 @@ function LandSafetyBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4; margin: 15mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }

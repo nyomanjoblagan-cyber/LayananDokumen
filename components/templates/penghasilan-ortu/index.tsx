@@ -122,7 +122,7 @@ function PenghasilanOrtuBuilder() {
   };
 
   const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-black font-serif leading-relaxed text-[12pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>
+    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-[20mm] text-black font-serif leading-relaxed text-[12pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>
       {children}
     </div>
   );

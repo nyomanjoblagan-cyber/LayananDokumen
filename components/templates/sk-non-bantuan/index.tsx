@@ -120,7 +120,7 @@ function NonBantuanBuilder() {
     };
 
     return (
-      <div className={`bg-white flex flex-col box-border text-black leading-normal p-[15mm] md:p-[20mm] print:p-[20mm] w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto font-serif text-[11pt]`}>
+      <div className={`bg-white flex flex-col box-border text-black leading-normal p-[15mm] md:p-[20mm] print:p-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 shadow-2xl print:shadow-none print:m-0 mx-auto font-serif text-[11pt]`}>
         
         {/* JUDUL */}
         <div className="text-center mb-10 leading-tight">
@@ -296,7 +296,7 @@ function NonBantuanBuilder() {
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 0; } 
+          @page { size: A4; margin: 15mm; } 
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
