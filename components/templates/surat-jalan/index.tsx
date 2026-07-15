@@ -1,6 +1,16 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+/**
+ * FILE: SuratJalanTemplate.tsx
+ * STATUS: PRODUCTION READY (PRINT BUG FIXED)
+ * DESC: Generator Surat Jalan (Delivery Order) B2B
+ * FEATURES:
+ * - Dynamic Item Table with Empty Row Fillers
+ * - Single DOM Print Architecture (Absolute Print Isolation)
+ * - Strict A4 Print Layout with Scoped Margins
+ */
+
+import React, { useState } from 'react';
 import PrintWrapper from '@/components/PrintWrapper';
 import { Truck, Package, Plus, Trash2, Box } from 'lucide-react';
 
@@ -15,32 +25,22 @@ interface SJItem {
 
 export default function SuratJalanTemplate() {
   const [data, setData] = useState({
-    // Perusahaan Pengirim
     namaPerusahaan: 'PT. LINTAS LOGISTIK NUSANTARA',
     alamatPerusahaan: 'Kawasan Industri MM2100 Blok C-3, Cikarang Barat, Bekasi 17530',
     kontakPerusahaan: 'Telp: (021) 898-7766 | Email: operasional@lintaslogistik.co.id',
-    
-    // Info Surat Jalan
     nomorSJ: 'SJ-LLN/2026/07/088',
     tanggal: '13 Juli 2026',
     noPO: 'PO-MJU-26-0042',
-    
-    // Penerima
     namaPenerima: 'PT. MAKMUR JAYA UTAMA',
     alamatPenerima: 'Jl. Rungkut Industri Raya No. 45\nKawasan SIER, Surabaya 60293',
     upPenerima: 'Bpk. Herman (Warehouse Manager)',
-    
-    // Armada & Pengemudi
     jenisKendaraan: 'Truk Fuso Box',
     nopol: 'B 9988 XYZ',
     namaSopir: 'Agus Setiawan',
     noSegel: 'SGL-88776655',
-    
-    // Penandatangan
     penerimaTtd: 'Herman',
     sopirTtd: 'Agus Setiawan',
     pengirimTtd: 'Budi Warehouse',
-    
     catatan: 'Barang harap dicek kesesuaiannya dengan Delivery Order. Komplain maksimal 1x24 jam setelah barang diterima.'
   });
 
@@ -49,8 +49,6 @@ export default function SuratJalanTemplate() {
     { id: '2', kodeBarang: 'ACC-B099', namaBarang: 'Radiator Coolant 5L', qty: 50, satuan: 'Jerigen', keterangan: '-' },
     { id: '3', kodeBarang: 'TOOL-X12', namaBarang: 'Hydraulic Jack 10T', qty: 5, satuan: 'Pcs', keterangan: 'Box Kayu' }
   ]);
-
-  const printRef = useRef<HTMLDivElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -79,9 +77,26 @@ export default function SuratJalanTemplate() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-6">
+    // REVISED: Tambahan class 'relative' sangat krusial agar absolute print berfungsi
+    <div className="flex flex-col md:flex-row gap-6 relative min-h-screen bg-gray-50">
+      
+      {/* CSS PRINT FIXED (ISOLASI ABSOLUT)
+        Mencegah elemen global dari layout.tsx ikut tercetak
+      */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: A4 portrait; margin: 15mm; } 
+          body { background: white; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .no-print { display: none !important; }
+          #print-only-root { display: block !important; position: absolute !important; top: 0; left: 0; width: 100%; z-index: 9999; background: white; }
+          * { box-sizing: border-box !important; }
+        }
+        .sj-table th { padding: 8px; border: 1px solid #000; background-color: #f3f4f6; text-align: center; font-size: 10pt; font-weight: bold; }
+        .sj-table td { padding: 6px 8px; border: 1px solid #000; font-size: 10pt; }
+      ` }} />
+
       {/* Sidebar Form */}
-      <div className="w-full md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg print:hidden h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-700">
+      <div className="no-print w-full md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg h-[calc(100vh-40px)] md:sticky top-4 overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-700 z-10">
         <h2 className="text-xl font-bold mb-5 text-gray-800 dark:text-white border-b pb-3 flex items-center gap-2">
           <Truck className="w-5 h-5 text-indigo-600" />
           Editor Surat Jalan
@@ -232,168 +247,162 @@ export default function SuratJalanTemplate() {
       </div>
 
       {/* Print Preview Area */}
-      <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar print:overflow-visible print:h-auto print:block">
-         <div className="flex flex-col items-center w-full print:block print:h-auto">
-          <div ref={printRef} className="print-safe-area bg-white text-black shadow-2xl mx-auto print:shadow-none" style={{ width: '210mm', minHeight: '297mm', padding: '15mm', fontFamily: 'Arial, sans-serif' }}>
-            <style dangerouslySetInnerHTML={{__html: `
-              @media print {
-                @page { size: A4 portrait; margin: 15mm; }
-                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                .print-safe-area { box-shadow: none !important; }
-              }
-              .sj-table th { padding: 8px; border: 1px solid #000; background-color: #f3f4f6; text-align: center; font-size: 10pt; font-weight: bold; }
-              .sj-table td { padding: 6px 8px; border: 1px solid #000; font-size: 10pt; }
-            `}} />
-
-            {/* Kop Surat */}
-            <div className="flex border-b-2 border-black pb-3 mb-6">
-              <div className="w-16 h-16 bg-gray-200 border border-gray-400 flex items-center justify-center mr-4">
-                <span className="text-gray-500 font-bold text-[10px] text-center leading-tight">LOGO</span>
-              </div>
-              <div className="flex-1">
-                <h1 className="text-xl font-bold uppercase tracking-wider text-blue-900" style={{ fontSize: '16pt' }}>{data.namaPerusahaan}</h1>
-                <p className="text-[9pt]">{data.alamatPerusahaan}</p>
-                <p className="text-[9pt]">{data.kontakPerusahaan}</p>
-              </div>
-              <div className="text-right w-48 pt-2">
-                <h2 className="text-2xl font-black uppercase tracking-widest border-2 border-black px-2 py-1 inline-block" style={{ letterSpacing: '0.2em' }}>SURAT JALAN</h2>
-              </div>
+      <div className="w-full md:w-2/3 flex flex-col items-center py-8 overflow-x-auto custom-scrollbar print:overflow-visible print:p-0 print:block">
+         
+        {/* REVISED: ID "#print-only-root" disematkan di sini agar menjadi satu-satunya DOM yang diprint */}
+        <div id="print-only-root" className="bg-white text-black shadow-2xl print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0" style={{ width: '210mm', minHeight: '297mm', padding: '15mm', fontFamily: 'Arial, sans-serif' }}>
+          
+          {/* Kop Surat */}
+          <div className="flex border-b-2 border-black pb-3 mb-6">
+            <div className="w-16 h-16 bg-gray-200 border border-gray-400 flex items-center justify-center mr-4">
+              <span className="text-gray-500 font-bold text-[10px] text-center leading-tight">LOGO</span>
             </div>
-
-            {/* Header Info */}
-            <div className="flex justify-between mb-6 text-[10pt]">
-              <div className="w-1/2 pr-4">
-                <p className="font-bold mb-1">Kepada Yth:</p>
-                <p className="font-bold uppercase text-[11pt]">{data.namaPenerima}</p>
-                <div className="whitespace-pre-line mt-1 h-12">{data.alamatPenerima}</div>
-                <p className="mt-2">UP: <strong>{data.upPenerima}</strong></p>
-              </div>
-              <div className="w-1/2 pl-4 border-l border-gray-300">
-                <table className="w-full">
-                  <tbody>
-                    <tr>
-                      <td className="w-32 py-1 font-bold">No. Surat Jalan</td>
-                      <td className="w-4">:</td>
-                      <td className="font-bold text-[11pt]">{data.nomorSJ}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">Tanggal</td>
-                      <td>:</td>
-                      <td>{data.tanggal}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">No. PO / Referensi</td>
-                      <td>:</td>
-                      <td className="font-mono">{data.noPO || '-'}</td>
-                    </tr>
-                    <tr>
-                      <td colSpan={3} className="py-2"></td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">Kendaraan</td>
-                      <td>:</td>
-                      <td>{data.jenisKendaraan}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">No. Polisi</td>
-                      <td>:</td>
-                      <td className="font-bold">{data.nopol}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">Sopir</td>
-                      <td>:</td>
-                      <td>{data.namaSopir}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">No. Segel</td>
-                      <td>:</td>
-                      <td className="font-mono">{data.noSegel || '-'}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold uppercase tracking-wider text-blue-900" style={{ fontSize: '16pt' }}>{data.namaPerusahaan}</h1>
+              <p className="text-[9pt]">{data.alamatPerusahaan}</p>
+              <p className="text-[9pt]">{data.kontakPerusahaan}</p>
             </div>
+            <div className="text-right w-48 pt-2">
+              <h2 className="text-2xl font-black uppercase tracking-widest border-2 border-black px-2 py-1 inline-block" style={{ letterSpacing: '0.2em' }}>SURAT JALAN</h2>
+            </div>
+          </div>
 
-            {/* Note Pembuka */}
-            <p className="text-[10pt] mb-2">Harap diterima dengan baik barang-barang tersebut di bawah ini:</p>
-
-            {/* Table Barang */}
-            <div className="mb-6 min-h-[250px]">
-              <table className="w-full border-collapse sj-table">
-                <thead>
-                  <tr>
-                    <th className="w-12">No.</th>
-                    <th className="w-32">Kode Barang</th>
-                    <th>Nama / Deskripsi Barang</th>
-                    <th className="w-20">Qty</th>
-                    <th className="w-20">Satuan</th>
-                    <th className="w-40">Keterangan</th>
-                  </tr>
-                </thead>
+          {/* Header Info */}
+          <div className="flex justify-between mb-6 text-[10pt]">
+            <div className="w-1/2 pr-4">
+              <p className="font-bold mb-1">Kepada Yth:</p>
+              <p className="font-bold uppercase text-[11pt]">{data.namaPenerima}</p>
+              <div className="whitespace-pre-line mt-1 h-12">{data.alamatPenerima}</div>
+              <p className="mt-2">UP: <strong>{data.upPenerima}</strong></p>
+            </div>
+            <div className="w-1/2 pl-4 border-l border-gray-300">
+              <table className="w-full">
                 <tbody>
-                  {items.map((item, idx) => (
-                    <tr key={item.id} className="h-8">
-                      <td className="text-center">{idx + 1}</td>
-                      <td className="font-mono text-[9pt] text-center">{item.kodeBarang}</td>
-                      <td>{item.namaBarang}</td>
-                      <td className="text-center font-bold">{item.qty}</td>
-                      <td className="text-center">{item.satuan}</td>
-                      <td>{item.keterangan}</td>
-                    </tr>
-                  ))}
-                  {/* Empty rows filler if items are few */}
-                  {Array.from({ length: Math.max(0, 8 - items.length) }).map((_, idx) => (
-                    <tr key={`empty-${idx}`} className="h-8">
-                      <td></td><td></td><td></td><td></td><td></td><td></td>
-                    </tr>
-                  ))}
+                  <tr>
+                    <td className="w-32 py-1 font-bold">No. Surat Jalan</td>
+                    <td className="w-4">:</td>
+                    <td className="font-bold text-[11pt]">{data.nomorSJ}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">Tanggal</td>
+                    <td>:</td>
+                    <td>{data.tanggal}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">No. PO / Referensi</td>
+                    <td>:</td>
+                    <td className="font-mono">{data.noPO || '-'}</td>
+                  </tr>
+                  <tr>
+                    <td colSpan={3} className="py-2"></td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">Kendaraan</td>
+                    <td>:</td>
+                    <td>{data.jenisKendaraan}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">No. Polisi</td>
+                    <td>:</td>
+                    <td className="font-bold">{data.nopol}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">Sopir</td>
+                    <td>:</td>
+                    <td>{data.namaSopir}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">No. Segel</td>
+                    <td>:</td>
+                    <td className="font-mono">{data.noSegel || '-'}</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
+          </div>
 
-            {/* Catatan */}
-            <div className="mb-8 border border-gray-400 p-2 text-[9pt] italic">
-              <strong>Catatan:</strong> {data.catatan}
+          {/* Note Pembuka */}
+          <p className="text-[10pt] mb-2">Harap diterima dengan baik barang-barang tersebut di bawah ini:</p>
+
+          {/* Table Barang */}
+          <div className="mb-6 min-h-[250px]">
+            <table className="w-full border-collapse sj-table">
+              <thead>
+                <tr>
+                  <th className="w-12">No.</th>
+                  <th className="w-32">Kode Barang</th>
+                  <th>Nama / Deskripsi Barang</th>
+                  <th className="w-20">Qty</th>
+                  <th className="w-20">Satuan</th>
+                  <th className="w-40">Keterangan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, idx) => (
+                  <tr key={item.id} className="h-8">
+                    <td className="text-center">{idx + 1}</td>
+                    <td className="font-mono text-[9pt] text-center">{item.kodeBarang}</td>
+                    <td>{item.namaBarang}</td>
+                    <td className="text-center font-bold">{item.qty}</td>
+                    <td className="text-center">{item.satuan}</td>
+                    <td>{item.keterangan}</td>
+                  </tr>
+                ))}
+                {/* Empty rows filler if items are few */}
+                {Array.from({ length: Math.max(0, 8 - items.length) }).map((_, idx) => (
+                  <tr key={`empty-${idx}`} className="h-8">
+                    <td></td><td></td><td></td><td></td><td></td><td></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Catatan */}
+          <div className="mb-8 border border-gray-400 p-2 text-[9pt] italic">
+            <strong>Catatan:</strong> {data.catatan}
+          </div>
+
+          {/* Tanda Tangan */}
+          <div className="grid grid-cols-3 gap-4 text-center text-[10pt] mt-4">
+            <div>
+              <p className="mb-20">Penerima,</p>
+              <p className="font-bold underline">{data.penerimaTtd}</p>
+              <p className="text-[8pt] text-gray-500">(Tanda Tangan & Cap)</p>
             </div>
-
-            {/* Tanda Tangan */}
-            <div className="grid grid-cols-3 gap-4 text-center text-[10pt] mt-4">
-              <div>
-                <p className="mb-20">Penerima,</p>
-                <p className="font-bold underline">{data.penerimaTtd}</p>
-                <p className="text-[8pt] text-gray-500">(Tanda Tangan & Cap)</p>
-              </div>
-              <div>
-                <p className="mb-20">Sopir / Pengirim,</p>
-                <p className="font-bold underline">{data.sopirTtd}</p>
-                <p className="text-[8pt] text-gray-500">(Tanda Tangan)</p>
-              </div>
-              <div>
-                <p className="mb-20">Hormat Kami,</p>
-                <div className="relative inline-block text-center">
-                  <div className="absolute -left-6 -top-12 w-20 h-20 border-2 border-blue-800 rounded-full flex items-center justify-center opacity-30 transform -rotate-12">
-                    <span className="text-[7px] font-bold text-blue-800">WAREHOUSE<br/>DEPT</span>
-                  </div>
-                  <p className="font-bold underline">{data.pengirimTtd}</p>
+            <div>
+              <p className="mb-20">Sopir / Pengirim,</p>
+              <p className="font-bold underline">{data.sopirTtd}</p>
+              <p className="text-[8pt] text-gray-500">(Tanda Tangan)</p>
+            </div>
+            <div>
+              <p className="mb-20">Hormat Kami,</p>
+              <div className="relative inline-block text-center">
+                <div className="absolute -left-6 -top-12 w-20 h-20 border-2 border-blue-800 rounded-full flex items-center justify-center opacity-30 transform -rotate-12">
+                  <span className="text-[7px] font-bold text-blue-800">WAREHOUSE<br/>DEPT</span>
                 </div>
-                <p className="text-[8pt] text-gray-500">Bag. Gudang</p>
+                <p className="font-bold underline">{data.pengirimTtd}</p>
               </div>
+              <p className="text-[8pt] text-gray-500">Bag. Gudang</p>
             </div>
+          </div>
 
-            <div className="mt-16 text-[8pt] flex justify-between text-gray-500 border-t border-gray-300 pt-2">
-              <span>Lembar 1: Penagihan | Lembar 2: Arsip Pengirim | Lembar 3: Arsip Penerima</span>
-              <span>Dokumen Surat Jalan Cetak</span>
-            </div>
-            
+          <div className="mt-16 text-[8pt] flex justify-between text-gray-500 border-t border-gray-300 pt-2">
+            <span>Lembar 1: Penagihan | Lembar 2: Arsip Pengirim | Lembar 3: Arsip Penerima</span>
+            <span>Dokumen Surat Jalan Cetak</span>
           </div>
-                  <div className="no-print mt-8 mb-4">
-            <button onClick={() => window.dispatchEvent(new Event('open-print-modal'))} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 hover:bg-emerald-600 transition-all cursor-pointer">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-              Cetak / Print
-            </button>
-            <PrintWrapper documentName="Cetak_Dokumen" price={15000} />
-          </div>
+          
         </div>
+
+        {/* Tombol Cetak & Paywall diletakkan DI LUAR #print-only-root */}
+        <div className="no-print mt-8 mb-4 flex flex-col items-center">
+          <button onClick={() => window.dispatchEvent(new Event('open-print-modal'))} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 hover:bg-emerald-600 transition-all cursor-pointer mb-4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Cetak / Print
+          </button>
+          <PrintWrapper documentName="Surat Jalan" price={15000} />
+        </div>
+
       </div>
 
       {/* MOBILE FLOATING BUTTON */}
