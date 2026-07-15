@@ -41,6 +41,165 @@ export default function DiskonTemplate() {
 
   const printRef = useRef<HTMLDivElement>(null);
 
+  const [templateId, setTemplateId] = useState<number>(1);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+
+  const TemplateMenu = () => (
+      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
+          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+              Format Legal Formal (Serif)
+          </button>
+          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
+              Format Compact Rapi (Sans)
+          </button>
+      </div>
+  );
+
+  const DocumentContent = () => (
+    <div ref={printRef} className={`print-safe-area bg-white text-black shadow-2xl mx-auto print:shadow-none ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'}`} style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
+            <style dangerouslySetInnerHTML={{__html: `
+              @media print {
+                @page { size: A4 portrait; margin: 20mm; }
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .print-safe-area { box-shadow: none !important; }
+              }
+              .kalkulasi-table td { padding: 8px 12px; font-size: 11pt; border-bottom: 1px solid #e5e7eb; }
+            `}} />
+
+            {/* KOP Surat */}
+            <div className="border-b-4 border-double border-gray-800 pb-4 mb-8 flex justify-between items-end">
+              <div>
+                <h1 className="text-2xl font-black uppercase tracking-wider text-orange-900" style={{ fontSize: '18pt' }}>
+                  {data.namaPerusahaan}
+                </h1>
+                <p className="text-sm mt-1">{data.alamatPerusahaan}</p>
+                <p className="text-sm">{data.kontakPerusahaan}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm">No: <strong>{data.nomorSurat}</strong></p>
+                <p className="text-sm">Date: {data.tanggalSurat}</p>
+              </div>
+            </div>
+
+            {/* Tujuan */}
+            <div className="mb-10 text-[11pt]">
+              <table className="w-full mb-6">
+                <tbody>
+                  <tr>
+                    <td className="w-20 align-top">Kepada</td>
+                    <td className="w-4 align-top">:</td>
+                    <td className="font-bold uppercase">{data.namaKlien}</td>
+                  </tr>
+                  <tr>
+                    <td className="align-top">U.P</td>
+                    <td className="align-top">:</td>
+                    <td className="font-bold">{data.upKlien}</td>
+                  </tr>
+                  <tr>
+                    <td className="align-top">Alamat</td>
+                    <td className="align-top">:</td>
+                    <td className="whitespace-pre-line">{data.alamatKlien}</td>
+                  </tr>
+                  <tr>
+                    <td colSpan={3} className="py-2"></td>
+                  </tr>
+                  <tr>
+                    <td className="align-top font-bold">Perihal</td>
+                    <td className="align-top font-bold">:</td>
+                    <td className="font-bold underline uppercase text-orange-900">{data.perihal}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pembuka */}
+            <div className="text-[11pt] text-justify mb-6 leading-relaxed">
+              <p className="mb-4">
+                Dengan hormat,
+              </p>
+              <p className="mb-4 indent-8">
+                Menindaklanjuti permohonan Bapak/Ibu dan mengacu pada <strong>Purchase Order (PO) Nomor: {data.referensiPO}</strong> untuk keperluan <strong>{data.namaProyek}</strong>, dengan ini Manajemen {data.namaPerusahaan} menyampaikan persetujuan pemberian Diskon Khusus.
+              </p>
+              <p className="mb-4 indent-8">
+                Adapun rincian perhitungan transaksi dan diskon yang disetujui adalah sebagai berikut:
+              </p>
+            </div>
+
+            {/* Tabel Kalkulasi */}
+            <div className="mb-8 pl-8 pr-16">
+              <table className="w-full kalkulasi-table border-2 border-gray-800">
+                <tbody>
+                  <tr className="bg-gray-50">
+                    <td className="font-bold">Total Nilai PO (Gross)</td>
+                    <td className="text-right font-mono font-bold">{formatCurrency(data.totalNilaiPO)}</td>
+                  </tr>
+                  <tr className="bg-orange-50 text-orange-800 border-b-2 border-orange-800">
+                    <td className="font-bold italic">
+                      Special Discount ({data.persentaseDiskon}%)
+                    </td>
+                    <td className="text-right font-mono font-bold">
+                      ({formatCurrency(nilaiDiskon)})
+                    </td>
+                  </tr>
+                  <tr className="bg-gray-100">
+                    <td className="font-bold uppercase text-[12pt] py-4">Total Nilai Netto (Setelah Diskon)</td>
+                    <td className="text-right font-mono font-black text-[13pt] py-4">{formatCurrency(nilaiSetelahDiskon)}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p className="text-[9pt] mt-2 italic text-gray-500">* Total Nilai Netto di atas belum termasuk Pajak Pertambahan Nilai (PPN) 11% jika berlaku.</p>
+            </div>
+
+            {/* Catatan S&K */}
+            <div className="mb-10 text-[11pt]">
+              <p className="font-bold mb-2">Syarat dan Ketentuan Berlakunya Diskon:</p>
+              <div className="p-4 border border-orange-300 bg-orange-50/30 text-justify text-[10pt] leading-relaxed">
+                {data.catatan}
+              </div>
+            </div>
+
+            {/* Penutup */}
+            <div className="text-[11pt] mb-12 text-justify">
+              <p className="indent-8">
+                Demikian surat persetujuan diskon ini kami sampaikan. Kami berharap kerjasama yang baik ini dapat terus berlanjut dan saling menguntungkan di masa mendatang. Atas perhatian dan kepercayaan Bapak/Ibu terhadap produk/layanan kami, kami ucapkan terima kasih.
+              </p>
+            </div>
+
+            {/* Tanda Tangan */}
+            <div className="flex justify-between px-8 text-[11pt]">
+              <div className="w-64 text-center">
+                <p className="mb-1">Diajukan Oleh,</p>
+                <p className="font-bold mb-24">{data.namaPerusahaan}</p>
+                <div className="relative">
+                  <p className="font-bold underline uppercase">{data.namaSales}</p>
+                  <p>{data.jabatanSales}</p>
+                </div>
+              </div>
+              
+              <div className="w-64 text-center">
+                <p className="mb-1">Disetujui Oleh,</p>
+                <p className="font-bold mb-24">{data.namaPerusahaan}</p>
+                <div className="relative">
+                  {/* Stamp */}
+                  <div className="absolute left-1/2 -top-16 -translate-x-1/2 w-28 h-28 border-[3px] border-orange-800 rounded-full flex flex-col items-center justify-center  transform -rotate-12 ">
+                    <span className="text-[8px] font-bold uppercase tracking-widest">{data.namaPerusahaan}</span>
+                    <span className="text-[16px] font-black text-orange-800 my-1">APPROVED</span>
+                    <span className="text-[7px]">DIRECTOR</span>
+                  </div>
+                  <p className="font-bold underline uppercase">{data.namaDirektur}</p>
+                  <p>{data.jabatanDirektur}</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+  );
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setData({ ...data, [e.target.name]: e.target.type === 'number' ? Number(e.target.value) || 0 : e.target.value });
   };
@@ -58,165 +217,9 @@ export default function DiskonTemplate() {
   const nilaiDiskon = (data.totalNilaiPO * data.persentaseDiskon) / 100;
   const nilaiSetelahDiskon = data.totalNilaiPO - nilaiDiskon;
 
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
-
-  const TemplateMenu = () => (
-      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-orange-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-orange-50 text-orange-700' : ''}`}>
-              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-orange-500' : 'bg-slate-300'}`}></div> 
-              Format Legal Formal (Serif)
-          </button>
-          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-orange-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-orange-50 text-orange-700' : ''}`}>
-              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-orange-500' : 'bg-slate-300'}`}></div> 
-              Format Compact Rapi (Sans)
-          </button>
-      </div>
-  );
-
-  const DocumentContent = () => (
-    <div ref={printRef} className={`print-safe-area bg-white text-black shadow-2xl mx-auto print:shadow-none ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'}`} style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
-      <style dangerouslySetInnerHTML={{__html: `
-        @media print {
-          @page { size: A4 portrait; margin: 20mm; }
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .print-safe-area { box-shadow: none !important; }
-        }
-        .kalkulasi-table td { padding: 8px 12px; font-size: 11pt; border-bottom: 1px solid #e5e7eb; }
-      `}} />
-
-      {/* KOP Surat */}
-      <div className="border-b-4 border-double border-gray-800 pb-4 mb-8 flex justify-between items-end">
-        <div>
-          <h1 className="text-2xl font-black uppercase tracking-wider text-orange-900" style={{ fontSize: '18pt' }}>
-            {data.namaPerusahaan}
-          </h1>
-          <p className="text-sm mt-1">{data.alamatPerusahaan}</p>
-          <p className="text-sm">{data.kontakPerusahaan}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-sm">No: <strong>{data.nomorSurat}</strong></p>
-          <p className="text-sm">Date: {data.tanggalSurat}</p>
-        </div>
-      </div>
-
-      {/* Tujuan */}
-      <div className="mb-10 text-[11pt]">
-        <table className="w-full mb-6">
-          <tbody>
-            <tr>
-              <td className="w-20 align-top">Kepada</td>
-              <td className="w-4 align-top">:</td>
-              <td className="font-bold uppercase">{data.namaKlien}</td>
-            </tr>
-            <tr>
-              <td className="align-top">U.P</td>
-              <td className="align-top">:</td>
-              <td className="font-bold">{data.upKlien}</td>
-            </tr>
-            <tr>
-              <td className="align-top">Alamat</td>
-              <td className="align-top">:</td>
-              <td className="whitespace-pre-line">{data.alamatKlien}</td>
-            </tr>
-            <tr>
-              <td colSpan={3} className="py-2"></td>
-            </tr>
-            <tr>
-              <td className="align-top font-bold">Perihal</td>
-              <td className="align-top font-bold">:</td>
-              <td className="font-bold underline uppercase text-orange-900">{data.perihal}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pembuka */}
-      <div className="text-[11pt] text-justify mb-6 leading-relaxed">
-        <p className="mb-4">
-          Dengan hormat,
-        </p>
-        <p className="mb-4 indent-8">
-          Menindaklanjuti permohonan Bapak/Ibu dan mengacu pada <strong>Purchase Order (PO) Nomor: {data.referensiPO}</strong> untuk keperluan <strong>{data.namaProyek}</strong>, dengan ini Manajemen {data.namaPerusahaan} menyampaikan persetujuan pemberian Diskon Khusus.
-        </p>
-        <p className="mb-4 indent-8">
-          Adapun rincian perhitungan transaksi dan diskon yang disetujui adalah sebagai berikut:
-        </p>
-      </div>
-
-      {/* Tabel Kalkulasi */}
-      <div className="mb-8 pl-8 pr-16">
-        <table className="w-full kalkulasi-table border-2 border-gray-800">
-          <tbody>
-            <tr className="bg-gray-50">
-              <td className="font-bold">Total Nilai PO (Gross)</td>
-              <td className="text-right font-mono font-bold">{formatCurrency(data.totalNilaiPO)}</td>
-            </tr>
-            <tr className="bg-orange-50 text-orange-800 border-b-2 border-orange-800">
-              <td className="font-bold italic">
-                Special Discount ({data.persentaseDiskon}%)
-              </td>
-              <td className="text-right font-mono font-bold">
-                ({formatCurrency(nilaiDiskon)})
-              </td>
-            </tr>
-            <tr className="bg-gray-100">
-              <td className="font-bold uppercase text-[12pt] py-4">Total Nilai Netto (Setelah Diskon)</td>
-              <td className="text-right font-mono font-black text-[13pt] py-4">{formatCurrency(nilaiSetelahDiskon)}</td>
-            </tr>
-          </tbody>
-        </table>
-        <p className="text-[9pt] mt-2 italic text-gray-500">* Total Nilai Netto di atas belum termasuk Pajak Pertambahan Nilai (PPN) 11% jika berlaku.</p>
-      </div>
-
-      {/* Catatan S&K */}
-      <div className="mb-10 text-[11pt]">
-        <p className="font-bold mb-2">Syarat dan Ketentuan Berlakunya Diskon:</p>
-        <div className="p-4 border border-orange-300 bg-orange-50/30 text-justify text-[10pt] leading-relaxed">
-          {data.catatan}
-        </div>
-      </div>
-
-      {/* Penutup */}
-      <div className="text-[11pt] mb-12 text-justify">
-        <p className="indent-8">
-          Demikian surat persetujuan diskon ini kami sampaikan. Kami berharap kerjasama yang baik ini dapat terus berlanjut dan saling menguntungkan di masa mendatang. Atas perhatian dan kepercayaan Bapak/Ibu terhadap produk/layanan kami, kami ucapkan terima kasih.
-        </p>
-      </div>
-
-      {/* Tanda Tangan */}
-      <div className="flex justify-between px-8 text-[11pt]">
-        <div className="w-64 text-center">
-          <p className="mb-1">Diajukan Oleh,</p>
-          <p className="font-bold mb-24">{data.namaPerusahaan}</p>
-          <div className="relative">
-            <p className="font-bold underline uppercase">{data.namaSales}</p>
-            <p>{data.jabatanSales}</p>
-          </div>
-        </div>
-        
-        <div className="w-64 text-center">
-          <p className="mb-1">Disetujui Oleh,</p>
-          <p className="font-bold mb-24">{data.namaPerusahaan}</p>
-          <div className="relative">
-            {/* Stamp */}
-            <div className="absolute left-1/2 -top-16 -translate-x-1/2 w-28 h-28 border-[3px] border-orange-800 rounded-full flex flex-col items-center justify-center  transform -rotate-12 ">
-              <span className="text-[8px] font-bold uppercase tracking-widest">{data.namaPerusahaan}</span>
-              <span className="text-[16px] font-black text-orange-800 my-1">APPROVED</span>
-              <span className="text-[7px]">DIRECTOR</span>
-            </div>
-            <p className="font-bold underline uppercase">{data.namaDirektur}</p>
-            <p>{data.jabatanDirektur}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <>
-    <main className="flex flex-col md:flex-row gap-6 print:hidden">
+  <>
+    <div className="flex flex-col md:flex-row gap-6 print:hidden">
       {/* Sidebar Form */}
       <div className="w-full md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg print:hidden h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-700">
         <div className="flex justify-between items-center mb-5 border-b pb-3">
@@ -225,11 +228,11 @@ export default function DiskonTemplate() {
             Surat Persetujuan Diskon
           </h2>
           <div className="relative">
-            <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all text-white">
-                <span className="text-orange-400">❖</span> 
-                <span className="hidden md:inline">{activeTemplateName}</span>
-            </button>
-            {showTemplateMenu && <TemplateMenu />}
+              <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all text-white">
+                  <span className="text-emerald-400">❖</span> 
+                  <span className="hidden md:inline">{activeTemplateName}</span>
+              </button>
+              {showTemplateMenu && <TemplateMenu />}
           </div>
         </div>
         
@@ -334,7 +337,7 @@ export default function DiskonTemplate() {
       {/* Print Preview Area */}
       <div className="w-full md:w-2/3 flex justify-center pb-12 overflow-x-auto custom-scrollbar">
         <div className="flex flex-col items-center w-full">
-          <DocumentContent />
+                    <DocumentContent />
                   <div className="no-print mt-8 mb-4">
             <button onClick={() => window.dispatchEvent(new Event('open-print-modal'))} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 hover:bg-emerald-600 transition-all cursor-pointer">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
@@ -343,12 +346,13 @@ export default function DiskonTemplate() {
             <PrintWrapper documentName="Cetak_Dokumen" price={15000} />
           </div>
         </div>
-        </div>
-      </main>
-
-      <div id="print-only-root" className="hidden print:block print:w-full print:h-auto print:static">
-        <DocumentContent />
       </div>
-    </>
+    </div>
+
+    {/* --- PRINT PORTAL --- */}
+    <div id="print-only-root" className="hidden print:block print:w-full print:h-auto print:static bg-white">
+       <DocumentContent />
+    </div>
+  </>
   );
 }
