@@ -100,7 +100,7 @@ function CVBuilder() {
   const removeSkill = (id: string) => setSkills(skills.filter(skill => skill.id !== id));
 
   const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-2xl shadow-xl p-2 z-[60]">
+    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-2xl shadow-xl p-2 z-[9999]">
         <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-purple-50 rounded-xl text-sm font-bold flex items-center gap-3 transition-colors ${templateId === 1 ? 'bg-purple-50 text-purple-700' : 'text-slate-600'}`}>
             <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-purple-600' : 'bg-slate-300'}`}></div> Classic ATS (Serif)
         </button>
@@ -291,7 +291,7 @@ function CVBuilder() {
       ` }} />
 
       {/* HEADER NAVBAR */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-800 h-16 flex items-center px-4 justify-between font-sans">
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-[999] border-b border-slate-800 h-16 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
               <ArrowLeftCircle size={20} className="text-purple-400" />
@@ -317,7 +317,7 @@ function CVBuilder() {
       </div>
 
       {/* MOBILE TABS */}
-      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-40 no-print font-sans">
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-[998] no-print font-sans">
         <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'editor' ? 'text-purple-700 border-b-2 border-purple-700 bg-purple-50' : 'text-slate-500'}`}>
           <Edit3 size={16} /> Editor
         </button>
@@ -329,7 +329,7 @@ function CVBuilder() {
       <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:h-auto print:overflow-visible print:block relative">
         
         {/* EDITOR SIDEBAR */}
-        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 h-full z-30 no-print shadow-xl shrink-0`}>
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 h-full z-[90] no-print shadow-xl shrink-0`}>
             <div className="p-5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
                 <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
                   <User size={18} className="text-purple-600" /> Editor Konten
