@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\penawaran\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: PenawaranPage.tsx
@@ -59,7 +64,7 @@ const INITIAL_DATA: QuoteData = {
   subject: 'Proposal Pengadaan & Implementasi Sistem Enterprise',
   
   senderName: 'PT. TEKNOLOGI ENTERPRISE NUSANTARA',
-  senderInfo: 'Enterprise Tower, Lt. 15, SCBD Jakarta\nEmail: enterprise@teknologi.com | Telp: (021) 888-9999',
+  senderInfo: 'Enterprise Tower, Lt. 15, SCBD Jakarta\\nEmail: enterprise@teknologi.com | Telp: (021) 888-9999',
   
   receiverName: 'BAPAK DIREKTUR UTAMA',
   receiverTitle: 'Chief Executive Officer',
@@ -76,7 +81,7 @@ const INITIAL_DATA: QuoteData = {
   
   taxRate: 11,
   discount: 0,
-  terms: '1. Termin Pembayaran: 40% Down Payment, 40% User Acceptance Test (UAT), 20% Go-Live.\n2. Waktu Pekerjaan: 45 Hari Kerja terhitung sejak PO diterbitkan.\n3. Harga sudah termasuk biaya pengiriman dan asuransi (Franco Jakarta).\n4. Segala pajak yang timbul akibat transaksi ini menjadi tanggung jawab masing-masing pihak sesuai ketentuan yang berlaku.',
+  terms: '1. Termin Pembayaran: 40% Down Payment, 40% User Acceptance Test (UAT), 20% Go-Live.\\n2. Waktu Pekerjaan: 45 Hari Kerja terhitung sejak PO diterbitkan.\\n3. Harga sudah termasuk biaya pengiriman dan asuransi (Franco Jakarta).\\n4. Segala pajak yang timbul akibat transaksi ini menjadi tanggung jawab masing-masing pihak sesuai ketentuan yang berlaku.',
   acceptanceProcedure: 'Untuk menyetujui penawaran ini, mohon tandatangani dokumen ini pada kolom yang telah disediakan dan kirimkan kembali beserta Purchase Order (PO) resmi.',
   
   city: 'JAKARTA',
@@ -497,7 +502,7 @@ function PenawaranBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Quotation_${data.receiverCompany.replace(/\s+/g, '_')}`} price={85000} />
+              <PrintWrapper documentName={`Quotation_${data.receiverCompany.replace(/\\s+/g, '_')}`} price={85000} />
            </div>
 
         </div>
@@ -506,3 +511,10 @@ function PenawaranBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
