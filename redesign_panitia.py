@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\panitia\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SKPanitiaPage.tsx
@@ -47,7 +52,7 @@ const generateId = () => Math.random().toString(36).substring(2, 9);
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: PanitiaData = {
-  kopInstansi: 'PEMERINTAH KABUPATEN GIANYAR\nKECAMATAN UBUD\nDESA SINGAKERTA',
+  kopInstansi: 'PEMERINTAH KABUPATEN GIANYAR\\nKECAMATAN UBUD\\nDESA SINGAKERTA',
   kopKontak: 'Jalan Raya Singakerta, Telp. (0361) 123456, Email: info@singakerta.desa.id',
   
   judulSk: 'KEPUTUSAN PERBEKEL DESA SINGAKERTA',
@@ -197,7 +202,7 @@ function PanitiaBuilder() {
             </div>
 
             <div className="text-center font-bold mb-6 break-inside-avoid">
-                <p className="uppercase">{data.judulSk.split(' ')[0] || 'KEPALA'} {data.kopInstansi.split('\n')[0]}</p>
+                <p className="uppercase">{data.judulSk.split(' ')[0] || 'KEPALA'} {data.kopInstansi.split('\\n')[0]}</p>
             </div>
 
             {/* MENIMBANG & MENGINGAT */}
@@ -547,3 +552,10 @@ function PanitiaBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
