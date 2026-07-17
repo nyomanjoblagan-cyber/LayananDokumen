@@ -26,13 +26,40 @@ export default function PrintWrapper({
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    // 1. Keamanan Dasar: Paksa mode 'print-free' aktif sejak awal (Mencegah bypass Ctrl+P)
+    if (!isPremium) {
+      document.body.classList.add('print-free');
+      document.body.classList.remove('print-premium');
+    }
+
+    // 2. Keamanan Tambahan: Blokir klik kanan (Mempersulit Inspect Element)
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    // 3. Keamanan Tambahan: Blokir F12, Ctrl+Shift+I, Ctrl+U
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F12') e.preventDefault();
+      if (
+        (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) ||
+        (e.ctrlKey && ['U', 'u'].includes(e.key))
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('contextmenu', handleContextMenu);
+    window.addEventListener('keydown', handleKeyDown);
+
     const handleOpen = () => setIsOpen(true);
     window.addEventListener('open-print-modal', handleOpen);
     
     return () => {
       window.removeEventListener('open-print-modal', handleOpen);
+      window.removeEventListener('contextmenu', handleContextMenu);
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isPremium]);
 
   const executePrint = (isPremiumPrint: boolean) => {
     // 1. Set mode (Premium/Free) ke body untuk trigger CSS watermark
