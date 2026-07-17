@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\pajak-tanah\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: PajakTanahPage.tsx
@@ -414,7 +419,7 @@ function TaxBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Ket_PBB_${data.wpName.replace(/\s+/g, '_')}_${data.taxYear}`} price={15000} />
+              <PrintWrapper documentName={`Ket_PBB_${data.wpName.replace(/\\s+/g, '_')}_${data.taxYear}`} price={15000} />
            </div>
 
         </div>
@@ -423,3 +428,10 @@ function TaxBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
