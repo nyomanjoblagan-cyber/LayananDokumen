@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\kontrak-kerja\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: KontrakKerjaPage.tsx
@@ -513,7 +518,7 @@ function ContractBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Kontrak_Kerja_${data.contractType}_${data.empName.replace(/\s+/g, '_')}`} price={25000} />
+              <PrintWrapper documentName={`Kontrak_Kerja_${data.contractType}_${data.empName.replace(/\\s+/g, '_')}`} price={25000} />
            </div>
 
         </div>
@@ -522,3 +527,10 @@ function ContractBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
