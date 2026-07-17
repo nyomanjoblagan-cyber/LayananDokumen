@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\kuasa-pajak\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: KuasaPajakPage.tsx
@@ -10,7 +15,7 @@ import React, { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeftCircle, Edit3, RotateCcw, 
   UserCircle2, ShieldCheck, Briefcase, FileText, 
-  Building2, Scale, AlertCircle
+  Building2, Scale
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -516,7 +521,7 @@ function KuasaBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Kuasa_Pajak_${data.p1Name.replace(/\s+/g, '_')}`} price={30000} />
+              <PrintWrapper documentName={`Kuasa_Pajak_${data.p1Name.replace(/\\s+/g, '_')}`} price={30000} />
            </div>
 
         </div>
@@ -525,3 +530,10 @@ function KuasaBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

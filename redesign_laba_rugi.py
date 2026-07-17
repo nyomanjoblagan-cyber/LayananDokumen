@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\laba-rugi\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: LabaRugiPage.tsx
@@ -510,7 +515,7 @@ function FinancialBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Laba_Rugi_${data.companyName.replace(/\s+/g, '_')}`} price={35000} />
+              <PrintWrapper documentName={`Laba_Rugi_${data.companyName.replace(/\\s+/g, '_')}`} price={35000} />
            </div>
 
         </div>
@@ -519,3 +524,10 @@ function FinancialBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
