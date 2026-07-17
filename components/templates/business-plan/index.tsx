@@ -1,26 +1,11 @@
 'use client';
 
-/**
- * FILE: BusinessPlanPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
- * DESC: Generator Business Plan / Proposal Usaha
- * FEATURES:
- * - Dual Template (Canvas vs Text Proposal)
- * - Mobile Menu Fixed
- * - Strict A4 Print Layout
- * - Timezone-Safe Date Parsing
- * - Integrated Ad Banner Space & MONETISASI Donation Modal
- */
-
-import { useState, useRef, Suspense, useEffect } from 'react';
+import React, { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeft, Lightbulb, Building2, TrendingUp, 
-  X, PenTool, PieChart, Users, Banknote, Rocket, Target, BarChart3,
-  LayoutTemplate, ChevronDown, Check, ArrowLeftCircle, Edit3, Eye, FileText, RotateCcw
+    Printer, ArrowLeftCircle, Edit3, RotateCcw, FileText, 
+    Building2, Target, Lightbulb, TrendingUp, Users, Banknote, MapPin
 } from 'lucide-react';
 import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
@@ -54,7 +39,7 @@ interface BusinessData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: BusinessData = {
   city: 'DENPASAR',
-  date: '', // Diisi useEffect
+  date: '2026-08-20',
   
   companyName: 'BALI TECH LOGISTICS (BTL)',
   tagline: 'Smart Solutions for Island Distribution',
@@ -74,322 +59,295 @@ const INITIAL_DATA: BusinessData = {
   team: 'CEO (Bagus Ramadhan), CTO (Expert Software Engineer), Head of Operations (Logistics Specialist).'
 };
 
-// --- 3. KOMPONEN UTAMA ---
+// --- 3. KOMPONEN KERTAS MUTLAK (LEGAL FORMAL) ---
+const Kertas = ({ children }: { children: React.ReactNode }) => (
+  <div className="bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-black font-serif leading-relaxed text-[11pt] box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto group">
+    {children}
+  </div>
+);
+
+const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+  <h3 className="font-bold text-[12pt] uppercase border-b-2 border-black pb-1 mb-3 mt-6">{children}</h3>
+);
+
+// --- 4. KOMPONEN UTAMA ---
 export default function BusinessPlanPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Business Plan Builder...</div>}>
-      <PlanBuilder />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Bisnis...</div>}>
+      <BusinessPlanBuilder />
     </Suspense>
   );
 }
 
-function PlanBuilder() {
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+function BusinessPlanBuilder() {
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<BusinessData>(INITIAL_DATA);
 
-  // Set Tanggal Hari Ini saat Mount
-  useEffect(() => {
-    setData(prev => ({ 
-        ...prev, 
-        date: new Date().toISOString().split('T')[0] 
-    }));
-  }, []);
-
-  // --- HANDLERS ---
-  const handleDataChange = (field: keyof BusinessData, val: string) => {
-    setData(prev => ({ ...prev, [field]: val }));
-  };
+  useEffect(() => setIsClient(true), []);
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
-        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke setelan awal?')) {
+        setData(INITIAL_DATA);
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Canvas (Modern One-Page)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Proposal (Formal Text)
-        </button>
-    </div>
+  const handleStringChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setData({ ...data, [e.target.name]: e.target.value });
+  };
+
+  const formatDateSafe = (dateString: string) => {
+      if(!dateString) return '___________';
+      return new Date(dateString).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+  };
+
+  const DocumentContent = () => (
+    <Kertas>
+      {/* COVER / JUDUL PROPOSAL */}
+      <div className="text-center mb-10 break-inside-avoid border-[4px] border-double border-black p-8">
+          <h1 className="font-black text-[22pt] uppercase tracking-widest leading-tight">{data.companyName}</h1>
+          <p className="italic text-[12pt] mt-2 mb-6">"{data.tagline}"</p>
+          <div className="w-24 h-1 border-t-2 border-black mx-auto mb-6"></div>
+          <h2 className="font-bold text-[14pt] uppercase tracking-widest">BUSINESS PLAN / PROPOSAL USAHA</h2>
+          <p className="text-[11pt] mt-4 font-bold uppercase">Industri: {data.industry}</p>
+      </div>
+      
+      {/* 1. EXECUTIVE SUMMARY */}
+      <SectionTitle>1. Ringkasan Eksekutif (Executive Summary)</SectionTitle>
+      <div className="text-justify mb-4">
+          <p className="font-bold mb-1">Pernyataan Masalah (Problem):</p>
+          <p className="pl-4 mb-3">{data.problem}</p>
+          <p className="font-bold mb-1">Solusi yang Ditawarkan (Solution):</p>
+          <p className="pl-4">{data.solution}</p>
+      </div>
+
+      {/* 2. ANALISIS PASAR */}
+      <SectionTitle>2. Analisis Pasar (Market Analysis)</SectionTitle>
+      <div className="text-justify mb-4">
+          <p className="font-bold mb-1">Target Pasar (Target Market):</p>
+          <p className="pl-4 mb-3">{data.targetMarket}</p>
+          <p className="font-bold mb-1">Ukuran Pasar (Market Size):</p>
+          <p className="pl-4 mb-3">{data.marketSize}</p>
+          <p className="font-bold mb-1">Kompetitor (Competitors):</p>
+          <p className="pl-4">{data.competitors}</p>
+      </div>
+
+      {/* 3. MODEL BISNIS & KEUANGAN */}
+      <SectionTitle>3. Model Bisnis & Kebutuhan Dana</SectionTitle>
+      <div className="text-justify mb-4">
+          <p className="font-bold mb-1">Sumber Pendapatan (Revenue Stream):</p>
+          <p className="pl-4 mb-3">{data.revenueStream}</p>
+          <p className="font-bold mb-1">Kebutuhan Pendanaan (Funding Required):</p>
+          <p className="pl-4 font-bold italic">{data.fundingNeed}</p>
+      </div>
+
+      {/* 4. MANAJEMEN TIM */}
+      <SectionTitle>4. Tim Manajemen (Management Team)</SectionTitle>
+      <div className="text-justify mb-8">
+          <p className="pl-4">{data.team}</p>
+      </div>
+
+      <div className="mb-8 text-justify">
+          <p className="indent-8 leading-loose">
+              Proposal rencana bisnis ini disusun dengan sebenar-benarnya sebagai proyeksi dari operasional dan potensi komersial perusahaan kami.
+          </p>
+      </div>
+
+      {/* PENUTUP & TANDA TANGAN */}
+      <div className="mt-16 break-inside-avoid">
+          <div className="flex justify-end px-8">
+              <div className="w-[45%] text-center">
+                  <p className="mb-2">Dibuat di : <strong>{data.city}</strong></p>
+                  <p className="mb-10">Pada tanggal : <strong>{formatDateSafe(data.date)}</strong></p>
+                  <p className="font-bold mb-24 uppercase">Founder / CEO</p>
+                  <p className="font-bold underline uppercase">{data.owner}</p>
+              </div>
+          </div>
+      </div>
+    </Kertas>
   );
 
-  // --- KONTEN SURAT ---
-  const ContentInside = () => {
-    // FIX TIMEZONE DATE FORMATTER
-    const formatDate = (dateString: string) => {
-        if(!dateString) return '...';
-        try {
-            const safeDate = new Date(dateString + 'T00:00:00');
-            return safeDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
-        } catch { return dateString; }
-    };
-
-    if (templateId === 1) {
-      // --- TEMPLATE 1: MODERN CANVAS (One Page) ---
-      return (
-        <div className="font-sans text-slate-900 leading-normal h-full flex flex-col">
-           {/* HEADER */}
-           <div className="flex flex-col items-center mb-8 shrink-0 border-b-4 border-blue-900 pb-6">
-              <div className="bg-blue-900 text-white p-3 rounded-2xl mb-3 print:bg-transparent print:text-blue-900 print:border print:border-blue-900">
-                 <Rocket size={32} />
-              </div>
-              <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-blue-900 text-center">{data.companyName}</h1>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-[0.3em] mt-2 italic text-center">{data.tagline}</p>
-           </div>
-
-           <div className="flex-grow space-y-6">
-              {/* ROW 1: PROBLEM & SOLUTION */}
-              <div className="grid grid-cols-2 gap-6 break-inside-avoid">
-                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h2 className="text-xs font-black uppercase text-blue-900 flex items-center gap-2 mb-2"><Target size={14} /> The Problem</h2>
-                    <p className="text-[9pt] leading-relaxed text-slate-700 text-justify">{data.problem}</p>
-                 </div>
-                 <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <h2 className="text-xs font-black uppercase text-blue-900 flex items-center gap-2 mb-2"><Lightbulb size={14} /> Our Solution</h2>
-                    <p className="text-[9pt] leading-relaxed text-blue-900 text-justify">{data.solution}</p>
-                 </div>
-              </div>
-
-              {/* ROW 2: MARKET & REVENUE */}
-              <div className="grid grid-cols-3 gap-6 break-inside-avoid">
-                 <div className="col-span-2 space-y-4">
-                    <div>
-                       <h2 className="text-xs font-black uppercase text-slate-900 border-b border-slate-200 pb-1 mb-2 flex items-center gap-2"><Users size={14} className="text-blue-600"/> Target Market</h2>
-                       <p className="text-[9pt] leading-relaxed italic">{data.targetMarket}</p>
-                       <p className="text-[8pt] font-bold text-blue-800 mt-1">Size: {data.marketSize}</p>
-                    </div>
-                    <div>
-                       <h2 className="text-xs font-black uppercase text-slate-900 border-b border-slate-200 pb-1 mb-2 flex items-center gap-2"><BarChart3 size={14} className="text-emerald-600"/> Business Model</h2>
-                       <p className="text-[9pt] leading-relaxed">{data.revenueStream}</p>
-                    </div>
-                 </div>
-                 
-                 <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex flex-col justify-center text-center">
-                    <h2 className="text-[9px] font-bold uppercase text-emerald-800 mb-2">Funding Needed</h2>
-                    <p className="text-xl font-black text-emerald-600 leading-tight">{data.fundingNeed}</p>
-                 </div>
-              </div>
-
-              {/* ROW 3: TEAM */}
-              <div className="break-inside-avoid">
-                 <h2 className="text-xs font-black uppercase text-slate-900 border-b border-slate-200 pb-1 mb-2 flex items-center gap-2"><PieChart size={14} className="text-amber-600"/> Operational Team</h2>
-                 <p className="text-[9pt] leading-relaxed text-slate-700 bg-white border border-slate-100 p-3 rounded-lg shadow-sm italic">{data.team}</p>
-              </div>
-           </div>
-
-           {/* FOOTER */}
-           <div className="mt-auto pt-6 border-t border-slate-100 flex justify-between items-end break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="text-[8pt] text-slate-400 font-mono">
-                 ID: BP-{data.companyName.substring(0,3).toUpperCase()}-2026
-              </div>
-              <div className="text-center">
-                 <p className="text-[9pt] mb-12">{data.city}, {formatDate(data.date)}</p>
-                 <p className="font-black underline uppercase text-[10pt] text-blue-900">{data.owner}</p>
-                 <p className="text-[8pt] font-bold uppercase text-slate-400 tracking-widest mt-1">Founder / CEO</p>
-              </div>
-           </div>
-        </div>
-      );
-    } else {
-      // --- TEMPLATE 2: TEXT DOCUMENT (Formal Proposal) ---
-      return (
-        <div className="font-serif text-[11pt] leading-relaxed text-slate-900">
-           <div className="text-center mb-10 border-b-2 border-black pb-4">
-              <h1 className="text-2xl font-bold uppercase tracking-wide">PROPOSAL RENCANA BISNIS</h1>
-              <h2 className="text-lg font-bold uppercase mt-2">{data.companyName}</h2>
-           </div>
-
-           <div className="space-y-6 text-justify">
-              <div className="break-inside-avoid">
-                 <h3 className="font-bold uppercase text-sm border-b border-slate-400 pb-1 mb-2">1. Ringkasan Eksekutif</h3>
-                 <p className="mb-2"><strong>Masalah:</strong> {data.problem}</p>
-                 <p><strong>Solusi:</strong> {data.solution}</p>
-              </div>
-
-              <div className="break-inside-avoid">
-                 <h3 className="font-bold uppercase text-sm border-b border-slate-400 pb-1 mb-2">2. Analisis Pasar</h3>
-                 <p className="mb-2">Target pasar kami adalah {data.targetMarket}</p>
-                 <p>Potensi pasar saat ini diperkirakan mencapai {data.marketSize}. Pesaing utama dalam industri ini meliputi {data.competitors}.</p>
-              </div>
-
-              <div className="break-inside-avoid">
-                 <h3 className="font-bold uppercase text-sm border-b border-slate-400 pb-1 mb-2">3. Model Pendapatan & Keuangan</h3>
-                 <p className="mb-2">Pendapatan utama perusahaan berasal dari {data.revenueStream}.</p>
-                 <p>Untuk mencapai target pertumbuhan tahap awal, kami membutuhkan pendanaan sebesar <strong>{data.fundingNeed}</strong>.</p>
-              </div>
-
-              <div className="break-inside-avoid">
-                 <h3 className="font-bold uppercase text-sm border-b border-slate-400 pb-1 mb-2">4. Manajemen Tim</h3>
-                 <p>Perusahaan dijalankan oleh tim profesional yang terdiri dari: {data.team}.</p>
-              </div>
-           </div>
-
-           <div className="mt-12 flex justify-end text-center break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-              <div className="w-64">
-                 <p className="mb-20">Hormat Kami,</p>
-                 <p className="font-bold underline uppercase">{data.owner}</p>
-                 <p className="text-sm">Direktur Utama</p>
-              </div>
-           </div>
-        </div>
-      );
-    }
-  };
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
-      {/* CSS PRINT FIXED */}
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+      {/* BULLETPROOF PRINT CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
+          @page { size: A4 portrait; margin: 15mm; } 
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
           * { box-sizing: border-box !important; }
         }
       ` }} />
 
-      {/* HEADER NAVY */}
-      <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
-         <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
-            <div className="flex items-center gap-4">
-               <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-800 rounded-full transition-all group">
-                  <ArrowLeftCircle size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors"/>
-                  <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
-               </Link>
-               <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Business Plan <span className="text-emerald-400">Builder</span></h1></div>
+      {/* HEADER NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-[999] border-b border-slate-800 h-16 flex items-center px-4 justify-between font-sans">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-purple-400" />
+              <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-1"></div>
+            <div className="flex flex-col">
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Business Plan / Proposal Usaha</h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-300 hidden md:inline-block">
+                LEGAL FORMAL FORMAT
+            </span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-purple-600 hover:bg-purple-500 px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-purple-900/50 active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
+            </button>
+          </div>
+      </div>
+
+      {/* MOBILE TABS */}
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-[998] no-print font-sans">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'editor' ? 'text-purple-700 border-b-2 border-purple-700 bg-purple-50' : 'text-slate-500'}`}>
+          <Edit3 size={16} /> Editor
+        </button>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'preview' ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50' : 'text-slate-500'}`}>
+          <Printer size={16} /> Preview
+        </button>
+      </div>
+
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:h-auto print:overflow-visible print:block relative">
+        
+        {/* EDITOR SIDEBAR */}
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 h-full z-[90] no-print shadow-xl shrink-0`}>
+            <div className="p-5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
+                <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
+                  <FileText size={18} className="text-purple-600" /> Editor Business Plan
+                </h2>
+                <button onClick={handleReset} className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-lg" title="Reset Form">
+                  <RotateCcw size={16}/>
+                </button>
             </div>
             
-            <div className="flex items-center gap-3">
-               {/* DESKTOP MENU */}
-               <div className="hidden md:flex relative">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
-                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Canvas (Modern)' : 'Proposal (Formal)'}</span><ChevronDown size={14} className="text-slate-500"/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* MOBILE MENU TRIGGER */}
-               <div className="relative md:hidden">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
-                    Template <ChevronDown size={14}/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* TOMBOL CETAK & TRIGGER MONETISASI */}
-               <button 
-                 onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
-                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
-               >
-                 <Printer size={18}/> <span className="hidden sm:inline">Cetak</span>
-               </button>
-            </div>
-         </div>
-      </header>
-
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden">
-         {/* EDITOR SIDEBAR */}
-         <div className={`no-print w-full md:w-[420px] lg:w-[480px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Isi Rencana Bisnis</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
- <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:flex print:overflow-visible print:bg-white">
-               {/* 1. INFO BISNIS */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Info Perusahaan</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Bisnis</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.companyName} onChange={e => handleDataChange('companyName', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tagline / Slogan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs italic focus:ring-2 focus:ring-emerald-500 outline-none" value={data.tagline} onChange={e => handleDataChange('tagline', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pemilik (CEO)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.owner} onChange={e => handleDataChange('owner', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Industri</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.industry} onChange={e => handleDataChange('industry', e.target.value)} /></div>
-                      </div>
+            <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar pb-32">
+                
+                {/* 1. LOKASI & TANGGAL */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <MapPin size={14} className="text-sky-600"/> Lokasi & Tanggal
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kota</label>
+                      <input type="text" name="city" value={data.city} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tanggal</label>
+                      <input type="date" name="date" value={data.date} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
+                    </div>
                   </div>
-               </div>
-
-               {/* 2. KONSEP */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Lightbulb size={12}/> Konsep Bisnis</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Masalah (Problem)</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.problem} onChange={e => handleDataChange('problem', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Solusi (Solution)</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.solution} onChange={e => handleDataChange('solution', e.target.value)} /></div>
-                  </div>
-               </div>
-
-               {/* 3. PASAR & UANG */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><TrendingUp size={12}/> Pasar & Finansial</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Target Pasar</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.targetMarket} onChange={e => handleDataChange('targetMarket', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Ukuran Pasar (Market Size)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.marketSize} onChange={e => handleDataChange('marketSize', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Sumber Pendapatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.revenueStream} onChange={e => handleDataChange('revenueStream', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kebutuhan Dana</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-emerald-600 focus:ring-2 focus:ring-emerald-500 outline-none" value={data.fundingNeed} onChange={e => handleDataChange('fundingNeed', e.target.value)} /></div>
-                  </div>
-               </div>
-
-               {/* 4. TIM */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Users size={12}/> Tim & Lokasi</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tim Inti</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.team} onChange={e => handleDataChange('team', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kota</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
-                      </div>
-                  </div>
-               </div>
-               <div className="h-20 md:hidden"></div>
-            </div>
-         </div>
-
-         {/* PREVIEW */}
- <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center print:flex print:overflow-visible print:bg-white print:static">
- <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:flex print:overflow-visible print:bg-white">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
-                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
-                      <ContentInside />
-                   </div>
                 </div>
-             </div>
-         </div>
+
+                {/* 2. IDENTITAS PERUSAHAAN */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Building2 size={14} className="text-emerald-600"/> Identitas Perusahaan
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Perusahaan / Startup</label>
+                      <input type="text" name="companyName" value={data.companyName} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tagline Bisnis</label>
+                      <input type="text" name="tagline" value={data.tagline} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Sektor Industri</label>
+                      <input type="text" name="industry" value={data.industry} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Founder / CEO</label>
+                      <input type="text" name="owner" value={data.owner} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. EXECUTIVE SUMMARY */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Lightbulb size={14} className="text-amber-600"/> Problem & Solution
+                  </h3>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Masalah yang Diselesaikan (Problem)</label>
+                    <textarea name="problem" value={data.problem} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-amber-800 h-24 resize-none focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all"></textarea>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Solusi / Produk (Solution)</label>
+                    <textarea name="solution" value={data.solution} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-amber-800 h-24 resize-none focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all"></textarea>
+                  </div>
+                </div>
+
+                {/* 4. ANALISIS PASAR */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Target size={14} className="text-purple-600"/> Market Analysis
+                  </h3>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Target Pasar</label>
+                    <textarea name="targetMarket" value={data.targetMarket} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-purple-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"></textarea>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ukuran Pasar (Market Size)</label>
+                    <textarea name="marketSize" value={data.marketSize} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-purple-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"></textarea>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kompetitor</label>
+                    <textarea name="competitors" value={data.competitors} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-purple-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"></textarea>
+                  </div>
+                </div>
+                
+                {/* 5. FINANSIAL */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Banknote size={14} className="text-emerald-600"/> Revenue & Funding
+                  </h3>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Model Pendapatan (Revenue Stream)</label>
+                    <textarea name="revenueStream" value={data.revenueStream} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-emerald-800 h-20 resize-none focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"></textarea>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kebutuhan Pendanaan</label>
+                    <input type="text" name="fundingNeed" value={data.fundingNeed} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                  </div>
+                </div>
+
+                {/* 6. TIM */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Users size={14} className="text-blue-600"/> Management Team
+                  </h3>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Susunan Tim</label>
+                    <textarea name="team" value={data.team} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-blue-800 h-20 resize-none focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"></textarea>
+                  </div>
+                </div>
+
+            </div>
+        </aside>
+
+        {/* PREVIEW AREA (BULLETPROOF PRINT TARGET) */}
+        <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block print:h-auto print:w-full`}>
+           
+           <div id="print-only-root" className="print:w-full print:max-w-none print:min-w-0 print:min-h-0 mx-auto origin-top transition-transform duration-300 scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 mb-[-120mm] md:mb-0 print:scale-100 print:transform-none print:mb-0">
+              <DocumentContent />
+           </div>
+
+           {/* Paywall Monetisasi - Diletakkan di luar print flow */}
+           <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
+              <PrintWrapper documentName="Business Plan / Proposal Usaha" price={25000} />
+           </div>
+
+        </div>
       </main>
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen" price={10000} />
-      </div>
-
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
-         <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
-      </div>
-
-      {/* --- PRINT PORTAL --- */}
-      <div id="print-only-root" className="hidden print:h-auto print:static">
-         <table className="print-table">
-            <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
-            <tbody><tr><td><div className="print-content-wrapper"><ContentInside /></div></td></tr></tbody>
-            <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
-         </table>
-      </div>
     </div>
   );
 }
-
-// FORCE-HMR-UPDATE

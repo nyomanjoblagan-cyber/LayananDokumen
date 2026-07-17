@@ -1,21 +1,11 @@
 'use client';
 
-/**
- * FILE: BeasiswaPage.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
- * DESC: Generator Perjanjian Pemberian Beasiswa (Legal Drafting Kelas Enterprise)
- */
-
-import { useState, Suspense, useEffect } from 'react';
+import React, { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, GraduationCap, User, Wallet, 
-  LayoutTemplate, ChevronDown, 
-  ArrowLeftCircle, Edit3, Eye, Building2, RotateCcw,
-  Briefcase, Scale, Banknote
+    Printer, ArrowLeftCircle, Edit3, RotateCcw, 
+    Building2, User, GraduationCap, Banknote, MapPin, Scale, FileText
 } from 'lucide-react';
 import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
@@ -52,7 +42,7 @@ interface AgreementData {
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: AgreementData = {
   city: 'Jakarta',
-  date: '',
+  date: '2026-08-15',
 
   instansiName: 'PT TEKNOLOGI MASA DEPAN TERANG',
   wakilName: 'Budi Raharjo, S.E., M.B.A.',
@@ -76,454 +66,377 @@ const INITIAL_DATA: AgreementData = {
   metodePembayaran: 'Langsung'
 };
 
-// --- 3. KOMPONEN UTAMA ---
+// --- 3. KOMPONEN KERTAS MUTLAK (LEGAL FORMAL) ---
+const Kertas = ({ children }: { children: React.ReactNode }) => (
+  <div className="bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-black font-serif leading-relaxed text-[11pt] box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto">
+    {children}
+  </div>
+);
+
+const IdentityRow = ({ label, value }: { label: string, value: string }) => (
+  <div className="flex mb-1">
+     <div className="w-56 shrink-0">{label}</div>
+     <div className="w-4 shrink-0">:</div>
+     <div className="flex-1 font-bold uppercase">{value}</div>
+  </div>
+);
+
+const ClauseItem = ({ num, text }: { num: string, text: React.ReactNode }) => (
+  <div className="flex text-justify mb-2">
+     <div className="w-8 shrink-0 font-bold">{num}.</div>
+     <div className="flex-1">{text}</div>
+  </div>
+);
+
+const Article = ({ title, children }: { title: string, children: React.ReactNode }) => (
+  <div className="mb-6 break-inside-avoid">
+     <div className="text-center font-bold mb-4 underline uppercase">{title}</div>
+     <div className="space-y-2">
+        {children}
+     </div>
+  </div>
+);
+
+// --- 4. KOMPONEN UTAMA ---
 export default function BeasiswaPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Sistem Dokumen Legal...</div>}>
-      <AgreementBuilder />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Beasiswa...</div>}>
+      <BeasiswaBuilder />
     </Suspense>
   );
 }
 
-function AgreementBuilder() {
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+function BeasiswaBuilder() {
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<AgreementData>(INITIAL_DATA);
 
-  // Set Tanggal Hari Ini saat Mount
-  useEffect(() => {
-    setData(prev => ({ 
-        ...prev, 
-        date: new Date().toISOString().split('T')[0] 
-    }));
-  }, []);
-
-  // --- HANDLERS ---
-  const handleDataChange = (field: keyof AgreementData, val: string) => {
-    setData(prev => ({ ...prev, [field]: val }));
-  };
+  useEffect(() => setIsClient(true), []);
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
-        setData({ ...INITIAL_DATA, date: new Date().toISOString().split('T')[0] });
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke setelan awal?')) {
+        setData(INITIAL_DATA);
     }
   };
 
-  // --- TEMPLATE MENU COMPONENT ---
-  const TemplateMenu = () => (
-    <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-        <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Standar Notaris (Legal)
-        </button>
-        <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-            <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-            Corporate (Clean)
-        </button>
-    </div>
+  const handleStringChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setData({ ...data, [e.target.name]: e.target.value });
+  };
+
+  const formatDateSafe = (dateString: string) => {
+      if(!dateString) return '...';
+      return new Date(dateString).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+  };
+
+  const DocumentContent = () => (
+    <Kertas>
+      {/* HEADER */}
+      <div className="text-center mb-10 pb-2 border-b-[3px] border-black border-double break-inside-avoid">
+          <h1 className="font-bold text-[14pt] uppercase tracking-wider underline underline-offset-4">PERJANJIAN PEMBERIAN BEASISWA</h1>
+          <h2 className="font-bold text-[12pt] uppercase tracking-wider mt-1">{data.namaBeasiswa}</h2>
+      </div>
+      
+      {/* PREAMBLE */}
+      <div className="mb-6 text-justify">
+          <p>
+              Pada hari ini, tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, yang bertanda tangan di bawah ini:
+          </p>
+      </div>
+
+      {/* IDENTITAS PARA PIHAK */}
+      <div className="pl-4 space-y-4 mb-6">
+          <div className="flex break-inside-avoid">
+              <div className="w-8 shrink-0 font-bold">I.</div>
+              <div className="flex-1">
+                  <IdentityRow label="Nama Instansi/Perusahaan" value={data.instansiName} />
+                  <IdentityRow label="Diwakili Oleh" value={data.wakilName} />
+                  <IdentityRow label="Jabatan" value={data.wakilJabatan} />
+                  <IdentityRow label="Alamat Instansi" value={data.instansiAddress} />
+                  <div className="mt-2 text-justify">
+                    Dalam hal ini bertindak untuk dan atas nama <strong>{data.instansiName}</strong>, selaku pemberi beasiswa, untuk selanjutnya disebut sebagai <strong>PIHAK PERTAMA</strong>.
+                  </div>
+              </div>
+          </div>
+          <div className="flex break-inside-avoid mt-6">
+              <div className="w-8 shrink-0 font-bold">II.</div>
+              <div className="flex-1">
+                  <IdentityRow label="Nama Lengkap" value={data.penerimaName} />
+                  <IdentityRow label="NIK" value={data.penerimaNik} />
+                  <IdentityRow label="Tempat, Tgl Lahir" value={data.penerimaTtl} />
+                  <IdentityRow label="Pekerjaan / Status" value={data.penerimaPekerjaan} />
+                  <IdentityRow label="Alamat Lengkap" value={data.penerimaAddress} />
+                  <div className="mt-2 text-justify">
+                    Dalam hal ini bertindak untuk dan atas nama diri sendiri selaku penerima beasiswa, untuk selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong>.
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div className="mb-8 text-justify break-inside-avoid">
+          <p>
+              PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut sebagai <strong>PARA PIHAK</strong>. PARA PIHAK dengan ini menerangkan dan menyatakan telah sepakat untuk mengikatkan diri dalam Perjanjian Pemberian Beasiswa dengan syarat dan ketentuan sebagaimana tercantum dalam pasal-pasal berikut:
+          </p>
+      </div>
+
+      <Article title="PASAL 1 : MAKSUD DAN TUJUAN">
+          <ClauseItem num="1" text={`PIHAK PERTAMA sepakat untuk memberikan bantuan dana pendidikan (Beasiswa) berupa ${data.namaBeasiswa} kepada PIHAK KEDUA.`} />
+          <ClauseItem num="2" text={`PIHAK KEDUA dengan ini menerima pemberian Beasiswa tersebut dan menyatakan kesediaannya untuk mematuhi seluruh syarat dan ketentuan yang ditetapkan oleh PIHAK PERTAMA.`} />
+      </Article>
+
+      <Article title="PASAL 2 : RINCIAN BEASISWA">
+          <ClauseItem num="1" text={<span>Beasiswa yang diberikan oleh PIHAK PERTAMA kepada PIHAK KEDUA adalah sebesar <strong>Rp. {data.nominalBeasiswa}</strong> per semester/periode.</span>} />
+          <ClauseItem num="2" text={<span>Pemberian Beasiswa tersebut berlaku selama <strong>{data.durasiSemester} semester</strong> kalender akademik.</span>} />
+          <ClauseItem num="3" text={<span>Pembayaran dana beasiswa akan disalurkan dengan cara <strong>{data.metodePembayaran}</strong> sesuai dengan jadwal pencairan yang telah ditentukan oleh PIHAK PERTAMA.</span>} />
+      </Article>
+
+      <Article title="PASAL 3 : HAK DAN KEWAJIBAN PIHAK KEDUA">
+          <ClauseItem num="1" text={<span>PIHAK KEDUA wajib terdaftar sebagai mahasiswa aktif pada <strong>{data.univName}</strong>, fakultas/jurusan <strong>{data.fakultas}</strong> dengan Nomor Induk Mahasiswa (NIM) <strong>{data.nim}</strong>.</span>} />
+          <ClauseItem num="2" text={<span>PIHAK KEDUA wajib mempertahankan Indeks Prestasi Kumulatif (IPK) sekurang-kurangnya <strong>{data.targetIpk}</strong> di setiap semesternya.</span>} />
+          <ClauseItem num="3" text={`PIHAK KEDUA wajib melaporkan hasil studi (Transkrip Nilai) kepada PIHAK PERTAMA paling lambat 14 (empat belas) hari kalender setelah nilai semester diterbitkan oleh universitas.`} />
+          <ClauseItem num="4" text={`PIHAK KEDUA berhak menerima pencairan dana beasiswa secara tepat waktu sesuai jadwal yang telah disepakati bersama, selama seluruh kewajiban telah terpenuhi.`} />
+      </Article>
+
+      <Article title="PASAL 4 : SANKSI DAN PEMBATALAN">
+          <ClauseItem num="1" text={`PIHAK PERTAMA berhak membatalkan atau menghentikan pemberian beasiswa secara sepihak apabila PIHAK KEDUA terbukti melakukan pelanggaran hukum, pelanggaran kode etik universitas, atau terbukti menyalahgunakan dana peruntukan beasiswa.`} />
+          <ClauseItem num="2" text={<span>Apabila PIHAK KEDUA gagal memenuhi syarat nilai akademik minimal (IPK {data.targetIpk}) selama 2 (dua) semester berturut-turut, maka status penerimaan beasiswa ini akan otomatis gugur tanpa perlu adanya teguran tertulis.</span>} />
+      </Article>
+
+      <Article title="PASAL 5 : PENUTUP DAN PENGESAHAN">
+          <ClauseItem num="1" text={`Perjanjian Pemberian Beasiswa ini dibuat dan ditandatangani secara sadar, tanpa ada unsur paksaan dari pihak manapun, serta mempunyai kekuatan hukum yang mengikat sejak tanggal ditandatangani.`} />
+          <ClauseItem num="2" text={`Hal-hal yang belum atau tidak cukup diatur dalam Surat Perjanjian ini akan diselesaikan secara musyawarah mufakat, dan apabila perlu akan dituangkan dalam suatu Adendum yang menjadi kesatuan tidak terpisahkan dari dokumen ini.`} />
+      </Article>
+
+      {/* TANDA TANGAN */}
+      <div className="mt-16 break-inside-avoid">
+          <div className="flex justify-between text-center px-8">
+              <div className="w-[45%]">
+                  <p className="font-bold mb-24 uppercase">PIHAK PERTAMA<br/>Pemberi Beasiswa,</p>
+                  <p className="font-bold underline uppercase">{data.wakilName}</p>
+                  <p className="text-[10pt] uppercase">{data.wakilJabatan}</p>
+              </div>
+              <div className="w-[45%]">
+                  <p className="font-bold mb-24 uppercase">PIHAK KEDUA<br/>Penerima Beasiswa,</p>
+                  <p className="font-bold underline uppercase">{data.penerimaName}</p>
+                  <p className="text-[10pt] uppercase">NIM: {data.nim}</p>
+              </div>
+          </div>
+      </div>
+    </Kertas>
   );
 
-  // --- KONTEN SURAT ---
-  const ContentInside = () => {
-    const getDayName = (dateStr: string) => {
-      if(!dateStr) return '...';
-      try {
-          const d = new Date(dateStr + 'T00:00:00');
-          return d.toLocaleDateString('id-ID', { weekday: 'long' });
-      } catch { return '...'; }
-    };
-
-    const getMonthName = (dateStr: string) => {
-      if(!dateStr) return '...';
-      try {
-          const d = new Date(dateStr + 'T00:00:00');
-          return d.toLocaleDateString('id-ID', { month: 'long' });
-      } catch { return '...'; }
-    };
-
-    const getYearStr = (dateStr: string) => {
-      if(!dateStr) return '...';
-      try {
-          const d = new Date(dateStr + 'T00:00:00');
-          return d.getFullYear().toString();
-      } catch { return '...'; }
-    };
-
-    const getDateNum = (dateStr: string) => {
-      if(!dateStr) return '...';
-      try {
-          const d = new Date(dateStr + 'T00:00:00');
-          return d.getDate().toString();
-      } catch { return '...'; }
-    };
-
-    // Fungsi utilitas format angka ke Rupiah
-    const formatRupiah = (angka: string) => {
-      const number = parseInt(angka.replace(/[^0-9]/g, ''));
-      if(isNaN(number)) return angka;
-      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
-    };
-
-    if (templateId === 1 || templateId === 2) {
-      // Karena ini dokumen legal drafting, template 1 dan 2 menggunakan struktur hirarki Pasal yang sama, 
-      // mungkin beda font/styling dasar, namun struktur paten tidak dirubah menjadi grid untuk menjaga format MS Word
-      return (
-        <div className={`text-[11pt] text-black leading-[1.6] ${templateId === 1 ? 'font-serif' : 'font-sans'}`}>
-           
-           {/* HEADER DOKUMEN */}
-           <div className="text-center mb-8 font-bold uppercase tracking-wide">
-             <p className="text-[12pt] underline mb-1">PERJANJIAN PEMBERIAN BEASISWA</p>
-             <p className="text-[11pt]">TENTANG</p>
-             <p className="text-[11pt]">PROGRAM {data.namaBeasiswa}</p>
-             <p className="mt-2 font-normal normal-case">Nomor : ........................................................</p>
-           </div>
-
-           {/* PEMBUKAAN */}
-           <p className="text-justify mb-4">
-             Pada hari ini, <span className="font-bold">{getDayName(data.date)}</span>, tanggal <span className="font-bold">{getDateNum(data.date)}</span> bulan <span className="font-bold">{getMonthName(data.date)}</span> tahun <span className="font-bold">{getYearStr(data.date)}</span>, bertempat di <span className="font-bold">{data.city}</span>, yang bertanda tangan di bawah ini:
-           </p>
-
-           {/* IDENTITAS PARA PIHAK (TANPA TABLE, MENGGUNAKAN DIV FLEX UNTUK MS WORD PRINT COMPATIBILITY) */}
-           <ol className="list-decimal list-outside ml-6 mb-6 text-justify space-y-6">
-             <li className="pl-2">
-                <p className="mb-1">
-                  <span className="font-bold uppercase">{data.instansiName}</span>, suatu badan/instansi yang berkedudukan di {data.city}, beralamat di {data.instansiAddress}, dalam hal ini diwakili oleh <span className="font-bold">{data.wakilName}</span> dalam jabatannya selaku {data.wakilJabatan}, dari dan oleh karena itu sah bertindak untuk dan atas nama {data.instansiName}. 
-                </p>
-                <p>Selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK PERTAMA</strong>.</p>
-             </li>
-             <li className="pl-2">
-                <div className="flex flex-col mb-1">
-                  <p className="font-bold uppercase mb-2">{data.penerimaName}</p>
-                  <div className="ml-0 md:ml-4">
-                    <div className="flex"><div className="w-48 shrink-0">NIK</div><div>: {data.penerimaNik}</div></div>
-                    <div className="flex"><div className="w-48 shrink-0">Tempat, Tanggal Lahir</div><div>: {data.penerimaTtl}</div></div>
-                    <div className="flex"><div className="w-48 shrink-0">Pekerjaan</div><div>: {data.penerimaPekerjaan}</div></div>
-                    <div className="flex"><div className="w-48 shrink-0">Alamat Lengkap</div><div>: {data.penerimaAddress}</div></div>
-                  </div>
-                </div>
-                <p>Selanjutnya dalam Perjanjian ini disebut sebagai <strong>PIHAK KEDUA</strong>.</p>
-             </li>
-           </ol>
-
-           <p className="text-justify mb-4">
-             PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut sebagai <strong>PARA PIHAK</strong>. PARA PIHAK terlebih dahulu menerangkan hal-hal sebagai berikut:
-           </p>
-
-           {/* PREMISES / RECITALS */}
-           <ol className="list-[lower-alpha] list-outside ml-6 mb-8 text-justify space-y-2">
-             <li className="pl-2">Bahwa PIHAK PERTAMA adalah penyelenggara program bantuan pendidikan berupa {data.namaBeasiswa} yang bertujuan untuk mendukung pendidikan anak bangsa.</li>
-             <li className="pl-2">Bahwa PIHAK KEDUA adalah mahasiswa aktif di {data.univName}, program studi {data.fakultas} dengan Nomor Induk Mahasiswa (NIM) {data.nim}.</li>
-             <li className="pl-2">Bahwa PIHAK KEDUA telah melalui proses seleksi dan memenuhi seluruh persyaratan yang ditetapkan oleh PIHAK PERTAMA untuk ditetapkan sebagai penerima beasiswa.</li>
-           </ol>
-
-           <p className="text-justify mb-8">
-             Berdasarkan hal-hal tersebut di atas, PARA PIHAK sepakat untuk mengikatkan diri dalam Perjanjian Pemberian Beasiswa (selanjutnya disebut "Perjanjian") dengan syarat dan ketentuan sebagai berikut:
-           </p>
-
-           {/* PASAL 1 */}
-           <div className="text-center font-bold mb-4">
-             <p>PASAL 1</p>
-             <p>DEFINISI DAN KETENTUAN UMUM</p>
-           </div>
-           <p className="text-justify mb-4">
-             Kecuali ditentukan lain secara tegas dalam Perjanjian ini, istilah-istilah di bawah ini memiliki pengertian sebagai berikut:
-           </p>
-           <ol className="list-decimal list-outside ml-6 mb-8 text-justify space-y-2">
-             <li className="pl-2"><strong>Beasiswa</strong> adalah bantuan biaya pendidikan yang diberikan oleh PIHAK PERTAMA kepada PIHAK KEDUA dalam bentuk dana tunai untuk menunjang kelancaran studi.</li>
-             <li className="pl-2"><strong>Perguruan Tinggi</strong> adalah institusi pendidikan tinggi tempat PIHAK KEDUA menempuh pendidikan formal, yaitu {data.univName}.</li>
-             <li className="pl-2"><strong>Indeks Prestasi Kumulatif (IPK)</strong> adalah nilai rata-rata kumulatif prestasi akademik yang diperoleh PIHAK KEDUA di akhir setiap semester berdasarkan transkrip nilai resmi.</li>
-           </ol>
-
-           {/* PASAL 2 */}
-           <div className="text-center font-bold mb-4">
-             <p>PASAL 2</p>
-             <p>OBJEK PERJANJIAN</p>
-           </div>
-           <ol className="list-decimal list-outside ml-6 mb-8 text-justify space-y-2">
-             <li className="pl-2">PIHAK PERTAMA dengan ini sepakat dan mengikatkan diri untuk memberikan Beasiswa kepada PIHAK KEDUA sebesar <strong>{formatRupiah(data.nominalBeasiswa)}</strong> per semester.</li>
-             <li className="pl-2">Pemberian Beasiswa sebagaimana dimaksud pada ayat (1) diberikan selama maksimal {data.durasiSemester} semester, terhitung sejak penandatanganan Perjanjian ini atau sampai PIHAK KEDUA menyelesaikan masa studinya (mana yang lebih dulu tercapai).</li>
-             <li className="pl-2">Dana Beasiswa hanya diperuntukkan untuk pembayaran biaya pendidikan (UKT/SPP), biaya buku, dan/atau biaya penunjang akademik lainnya.</li>
-           </ol>
-
-           {/* PASAL 3 */}
-           <div className="text-center font-bold mb-4">
-             <p>PASAL 3</p>
-             <p>METODE DAN TATA CARA PEMBAYARAN</p>
-           </div>
-           <ol className="list-decimal list-outside ml-6 mb-8 text-justify space-y-2">
-             {data.metodePembayaran === 'Langsung' ? (
-               <>
-                 <li className="pl-2">Pembayaran dana Beasiswa oleh PIHAK PERTAMA akan disalurkan secara langsung ke rekening bank milik PIHAK KEDUA.</li>
-                 <li className="pl-2">PIHAK KEDUA wajib menyampaikan informasi rekening bank yang sah, aktif, dan atas nama pribadi kepada PIHAK PERTAMA paling lambat 7 (tujuh) hari kerja setelah Perjanjian ini ditandatangani.</li>
-               </>
-             ) : (
-               <>
-                 <li className="pl-2">Pembayaran dana Beasiswa oleh PIHAK PERTAMA akan disalurkan melalui rekening resmi Perguruan Tinggi (Virtual Account/Rekening Rektorat) yang diperuntukkan bagi pembayaran biaya pendidikan PIHAK KEDUA.</li>
-                 <li className="pl-2">Apabila terdapat sisa dana setelah pemotongan biaya pendidikan oleh Perguruan Tinggi, maka selisih dana tersebut akan dikembalikan ke PIHAK PERTAMA atau diserahkan kepada PIHAK KEDUA sesuai kebijakan tertulis PIHAK PERTAMA.</li>
-               </>
-             )}
-             <li className="pl-2">Penyaluran dana dilakukan selambat-lambatnya 14 (empat belas) hari kerja setelah PIHAK KEDUA menyerahkan dokumen Laporan Hasil Studi (KHS/Transkrip Nilai) pada setiap awal semester akademik.</li>
-           </ol>
-
-           {/* PASAL 4 */}
-           <div className="text-center font-bold mb-4">
-             <p>PASAL 4</p>
-             <p>HAK DAN KEWAJIBAN PIHAK PERTAMA</p>
-           </div>
-           <ol className="list-decimal list-outside ml-6 mb-8 text-justify space-y-2">
-             <li className="pl-2">PIHAK PERTAMA berhak meminta dan menerima laporan perkembangan akademis PIHAK KEDUA berupa transkrip nilai/KHS setiap akhir semester.</li>
-             <li className="pl-2">PIHAK PERTAMA berhak untuk mengevaluasi, menunda, atau memberhentikan secara sepihak pemberian Beasiswa apabila PIHAK KEDUA terbukti melanggar syarat dan ketentuan dalam Perjanjian ini.</li>
-             <li className="pl-2">PIHAK PERTAMA berkewajiban mencairkan dana Beasiswa sesuai dengan nominal, jangka waktu, dan tata cara yang diatur dalam Pasal 2 dan Pasal 3 Perjanjian ini secara tepat waktu.</li>
-           </ol>
-
-           {/* PASAL 5 */}
-           <div className="text-center font-bold mb-4">
-             <p>PASAL 5</p>
-             <p>HAK DAN KEWAJIBAN PIHAK KEDUA</p>
-           </div>
-           <ol className="list-decimal list-outside ml-6 mb-8 text-justify space-y-2">
-             <li className="pl-2">PIHAK KEDUA berhak menerima dana Beasiswa secara penuh dari PIHAK PERTAMA selama mematuhi seluruh kewajiban dalam Perjanjian ini.</li>
-             <li className="pl-2">PIHAK KEDUA berkewajiban mempertahankan Indeks Prestasi Kumulatif (IPK) minimal sebesar <strong>{data.targetIpk}</strong> pada setiap semesternya.</li>
-             <li className="pl-2">PIHAK KEDUA berkewajiban menyerahkan fotokopi transkrip nilai / Kartu Hasil Studi (KHS) dan bukti registrasi ulang paling lambat 14 (empat belas) hari kerja setelah diterbitkan oleh Perguruan Tinggi.</li>
-             <li className="pl-2">PIHAK KEDUA dilarang menerima beasiswa dari instansi, lembaga, atau pihak lain yang melarang adanya penerimaan beasiswa ganda (double funding).</li>
-             <li className="pl-2">PIHAK KEDUA berkewajiban menjaga nama baik PIHAK PERTAMA, berperilaku baik, tidak terlibat dalam tindakan kriminal, pelanggaran hukum, asusila, maupun penyalahgunaan narkotika.</li>
-           </ol>
-
-           {/* PASAL 6 */}
-           <div className="text-center font-bold mb-4">
-             <p>PASAL 6</p>
-             <p>EVALUASI DAN PENGHENTIAN BEASISWA</p>
-           </div>
-           <ol className="list-decimal list-outside ml-6 mb-8 text-justify space-y-2">
-             <li className="pl-2">PIHAK PERTAMA berhak menghentikan Beasiswa secara sepihak dan seketika apabila PIHAK KEDUA tidak memenuhi kewajiban batas minimal IPK sebesar {data.targetIpk} selama 2 (dua) semester berturut-turut.</li>
-             <li className="pl-2">Pemberian Beasiswa akan dihentikan secara permanen apabila PIHAK KEDUA dikeluarkan (Drop Out), mengundurkan diri dari Perguruan Tinggi, atau mengambil cuti akademik tanpa persetujuan tertulis dari PIHAK PERTAMA.</li>
-             <li className="pl-2">Apabila terjadi pemutusan Beasiswa akibat unsur kesengajaan, pemalsuan dokumen akademik, atau pelanggaran pidana yang dilakukan oleh PIHAK KEDUA, maka PIHAK PERTAMA berhak secara hukum untuk menuntut pengembalian seluruh dana Beasiswa yang telah disalurkan.</li>
-           </ol>
-
-           {/* PASAL 7 */}
-           <div className="text-center font-bold mb-4">
-             <p>PASAL 7</p>
-             <p>KEADAAN MEMAKSA (FORCE MAJEURE)</p>
-           </div>
-           <ol className="list-decimal list-outside ml-6 mb-8 text-justify space-y-2">
-             <li className="pl-2">Apabila terjadi keterlambatan atau kegagalan salah satu pihak untuk memenuhi kewajiban dalam Perjanjian ini yang murni disebabkan oleh Keadaan Memaksa (Force Majeure), maka pihak tersebut tidak dapat dimintai pertanggungjawaban.</li>
-             <li className="pl-2">Keadaan Memaksa sebagaimana dimaksud pada ayat (1) meliputi namun tidak terbatas pada bencana alam, pandemi/epidemi, pemogokan massal, huru-hara, peperangan, dan peraturan/kebijakan pemerintah yang secara langsung menghalangi pelaksanaan Perjanjian ini.</li>
-             <li className="pl-2">Pihak yang mengalami Keadaan Memaksa wajib memberitahukan kepada pihak lainnya secara tertulis selambat-lambatnya 7 (tujuh) hari kalender sejak terjadinya keadaan tersebut dengan menyertakan bukti yang sah dari pihak berwenang.</li>
-           </ol>
-
-           {/* PASAL 8 */}
-           <div className="text-center font-bold mb-4">
-             <p>PASAL 8</p>
-             <p>PENYELESAIAN SENGKETA</p>
-           </div>
-           <ol className="list-decimal list-outside ml-6 mb-8 text-justify space-y-2">
-             <li className="pl-2">Segala perselisihan atau perbedaan pendapat yang timbul akibat pelaksanaan Perjanjian ini akan diselesaikan oleh PARA PIHAK secara musyawarah untuk mencapai mufakat.</li>
-             <li className="pl-2">Apabila musyawarah tidak mencapai mufakat dalam waktu 30 (tiga puluh) hari kalender sejak perselisihan timbul, maka PARA PIHAK sepakat untuk memilih domisili hukum yang tetap dan tidak berubah di Kepaniteraan Pengadilan Negeri {data.city}.</li>
-           </ol>
-
-           {/* PASAL 9 */}
-           <div className="text-center font-bold mb-4">
-             <p>PASAL 9</p>
-             <p>PENUTUP</p>
-           </div>
-           <ol className="list-decimal list-outside ml-6 mb-8 text-justify space-y-2">
-             <li className="pl-2">Hal-hal yang belum atau tidak cukup diatur dalam Perjanjian ini akan dirundingkan dan diatur kemudian oleh PARA PIHAK dalam suatu Adendum atau Amandemen yang bentuknya tertulis dan merupakan bagian yang tidak terpisahkan dari Perjanjian ini.</li>
-             <li className="pl-2">Perjanjian ini dibuat dan ditandatangani di {data.city} pada hari dan tanggal sebagaimana disebutkan pada awal Perjanjian, dibuat dalam rangkap 2 (dua) asli, bermeterai cukup sesuai ketentuan perundang-undangan yang berlaku, dan masing-masing rangkap mempunyai kekuatan hukum yang sama bagi PARA PIHAK.</li>
-           </ol>
-
-           {/* TANDA TANGAN */}
-           <div className="mt-16 flex justify-between break-inside-avoid">
-             <div className="text-center w-64">
-               <p className="mb-24 font-bold">PIHAK PERTAMA,</p>
-               <p className="font-bold underline uppercase">{data.wakilName}</p>
-               <p>{data.wakilJabatan}</p>
-             </div>
-             <div className="text-center w-64">
-               <p className="mb-24 font-bold">PIHAK KEDUA,</p>
-               <p className="font-bold underline uppercase">{data.penerimaName}</p>
-               <p>Penerima Beasiswa</p>
-             </div>
-           </div>
-
-        </div>
-      );
-    }
-    
-    return null;
-  };
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
-      {/* CSS PRINT FIXED (MENCEGAH TERPOTONG) */}
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+      {/* BULLETPROOF PRINT CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 20mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
+          @page { size: A4 portrait; margin: 15mm; } 
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
           * { box-sizing: border-box !important; }
         }
       ` }} />
 
-      {/* HEADER NAVY */}
-      <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
-         <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
-            <div className="flex items-center gap-4">
-               <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-800 rounded-full transition-all group">
-                  <ArrowLeftCircle size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors"/>
-                  <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
-               </Link>
-               <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Legal <span className="text-emerald-400">Drafter</span></h1></div>
+      {/* HEADER NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-[999] border-b border-slate-800 h-16 flex items-center px-4 justify-between font-sans">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-purple-400" />
+              <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-1"></div>
+            <div className="flex flex-col">
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Perjanjian Beasiswa</h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-300 hidden md:inline-block">
+                LEGAL FORMAL FORMAT
+            </span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-purple-600 hover:bg-purple-500 px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-purple-900/50 active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
+            </button>
+          </div>
+      </div>
+
+      {/* MOBILE TABS */}
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-[998] no-print font-sans">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'editor' ? 'text-purple-700 border-b-2 border-purple-700 bg-purple-50' : 'text-slate-500'}`}>
+          <Edit3 size={16} /> Editor
+        </button>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'preview' ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50' : 'text-slate-500'}`}>
+          <Printer size={16} /> Preview
+        </button>
+      </div>
+
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:h-auto print:overflow-visible print:block relative">
+        
+        {/* EDITOR SIDEBAR */}
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 h-full z-[90] no-print shadow-xl shrink-0`}>
+            <div className="p-5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
+                <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
+                  <FileText size={18} className="text-purple-600" /> Editor Beasiswa
+                </h2>
+                <button onClick={handleReset} className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-lg" title="Reset Form">
+                  <RotateCcw size={16}/>
+                </button>
             </div>
             
-            <div className="flex items-center gap-3">
-               <div className="hidden md:flex relative">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-3 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all bg-slate-900/50 text-slate-300">
-                    <LayoutTemplate size={18} className="text-emerald-500"/><span>{templateId === 1 ? 'Standar Notaris (Legal)' : 'Corporate (Clean)'}</span><ChevronDown size={14} className="text-slate-500"/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               <div className="relative md:hidden">
-                  <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-200 px-4 py-2 rounded-full border border-slate-700">
-                    Template <ChevronDown size={14}/>
-                  </button>
-                  {showTemplateMenu && <TemplateMenu />}
-               </div>
-
-               {/* TOMBOL CETAK & TRIGGER MONETISASI */}
-               <button 
-                 onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
-                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
-               >
-                 <Printer size={18}/> <span className="hidden sm:inline">Cetak Dokumen</span>
-               </button>
-            </div>
-         </div>
-      </header>
-
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden">
-         {/* EDITOR SIDEBAR */}
-         <div className={`no-print w-full md:w-[480px] lg:w-[520px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10 shadow-sm">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Scale size={18} className="text-emerald-600" /> Form Drafting Hukum</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
-            </div>
-
- <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:flex print:overflow-visible print:bg-white">
-               
-               {/* 1. DETAIL BEASISWA & PERJANJIAN */}
-               <div className="space-y-3">
-                  <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Banknote size={14}/> Detail Beasiswa</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kota Dibuat</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal Perjanjian</label><input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.date} onChange={e => handleDataChange('date', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Program Beasiswa</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.namaBeasiswa} onChange={e => handleDataChange('namaBeasiswa', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nominal (Per Semester)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-emerald-700 focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nominalBeasiswa} onChange={e => handleDataChange('nominalBeasiswa', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Durasi (Maks Semester)</label><input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.durasiSemester} onChange={e => handleDataChange('durasiSemester', e.target.value)} /></div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Target IPK Minimal</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-500 outline-none" value={data.targetIpk} onChange={e => handleDataChange('targetIpk', e.target.value)} /></div>
-                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-500">Metode Penyaluran</label>
-                            <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none bg-white" value={data.metodePembayaran} onChange={e => handleDataChange('metodePembayaran', e.target.value as any)}>
-                              <option value="Langsung">Langsung ke Mhs</option>
-                              <option value="Melalui Universitas">Melalui Universitas</option>
-                            </select>
-                         </div>
-                      </div>
+            <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar pb-32">
+                
+                {/* 1. LOKASI & WAKTU */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <MapPin size={14} className="text-sky-600"/> Lokasi & Tanggal
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kota Ditandatangani</label>
+                      <input type="text" name="city" value={data.city} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tanggal Perjanjian</label>
+                      <input type="date" name="date" value={data.date} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
+                    </div>
                   </div>
-               </div>
-
-               {/* 2. PIHAK PERTAMA (PEMBERI) */}
-               <div className="space-y-3">
-                  <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={14}/> Pihak Pertama (Pemberi)</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Instansi / Perusahaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.instansiName} onChange={e => handleDataChange('instansiName', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Perwakilan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.wakilName} onChange={e => handleDataChange('wakilName', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jabatan Perwakilan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.wakilJabatan} onChange={e => handleDataChange('wakilJabatan', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat Lengkap Instansi</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.instansiAddress} onChange={e => handleDataChange('instansiAddress', e.target.value)} /></div>
-                  </div>
-               </div>
-
-               {/* 3. PIHAK KEDUA (PENERIMA) */}
-               <div className="space-y-3">
-                  <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><User size={14}/> Pihak Kedua (Penerima)</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Lengkap Sesuai KTP</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.penerimaName} onChange={e => handleDataChange('penerimaName', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nominal Induk Kependudukan (NIK)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-emerald-500 outline-none" value={data.penerimaNik} onChange={e => handleDataChange('penerimaNik', e.target.value)} /></div>
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pekerjaan / Status</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.penerimaPekerjaan} onChange={e => handleDataChange('penerimaPekerjaan', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tempat, Tanggal Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.penerimaTtl} onChange={e => handleDataChange('penerimaTtl', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat Sesuai KTP</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.penerimaAddress} onChange={e => handleDataChange('penerimaAddress', e.target.value)} /></div>
-                      
-                      <div className="pt-3 border-t border-slate-100 space-y-3">
-                         <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Universitas / Perguruan Tinggi</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.univName} onChange={e => handleDataChange('univName', e.target.value)} /></div>
-                         <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Fakultas / Program Studi</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.fakultas} onChange={e => handleDataChange('fakultas', e.target.value)} /></div>
-                            <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIM</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nim} onChange={e => handleDataChange('nim', e.target.value)} /></div>
-                         </div>
-                      </div>
-                  </div>
-               </div>
-
-               <div className="h-20 md:hidden"></div>
-            </div>
-         </div>
-
-         {/* PREVIEW */}
- <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center print:flex print:overflow-visible print:bg-white print:static">
- <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:flex print:overflow-visible print:bg-white">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
-                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '25mm' }}>
-                      <ContentInside />
-                   </div>
                 </div>
-             </div>
-         </div>
+
+                {/* 2. PIHAK 1 (PEMBERI) */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Building2 size={14} className="text-purple-600"/> Pihak Pertama (Pemberi)
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Instansi / Perusahaan</label>
+                      <input type="text" name="instansiName" value={data.instansiName} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Perwakilan</label>
+                        <input type="text" name="wakilName" value={data.wakilName} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Jabatan</label>
+                        <input type="text" name="wakilJabatan" value={data.wakilJabatan} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alamat Instansi</label>
+                      <textarea name="instansiAddress" value={data.instansiAddress} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. PIHAK 2 (PENERIMA) */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <User size={14} className="text-emerald-600"/> Pihak Kedua (Penerima)
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
+                      <input type="text" name="penerimaName" value={data.penerimaName} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">NIK</label>
+                      <input type="text" name="penerimaNik" value={data.penerimaNik} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tempat, Tgl Lahir</label>
+                        <input type="text" name="penerimaTtl" value={data.penerimaTtl} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Status/Pekerjaan</label>
+                        <input type="text" name="penerimaPekerjaan" value={data.penerimaPekerjaan} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alamat Lengkap</label>
+                      <textarea name="penerimaAddress" value={data.penerimaAddress} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. DETAIL PENDIDIKAN */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <GraduationCap size={14} className="text-amber-600"/> Data Pendidikan (Penerima)
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Universitas / Institusi</label>
+                      <input type="text" name="univName" value={data.univName} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fakultas / Jurusan</label>
+                        <input type="text" name="fakultas" value={data.fakultas} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">NPM / NIM / NISN</label>
+                        <input type="text" name="nim" value={data.nim} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-mono font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. DETAIL BEASISWA & KLAUSUL */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Banknote size={14} className="text-teal-600"/> Klausul & Nilai Beasiswa
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Program Beasiswa</label>
+                      <input type="text" name="namaBeasiswa" value={data.namaBeasiswa} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nominal per Semester (Rp)</label>
+                        <input type="text" name="nominalBeasiswa" value={data.nominalBeasiswa} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Durasi (Semester)</label>
+                        <input type="number" name="durasiSemester" value={data.durasiSemester} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Target IPK Minimal</label>
+                        <input type="text" name="targetIpk" value={data.targetIpk} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Metode Penyaluran</label>
+                        <select name="metodePembayaran" value={data.metodePembayaran} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none">
+                          <option value="Langsung">Transfer Langsung ke Mahasiswa</option>
+                          <option value="Melalui Universitas">Transfer Melalui Universitas</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+            </div>
+        </aside>
+
+        {/* PREVIEW AREA (BULLETPROOF PRINT TARGET) */}
+        <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block print:h-auto print:w-full`}>
+           
+           <div id="print-only-root" className="print:w-full print:max-w-none print:min-w-0 print:min-h-0 mx-auto origin-top transition-transform duration-300 scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 mb-[-120mm] md:mb-0 print:scale-100 print:transform-none print:mb-0">
+              <DocumentContent />
+           </div>
+
+           {/* Paywall Monetisasi - Diletakkan di luar print flow */}
+           <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
+              <PrintWrapper documentName="Perjanjian Pemberian Beasiswa" price={10000} />
+           </div>
+
+        </div>
       </main>
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Perjanjian Beasiswa Legal" price={25000} />
-      </div>
-
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
-         <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Form</button>
-         <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
-      </div>
-
-      {/* PRINT PORTAL */}
-      <div id="print-only-root" className="hidden print:block print:h-auto print:static">
-         <table className="print-table w-full">
-            <thead><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></thead>
-            <tbody>
-               <tr>
-                  <td>
-                     <div className="print-content-wrapper">
-                        <ContentInside />
-                     </div>
-                  </td>
-               </tr>
-            </tbody>
-            <tfoot><tr><td><div style={{ height: '20mm' }}>&nbsp;</div></td></tr></tfoot>
-         </table>
-      </div>
-
     </div>
   );
 }
-
-// FORCE-HMR-UPDATE

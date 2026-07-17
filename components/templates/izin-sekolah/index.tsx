@@ -1,13 +1,22 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import PrintWrapper from '@/components/PrintWrapper';
+/**
+ * FILE: IzinSekolahPage.tsx
+ * STATUS: PRODUCTION READY (FULL FEATURE - ENTERPRISE FORMAT)
+ * DESC: Generator Surat Izin Tidak Masuk Sekolah/Kampus
+ */
+
+import React, { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeftCircle, FileText, Edit3, Eye, RotateCcw,
-  User, Building, Info, Calendar
+  Printer, ArrowLeftCircle, Edit3, Eye, RotateCcw, 
+  UserCircle2, Building2, CalendarDays, FileText, Stethoscope
 } from 'lucide-react';
 import Link from 'next/link';
 
+// IMPORT KOMPONEN SAKTI
+import PrintWrapper from '@/components/PrintWrapper';
+
+// --- 1. TYPE DEFINITIONS ---
 interface IzinData {
   kotaSurat: string;
   tanggalSurat: string;
@@ -28,16 +37,16 @@ interface IzinData {
   lampiranDokter: boolean;
 
   jenisAcara: string;
-
   alasanLainnya: string;
 
   namaPenandatangan: string;
   hubunganPenandatangan: 'Diri Sendiri' | 'Orang Tua' | 'Wali';
 }
 
+// --- 2. DATA DEFAULT ---
 const INITIAL_DATA: IzinData = {
   kotaSurat: 'Jakarta',
-  tanggalSurat: new Date().toISOString().split('T')[0],
+  tanggalSurat: '', // Diisi oleh useEffect
   
   jenisTujuan: 'Sekolah',
   namaTujuan: 'SMA Negeri 1 Jakarta',
@@ -48,10 +57,10 @@ const INITIAL_DATA: IzinData = {
   kelasAtauProdi: 'XII IPA 1',
   
   alasanIzin: 'Sakit',
-  tanggalMulai: new Date().toISOString().split('T')[0],
-  tanggalSelesai: new Date().toISOString().split('T')[0],
+  tanggalMulai: '',
+  tanggalSelesai: '',
   
-  keteranganSakit: 'demam tinggi',
+  keteranganSakit: 'demam tinggi dan harus istirahat total',
   lampiranDokter: true,
   
   jenisAcara: '',
@@ -61,22 +70,37 @@ const INITIAL_DATA: IzinData = {
   hubunganPenandatangan: 'Orang Tua'
 };
 
+// --- 3. KERTAS MUTLAK ---
+const Kertas = ({ children }: { children: React.ReactNode }) => (
+  <div className="bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-black leading-relaxed box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto font-serif text-[11pt]">
+    {children}
+  </div>
+);
+
+// --- 4. KOMPONEN UTAMA ---
 export default function IzinSekolahPage() {
   return (
-    <Suspense fallback={<div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>Memuat Editor...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Surat...</div>}>
       <IzinBuilder />
     </Suspense>
   );
 }
 
 function IzinBuilder() {
+  // --- STATE SYSTEM ---
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<IzinData>(INITIAL_DATA);
-  const [activeTab, setActiveTab] = useState<'pemohon' | 'tujuan' | 'izin'>('pemohon');
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-
+  
   useEffect(() => {
     setIsClient(true);
+    const today = new Date().toISOString().split('T')[0];
+    setData(prev => ({ 
+        ...prev, 
+        tanggalSurat: today,
+        tanggalMulai: today,
+        tanggalSelesai: today
+    }));
   }, []);
 
   const handleDataChange = (field: keyof IzinData, val: any) => {
@@ -85,732 +109,330 @@ function IzinBuilder() {
 
   const handleReset = () => {
     if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
-        setData({ ...INITIAL_DATA });
+        const today = new Date().toISOString().split('T')[0];
+        setData({ 
+            ...INITIAL_DATA, 
+            tanggalSurat: today,
+            tanggalMulai: today,
+            tanggalSelesai: today
+        });
     }
   };
 
-  const formatDateSafe = (dateString: string) => {
-      if(!dateString) return '...';
-      try {
-          return new Date(dateString).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-      } catch {
-          return dateString;
-      }
-  };
+  // --- KOMPONEN ISI SURAT ---
+  const DocumentContent = () => {
+    const formatDateSafe = (dateString: string) => {
+        if(!dateString) return '...';
+        try {
+            return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+        } catch { return dateString; }
+    };
 
-  const generateAlasanText = () => {
-    if (data.alasanIzin === 'Sakit') {
-        const text = `sakit ${data.keteranganSakit ? data.keteranganSakit : ''}`.trim();
-        const lampiran = data.lampiranDokter ? ' Bersama surat ini, saya juga melampirkan surat keterangan dari dokter.' : '';
-        return text + '.' + lampiran;
-    } else if (data.alasanIzin === 'Acara Keluarga') {
-        return `ada keperluan keluarga, yaitu ${data.jenisAcara || '...'} .`;
-    } else {
-        return `${data.alasanLainnya || '...'} .`;
-    }
-  };
+    const isSakit = data.alasanIzin === 'Sakit';
+    const isAcara = data.alasanIzin === 'Acara Keluarga';
+    const isLainnya = data.alasanIzin === 'Lainnya';
+    const isSingleDay = data.tanggalMulai === data.tanggalSelesai;
 
-  const durasiHari = () => {
-      if (data.tanggalMulai && data.tanggalSelesai) {
-          const start = new Date(data.tanggalMulai);
-          const end = new Date(data.tanggalSelesai);
-          const diff = end.getTime() - start.getTime();
-          if (diff >= 0) return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
-      }
-      return 1;
+    return (
+      <Kertas>
+        {/* TANGGAL SURAT */}
+        <div className="text-right mb-8">
+            <p>{data.kotaSurat}, {formatDateSafe(data.tanggalSurat)}</p>
+        </div>
+
+        {/* TUJUAN SURAT */}
+        <div className="mb-8">
+            <p>Kepada Yth,</p>
+            <p className="font-bold">Bapak/Ibu Guru Wali Kelas / Dosen Pengampu</p>
+            <p className="font-bold uppercase">{data.namaTujuan}</p>
+            <p>di -</p>
+            <p className="ml-8">{data.alamatTujuan}</p>
+        </div>
+
+        {/* SALAM PEMBUKA */}
+        <div className="mb-4">
+            <p>Dengan hormat,</p>
+            <p>Yang bertanda tangan di bawah ini:</p>
+        </div>
+
+        {/* DATA SISWA / MAHASISWA */}
+        <div className="ml-8 mb-6 break-inside-avoid">
+            <div className="flex mb-1">
+                <div className="w-40">Nama</div>
+                <div className="w-4">:</div>
+                <div className="flex-1 font-bold uppercase">{data.namaPemohon}</div>
+            </div>
+            <div className="flex mb-1">
+                <div className="w-40">{data.jenisTujuan === 'Sekolah' ? 'NIS/NISN' : 'NIM'}</div>
+                <div className="w-4">:</div>
+                <div className="flex-1 font-mono">{data.nomorIdentitas}</div>
+            </div>
+            <div className="flex mb-1">
+                <div className="w-40">{data.jenisTujuan === 'Sekolah' ? 'Kelas' : 'Program Studi'}</div>
+                <div className="w-4">:</div>
+                <div className="flex-1 uppercase">{data.kelasAtauProdi}</div>
+            </div>
+        </div>
+
+        {/* ISI SURAT / ALASAN */}
+        <div className="mb-4 text-justify break-inside-avoid leading-relaxed">
+            <p>
+                Melalui surat ini kami memohonkan izin bagi {data.jenisTujuan === 'Sekolah' ? 'Siswa' : 'Mahasiswa'} tersebut di atas untuk <strong>TIDAK DAPAT MENGIKUTI</strong> kegiatan pembelajaran / perkuliahan pada:
+            </p>
+        </div>
+
+        <div className="ml-8 mb-6 font-bold break-inside-avoid">
+            {isSingleDay ? (
+                <p>Hari/Tanggal : {formatDateSafe(data.tanggalMulai)}</p>
+            ) : (
+                <p>Tanggal : {formatDateSafe(data.tanggalMulai)} s.d {formatDateSafe(data.tanggalSelesai)}</p>
+            )}
+        </div>
+
+        <div className="mb-8 text-justify break-inside-avoid leading-relaxed">
+            {isSakit && (
+                <p>
+                    Hal ini dikarenakan yang bersangkutan sedang dalam keadaan <strong>sakit ({data.keteranganSakit})</strong> dan memerlukan waktu untuk istirahat pemulihan.{' '}
+                    {data.lampiranDokter && <span>Sebagai bukti, turut kami lampirkan Surat Keterangan Sakit dari Dokter/Klinik.</span>}
+                </p>
+            )}
+            
+            {isAcara && (
+                <p>
+                    Hal ini dikarenakan ada kepentingan keluarga berupa <strong>{data.jenisAcara}</strong> yang mengharuskan yang bersangkutan untuk hadir dan tidak dapat ditinggalkan.
+                </p>
+            )}
+
+            {isLainnya && (
+                <p>
+                    Hal ini dikarenakan ada keperluan penting yaitu <strong>{data.alasanLainnya}</strong> yang tidak dapat ditinggalkan.
+                </p>
+            )}
+        </div>
+
+        {/* PENUTUP */}
+        <div className="mb-12 text-justify break-inside-avoid">
+            <p>
+                Demikian surat permohonan izin ini kami sampaikan. Kami berharap Bapak/Ibu dapat memakluminya dan memberikan izin yang seperlunya. Atas perhatian dan izin yang diberikan, kami ucapkan banyak terima kasih.
+            </p>
+        </div>
+
+        {/* TANDA TANGAN */}
+        <div className="flex justify-end text-center break-inside-avoid">
+            <div className="w-64">
+                <p className="mb-1">{data.hubunganPenandatangan === 'Diri Sendiri' ? 'Hormat Saya,' : 'Hormat Kami,'}</p>
+                <p className="mb-16">{data.hubunganPenandatangan === 'Diri Sendiri' ? 'Pemohon' : data.hubunganPenandatangan}</p>
+                <p className="font-bold underline uppercase">{data.namaPenandatangan}</p>
+            </div>
+        </div>
+      </Kertas>
+    );
   };
 
   if (!isClient) return null;
 
   return (
-    <div className="app-container">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
+      
+      {/* GLOBAL CSS PRINT */}
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap');
-
-        :root {
-          --primary: #3b82f6;
-          --primary-hover: #2563eb;
-          --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
-          --text-main: #0f172a;
-          --text-muted: #64748b;
-          --border: #e2e8f0;
-          --surface: rgba(255, 255, 255, 0.85);
-        }
-
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-        }
-
-        .app-container {
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-          font-family: 'Inter', system-ui, sans-serif;
-          background: var(--bg-gradient);
-          color: var(--text-main);
-        }
-
-        .header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 24px;
-          height: 64px;
-          background: rgba(255, 255, 255, 0.6);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border-bottom: 1px solid rgba(255,255,255,0.3);
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-          position: sticky;
-          top: 0;
-          z-index: 50;
-        }
-
-        .header-title {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          font-weight: 700;
-          font-size: 14px;
-          color: var(--text-main);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-          background: var(--primary);
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: 13px;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          transition: all 0.2s ease;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
-        }
-
-        .btn-primary:hover {
-          background: var(--primary-hover);
-          transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
-        }
-
-        .main-content {
-          display: flex;
-          flex: 1;
-          overflow: hidden;
-          height: calc(100vh - 64px);
-        }
-
-        .sidebar {
-          width: 440px;
-          background: var(--surface);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-right: 1px solid rgba(255,255,255,0.5);
-          display: flex;
-          flex-direction: column;
-          box-shadow: 4px 0 24px rgba(0,0,0,0.03);
-          z-index: 10;
-        }
-
-        .sidebar-header {
-          padding: 16px 20px;
-          border-bottom: 1px solid var(--border);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: rgba(255,255,255,0.5);
-        }
-
-        .sidebar-header h2 {
-          font-size: 13px;
-          font-weight: 800;
-          text-transform: uppercase;
-          color: var(--text-main);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .btn-icon {
-          background: transparent;
-          border: none;
-          color: var(--text-muted);
-          cursor: pointer;
-          padding: 6px;
-          border-radius: 6px;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .btn-icon:hover {
-          background: rgba(0,0,0,0.05);
-          color: #ef4444;
-        }
-
-        .tabs {
-          display: flex;
-          border-bottom: 1px solid var(--border);
-          background: rgba(248, 250, 252, 0.5);
-        }
-
-        .tab-btn {
-          flex: 1;
-          padding: 14px 8px;
-          background: transparent;
-          border: none;
-          border-bottom: 2px solid transparent;
-          font-weight: 700;
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          color: var(--text-muted);
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-        }
-
-        .tab-btn.active {
-          color: var(--primary);
-          border-bottom-color: var(--primary);
-          background: white;
-        }
-
-        .form-area {
-          flex: 1;
-          overflow-y: auto;
-          padding: 24px;
-        }
-
-        /* Custom Scrollbar for form-area */
-        .form-area::-webkit-scrollbar {
-          width: 6px;
-        }
-        .form-area::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .form-area::-webkit-scrollbar-thumb {
-          background: rgba(0,0,0,0.1);
-          border-radius: 10px;
-        }
-
-        .form-group {
-          margin-bottom: 20px;
-          animation: slideUp 0.3s ease forwards;
-          opacity: 0;
-        }
-
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-label {
-          display: block;
-          font-size: 11px;
-          font-weight: 700;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 6px;
-        }
-
-        .form-input, .form-select, .form-textarea {
-          width: 100%;
-          padding: 12px 14px;
-          border: 1px solid #cbd5e1;
-          border-radius: 10px;
-          font-size: 14px;
-          font-family: inherit;
-          background: white;
-          color: var(--text-main);
-          transition: all 0.2s ease;
-          box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
-        }
-
-        .form-textarea {
-          resize: vertical;
-          min-height: 80px;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-          outline: none;
-          border-color: var(--primary);
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-        }
-
-        .grid-2 {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 16px;
-        }
-
-        .section-title {
-          font-size: 12px;
-          font-weight: 800;
-          color: var(--text-main);
-          text-transform: uppercase;
-          margin-bottom: 16px;
-          padding-bottom: 8px;
-          border-bottom: 2px solid rgba(0,0,0,0.05);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .preview-area {
-          flex: 1;
-          overflow-y: auto;
-          padding: 40px;
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-          background: transparent;
-        }
-
-        .paper-wrapper {
-          position: relative;
-        }
-
-        .paper {
-          background: white;
-          width: 210mm;
-          min-height: 297mm;
-          padding: 20mm 25mm;
-          box-shadow: 0 24px 48px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.02);
-          font-family: 'Times New Roman', Times, serif;
-          font-size: 12pt;
-          line-height: 1.5;
-          color: #000;
-          position: relative;
-          transition: all 0.3s ease;
-        }
-
-        /* Document Styles */
-        .doc-header {
-          text-align: right;
-          margin-bottom: 30px;
-        }
-        
-        .doc-hal-lampiran {
-          margin-bottom: 30px;
-        }
-
-        .doc-tujuan {
-          margin-bottom: 30px;
-        }
-
-        .doc-salam {
-          margin-bottom: 15px;
-        }
-
-        .doc-identitas {
-          margin-left: 20px;
-          margin-bottom: 20px;
-          width: 100%;
-          border-collapse: collapse;
-        }
-        .doc-identitas td {
-          padding: 3px 0;
-          vertical-align: top;
-        }
-        .doc-identitas .col-label { width: 150px; }
-        .doc-identitas .col-colon { width: 20px; text-align: center; }
-        .doc-identitas .col-value { font-weight: bold; }
-
-        .doc-isi {
-          text-align: justify;
-          margin-bottom: 40px;
-        }
-
-        .doc-isi p {
-          margin-bottom: 10px;
-          text-indent: 30px;
-        }
-
-        .doc-ttd {
-          display: flex;
-          justify-content: flex-end;
-          margin-top: 50px;
-        }
-        .doc-ttd-box {
-          text-align: center;
-          width: 250px;
-        }
-        .doc-ttd-space {
-          height: 80px;
-        }
-        .doc-ttd-name {
-          font-weight: bold;
-          text-decoration: underline;
-          text-transform: uppercase;
-        }
-
-        /* Print Styles */
         @media print {
-          @page { size: A4; margin: 0; }
-          body { background: white; }
+          @page { size: A4 portrait; margin: 15mm; } 
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
-          .app-container { background: white; display: block; height: auto; }
-          .main-content { display: block; height: auto; overflow: visible; }
-          .preview-area { padding: 0; display: block; }
-          .paper { 
-            width: 100%; min-height: 0; padding: 20mm; 
-            box-shadow: none; margin: 0; border: none;
-          }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
+          * { box-sizing: border-box !important; }
         }
+      ` }} />
 
-        /* Responsive Mobile */
-        .mobile-nav {
-          display: none;
-        }
-        @media (max-width: 1024px) {
-          .sidebar { width: 350px; }
-        }
-        @media (max-width: 768px) {
-          .main-content { position: relative; }
-          .sidebar { 
-            position: relative; width: 100%; 
-            transition: transform 0.3s ease;
-            transform: translateX(0);
-          }
-          .sidebar.hide-mobile { transform: translateX(-100%); }
-          .preview-area {
-            position: relative; width: 100%;
-            transition: transform 0.3s ease;
-            transform: translateX(100%);
-            padding: 20px;
-          }
-          .preview-area.show-mobile { transform: translateX(0); }
-          .paper { width: 100%; padding: 15mm; min-height: auto; }
-          .mobile-nav {
-            display: flex; position: fixed; bottom: 0; width: 100%;
-            background: white; border-top: 1px solid var(--border);
-            z-index: 100;
-          }
-          .mobile-nav-btn {
-            flex: 1; padding: 16px; border: none; background: transparent;
-            font-size: 12px; font-weight: 700; text-transform: uppercase;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            color: var(--text-muted);
-          }
-          .mobile-nav-btn.active { color: var(--primary); }
-        }
-      `}} />
+      {/* HEADER NAV */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-[999] border-b border-slate-800 h-16 flex items-center px-4 justify-between font-sans shrink-0">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-1"></div>
+            <div className="flex flex-col">
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Surat Izin Akademik</h1>
+            </div>
+          </div>
+          <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-900/50 active:scale-95 flex items-center gap-2 transition-all">
+            <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
+          </button>
+      </div>
 
-      <header className="header no-print">
-        <div className="header-title">
-          <Link href="/" style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center' }}>
-            <ArrowLeftCircle size={22} />
-          </Link>
-          <span style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 8px' }}></span>
-          <FileText size={18} style={{ color: 'var(--primary)' }} />
-          <span>Generator Surat Izin</span>
-        </div>
-        <button onClick={() => window.dispatchEvent(new Event('open-print-modal'))} className="btn-primary">
-          <Printer size={16} />
-          <span>Cetak PDF</span>
+      {/* MOBILE TABS */}
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-[998] no-print font-sans">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'editor' ? 'text-emerald-700 border-b-2 border-emerald-700 bg-emerald-50' : 'text-slate-500'}`}>
+          <Edit3 size={16} /> Editor
         </button>
-      </header>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'preview' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-slate-500'}`}>
+          <Eye size={16} /> Preview
+        </button>
+      </div>
 
-      <main className="main-content">
-        {/* SIDEBAR EDITOR */}
-        <aside className={`sidebar no-print ${mobileView === 'preview' ? 'hide-mobile' : ''}`}>
-          <div className="sidebar-header">
-            <h2><Edit3 size={16} style={{ color: 'var(--primary)' }}/> Pengaturan Dokumen</h2>
-            <button onClick={handleReset} className="btn-icon" title="Reset Formulir">
-              <RotateCcw size={16} />
-            </button>
-          </div>
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:h-auto print:overflow-visible print:block relative">
+        
+        {/* INPUT SIDEBAR */}
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 h-full z-[90] no-print shadow-xl shrink-0`}>
+           <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10 font-sans shrink-0">
+                <h2 className="font-black text-slate-700 flex items-center gap-2 text-sm uppercase tracking-widest"><Edit3 size={18} className="text-emerald-600" /> Editor Surat</h2>
+                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+            </div>
 
-          <div className="tabs">
-            <button 
-              className={`tab-btn ${activeTab === 'pemohon' ? 'active' : ''}`}
-              onClick={() => setActiveTab('pemohon')}
-            >
-              <User size={14}/> Pemohon
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'tujuan' ? 'active' : ''}`}
-              onClick={() => setActiveTab('tujuan')}
-            >
-              <Building size={14}/> Tujuan
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'izin' ? 'active' : ''}`}
-              onClick={() => setActiveTab('izin')}
-            >
-              <Info size={14}/> Detail Izin
-            </button>
-          </div>
-
-          <div className="form-area">
-            {activeTab === 'pemohon' && (
-              <div style={{ animationDelay: '0ms' }}>
-                <h3 className="section-title"><User size={14} color="var(--primary)"/> Data Pemohon (Siswa/Mahasiswa)</h3>
-                <div className="form-group" style={{ animationDelay: '50ms' }}>
-                  <label className="form-label">Nama Lengkap</label>
-                  <input className="form-input" value={data.namaPemohon} onChange={e => handleDataChange('namaPemohon', e.target.value)} placeholder="Contoh: Budi Santoso" />
-                </div>
-                <div className="form-group" style={{ animationDelay: '100ms' }}>
-                  <label className="form-label">
-                    {data.jenisTujuan === 'Sekolah' ? 'NIS / NISN' : 'NIM'}
-                  </label>
-                  <input className="form-input" value={data.nomorIdentitas} onChange={e => handleDataChange('nomorIdentitas', e.target.value)} placeholder="Nomor Identitas" />
-                </div>
-                <div className="form-group" style={{ animationDelay: '150ms' }}>
-                  <label className="form-label">
-                    {data.jenisTujuan === 'Sekolah' ? 'Kelas' : 'Program Studi'}
-                  </label>
-                  <input className="form-input" value={data.kelasAtauProdi} onChange={e => handleDataChange('kelasAtauProdi', e.target.value)} placeholder="Contoh: XII IPA 1" />
-                </div>
-
-                <h3 className="section-title" style={{ marginTop: '32px' }}><Edit3 size={14} color="var(--primary)"/> Tanda Tangan</h3>
-                <div className="form-group" style={{ animationDelay: '200ms' }}>
-                  <label className="form-label">Nama Penanda Tangan</label>
-                  <input className="form-input" value={data.namaPenandatangan} onChange={e => handleDataChange('namaPenandatangan', e.target.value)} placeholder="Nama yang bertanda tangan" />
-                </div>
-                <div className="form-group" style={{ animationDelay: '250ms' }}>
-                  <label className="form-label">Hubungan dengan Pemohon</label>
-                  <select className="form-select" value={data.hubunganPenandatangan} onChange={e => handleDataChange('hubunganPenandatangan', e.target.value)}>
-                    <option value="Diri Sendiri">Diri Sendiri (Pemohon)</option>
-                    <option value="Orang Tua">Orang Tua</option>
-                    <option value="Wali">Wali</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'tujuan' && (
-              <div style={{ animationDelay: '0ms' }}>
-                <h3 className="section-title"><Building size={14} color="var(--primary)"/> Instansi Tujuan</h3>
-                <div className="form-group" style={{ animationDelay: '50ms' }}>
-                  <label className="form-label">Jenis Instansi</label>
-                  <select className="form-select" value={data.jenisTujuan} onChange={e => handleDataChange('jenisTujuan', e.target.value)}>
-                    <option value="Sekolah">Sekolah</option>
-                    <option value="Kampus">Kampus / Universitas</option>
-                  </select>
-                </div>
-                <div className="form-group" style={{ animationDelay: '100ms' }}>
-                  <label className="form-label">Nama {data.jenisTujuan}</label>
-                  <input className="form-input" value={data.namaTujuan} onChange={e => handleDataChange('namaTujuan', e.target.value)} placeholder={`Contoh: ${data.jenisTujuan === 'Sekolah' ? 'SMA Negeri 1 Jakarta' : 'Universitas Indonesia'}`} />
-                </div>
-                <div className="form-group" style={{ animationDelay: '150ms' }}>
-                  <label className="form-label">Alamat Lengkap</label>
-                  <textarea className="form-textarea" value={data.alamatTujuan} onChange={e => handleDataChange('alamatTujuan', e.target.value)} placeholder="Alamat lengkap instansi..." />
-                </div>
-
-                <h3 className="section-title" style={{ marginTop: '32px' }}><Calendar size={14} color="var(--primary)"/> Tempat & Tanggal Surat</h3>
-                <div className="grid-2">
-                  <div className="form-group" style={{ animationDelay: '200ms' }}>
-                    <label className="form-label">Kota Surat</label>
-                    <input className="form-input" value={data.kotaSurat} onChange={e => handleDataChange('kotaSurat', e.target.value)} placeholder="Contoh: Jakarta" />
-                  </div>
-                  <div className="form-group" style={{ animationDelay: '250ms' }}>
-                    <label className="form-label">Tanggal Surat</label>
-                    <input type="date" className="form-input" value={data.tanggalSurat} onChange={e => handleDataChange('tanggalSurat', e.target.value)} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'izin' && (
-              <div style={{ animationDelay: '0ms' }}>
-                <h3 className="section-title"><Info size={14} color="var(--primary)"/> Keterangan Izin</h3>
-                <div className="form-group" style={{ animationDelay: '50ms' }}>
-                  <label className="form-label">Alasan Utama</label>
-                  <select className="form-select" value={data.alasanIzin} onChange={e => handleDataChange('alasanIzin', e.target.value)} style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
-                    <option value="Sakit">Sakit</option>
-                    <option value="Acara Keluarga">Acara Keluarga</option>
-                    <option value="Lainnya">Lainnya...</option>
-                  </select>
-                </div>
-
-                {/* DYNAMIC FIELDS */}
-                {data.alasanIzin === 'Sakit' && (
-                  <div style={{ background: 'rgba(59, 130, 246, 0.05)', padding: '16px', borderRadius: '12px', marginBottom: '20px', border: '1px dashed rgba(59, 130, 246, 0.3)' }}>
-                    <div className="form-group" style={{ marginBottom: '12px' }}>
-                      <label className="form-label">Sakit Apa? (Opsional)</label>
-                      <input className="form-input" value={data.keteranganSakit} onChange={e => handleDataChange('keteranganSakit', e.target.value)} placeholder="Contoh: demam dan batuk" />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <input 
-                        type="checkbox" 
-                        id="lampiran" 
-                        checked={data.lampiranDokter} 
-                        onChange={e => handleDataChange('lampiranDokter', e.target.checked)}
-                        style={{ width: '18px', height: '18px', accentColor: 'var(--primary)' }}
-                      />
-                      <label htmlFor="lampiran" className="form-label" style={{ margin: 0, cursor: 'pointer' }}>Ada Lampiran Surat Dokter?</label>
-                    </div>
-                  </div>
-                )}
-
-                {data.alasanIzin === 'Acara Keluarga' && (
-                  <div className="form-group" style={{ animationDelay: '100ms' }}>
-                    <label className="form-label">Jenis Acara Keluarga</label>
-                    <input className="form-input" value={data.jenisAcara} onChange={e => handleDataChange('jenisAcara', e.target.value)} placeholder="Contoh: pernikahan kakak kandung, kedukaan, dll" />
-                  </div>
-                )}
-
-                {data.alasanIzin === 'Lainnya' && (
-                  <div className="form-group" style={{ animationDelay: '100ms' }}>
-                    <label className="form-label">Keterangan Alasan Lengkap</label>
-                    <textarea className="form-textarea" value={data.alasanLainnya} onChange={e => handleDataChange('alasanLainnya', e.target.value)} placeholder="Jelaskan alasan izin Anda..." />
-                  </div>
-                )}
-
-                <h3 className="section-title" style={{ marginTop: '24px' }}><Calendar size={14} color="var(--primary)"/> Periode Izin</h3>
-                <div className="grid-2">
-                  <div className="form-group" style={{ animationDelay: '150ms' }}>
-                    <label className="form-label">Mulai Tanggal</label>
-                    <input type="date" className="form-input" value={data.tanggalMulai} onChange={e => handleDataChange('tanggalMulai', e.target.value)} />
-                  </div>
-                  <div className="form-group" style={{ animationDelay: '200ms' }}>
-                    <label className="form-label">Sampai Tanggal</label>
-                    <input type="date" className="form-input" value={data.tanggalSelesai} onChange={e => handleDataChange('tanggalSelesai', e.target.value)} />
-                  </div>
-                </div>
-                
-                {durasiHari() > 0 && (
-                  <div style={{ padding: '12px', background: 'rgba(0,0,0,0.03)', borderRadius: '8px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textAlign: 'center' }}>
-                    Total Durasi Izin: <span style={{ color: 'var(--primary)', fontSize: '14px' }}>{durasiHari()} Hari</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </aside>
-
-        {/* PREVIEW AREA */}
-        <section className={`preview-area ${mobileView === 'preview' ? 'show-mobile' : ''}`}>
-          <div className="paper-wrapper">
-            <div className="paper">
-              <div className="doc-header">
-                {data.kotaSurat}, {formatDateSafe(data.tanggalSurat)}
-              </div>
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-32 custom-scrollbar font-sans">
               
-              <div className="doc-hal-lampiran">
-                <table>
-                  <tbody>
-                    <tr>
-                      <td style={{ width: '80px', verticalAlign: 'top' }}>Hal</td>
-                      <td style={{ width: '20px', verticalAlign: 'top' }}>:</td>
-                      <td style={{ fontWeight: 'bold' }}>Permohonan Izin {data.alasanIzin}</td>
-                    </tr>
-                    <tr>
-                      <td style={{ verticalAlign: 'top' }}>Lampiran</td>
-                      <td style={{ verticalAlign: 'top' }}>:</td>
-                      <td>
-                        {data.alasanIzin === 'Sakit' && data.lampiranDokter ? '1 (Satu) Lembar' : '-'}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              {/* TUJUAN SURAT */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+                 <h3 className="text-xs font-black uppercase text-slate-800 tracking-tight flex items-center gap-2 border-b pb-3 border-slate-100">
+                   <Building2 size={14} className="text-blue-600"/> Tujuan Instansi
+                 </h3>
+                 <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tingkat Pendidikan</label>
+                          <select className="w-full bg-slate-50 p-2.5 border border-slate-200 rounded-xl text-sm font-bold text-blue-700 outline-none focus:bg-white focus:ring-2 focus:ring-blue-500" value={data.jenisTujuan} onChange={e => handleDataChange('jenisTujuan', e.target.value)}>
+                            <option value="Sekolah">Sekolah (SD/SMP/SMA)</option>
+                            <option value="Kampus">Perguruan Tinggi (Kampus)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tgl Terbit Surat</label>
+                          <input type="date" className="w-full bg-slate-50 p-2.5 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" value={data.tanggalSurat} onChange={e => handleDataChange('tanggalSurat', e.target.value)} />
+                        </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama {data.jenisTujuan}</label>
+                      <input className="w-full bg-slate-50 p-2.5 border border-slate-200 rounded-xl text-sm font-bold uppercase focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" value={data.namaTujuan} onChange={e => handleDataChange('namaTujuan', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alamat Lengkap (Opsional)</label>
+                      <input className="w-full bg-slate-50 p-2.5 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" value={data.alamatTujuan} onChange={e => handleDataChange('alamatTujuan', e.target.value)} />
+                    </div>
+                 </div>
               </div>
 
-              <div className="doc-tujuan">
-                Yth. Bapak/Ibu {data.jenisTujuan === 'Sekolah' ? 'Wali Kelas / Kepala Sekolah' : 'Dosen / Pimpinan Fakultas'}<br/>
-                <strong>{data.namaTujuan}</strong><br/>
-                {data.alamatTujuan}
+              {/* DATA SISWA / MAHASISWA */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+                 <h3 className="text-xs font-black uppercase text-slate-800 tracking-tight flex items-center gap-2 border-b pb-3 border-slate-100">
+                   <UserCircle2 size={14} className="text-emerald-600"/> Data Siswa / Mahasiswa
+                 </h3>
+                 <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Lengkap Siswa/Mahasiswa</label>
+                      <input className="w-full bg-emerald-50 p-2.5 border border-emerald-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none uppercase" value={data.namaPemohon} onChange={e => handleDataChange('namaPemohon', e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{data.jenisTujuan === 'Sekolah' ? 'NIS / NISN' : 'NIM'}</label>
+                          <input className="w-full bg-slate-50 p-2.5 border border-slate-200 rounded-xl text-sm font-mono focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none" value={data.nomorIdentitas} onChange={e => handleDataChange('nomorIdentitas', e.target.value)} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{data.jenisTujuan === 'Sekolah' ? 'Kelas' : 'Program Studi'}</label>
+                          <input className="w-full bg-slate-50 p-2.5 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none uppercase" value={data.kelasAtauProdi} onChange={e => handleDataChange('kelasAtauProdi', e.target.value)} />
+                        </div>
+                    </div>
+                 </div>
               </div>
 
-              <div className="doc-salam">
-                Dengan hormat,
+              {/* ALASAN IZIN & JADWAL */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+                 <h3 className="text-xs font-black uppercase text-slate-800 tracking-tight flex items-center gap-2 border-b pb-3 border-slate-100">
+                   <CalendarDays size={14} className="text-purple-600"/> Detail Izin
+                 </h3>
+                 <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alasan Utama</label>
+                      <select className="w-full bg-purple-50 p-3 border border-purple-200 rounded-xl text-sm font-bold text-purple-700 outline-none focus:bg-white focus:ring-2 focus:ring-purple-500" value={data.alasanIzin} onChange={e => handleDataChange('alasanIzin', e.target.value)}>
+                        <option value="Sakit">Sakit / Masalah Kesehatan</option>
+                        <option value="Acara Keluarga">Ada Acara/Kepentingan Keluarga</option>
+                        <option value="Lainnya">Lainnya (Tulis Manual)</option>
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tgl Mulai Izin</label>
+                          <input type="date" className="w-full bg-white p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none" value={data.tanggalMulai} onChange={e => handleDataChange('tanggalMulai', e.target.value)} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tgl Selesai</label>
+                          <input type="date" className="w-full bg-white p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none" value={data.tanggalSelesai} onChange={e => handleDataChange('tanggalSelesai', e.target.value)} />
+                        </div>
+                    </div>
+
+                    {data.alasanIzin === 'Sakit' && (
+                      <div className="space-y-4 p-4 border border-rose-200 bg-rose-50 rounded-xl">
+                        <div className="flex items-center gap-2 text-rose-700 font-bold text-xs uppercase mb-2">
+                           <Stethoscope size={14}/> Keterangan Sakit
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Sakit apa?</label>
+                          <input className="w-full bg-white p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 outline-none" value={data.keteranganSakit} onChange={e => handleDataChange('keteranganSakit', e.target.value)} placeholder="Misal: Demam berdarah / tifus" />
+                        </div>
+                        <label className="flex items-center gap-3 p-2 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                            <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-rose-600 focus:ring-rose-500" checked={data.lampiranDokter} onChange={e => handleDataChange('lampiranDokter', e.target.checked)} />
+                            <span className="text-xs font-bold text-slate-700">Lampirkan Surat Keterangan Dokter</span>
+                        </label>
+                      </div>
+                    )}
+
+                    {data.alasanIzin === 'Acara Keluarga' && (
+                      <div className="p-4 border border-amber-200 bg-amber-50 rounded-xl">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Acara apa?</label>
+                        <input className="w-full bg-white p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none" value={data.jenisAcara} onChange={e => handleDataChange('jenisAcara', e.target.value)} placeholder="Misal: Pernikahan kakak kandung" />
+                      </div>
+                    )}
+
+                    {data.alasanIzin === 'Lainnya' && (
+                      <div className="p-4 border border-slate-200 bg-slate-50 rounded-xl">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ketik Alasan Detail</label>
+                        <textarea className="w-full bg-white p-3 border border-slate-200 rounded-xl text-sm h-16 resize-none focus:ring-2 focus:ring-purple-500 outline-none" value={data.alasanLainnya} onChange={e => handleDataChange('alasanLainnya', e.target.value)} placeholder="Misal: Harus mengurus dokumen imigrasi di luar kota..." />
+                      </div>
+                    )}
+                 </div>
               </div>
 
-              <div className="doc-isi">
-                <p style={{ textIndent: 0 }}>Yang bertanda tangan di bawah ini:</p>
-                <table className="doc-identitas">
-                  <tbody>
-                    <tr>
-                      <td className="col-label">Nama</td>
-                      <td className="col-colon">:</td>
-                      <td className="col-value">{data.namaPemohon}</td>
-                    </tr>
-                    <tr>
-                      <td className="col-label">
-                        {data.jenisTujuan === 'Sekolah' ? 'NIS / NISN' : 'NIM'}
-                      </td>
-                      <td className="col-colon">:</td>
-                      <td className="col-value">{data.nomorIdentitas}</td>
-                    </tr>
-                    <tr>
-                      <td className="col-label">
-                        {data.jenisTujuan === 'Sekolah' ? 'Kelas' : 'Program Studi'}
-                      </td>
-                      <td className="col-colon">:</td>
-                      <td className="col-value">{data.kelasAtauProdi}</td>
-                    </tr>
-                  </tbody>
-                </table>
-                
-                <p>
-                  Bermaksud untuk menyampaikan permohonan izin 
-                  <strong> tidak dapat {data.jenisTujuan === 'Sekolah' ? 'mengikuti kegiatan belajar mengajar' : 'mengikuti perkuliahan'} </strong> 
-                  pada tanggal <strong>{formatDateSafe(data.tanggalMulai)}</strong> 
-                  {data.tanggalMulai !== data.tanggalSelesai ? ` sampai dengan tanggal ${formatDateSafe(data.tanggalSelesai)} (selama ${durasiHari()} hari)` : ''}.
-                </p>
-                
-                <p>
-                  Hal ini dikarenakan {data.hubunganPenandatangan === 'Diri Sendiri' ? 'saya' : 'anak saya'} sedang <strong>{generateAlasanText()}</strong>
-                </p>
-
-                <p>
-                  Demikian surat permohonan izin ini {data.hubunganPenandatangan === 'Diri Sendiri' ? 'saya' : 'kami'} buat dengan sebenar-benarnya. Atas perhatian dan izin yang diberikan oleh Bapak/Ibu, {data.hubunganPenandatangan === 'Diri Sendiri' ? 'saya' : 'kami'} mengucapkan terima kasih.
-                </p>
-              </div>
-
-              <div className="doc-ttd">
-                <div className="doc-ttd-box">
-                  Hormat {data.hubunganPenandatangan === 'Diri Sendiri' ? 'Saya' : 'Kami'},
-                  <div className="doc-ttd-space"></div>
-                  <div className="doc-ttd-name">{data.namaPenandatangan}</div>
-                  <div style={{ fontSize: '10pt', marginTop: '4px' }}>
-                    {data.hubunganPenandatangan !== 'Diri Sendiri' ? `(${data.hubunganPenandatangan})` : ''}
-                  </div>
-                </div>
+              {/* TANDA TANGAN */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+                 <h3 className="text-xs font-black uppercase text-slate-800 tracking-tight flex items-center gap-2 border-b pb-3 border-slate-100">
+                   <Edit3 size={14} className="text-sky-600"/> Penandatangan Surat
+                 </h3>
+                 <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Siapa yang menandatangani?</label>
+                      <select className="w-full bg-sky-50 p-2.5 border border-sky-200 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-sky-500" value={data.hubunganPenandatangan} onChange={e => handleDataChange('hubunganPenandatangan', e.target.value as any)}>
+                        <option value="Orang Tua">Orang Tua (Ayah/Ibu)</option>
+                        <option value="Wali">Wali Murid</option>
+                        <option value="Diri Sendiri">Diri Sendiri (Hanya Mahasiswa)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Penandatangan</label>
+                      <input className="w-full bg-slate-50 p-2.5 border border-slate-200 rounded-xl text-sm font-bold uppercase focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none" value={data.namaPenandatangan} onChange={e => handleDataChange('namaPenandatangan', e.target.value)} />
+                    </div>
+                 </div>
               </div>
 
             </div>
-          </div>
-        </section>
+        </aside>
+
+        {/* PREVIEW AREA */}
+        <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block print:h-auto print:w-full`}>
+           
+           <div id="print-only-root" className="print:w-full print:max-w-none print:min-w-0 print:min-h-0 mx-auto origin-top transition-transform duration-300 scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 mb-[-120mm] md:mb-0 print:scale-100 print:transform-none print:mb-0">
+              <DocumentContent />
+           </div>
+
+           {/* Paywall Monetisasi - Diletakkan di luar print flow */}
+           <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
+              <PrintWrapper documentName="Surat_Izin_Akademik" price={10000} />
+           </div>
+
+        </div>
       </main>
 
-      {/* MOBILE BOTTOM NAVIGATION */}
-      <div className="mobile-nav no-print">
-        <button 
-          className={`mobile-nav-btn ${mobileView === 'editor' ? 'active' : ''}`}
-          onClick={() => setMobileView('editor')}
-        >
-          <Edit3 size={16} /> Editor Form
-        </button>
-        <button 
-          className={`mobile-nav-btn ${mobileView === 'preview' ? 'active' : ''}`}
-          onClick={() => setMobileView('preview')}
-        >
-          <Eye size={16} /> Pratinjau
-        </button>
-      </div>
-
-    
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen_izin_sekolah" price={15000} />
-      </div>
     </div>
   );
 }
-

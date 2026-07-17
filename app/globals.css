@@ -54,4 +54,20 @@
     margin: 0;
     padding: 0;
   }
+
+  /* 6. WATERMARK UNTUK VERSI GRATIS (PROFESIONAL TILED SVG) */
+  body.print-free::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Ctext x='50%25' y='50%25' transform='rotate(-35 200 200)' font-family='system-ui, -apple-system, sans-serif' font-size='24' font-weight='600' fill='rgba(0,0,0,0.05)' text-anchor='middle' dominant-baseline='middle' letter-spacing='1'%3ELayananDokumen.com%3C/text%3E%3C/svg%3E");
+    background-repeat: repeat;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

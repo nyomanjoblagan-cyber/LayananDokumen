@@ -2,12 +2,11 @@
 
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeftCircle, Edit3, RotateCcw, User, Calendar, Briefcase
+    Printer, ArrowLeftCircle, Edit3, RotateCcw, FileText, 
+    User, Briefcase, Calendar, CheckSquare, MapPin
 } from 'lucide-react';
 import Link from 'next/link';
 import PrintWrapper from '@/components/PrintWrapper';
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
 
 // --- 1. TYPE DEFINITIONS ---
 interface CutiData {
@@ -33,15 +32,15 @@ interface CutiData {
 }
 
 // --- 2. DATA DEFAULT ---
-const DEFAULT_DATA: CutiData = {
+const INITIAL_DATA: CutiData = {
   namaKaryawan: 'Andi Pratama, S.Kom.',
   nik: 'EMP-2023-0145',
   jabatan: 'Software Engineer',
   departemen: 'Information Technology (IT)',
   
   jenisCuti: 'Cuti Tahunan',
-  tanggalMulai: '',
-  tanggalSelesai: '',
+  tanggalMulai: '2026-09-10',
+  tanggalSelesai: '2026-09-12',
   lamaCuti: '3 Hari Kerja',
   alasanCuti: 'Menyelesaikan urusan keluarga di kampung halaman.',
   
@@ -49,16 +48,24 @@ const DEFAULT_DATA: CutiData = {
   
   namaAtasan: 'Sarah Wijaya',
   jabatanAtasan: 'IT Manager',
-  namaHRD: 'Bpk. Ahmad Faisal',
+  namaHRD: 'Ahmad Faisal',
   
   tempatTtd: 'Jakarta',
-  tanggalTtd: '',
+  tanggalTtd: '2026-08-20',
 };
 
-// --- 3. KERTAS MUTLAK ---
-const Kertas = ({ children, className = '', templateId = 1 }: { children: React.ReactNode, className?: string, templateId?: number }) => (
-  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-slate-900 leading-relaxed relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'} ${className}`}>
+// --- 3. KOMPONEN KERTAS MUTLAK (LEGAL FORMAL) ---
+const Kertas = ({ children }: { children: React.ReactNode }) => (
+  <div className="bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-black font-serif leading-relaxed text-[11pt] box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto group">
     {children}
+  </div>
+);
+
+const IdentityRow = ({ label, value }: { label: string, value: string }) => (
+  <div className="flex mb-1">
+     <div className="w-56 shrink-0">{label}</div>
+     <div className="w-4 shrink-0">:</div>
+     <div className="flex-1 font-bold">{value}</div>
   </div>
 );
 
@@ -73,193 +80,94 @@ export default function SuratIzinCutiPage() {
 
 function CutiBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-  const [activeTab, setActiveTab] = useState<'karyawan' | 'cuti' | 'approval'>('karyawan');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<CutiData>(DEFAULT_DATA);
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+  const [data, setData] = useState<CutiData>(INITIAL_DATA);
 
-  const TemplateMenu = () => (
-      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-amber-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-amber-50 text-amber-700' : ''}`}>
-              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-amber-500' : 'bg-slate-300'}`}></div> 
-              Format Legal Formal (Serif)
-          </button>
-          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-amber-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-amber-50 text-amber-700' : ''}`}>
-              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-amber-500' : 'bg-slate-300'}`}></div> 
-              Format Compact Rapi (Sans)
-          </button>
-      </div>
-  );
-
-  useEffect(() => {
-    setIsClient(true);
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const nextThreeDays = new Date();
-    nextThreeDays.setDate(nextThreeDays.getDate() + 3);
-
-    setData(prev => ({ 
-      ...prev, 
-      tanggalTtd: today.toISOString().split("T")[0],
-      tanggalMulai: tomorrow.toISOString().split("T")[0],
-      tanggalSelesai: nextThreeDays.toISOString().split("T")[0],
-    }));
-  }, []);
+  useEffect(() => setIsClient(true), []);
 
   const handleReset = () => {
     if(typeof window !== 'undefined' && window.confirm('Reset formulir ke setelan awal?')) {
-        const today = new Date();
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        const nextThreeDays = new Date();
-        nextThreeDays.setDate(nextThreeDays.getDate() + 3);
-
-        setData({ 
-          ...DEFAULT_DATA,
-          tanggalTtd: today.toISOString().split("T")[0],
-          tanggalMulai: tomorrow.toISOString().split("T")[0],
-          tanggalSelesai: nextThreeDays.toISOString().split("T")[0],
-        });
+        setData(INITIAL_DATA);
     }
   };
 
-  const handleInputChange = (field: keyof CutiData, value: string) => {
-    setData((prev) => ({ ...prev, [field]: value }));
+  const handleStringChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '......';
-    try {
-      const date = new Date(dateString);
-      return format(date, "d MMMM yyyy", { locale: id });
-    } catch {
-      return dateString;
-    }
+  const formatDateSafe = (dateString: string) => {
+      if(!dateString) return '___________';
+      return new Date(dateString).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
   };
 
   const DocumentContent = () => (
-    <Kertas templateId={templateId}>
-      <style dangerouslySetInnerHTML={{__html: `
-        .cuti-table td { padding: 6px 8px 6px 0; vertical-align: top; font-size: 11pt; border-bottom: 1px solid #e2e8f0; }
-        .cuti-table tr:last-child td { border-bottom: none; }
-        .cuti-table td:nth-child(1) { width: 35%; font-weight: bold; }
-        .cuti-table td:nth-child(2) { width: 2%; text-align: center; }
-        .cuti-table td:nth-child(3) { width: 63%; }
-      `}} />
-
-      {/* Judul Surat */}
-      <div className="text-center mb-10 border-b-2 border-black pb-4 break-inside-avoid">
-        <h1 className="text-xl font-bold uppercase tracking-widest mb-1">FORMULIR PENGAJUAN CUTI KARYAWAN</h1>
+    <Kertas>
+      {/* JUDUL SURAT */}
+      <div className="text-center mb-6 break-inside-avoid">
+          <h1 className="font-bold text-[14pt] uppercase tracking-wider underline underline-offset-4">FORMULIR PENGAJUAN CUTI KARYAWAN</h1>
+      </div>
+      
+      {/* PEMBUKAAN */}
+      <div className="mb-4 text-justify">
+          <p>
+              Saya yang bertanda tangan di bawah ini:
+          </p>
       </div>
 
-      {/* Pembuka */}
-      <div className="mb-6 break-inside-avoid">
-        <p>Saya yang bertanda tangan di bawah ini:</p>
+      {/* IDENTITAS */}
+      <div className="pl-4 space-y-3 mb-6">
+          <IdentityRow label="Nama Karyawan" value={data.namaKaryawan} />
+          <IdentityRow label="NIK / ID Karyawan" value={data.nik} />
+          <IdentityRow label="Jabatan" value={data.jabatan} />
+          <IdentityRow label="Departemen" value={data.departemen} />
       </div>
 
-      {/* Identitas Karyawan */}
-      <div className="mb-8 pl-4 pr-4 break-inside-avoid">
-        <table className="w-full cuti-table border border-slate-200 px-4 py-2 rounded-lg bg-slate-50/50 block">
-          <tbody>
-            <tr>
-              <td>Nama Karyawan</td>
-              <td>:</td>
-              <td className="uppercase">{data.namaKaryawan}</td>
-            </tr>
-            <tr>
-              <td>NIK / ID Karyawan</td>
-              <td>:</td>
-              <td>{data.nik}</td>
-            </tr>
-            <tr>
-              <td>Jabatan</td>
-              <td>:</td>
-              <td>{data.jabatan}</td>
-            </tr>
-            <tr>
-              <td>Departemen / Divisi</td>
-              <td>:</td>
-              <td>{data.departemen}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="mb-6 text-justify">
+          <p className="mb-3">
+              Dengan ini bermaksud mengajukan permohonan <strong>{data.jenisCuti}</strong> dengan rincian sebagai berikut:
+          </p>
       </div>
 
-      <div className="mb-6 break-inside-avoid">
-        <p>Bermaksud untuk mengajukan izin cuti kerja dengan rincian sebagai berikut:</p>
+      {/* RINCIAN CUTI */}
+      <div className="pl-4 space-y-3 mb-6">
+          <IdentityRow label="Tanggal Mulai Cuti" value={formatDateSafe(data.tanggalMulai)} />
+          <IdentityRow label="Tanggal Selesai Cuti" value={formatDateSafe(data.tanggalSelesai)} />
+          <IdentityRow label="Lama Cuti" value={data.lamaCuti} />
+          <IdentityRow label="Keperluan / Alasan" value={data.alasanCuti} />
       </div>
 
-      {/* Detail Cuti */}
-      <div className="mb-8 pl-4 pr-4 break-inside-avoid">
-        <table className="w-full cuti-table border border-slate-200 px-4 py-2 rounded-lg bg-slate-50/50 block">
-          <tbody>
-            <tr>
-              <td>Jenis Cuti</td>
-              <td>:</td>
-              <td className="font-bold">{data.jenisCuti}</td>
-            </tr>
-            <tr>
-              <td>Tanggal Pelaksanaan Cuti</td>
-              <td>:</td>
-              <td>{formatDate(data.tanggalMulai)} <strong>s/d</strong> {formatDate(data.tanggalSelesai)}</td>
-            </tr>
-            <tr>
-              <td>Total Lama Cuti</td>
-              <td>:</td>
-              <td className="font-bold">{data.lamaCuti}</td>
-            </tr>
-            <tr>
-              <td>Alasan Pengajuan Cuti</td>
-              <td>:</td>
-              <td className="text-justify">{data.alasanCuti}</td>
-            </tr>
-            <tr>
-              <td>Delegasi Tugas (Handover)</td>
-              <td>:</td>
-              <td>Diserahkan sementara kepada rekan kerja: <strong>{data.namaPengganti || '..........................'}</strong></td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="mb-8 text-justify">
+          <p className="leading-relaxed">
+              Selama masa cuti tersebut, tugas dan tanggung jawab pekerjaan saya akan diserahterimakan (handover) sementara kepada <strong>Sdr/i. {data.namaPengganti}</strong>.
+          </p>
+          <p className="leading-relaxed mt-2">
+              Demikian surat permohonan cuti ini saya ajukan untuk dapat dipertimbangkan sebagaimana mestinya. Atas perhatian dan persetujuan yang diberikan, saya ucapkan terima kasih.
+          </p>
       </div>
 
-      {/* Penutup */}
-      <div className="mb-8 break-inside-avoid text-justify">
-        <p>
-          Selama masa cuti, saya bertanggung jawab penuh untuk memastikan seluruh pekerjaan telah diserahterimakan dengan baik. Jika terdapat urusan yang sangat mendesak terkait pekerjaan, saya dapat dihubungi melalui kontak pribadi saya.
-        </p>
-        <p className="mt-2">
-          Demikian permohonan izin cuti ini saya sampaikan. Atas perhatian dan izin yang diberikan, saya ucapkan terima kasih.
-        </p>
-      </div>
-
-      {/* Pengesahan */}
-      <div className="break-inside-avoid shrink-0">
-        <div className="mb-4 text-right pr-4">
-          <p>{data.tempatTtd}, {formatDate(data.tanggalTtd)}</p>
-        </div>
-        
-        <div className="grid grid-cols-3 gap-4 text-center text-sm border-t-2 border-black pt-4">
-          <div>
-            <p className="mb-16">Hormat Saya,<br/>Pemohon,</p>
-            <p className="font-bold underline uppercase">{data.namaKaryawan}</p>
-            <p>{data.jabatan}</p>
-          </div>
-          <div>
-            <p className="mb-16">Disetujui Oleh,<br/>Atasan Langsung,</p>
-            <p className="font-bold underline uppercase">{data.namaAtasan || '.......................'}</p>
-            <p>{data.jabatanAtasan || 'Atasan'}</p>
-          </div>
-          <div>
-            <p className="mb-16">Mengetahui,<br/>HRD / Personalia,</p>
-            <p className="font-bold underline uppercase">{data.namaHRD || '.......................'}</p>
-            <p>HRD Department</p>
-          </div>
-        </div>
+      {/* PENGESAHAN (TANDA TANGAN) */}
+      <div className="mt-4 break-inside-avoid">
+         <div className="flex justify-between text-center items-stretch mb-4">
+            <div className="w-[45%] flex flex-col justify-between">
+               <p className="mb-2">&nbsp;</p>
+               <p className="font-bold mb-4 uppercase">Pemohon,</p>
+               <div className="h-20"></div>
+               <p className="font-bold underline">{data.namaKaryawan}</p>
+            </div>
+            <div className="w-[45%] flex flex-col justify-between">
+               <p className="mb-2">{data.tempatTtd}, {formatDateSafe(data.tanggalTtd)}</p>
+               <p className="font-bold mb-4 uppercase">Menyetujui,<br/>{data.jabatanAtasan}</p>
+               <div className="h-20"></div>
+               <p className="font-bold underline">{data.namaAtasan}</p>
+            </div>
+         </div>
+         <div className="flex justify-center text-center items-stretch pt-2">
+            <div className="w-[45%] flex flex-col justify-between">
+               <p className="font-bold mb-4 uppercase">Mengetahui,<br/>HR Department</p>
+               <div className="h-20"></div>
+               <p className="font-bold underline">{data.namaHRD}</p>
+            </div>
+         </div>
       </div>
     </Kertas>
   );
@@ -267,192 +175,191 @@ function CutiBuilder() {
   if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 overflow-hidden">
-      
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+      {/* BULLETPROOF PRINT CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { size: A4 portrait; margin: 15mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
           * { box-sizing: border-box !important; }
         }
       ` }} />
 
-      {/* NAVBAR */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans shrink-0">
+      {/* HEADER NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-[999] border-b border-slate-800 h-16 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-              <ArrowLeftCircle size={20} className="text-amber-400" />
+              <ArrowLeftCircle size={20} className="text-purple-400" />
               <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-1"></div>
             <div className="flex flex-col">
-              <h1 className="font-black text-sm tracking-widest uppercase text-white">Surat Izin Cuti Karyawan</h1>
-              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Leave Application</span>
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Formulir Pengajuan Cuti</h1>
             </div>
           </div>
-          <div className="flex items-center gap-3 relative">
-            <div className="relative">
-                <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all text-white">
-                    <span className="text-amber-400">❖</span> 
-                    <span className="hidden md:inline">{activeTemplateName}</span>
-                </button>
-                {showTemplateMenu && <TemplateMenu />}
-            </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-amber-600 hover:bg-amber-500 text-white px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
+          <div className="flex items-center gap-3">
+            <span className="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-300 hidden md:inline-block">
+                LEGAL FORMAL FORMAT
+            </span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-purple-600 hover:bg-purple-500 px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-purple-900/50 active:scale-95 flex items-center gap-2 transition-all">
               <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
             </button>
           </div>
       </div>
 
       {/* MOBILE TABS */}
-      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-40 no-print font-sans shrink-0">
-        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'editor' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500'}`}>
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-[998] no-print font-sans">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'editor' ? 'text-purple-700 border-b-2 border-purple-700 bg-purple-50' : 'text-slate-500'}`}>
           <Edit3 size={16} /> Editor
         </button>
-        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'preview' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500'}`}>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'preview' ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50' : 'text-slate-500'}`}>
           <Printer size={16} /> Preview
         </button>
       </div>
 
- <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative ">
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:h-auto print:overflow-visible print:block relative">
         
         {/* EDITOR SIDEBAR */}
-        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] bg-white border-r border-slate-200 h-[calc(100vh-64px)] md:sticky md:top-16 z-30 no-print shadow-xl shrink-0`}>
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 h-full z-[90] no-print shadow-xl shrink-0`}>
+            <div className="p-5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
                 <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
-                  <Calendar size={18} className="text-amber-600" /> Pengajuan Cuti
+                  <FileText size={18} className="text-purple-600" /> Editor Formulir Cuti
                 </h2>
                 <button onClick={handleReset} className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-lg" title="Reset Form">
                   <RotateCcw size={16}/>
                 </button>
             </div>
-
-            {/* TAB NAVIGATION */}
-            <div className="flex flex-wrap border-b bg-slate-100 text-[10px] font-bold uppercase shrink-0">
-              <button onClick={() => setActiveTab('karyawan')} className={`flex-1 py-3 border-r ${activeTab === 'karyawan' ? 'bg-white text-blue-600 border-b-2 border-b-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}>Karyawan</button>
-              <button onClick={() => setActiveTab('cuti')} className={`flex-1 py-3 border-r ${activeTab === 'cuti' ? 'bg-white text-amber-600 border-b-2 border-b-amber-600' : 'text-slate-500 hover:bg-slate-200'}`}>Detail Cuti</button>
-              <button onClick={() => setActiveTab('approval')} className={`flex-1 py-3 ${activeTab === 'approval' ? 'bg-white text-indigo-600 border-b-2 border-b-indigo-600' : 'text-slate-500 hover:bg-slate-200'}`}>Approval</button>
-            </div>
             
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent pb-32">
+            <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar pb-32">
                 
-                {activeTab === 'karyawan' && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <h3 className="text-xs font-black uppercase text-blue-600 border-b pb-1 mb-4 flex items-center gap-2"><User size={14}/> Identitas Pemohon</h3>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
-                    <input type="text" value={data.namaKaryawan} onChange={(e) => handleInputChange('namaKaryawan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs font-bold mt-1 focus:ring-2 focus:ring-blue-500 outline-none uppercase" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">NIK / ID Karyawan</label>
-                    <input type="text" value={data.nik} onChange={(e) => handleInputChange('nik', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
+                {/* 1. LOKASI & TANGGAL TTD */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <MapPin size={14} className="text-sky-600"/> Lokasi & Tgl Pengajuan
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan</label>
-                      <input type="text" value={data.jabatan} onChange={(e) => handleInputChange('jabatan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kota</label>
+                      <input type="text" name="tempatTtd" value={data.tempatTtd} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Departemen</label>
-                      <input type="text" value={data.departemen} onChange={(e) => handleInputChange('departemen', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-blue-500 outline-none" />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tanggal Pengajuan</label>
+                      <input type="date" name="tanggalTtd" value={data.tanggalTtd} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
                     </div>
                   </div>
                 </div>
-                )}
 
-                {activeTab === 'cuti' && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <h3 className="text-xs font-black uppercase text-amber-600 border-b pb-1 mb-4 flex items-center gap-2"><Calendar size={14}/> Jadwal & Rincian Cuti</h3>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Jenis Cuti</label>
-                    <select value={data.jenisCuti} onChange={(e) => handleInputChange('jenisCuti', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none font-bold text-amber-700 bg-amber-50">
-                      <option value="Cuti Tahunan">Cuti Tahunan</option>
-                      <option value="Cuti Melahirkan">Cuti Melahirkan</option>
-                      <option value="Cuti Sakit">Cuti Sakit</option>
-                      <option value="Cuti Menikah">Cuti Menikah</option>
-                      <option value="Cuti Alasan Penting / Urgent">Cuti Alasan Penting / Urgent</option>
-                      <option value="Cuti Besar">Cuti Besar</option>
-                      <option value="Cuti Di Luar Tanggungan Perusahaan (Unpaid Leave)">Cuti Di Luar Tanggungan Perusahaan (Unpaid Leave)</option>
-                    </select>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 pt-2">
+                {/* 2. IDENTITAS KARYAWAN */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <User size={14} className="text-emerald-600"/> Data Karyawan
+                  </h3>
+                  <div className="space-y-4">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Mulai Cuti</label>
-                      <input type="date" value={data.tanggalMulai} onChange={(e) => handleInputChange('tanggalMulai', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none" />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
+                      <input type="text" name="namaKaryawan" value={data.namaKaryawan} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Berakhir Cuti</label>
-                      <input type="date" value={data.tanggalSelesai} onChange={(e) => handleInputChange('tanggalSelesai', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none" />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">NIK / ID Karyawan</label>
+                      <input type="text" name="nik" value={data.nik} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-mono text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
                     </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Total Lama Cuti</label>
-                    <input type="text" value={data.lamaCuti} onChange={(e) => handleInputChange('lamaCuti', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none font-bold" placeholder="Cth: 3 Hari Kerja" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Alasan Cuti / Keterangan Tambahan</label>
-                    <textarea value={data.alasanCuti} onChange={(e) => handleInputChange('alasanCuti', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 h-20 resize-none focus:ring-2 focus:ring-amber-500 outline-none"></textarea>
-                  </div>
-                  <div className="pt-2 border-t">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Delegasi Pekerjaan (Nama Pengganti)</label>
-                    <input type="text" value={data.namaPengganti} onChange={(e) => handleInputChange('namaPengganti', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Cth: Budi Santoso" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Jabatan</label>
+                        <input type="text" name="jabatan" value={data.jabatan} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Departemen</label>
+                        <input type="text" name="departemen" value={data.departemen} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                    </div>
                   </div>
                 </div>
-                )}
 
-                {activeTab === 'approval' && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <h3 className="text-xs font-black uppercase text-indigo-600 border-b pb-1 mb-4 flex items-center gap-2"><Briefcase size={14}/> Validasi & Pengesahan</h3>
-                  <div className="grid grid-cols-2 gap-3 mb-4">
+                {/* 3. RINCIAN CUTI */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Calendar size={14} className="text-purple-600"/> Rincian Cuti
+                  </h3>
+                  <div className="space-y-4">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Tempat TTD</label>
-                      <input type="text" value={data.tempatTtd} onChange={(e) => handleInputChange('tempatTtd', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Jenis Cuti</label>
+                      <select name="jenisCuti" value={data.jenisCuti} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-purple-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none">
+                        <option value="Cuti Tahunan">Cuti Tahunan</option>
+                        <option value="Cuti Sakit">Cuti Sakit</option>
+                        <option value="Cuti Melahirkan">Cuti Melahirkan</option>
+                        <option value="Cuti Alasan Penting">Cuti Alasan Penting / Menikah</option>
+                        <option value="Cuti Besar">Cuti Besar</option>
+                        <option value="Cuti di Luar Tanggungan (Unpaid)">Cuti di Luar Tanggungan (Unpaid Leave)</option>
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tanggal Mulai</label>
+                        <input type="date" name="tanggalMulai" value={data.tanggalMulai} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-purple-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tanggal Selesai</label>
+                        <input type="date" name="tanggalSelesai" value={data.tanggalSelesai} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-purple-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" />
+                      </div>
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Tanggal Pengajuan</label>
-                      <input type="date" value={data.tanggalTtd} onChange={(e) => handleInputChange('tanggalTtd', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Lama Cuti (Contoh: 3 Hari Kerja)</label>
+                      <input type="text" name="lamaCuti" value={data.lamaCuti} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-purple-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" />
                     </div>
-                  </div>
-                  
-                  <div className="space-y-3 pt-3 border-t">
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase">Nama Atasan Langsung</label>
-                        <input type="text" value={data.namaAtasan} onChange={(e) => handleInputChange('namaAtasan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase">Jabatan Atasan</label>
-                        <input type="text" value={data.jabatanAtasan} onChange={(e) => handleInputChange('jabatanAtasan', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase">Nama HRD / Personalia</label>
-                        <input type="text" value={data.namaHRD} onChange={(e) => handleInputChange('namaHRD', e.target.value)} className="w-full p-2 border border-slate-200 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" />
-                      </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alasan / Keperluan Cuti</label>
+                      <textarea name="alasanCuti" value={data.alasanCuti} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-purple-800 h-20 resize-none focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"></textarea>
+                    </div>
                   </div>
                 </div>
-                )}
+
+                {/* 4. HANDOVER & APPROVAL */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <CheckSquare size={14} className="text-amber-600"/> Handover & Approval
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Karyawan Pengganti (Handover Task)</label>
+                      <input type="text" name="namaPengganti" value={data.namaPengganti} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-amber-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Atasan (Manager)</label>
+                        <input type="text" name="namaAtasan" value={data.namaAtasan} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-amber-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Jabatan Atasan</label>
+                        <input type="text" name="jabatanAtasan" value={data.jabatanAtasan} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-amber-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama HRD Manager</label>
+                      <input type="text" name="namaHRD" value={data.namaHRD} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-amber-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                    </div>
+                  </div>
+                </div>
 
             </div>
         </aside>
 
-        {/* PREVIEW AREA */}
-        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide print:hidden`}>
-           <div className="scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 origin-top">
+        {/* PREVIEW AREA (BULLETPROOF PRINT TARGET) */}
+        <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block print:h-auto print:w-full`}>
+           
+           <div id="print-only-root" className="print:w-full print:max-w-none print:min-w-0 print:min-h-0 mx-auto origin-top transition-transform duration-300 scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 mb-[-120mm] md:mb-0 print:scale-100 print:transform-none print:mb-0">
               <DocumentContent />
            </div>
-        </main>
-      </div>
 
-      <div className="no-print hidden md:block">
-         <PrintWrapper documentName="Surat_Izin_Cuti" price={10000} />
-      </div>
+           {/* Paywall Monetisasi - Diletakkan di luar print flow */}
+           <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
+              <PrintWrapper documentName="Formulir Pengajuan Cuti Karyawan" price={5000} />
+           </div>
 
-      {/* PRINT-ONLY ROOT */}
-      <div id="print-only-root" className="hidden print:block print:h-auto print:static">
-         <div className="bg-white"><DocumentContent /></div>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

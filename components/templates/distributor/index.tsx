@@ -1,36 +1,21 @@
 'use client';
 
-/**
- * FILE: distributor-draft.tsx
- * STATUS: PRODUCTION READY (WITH MONETIZATION)
- * DESC: Generator Perjanjian Keagenan/Distributor (Corporate Grade)
- * FEATURES:
- * - Strict A4 Print Layout (MS Word standard via HTML semantics)
- * - Mobile Menu Fixed
- * - Integrated Ad Banner Space & MONETISASI Donation Modal
- * - Klausul Korporat: Target Penjualan Minimal & Hak Pencabutan Lisensi Sepihak
- */
-
-import { useState, Suspense, useEffect } from 'react';
+import React, { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeftCircle, Edit3, Eye, RotateCcw, 
-  Building2, UserCircle2, CalendarRange, Scale, Target, 
-  Banknote, PackageSearch, Briefcase, FileText
+    Printer, ArrowLeftCircle, Edit3, RotateCcw, 
+    Building2, UserCircle2, CalendarRange, Target, 
+    PackageSearch, FileText, LayoutTemplate
 } from 'lucide-react';
 import Link from 'next/link';
-
-// IMPORT KOMPONEN SAKTI
 import PrintWrapper from '@/components/PrintWrapper';
 
 // --- 1. TYPE DEFINITIONS ---
 interface DistributorData {
-  // Kop Surat & Perjanjian
   docNumber: string;
   docDay: string;
   docDate: string;
   city: string;
 
-  // Pihak Pertama (Principal)
   pihak1Name: string;
   pihak1Nik: string;
   pihak1Pob: string;
@@ -40,7 +25,6 @@ interface DistributorData {
   pihak1Company: string;
   pihak1Position: string;
 
-  // Pihak Kedua (Distributor)
   pihak2Name: string;
   pihak2Nik: string;
   pihak2Pob: string;
@@ -50,7 +34,6 @@ interface DistributorData {
   pihak2Company: string; 
   pihak2Position: string;
 
-  // Pasal-Pasal
   produk: string;
   wilayah: string;
   masaBerlaku: string;
@@ -73,7 +56,7 @@ const INITIAL_DATA: DistributorData = {
   docDate: '15 Desember 2026',
   city: 'Jakarta Selatan',
 
-  pihak1Name: 'ANDI WIJAYA',
+  pihak1Name: 'Andi Wijaya',
   pihak1Nik: '3174092801850001',
   pihak1Pob: 'Jakarta',
   pihak1Dob: '28 Januari 1985',
@@ -82,7 +65,7 @@ const INITIAL_DATA: DistributorData = {
   pihak1Company: 'PT PANGAN MAJU JAYA',
   pihak1Position: 'Direktur Utama',
 
-  pihak2Name: 'SITI AMINAH',
+  pihak2Name: 'Siti Aminah',
   pihak2Nik: '3171051508820004',
   pihak2Pob: 'Bandung',
   pihak2Dob: '15 Agustus 1982',
@@ -106,7 +89,14 @@ const INITIAL_DATA: DistributorData = {
   pengadilan: 'Pengadilan Negeri Jakarta Selatan'
 };
 
-// --- 3. KOMPONEN UTAMA ---
+// --- 3. KOMPONEN KERTAS MUTLAK ---
+const Kertas = ({ children, templateId }: { children: React.ReactNode, templateId: number }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-black leading-relaxed box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto group ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'}`}>
+    {children}
+  </div>
+);
+
+// --- 4. KOMPONEN UTAMA ---
 export default function PerjanjianDistributorPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-slate-400 font-medium bg-slate-50">Memuat Editor Perjanjian...</div>}>
@@ -116,421 +106,422 @@ export default function PerjanjianDistributorPage() {
 }
 
 function DistributorBuilder() {
-  // --- STATE SYSTEM ---
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState<DistributorData>(INITIAL_DATA);
+  const [templateId, setTemplateId] = useState<number>(1);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
 
-  // --- HANDLERS ---
-  const handleDataChange = (field: keyof DistributorData, val: string) => {
-    setData(prev => ({ ...prev, [field]: val }));
-  };
+  useEffect(() => setIsClient(true), []);
 
   const handleReset = () => {
-    if(window.confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke setelan awal?')) {
         setData(INITIAL_DATA);
     }
   };
 
-  const [templateId, setTemplateId] = useState<number>(1);
-  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const activeTemplateName = templateId === 1 ? 'Legal Formal' : 'Compact Rapi';
+  const handleStringChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setData({ ...data, [e.target.name]: e.target.value });
+  };
+
+  const activeTemplateName = templateId === 1 ? 'Legal Formal (Serif)' : 'Modern Premium (Sans)';
 
   const TemplateMenu = () => (
-      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[60]">
-          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-              Format Legal Formal (Serif)
+      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[9999]">
+          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-bold flex items-center gap-3 transition-colors ${templateId === 1 ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600'}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> Legal Formal (Serif)
           </button>
-          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : ''}`}>
-              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> 
-              Format Compact Rapi (Sans)
+          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-emerald-50 rounded-lg text-sm font-bold flex items-center gap-3 transition-colors ${templateId === 2 ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600'}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div> Modern Premium (Sans)
           </button>
       </div>
   );
 
-  // --- KONTEN SURAT (PRINT READY) ---
-  const ContentInside = () => {
-    return (
-      <div className={`leading-relaxed text-black ${templateId === 1 ? 'font-serif text-[11pt]' : 'font-sans text-[10pt]'}`}>
-         {/* JUDUL */}
-         <div className="text-center font-bold mb-8">
-            <h1 className="text-[14pt] uppercase underline decoration-2 underline-offset-4 mb-1">PERJANJIAN KEAGENAN DAN DISTRIBUSI</h1>
-            <p className="text-[11pt]">Nomor: {data.docNumber}</p>
-         </div>
+  const DocumentContent = () => (
+    <Kertas templateId={templateId}>
+       <div className="text-center font-bold mb-8">
+          <h1 className="text-[14pt] uppercase underline decoration-2 underline-offset-4 mb-1">PERJANJIAN KEAGENAN DAN DISTRIBUSI</h1>
+          <p className="text-[11pt]">Nomor: {data.docNumber}</p>
+       </div>
 
-         {/* MUKADIMAH */}
-         <div className="text-justify mb-6">
-            <p className="mb-4">
-              Pada hari ini, <b>{data.docDay}</b>, tanggal <b>{data.docDate}</b>, bertempat di <b>{data.city}</b>, yang bertanda tangan di bawah ini:
-            </p>
+       <div className="text-justify mb-6">
+          <p className="mb-4">
+            Pada hari ini, <b>{data.docDay}</b>, tanggal <b>{data.docDate}</b>, bertempat di <b>{data.city}</b>, yang bertanda tangan di bawah ini:
+          </p>
 
-            <ol className="list-decimal ml-5 space-y-6 mb-6">
-               <li className="pl-2">
-                  <div className="mb-2">
-                     <div className="flex"><span className="w-40 inline-block">Nama Lengkap</span><span className="mr-2">:</span><span className="font-bold">{data.pihak1Name}</span></div>
-                     <div className="flex"><span className="w-40 inline-block">N.I.K</span><span className="mr-2">:</span><span>{data.pihak1Nik}</span></div>
-                     <div className="flex"><span className="w-40 inline-block">Tempat/Tgl Lahir</span><span className="mr-2">:</span><span>{data.pihak1Pob}, {data.pihak1Dob}</span></div>
-                     <div className="flex"><span className="w-40 inline-block">Pekerjaan</span><span className="mr-2">:</span><span>{data.pihak1Occupation}</span></div>
-                     <div className="flex"><span className="w-40 inline-block align-top">Alamat (Sesuai KTP)</span><span className="mr-2 align-top">:</span><span className="inline-block flex-1">{data.pihak1Address}</span></div>
-                  </div>
-                  <p className="text-justify mt-2">
-                     Dalam hal ini bertindak dalam jabatannya selaku <b>{data.pihak1Position}</b>, dari dan oleh karena itu sah bertindak untuk dan atas nama <b>{data.pihak1Company}</b>. Selanjutnya dalam Perjanjian ini disebut sebagai <b>PIHAK PERTAMA (Principal)</b>.
-                  </p>
-               </li>
-
-               <li className="pl-2">
-                  <div className="mb-2">
-                     <div className="flex"><span className="w-40 inline-block">Nama Lengkap</span><span className="mr-2">:</span><span className="font-bold">{data.pihak2Name}</span></div>
-                     <div className="flex"><span className="w-40 inline-block">N.I.K</span><span className="mr-2">:</span><span>{data.pihak2Nik}</span></div>
-                     <div className="flex"><span className="w-40 inline-block">Tempat/Tgl Lahir</span><span className="mr-2">:</span><span>{data.pihak2Pob}, {data.pihak2Dob}</span></div>
-                     <div className="flex"><span className="w-40 inline-block">Pekerjaan</span><span className="mr-2">:</span><span>{data.pihak2Occupation}</span></div>
-                     <div className="flex"><span className="w-40 inline-block align-top">Alamat (Sesuai KTP)</span><span className="mr-2 align-top">:</span><span className="inline-block flex-1">{data.pihak2Address}</span></div>
-                  </div>
-                  <p className="text-justify mt-2">
-                     Dalam hal ini bertindak dalam jabatannya selaku <b>{data.pihak2Position}</b>, dari dan oleh karena itu sah bertindak untuk dan atas nama <b>{data.pihak2Company}</b>. Selanjutnya dalam Perjanjian ini disebut sebagai <b>PIHAK KEDUA (Distributor)</b>.
-                  </p>
-               </li>
-            </ol>
-
-            <p className="text-justify">
-               PIHAK PERTAMA dan PIHAK KEDUA (secara bersama-sama disebut "Para Pihak" dan masing-masing disebut "Pihak") terlebih dahulu menerangkan hal-hal sebagai berikut:
-            </p>
-            <ul className="list-disc ml-10 space-y-2 mt-2 mb-6 text-justify">
-               <li>Bahwa PIHAK PERTAMA adalah perusahaan yang bergerak di bidang penyediaan, produksi, dan/atau distribusi produk {data.produk}.</li>
-               <li>Bahwa PIHAK KEDUA memiliki kemampuan, jaringan, dan fasilitas yang memadai untuk bertindak sebagai distributor/agen penjual produk-produk tersebut di wilayah yang disepakati.</li>
-            </ul>
-            <p className="text-justify">
-               Berdasarkan hal-hal tersebut di atas, Para Pihak sepakat untuk mengikatkan diri dalam Perjanjian Keagenan dan Distribusi ("Perjanjian") dengan syarat-syarat dan ketentuan-ketentuan sebagaimana diuraikan dalam Pasal-pasal di bawah ini:
-            </p>
-         </div>
-
-         {/* PASAL 1 */}
-         <div className="text-center font-bold mb-4 mt-8 break-before-auto">
-             <p>PASAL 1</p>
-             <p>DEFINISI</p>
-         </div>
-         <p className="text-justify mb-2">Dalam Perjanjian ini, kecuali konteksnya menentukan lain, istilah-istilah di bawah ini memiliki pengertian sebagai berikut:</p>
-         <ol className="list-decimal ml-6 space-y-2 mb-6 text-justify">
-             <li className="pl-2"><b>"Produk"</b> adalah barang-barang yang diproduksi dan/atau disediakan oleh PIHAK PERTAMA, yaitu secara khusus berupa <b>{data.produk}</b>.</li>
-             <li className="pl-2"><b>"Wilayah Kerja"</b> adalah area geografis yang diberikan hak kepada PIHAK KEDUA untuk mendistribusikan Produk, yaitu meliputi wilayah <b>{data.wilayah}</b>.</li>
-             <li className="pl-2"><b>"Target Penjualan"</b> adalah kuota minimum pembelian atau penjualan Produk yang wajib dicapai oleh PIHAK KEDUA dalam periode yang telah disepakati oleh Para Pihak.</li>
-         </ol>
-
-         {/* PASAL 2 */}
-         <div className="text-center font-bold mb-4 mt-8 break-inside-avoid">
-             <p>PASAL 2</p>
-             <p>OBJEK PERJANJIAN DAN WILAYAH KERJA</p>
-         </div>
-         <ol className="list-decimal ml-6 space-y-2 mb-6 text-justify">
-             <li className="pl-2">PIHAK PERTAMA dengan ini menunjuk PIHAK KEDUA, dan PIHAK KEDUA menerima penunjukan tersebut, sebagai Distributor untuk memasarkan, menjual, dan mendistribusikan Produk di dalam Wilayah Kerja.</li>
-             <li className="pl-2">Hak distribusi yang diberikan kepada PIHAK KEDUA bersifat non-eksklusif, sehingga PIHAK PERTAMA tetap memiliki kebebasan dan hak untuk menunjuk distributor lain di dalam maupun di luar Wilayah Kerja, kecuali disepakati lain secara tertulis.</li>
-             <li className="pl-2">PIHAK KEDUA dilarang secara aktif mencari pembeli, mengekspor, atau mendirikan cabang untuk penjualan Produk di luar Wilayah Kerja tanpa persetujuan tertulis sebelumnya dari PIHAK PERTAMA.</li>
-         </ol>
-
-         {/* PASAL 3 */}
-         <div className="text-center font-bold mb-4 mt-8 break-inside-avoid">
-             <p>PASAL 3</p>
-             <p>HAK DAN KEWAJIBAN PARA PIHAK</p>
-         </div>
-         <ol className="list-decimal ml-6 space-y-4 mb-6 text-justify">
+          <ol className="list-decimal ml-5 space-y-6 mb-6">
              <li className="pl-2">
-                 <b>Hak dan Kewajiban PIHAK PERTAMA:</b>
-                 <ul className="list-[lower-alpha] ml-5 mt-2 space-y-2">
-                     <li className="pl-2">Menerima pembayaran penuh atas Produk yang dipesan dan diserahkan kepada PIHAK KEDUA.</li>
-                     <li className="pl-2">Menyediakan Produk secara tepat waktu dan dalam kondisi baik sesuai dengan pesanan (Purchase Order) yang disetujui.</li>
-                     <li className="pl-2">Memberikan dukungan pemasaran, materi promosi, serta informasi teknis terkait Produk kepada PIHAK KEDUA secara wajar.</li>
-                 </ul>
+                <div className="mb-2">
+                   <div className="flex mb-1"><span className="w-44 inline-block">Nama Lengkap</span><span className="mr-2">:</span><span className="font-bold uppercase">{data.pihak1Name}</span></div>
+                   <div className="flex mb-1"><span className="w-44 inline-block">N.I.K</span><span className="mr-2">:</span><span>{data.pihak1Nik}</span></div>
+                   <div className="flex mb-1"><span className="w-44 inline-block">Tempat/Tgl Lahir</span><span className="mr-2">:</span><span>{data.pihak1Pob}, {data.pihak1Dob}</span></div>
+                   <div className="flex mb-1"><span className="w-44 inline-block">Pekerjaan</span><span className="mr-2">:</span><span>{data.pihak1Occupation}</span></div>
+                   <div className="flex mb-1"><span className="w-44 inline-block align-top">Alamat (Sesuai KTP)</span><span className="mr-2 align-top">:</span><span className="inline-block flex-1">{data.pihak1Address}</span></div>
+                </div>
+                <p className="mt-2">
+                   Dalam hal ini bertindak dalam jabatannya selaku <b>{data.pihak1Position}</b>, dari dan oleh karena itu sah bertindak untuk dan atas nama <b>{data.pihak1Company}</b>. Selanjutnya dalam Perjanjian ini disebut sebagai <b>PIHAK PERTAMA (Principal)</b>.
+                </p>
              </li>
+
              <li className="pl-2">
-                 <b>Hak dan Kewajiban PIHAK KEDUA:</b>
-                 <ul className="list-[lower-alpha] ml-5 mt-2 space-y-2">
-                     <li className="pl-2">Menerima Produk yang dipesan dari PIHAK PERTAMA dalam keadaan baik dan sesuai spesifikasi.</li>
-                     <li className="pl-2">Melakukan usaha komersial terbaik (best effort) untuk mempromosikan, memasarkan, dan menjual Produk secara maksimal di dalam Wilayah Kerja.</li>
-                     <li className="pl-2">Menjaga standar kualitas layanan, reputasi bisnis, dan nama baik (goodwill) PIHAK PERTAMA di mata konsumen.</li>
-                     <li className="pl-2">Mematuhi kebijakan harga jual ritel minimal (Minimum Retail Price) yang mungkin ditetapkan oleh PIHAK PERTAMA dari waktu ke waktu.</li>
-                     <li className="pl-2">Menyediakan fasilitas penyimpanan, sistem logistik, dan gudang yang layak untuk menjaga mutu serta keutuhan Produk.</li>
-                 </ul>
+                <div className="mb-2">
+                   <div className="flex mb-1"><span className="w-44 inline-block">Nama Lengkap</span><span className="mr-2">:</span><span className="font-bold uppercase">{data.pihak2Name}</span></div>
+                   <div className="flex mb-1"><span className="w-44 inline-block">N.I.K</span><span className="mr-2">:</span><span>{data.pihak2Nik}</span></div>
+                   <div className="flex mb-1"><span className="w-44 inline-block">Tempat/Tgl Lahir</span><span className="mr-2">:</span><span>{data.pihak2Pob}, {data.pihak2Dob}</span></div>
+                   <div className="flex mb-1"><span className="w-44 inline-block">Pekerjaan</span><span className="mr-2">:</span><span>{data.pihak2Occupation}</span></div>
+                   <div className="flex mb-1"><span className="w-44 inline-block align-top">Alamat (Sesuai KTP)</span><span className="mr-2 align-top">:</span><span className="inline-block flex-1">{data.pihak2Address}</span></div>
+                </div>
+                <p className="mt-2">
+                   Dalam hal ini bertindak dalam jabatannya selaku <b>{data.pihak2Position}</b>, dari dan oleh karena itu sah bertindak untuk dan atas nama <b>{data.pihak2Company}</b>. Selanjutnya dalam Perjanjian ini disebut sebagai <b>PIHAK KEDUA (Distributor)</b>.
+                </p>
              </li>
-         </ol>
+          </ol>
 
-         {/* PASAL 4 */}
-         <div className="text-center font-bold mb-4 mt-8 break-inside-avoid">
-             <p>PASAL 4</p>
-             <p>TARGET PENJUALAN MINIMAL DAN EVALUASI (SALES QUOTA)</p>
-         </div>
-         <ol className="list-decimal ml-6 space-y-2 mb-6 text-justify">
-             <li className="pl-2">Sebagai syarat keberlangsungan kedudukan sebagai Distributor, PIHAK KEDUA wajib memenuhi Target Penjualan Minimal (Minimum Sales/Purchase Quota) sebesar <b>{data.targetKuantitas} unit per {data.targetPeriode}</b>.</li>
-             <li className="pl-2">Evaluasi terhadap pencapaian Target Penjualan sebagaimana dimaksud pada Ayat 1 akan dilakukan oleh PIHAK PERTAMA pada setiap akhir {data.targetPeriode}.</li>
-             <li className="pl-2">Apabila PIHAK KEDUA gagal mencapai Target Penjualan Minimal selama <b>2 (dua) kuartal berturut-turut</b>, maka PIHAK PERTAMA secara mutlak memiliki <b>Hak Pencabutan Lisensi Sepihak</b>.</li>
-             <li className="pl-2">Dalam hal terjadinya kegagalan pemenuhan target sebagaimana diatur pada Ayat 3, PIHAK PERTAMA dapat mengakhiri Perjanjian ini secara sepihak dan seketika dengan menyampaikan pemberitahuan tertulis kepada PIHAK KEDUA selambat-lambatnya 14 (empat belas) hari kalender sebelumnya, tanpa PIHAK PERTAMA dikenakan denda, ganti rugi, atau kompensasi apapun terhadap PIHAK KEDUA.</li>
-         </ol>
+          <p className="mb-4">
+             PIHAK PERTAMA dan PIHAK KEDUA (secara bersama-sama disebut "Para Pihak") terlebih dahulu menerangkan hal-hal sebagai berikut:
+          </p>
+          <ul className="list-disc ml-10 space-y-2 mb-6">
+             <li>Bahwa PIHAK PERTAMA adalah perusahaan yang bergerak di bidang penyediaan dan/atau distribusi produk {data.produk}.</li>
+             <li>Bahwa PIHAK KEDUA memiliki kemampuan dan jaringan yang memadai untuk bertindak sebagai distributor/agen penjual produk-produk tersebut.</li>
+             <li>Bahwa Para Pihak sepakat untuk mengikatkan diri dalam Perjanjian Keagenan dan Distribusi ("Perjanjian") dengan tunduk pada syarat dan ketentuan yang diatur dalam Pasal-pasal berikut:</li>
+          </ul>
+       </div>
 
-         {/* PASAL 5 */}
-         <div className="text-center font-bold mb-4 mt-8 break-inside-avoid">
-             <p>PASAL 5</p>
-             <p>HARGA, PEMBAYARAN, DAN PENYERAHAN BARANG</p>
-         </div>
-         <ol className="list-decimal ml-6 space-y-2 mb-6 text-justify">
-             <li className="pl-2">Harga Produk yang berlaku untuk PIHAK KEDUA adalah harga yang tercantum dalam daftar harga resmi (Price List) terbaru yang diterbitkan oleh PIHAK PERTAMA. PIHAK PERTAMA berhak mengubah harga sewaktu-waktu dengan memberikan pemberitahuan tertulis sebelumnya kepada PIHAK KEDUA.</li>
-             <li className="pl-2">Pembayaran atas setiap pembelian Produk wajib dilakukan oleh PIHAK KEDUA melalui metode <b>{data.paymentMethod}</b> dengan cara transfer ke rekening bank yang ditunjuk secara resmi oleh PIHAK PERTAMA.</li>
-             <li className="pl-2">Dalam hal PIHAK KEDUA lalai atau terlambat melakukan pembayaran sesuai dengan jatuh tempo yang disepakati, maka PIHAK KEDUA akan dikenakan denda keterlambatan sebesar <b>{data.penaltyFee} per hari keterlambatan</b>, yang dihitung dari total tagihan terutang hingga pembayaran lunas.</li>
-             <li className="pl-2">Penyerahan Produk akan dilakukan di titik penyerahan yang disepakati, dan segala risiko atas kerusakan atau kehilangan Produk beralih sepenuhnya kepada PIHAK KEDUA sejak penandatanganan Surat Jalan atau Berita Acara Serah Terima Barang.</li>
-         </ol>
+       {/* PASAL 1 */}
+       <div className="mb-6 text-justify">
+           <h3 className="text-center font-bold mb-2 uppercase">PASAL 1<br/>PENUNJUKAN DAN RUANG LINGKUP</h3>
+           <ol className="list-decimal ml-6 space-y-2">
+               <li className="pl-2">PIHAK PERTAMA menunjuk PIHAK KEDUA, dan PIHAK KEDUA menerima penunjukan tersebut, sebagai Distributor Resmi untuk memasarkan, menjual, dan mendistribusikan produk berupa <b>{data.produk}</b>.</li>
+               <li className="pl-2">Wilayah pemasaran dan distribusi yang diberikan oleh PIHAK PERTAMA kepada PIHAK KEDUA adalah terbatas pada <b>{data.wilayah}</b>. PIHAK KEDUA dilarang melakukan penjualan di luar wilayah tersebut tanpa izin tertulis dari PIHAK PERTAMA.</li>
+           </ol>
+       </div>
 
-         {/* PASAL 6 */}
-         <div className="text-center font-bold mb-4 mt-8 break-inside-avoid">
-             <p>PASAL 6</p>
-             <p>MASA BERLAKU DAN PENGAKHIRAN PERJANJIAN</p>
-         </div>
-         <ol className="list-decimal ml-6 space-y-2 mb-6 text-justify">
-             <li className="pl-2">Perjanjian ini berlaku untuk jangka waktu <b>{data.masaBerlaku}</b>, terhitung efektif sejak tanggal <b>{data.startDate}</b> dan akan berakhir pada tanggal <b>{data.endDate}</b>.</li>
-             <li className="pl-2">Perjanjian dapat diperpanjang berdasarkan kesepakatan tertulis Para Pihak yang dibuat selambat-lambatnya 30 (tiga puluh) hari sebelum masa berlaku Perjanjian berakhir.</li>
-             <li className="pl-2">Selain ketentuan pengakhiran karena gagal target sebagaimana diatur pada Pasal 4, PIHAK PERTAMA berhak mengakhiri Perjanjian secara sepihak dan seketika apabila PIHAK KEDUA terbukti melakukan wanprestasi berat, penipuan, pemalsuan, penggelapan, atau dinyatakan pailit/likuidasi oleh Pengadilan.</li>
-             <li className="pl-2">Berkenaan dengan pengakhiran Perjanjian ini, Para Pihak sepakat untuk mengesampingkan ketentuan Pasal 1266 Kitab Undang-Undang Hukum Perdata Indonesia sejauh yang mensyaratkan adanya putusan pengadilan untuk membatalkan suatu perjanjian.</li>
-         </ol>
+       {/* PASAL 2 */}
+       <div className="mb-6 text-justify">
+           <h3 className="text-center font-bold mb-2 uppercase">PASAL 2<br/>JANGKA WAKTU PERJANJIAN</h3>
+           <ol className="list-decimal ml-6 space-y-2">
+               <li className="pl-2">Perjanjian ini berlaku selama <b>{data.masaBerlaku}</b>, terhitung efektif sejak tanggal <b>{data.startDate}</b> sampai dengan tanggal <b>{data.endDate}</b>.</li>
+               <li className="pl-2">Perjanjian ini dapat diperpanjang atas kesepakatan tertulis dari Para Pihak selambat-lambatnya 30 (tiga puluh) hari sebelum jangka waktu Perjanjian berakhir.</li>
+           </ol>
+       </div>
 
-         {/* PASAL 7 */}
-         <div className="text-center font-bold mb-4 mt-8 break-inside-avoid">
-             <p>PASAL 7</p>
-             <p>KEKAYAAN INTELEKTUAL DAN KERAHASIAAN</p>
-         </div>
-         <ol className="list-decimal ml-6 space-y-2 mb-6 text-justify">
-             <li className="pl-2">Semua merek dagang, logo, desain, hak cipta, paten, dan hak kekayaan intelektual lainnya yang melekat pada Produk merupakan milik sah secara hukum dari PIHAK PERTAMA. PIHAK KEDUA hanya diberikan hak penggunaan secara terbatas selama masa berlaku Perjanjian semata-mata untuk tujuan pemasaran dan penjualan.</li>
-             <li className="pl-2">PIHAK KEDUA secara tegas dilarang memproduksi ulang, melakukan rekayasa balik (reverse engineering), menyalin, atau mengubah Produk beserta kemasannya, baik sebagian maupun seluruhnya.</li>
-             <li className="pl-2">Para Pihak wajib menjaga kerahasiaan seluruh informasi bisnis, strategis, finansial, teknis, dan daftar pelanggan yang diperoleh selama pelaksanaan Perjanjian ini (Confidential Information), dan dilarang menyebarkannya kepada pihak ketiga tanpa persetujuan tertulis pihak lainnya, baik selama Perjanjian berlangsung maupun setelah berakhir.</li>
-         </ol>
+       {/* PASAL 3 */}
+       <div className="mb-6 text-justify">
+           <h3 className="text-center font-bold mb-2 uppercase">PASAL 3<br/>TARGET PENJUALAN MINIMAL</h3>
+           <ol className="list-decimal ml-6 space-y-2">
+               <li className="pl-2">Sebagai syarat dipertahankannya status sebagai Distributor Resmi, PIHAK KEDUA wajib memenuhi target penjualan minimal sebanyak <b>{data.targetKuantitas}</b> unit produk setiap <b>{data.targetPeriode}</b>.</li>
+               <li className="pl-2">Apabila PIHAK KEDUA gagal memenuhi target penjualan minimal tersebut secara berturut-turut, maka PIHAK PERTAMA berhak untuk meninjau ulang, mengurangi wilayah pemasaran, atau mengakhiri Perjanjian ini secara sepihak tanpa tuntutan ganti rugi.</li>
+           </ol>
+       </div>
 
-         {/* PASAL 8 */}
-         <div className="text-center font-bold mb-4 mt-8 break-inside-avoid">
-             <p>PASAL 8</p>
-             <p>KEADAAN MEMAKSA (FORCE MAJEURE)</p>
-         </div>
-         <ol className="list-decimal ml-6 space-y-2 mb-6 text-justify">
-             <li className="pl-2">Tidak ada pihak yang dianggap lalai atau melanggar Perjanjian ini apabila keterlambatan atau kegagalan pelaksanaan kewajibannya disebabkan oleh Keadaan Memaksa (Force Majeure).</li>
-             <li className="pl-2">Force Majeure mencakup, namun tidak terbatas pada, bencana alam (gempa bumi, banjir, gunung meletus), perang, huru-hara, pemberontakan, pemogokan massal, pandemi global, dan/atau perubahan peraturan pemerintah yang secara langsung menghalangi pelaksanaan Perjanjian.</li>
-             <li className="pl-2">Pihak yang mengalami Force Majeure wajib memberitahukan secara tertulis kepada pihak lainnya selambat-lambatnya 7 (tujuh) hari kalender setelah terjadinya peristiwa tersebut, lengkap dengan bukti pendukung dari instansi yang berwenang.</li>
-         </ol>
+       {/* PASAL 4 */}
+       <div className="mb-6 text-justify break-inside-avoid">
+           <h3 className="text-center font-bold mb-2 uppercase">PASAL 4<br/>SISTEM PEMBAYARAN DAN DENDA</h3>
+           <ol className="list-decimal ml-6 space-y-2">
+               <li className="pl-2">Setiap pemesanan produk oleh PIHAK KEDUA wajib dibayar menggunakan metode <b>{data.paymentMethod}</b>.</li>
+               <li className="pl-2">Dalam hal terjadinya keterlambatan pembayaran tagihan (apabila menggunakan skema termin), maka PIHAK KEDUA akan dikenakan denda keterlambatan sebesar <b>{data.penaltyFee}</b> dari total nilai tagihan per hari keterlambatan.</li>
+           </ol>
+       </div>
 
-         {/* PASAL 9 */}
-         <div className="text-center font-bold mb-4 mt-8 break-inside-avoid">
-             <p>PASAL 9</p>
-             <p>PENYELESAIAN SENGKETA</p>
-         </div>
-         <ol className="list-decimal ml-6 space-y-2 mb-6 text-justify">
-             <li className="pl-2">Segala perselisihan, perbedaan pendapat, atau sengketa yang timbul dari atau sehubungan dengan pelaksanaan Perjanjian ini akan diselesaikan oleh Para Pihak terlebih dahulu melalui musyawarah untuk mufakat.</li>
-             <li className="pl-2">Apabila musyawarah tidak menghasilkan kesepakatan dalam jangka waktu 30 (tiga puluh) hari kalender sejak perselisihan tersebut diberitahukan secara tertulis, maka Para Pihak sepakat untuk menyelesaikan sengketa tersebut secara hukum dan memilih domisili hukum yang tetap dan tidak berubah di Kepaniteraan <b>{data.pengadilan}</b>.</li>
-         </ol>
+       {/* PASAL 5 */}
+       <div className="mb-10 text-justify break-inside-avoid">
+           <h3 className="text-center font-bold mb-2 uppercase">PASAL 5<br/>PENYELESAIAN SENGKETA DAN PENUTUP</h3>
+           <ol className="list-decimal ml-6 space-y-2">
+               <li className="pl-2">Apabila terjadi perselisihan akibat Perjanjian ini, Para Pihak sepakat untuk menyelesaikannya secara kekeluargaan/musyawarah.</li>
+               <li className="pl-2">Apabila musyawarah tidak tercapai dalam waktu 30 (tiga puluh) hari, Para Pihak sepakat menunjuk <b>{data.pengadilan}</b> sebagai domisili hukum penyelesaian sengketa.</li>
+               <li className="pl-2">Perjanjian ini dibuat dalam 2 (dua) rangkap bermeterai cukup dan memiliki kekuatan hukum yang sama bagi masing-masing Pihak.</li>
+           </ol>
+       </div>
 
-         {/* PASAL 10 (PENUTUP) */}
-         <div className="text-center font-bold mb-4 mt-8 break-inside-avoid">
-             <p>PASAL 10</p>
-             <p>PENUTUP</p>
-         </div>
-         <ol className="list-decimal ml-6 space-y-2 mb-8 text-justify">
-             <li className="pl-2">Hal-hal yang belum diatur atau belum cukup diatur dalam Perjanjian ini akan diputuskan kemudian oleh Para Pihak dan akan dituangkan dalam suatu Adendum atau Perjanjian Tambahan yang merupakan satu kesatuan dan bagian yang tidak terpisahkan dari Perjanjian ini.</li>
-             <li className="pl-2">Perjanjian ini dibuat dan ditandatangani oleh Para Pihak di <b>{data.city}</b> pada tanggal, bulan, dan tahun sebagaimana disebutkan pada bagian awal Perjanjian, dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa adanya paksaan atau tekanan dari pihak manapun.</li>
-         </ol>
+       {/* TANDA TANGAN */}
+       <div className="mt-8 break-inside-avoid">
+          <div className="flex justify-between text-center items-stretch mb-4">
+             <div className="w-[45%] flex flex-col justify-between">
+                <p className="font-bold mb-1 uppercase">PIHAK PERTAMA</p>
+                <p className="mb-4">{data.pihak1Company}</p>
+                <div className="h-24"></div>
+                <p className="font-bold underline uppercase">{data.pihak1Name}</p>
+                <p>{data.pihak1Position}</p>
+             </div>
+             <div className="w-[45%] flex flex-col justify-between">
+                <p className="font-bold mb-1 uppercase">PIHAK KEDUA</p>
+                <p className="mb-4">{data.pihak2Company}</p>
+                <div className="h-24"></div>
+                <p className="font-bold underline uppercase">{data.pihak2Name}</p>
+                <p>{data.pihak2Position}</p>
+             </div>
+          </div>
+       </div>
+    </Kertas>
+  );
 
-         <p className="text-justify mb-12">
-             Demikian Perjanjian ini dibuat dalam 2 (dua) rangkap bermeterai cukup, yang masing-masing memiliki kekuatan hukum pembuktian yang sama dan dipegang oleh masing-masing Pihak.
-         </p>
-
-         {/* TANDA TANGAN */}
-         <div className="mt-8 pt-4 break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
-            <div className="grid grid-cols-2 gap-10 text-center">
-               <div className="flex flex-col items-center">
-                  <p className="mb-2 font-bold uppercase text-[11pt]">PIHAK PERTAMA</p>
-                  <p className="mb-24 text-[10pt]">{data.pihak1Company}</p>
-                  <p className="font-bold underline uppercase w-full pb-1">{data.pihak1Name}</p>
-                  <p className="text-[10pt]">{data.pihak1Position}</p>
-               </div>
-               <div className="flex flex-col items-center">
-                  <p className="mb-2 font-bold uppercase text-[11pt]">PIHAK KEDUA</p>
-                  <p className="mb-24 text-[10pt]">{data.pihak2Company}</p>
-                  <p className="font-bold underline uppercase w-full pb-1">{data.pihak2Name}</p>
-                  <p className="text-[10pt]">{data.pihak2Position}</p>
-               </div>
-            </div>
-         </div>
-
-      </div>
-    );
-  };
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      
-      {/* CSS PRINT FIXED UNTUK MS WORD STYLE */}
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+      {/* BULLETPROOF PRINT CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 25mm 20mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; }
+          @page { size: A4 portrait; margin: 15mm; } 
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
-          .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
           * { box-sizing: border-box !important; }
         }
       ` }} />
 
-      {/* HEADER NAVY */}
-      <header className="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 h-16 shrink-0 shadow-lg">
-         <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
-            <div className="flex items-center gap-4">
-               <Link href="/" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-800 rounded-full transition-all group">
-                  <ArrowLeftCircle size={20} className="text-slate-400 group-hover:text-emerald-400 transition-colors"/>
-                  <span className="text-sm font-bold text-slate-300 group-hover:text-white">Dashboard</span>
-               </Link>
-               <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
-               <div><h1 className="font-black text-white text-sm md:text-base uppercase tracking-tight hidden md:block">Distributor <span className="text-emerald-400">Builder</span></h1></div>
+      {/* HEADER NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-[999] border-b border-slate-800 h-16 flex items-center px-4 justify-between font-sans">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-emerald-400" />
+              <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-1"></div>
+            <div className="flex flex-col">
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Distributor</h1>
             </div>
-            <div className="flex items-center gap-3 relative">
-               <div className="relative">
-                   <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all text-white h-[40px]">
-                       <span className="text-emerald-400">❖</span> 
-                       <span className="hidden md:inline">{activeTemplateName}</span>
-                   </button>
-                   {showTemplateMenu && <TemplateMenu />}
-               </div>
-               <button 
-                 onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} 
-                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95"
-               >
-                 <Printer size={18}/> <span className="hidden sm:inline">Cetak Dokumen</span>
-               </button>
+          </div>
+          <div className="flex items-center gap-3 relative">
+            <div className="relative">
+                <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all text-white">
+                    <LayoutTemplate size={14} className="text-emerald-400" /> 
+                    <span className="hidden md:inline">{activeTemplateName}</span>
+                </button>
+                {showTemplateMenu && <TemplateMenu />}
             </div>
-         </div>
-      </header>
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-900/50 active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
+            </button>
+          </div>
+      </div>
 
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden h-[calc(100vh-64px)] print:hidden">
-         {/* EDITOR SIDEBAR */}
-         <div className={`no-print w-full md:w-[460px] lg:w-[500px] bg-slate-50 border-r border-slate-200 flex flex-col h-full z-10 transition-transform duration-300 absolute md:relative shadow-xl md:shadow-none ${activeTab === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 className="font-bold text-slate-700 flex items-center gap-2"><Edit3 size={16} /> Data Perjanjian</h2>
-                <button onClick={handleReset} title="Reset Form" className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><RotateCcw size={16}/></button>
+      {/* MOBILE TABS */}
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-[998] no-print font-sans">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'editor' ? 'text-emerald-700 border-b-2 border-emerald-700 bg-emerald-50' : 'text-slate-500'}`}>
+          <Edit3 size={16} /> Editor
+        </button>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'preview' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50' : 'text-slate-500'}`}>
+          <Printer size={16} /> Preview
+        </button>
+      </div>
+
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:h-auto print:overflow-visible print:block relative">
+        
+        {/* EDITOR SIDEBAR */}
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 h-full z-[90] no-print shadow-xl shrink-0`}>
+            <div className="p-5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
+                <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
+                  <FileText size={18} className="text-emerald-600" /> Editor Perjanjian
+                </h2>
+                <button onClick={handleReset} className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-lg" title="Reset Form">
+                  <RotateCcw size={16}/>
+                </button>
             </div>
-
- <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32 md:pb-10 custom-scrollbar print:flex print:overflow-visible print:bg-white">
-               
-               {/* 0. INFORMASI DOKUMEN */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><FileText size={12}/> Informasi Dokumen</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nomor Perjanjian</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.docNumber} onChange={e => handleDataChange('docNumber', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Hari Penandatanganan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.docDay} onChange={e => handleDataChange('docDay', e.target.value)} /></div>
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tanggal</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.docDate} onChange={e => handleDataChange('docDate', e.target.value)} /></div>
+            
+            <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar pb-32">
+                
+                {/* 0. INFORMASI DOKUMEN */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <FileText size={14} className="text-indigo-600"/> Informasi Dokumen
+                  </h3>
+                  <div className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nomor Perjanjian</label>
+                        <input type="text" name="docNumber" value={data.docNumber} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
                       </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kota Penandatanganan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.city} onChange={e => handleDataChange('city', e.target.value)} /></div>
-                  </div>
-               </div>
-
-               {/* 1. PIHAK 1 */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Building2 size={12}/> Pihak Pertama (Principal)</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Perusahaan Principal</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Company} onChange={e => handleDataChange('pihak1Company', e.target.value)} /></div>
                       <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Penanggung Jawab</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Name} onChange={e => handleDataChange('pihak1Name', e.target.value)} /></div>
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jabatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Position} onChange={e => handleDataChange('pihak1Position', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK (KTP)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Nik} onChange={e => handleDataChange('pihak1Nik', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tempat Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Pob} onChange={e => handleDataChange('pihak1Pob', e.target.value)} /></div>
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Dob} onChange={e => handleDataChange('pihak1Dob', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pekerjaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Occupation} onChange={e => handleDataChange('pihak1Occupation', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat KTP Lengkap</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak1Address} onChange={e => handleDataChange('pihak1Address', e.target.value)} /></div>
-                  </div>
-               </div>
-
-               {/* 2. PIHAK 2 */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><UserCircle2 size={12}/> Pihak Kedua (Distributor)</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Perusahaan/Toko</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold uppercase focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Company} onChange={e => handleDataChange('pihak2Company', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Nama Penanggung Jawab</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Name} onChange={e => handleDataChange('pihak2Name', e.target.value)} /></div>
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Jabatan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Position} onChange={e => handleDataChange('pihak2Position', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">NIK (KTP)</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Nik} onChange={e => handleDataChange('pihak2Nik', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tempat Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Pob} onChange={e => handleDataChange('pihak2Pob', e.target.value)} /></div>
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Lahir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Dob} onChange={e => handleDataChange('pihak2Dob', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Pekerjaan</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Occupation} onChange={e => handleDataChange('pihak2Occupation', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Alamat KTP Lengkap</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-16 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pihak2Address} onChange={e => handleDataChange('pihak2Address', e.target.value)} /></div>
-                  </div>
-               </div>
-
-               {/* 3. RUANG LINGKUP & JANGKA WAKTU */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><PackageSearch size={12}/> Objek & Jangka Waktu</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Deskripsi Produk Utama</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.produk} onChange={e => handleDataChange('produk', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Wilayah Kerja Distribusi</label><textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs h-14 resize-none focus:ring-2 focus:ring-emerald-500 outline-none" value={data.wilayah} onChange={e => handleDataChange('wilayah', e.target.value)} /></div>
-                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-dashed border-slate-200">
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Masa Berlaku Total</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.masaBerlaku} onChange={e => handleDataChange('masaBerlaku', e.target.value)} /></div>
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Mulai Berlaku</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.startDate} onChange={e => handleDataChange('startDate', e.target.value)} /></div>
-                      </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Tgl Berakhir</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.endDate} onChange={e => handleDataChange('endDate', e.target.value)} /></div>
-                  </div>
-               </div>
-
-               {/* 4. TARGET, PEMBAYARAN & SENGKETA */}
-               <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1"><Target size={12}/> Target, Pembayaran & Legal</h3>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Kuota Minimum</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.targetKuantitas} onChange={e => handleDataChange('targetKuantitas', e.target.value)} /></div>
-                          <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Per Periode</label>
-                              <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none bg-white" value={data.targetPeriode} onChange={e => handleDataChange('targetPeriode', e.target.value)}>
-                                  <option value="Bulan">Bulan</option>
-                                  <option value="Kuartal">Kuartal</option>
-                                  <option value="Semester">Semester</option>
-                                  <option value="Tahun">Tahun</option>
-                              </select>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Hari Penandatanganan</label>
+                            <input type="text" name="docDay" value={data.docDay} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tanggal</label>
+                            <input type="text" name="docDate" value={data.docDate} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
                           </div>
                       </div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Metode Pembayaran</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.paymentMethod} onChange={e => handleDataChange('paymentMethod', e.target.value)} /></div>
-                      <div className="space-y-1"><label className="text-[10px] font-bold text-slate-500">Denda Keterlambatan Pembayaran</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.penaltyFee} onChange={e => handleDataChange('penaltyFee', e.target.value)} /></div>
-                      <div className="space-y-1 pt-2 border-t border-dashed border-slate-200"><label className="text-[10px] font-bold text-slate-500">Pengadilan Penyelesaian Sengketa</label><input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" value={data.pengadilan} onChange={e => handleDataChange('pengadilan', e.target.value)} /></div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kota Penandatanganan</label>
+                        <input type="text" name="city" value={data.city} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
                   </div>
-               </div>
-
-               <div className="h-20 md:hidden"></div>
-            </div>
-         </div>
-
-         {/* PREVIEW */}
- <div className="no-print flex-1 bg-slate-200/50 relative overflow-hidden flex flex-col items-center print:flex print:overflow-visible print:bg-white print:static">
- <div className="flex-1 overflow-y-auto w-full flex justify-center p-4 md:p-8 custom-scrollbar print:flex print:overflow-visible print:bg-white">
-                <div className="origin-top transition-transform duration-300 transform scale-[0.55] md:scale-100 mb-[-130mm] md:mb-10 mt-2 md:mt-0 print:scale-100 print:transform-none print:w-full print:m-0 print:block">
-                   <div className="bg-white shadow-2xl mx-auto overflow-hidden relative" style={{ width: '210mm', minHeight: '297mm', padding: '25mm 20mm' }}>
-                      <ContentInside />
-                   </div>
                 </div>
-             </div>
-         </div>
+
+                {/* 1. PIHAK PERTAMA */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Building2 size={14} className="text-amber-600"/> Pihak Pertama (Principal)
+                  </h3>
+                  <div className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Perusahaan Principal</label>
+                        <input type="text" name="pihak1Company" value={data.pihak1Company} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Lengkap Wakil</label>
+                            <input type="text" name="pihak1Name" value={data.pihak1Name} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Jabatan Wakil</label>
+                            <input type="text" name="pihak1Position" value={data.pihak1Position} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">NIK KTP Wakil</label>
+                        <input type="text" name="pihak1Nik" value={data.pihak1Nik} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tempat Lahir</label>
+                            <input type="text" name="pihak1Pob" value={data.pihak1Pob} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tgl Lahir</label>
+                            <input type="text" name="pihak1Dob" value={data.pihak1Dob} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Pekerjaan</label>
+                        <input type="text" name="pihak1Occupation" value={data.pihak1Occupation} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alamat KTP Lengkap</label>
+                        <textarea name="pihak1Address" value={data.pihak1Address} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"></textarea>
+                      </div>
+                  </div>
+                </div>
+
+                {/* 2. PIHAK KEDUA */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <UserCircle2 size={14} className="text-sky-600"/> Pihak Kedua (Distributor)
+                  </h3>
+                  <div className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Perusahaan Distributor</label>
+                        <input type="text" name="pihak2Company" value={data.pihak2Company} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Lengkap Wakil</label>
+                            <input type="text" name="pihak2Name" value={data.pihak2Name} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Jabatan Wakil</label>
+                            <input type="text" name="pihak2Position" value={data.pihak2Position} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">NIK KTP Wakil</label>
+                        <input type="text" name="pihak2Nik" value={data.pihak2Nik} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tempat Lahir</label>
+                            <input type="text" name="pihak2Pob" value={data.pihak2Pob} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tgl Lahir</label>
+                            <input type="text" name="pihak2Dob" value={data.pihak2Dob} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Pekerjaan</label>
+                        <input type="text" name="pihak2Occupation" value={data.pihak2Occupation} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alamat KTP Lengkap</label>
+                        <textarea name="pihak2Address" value={data.pihak2Address} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"></textarea>
+                      </div>
+                  </div>
+                </div>
+
+                {/* 3. RUANG LINGKUP & JANGKA WAKTU */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <PackageSearch size={14} className="text-emerald-600"/> Objek & Jangka Waktu
+                  </h3>
+                  <div className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Deskripsi Produk Utama</label>
+                        <input type="text" name="produk" value={data.produk} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Wilayah Kerja Distribusi</label>
+                        <textarea name="wilayah" value={data.wilayah} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"></textarea>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-dashed border-slate-200">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Masa Berlaku Total</label>
+                            <input type="text" name="masaBerlaku" value={data.masaBerlaku} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tgl Mulai Berlaku</label>
+                            <input type="text" name="startDate" value={data.startDate} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tgl Berakhir</label>
+                        <input type="text" name="endDate" value={data.endDate} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                  </div>
+                </div>
+
+                {/* 4. TARGET & PEMBAYARAN */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Target size={14} className="text-rose-600"/> Target & Pembayaran
+                  </h3>
+                  <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kuota Target Minimal</label>
+                            <input type="text" name="targetKuantitas" value={data.targetKuantitas} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-rose-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Target Per-Periode</label>
+                            <select name="targetPeriode" value={data.targetPeriode} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-rose-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                                <option value="Bulan">Bulan</option>
+                                <option value="Kuartal">Kuartal</option>
+                                <option value="Semester">Semester</option>
+                                <option value="Tahun">Tahun</option>
+                            </select>
+                          </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Metode Pembayaran (Default)</label>
+                        <input type="text" name="paymentMethod" value={data.paymentMethod} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Denda Keterlambatan (% per Hari)</label>
+                        <input type="text" name="penaltyFee" value={data.penaltyFee} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-rose-800 font-bold focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Pengadilan Penyelesaian Sengketa</label>
+                        <input type="text" name="pengadilan" value={data.pengadilan} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                  </div>
+                </div>
+
+            </div>
+        </aside>
+
+        {/* PREVIEW AREA (BULLETPROOF PRINT TARGET) */}
+        <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block print:h-auto print:w-full`}>
+           
+           <div id="print-only-root" className="print:w-full print:max-w-none print:min-w-0 print:min-h-0 mx-auto origin-top transition-transform duration-300 scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 mb-[-120mm] md:mb-0 print:scale-100 print:transform-none print:mb-0">
+              <DocumentContent />
+           </div>
+
+           {/* Paywall Monetisasi - Diletakkan di luar print flow */}
+           <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
+              <PrintWrapper documentName="Perjanjian Distributor (Korporat)" price={35000} />
+           </div>
+
+        </div>
       </main>
-      
-      {/* AREA TOMBOL MONETISASI */}
-      <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Perjanjian Distributor (Korporat)" price={35000} />
-      </div>
-
-      {/* MOBILE NAV */}
-      <div className="no-print md:hidden fixed bottom-6 left-6 right-6 z-50 h-14 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 flex p-1.5">
-         <button onClick={() => setActiveTab('editor')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'editor' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}><Edit3 size={16}/> Editor</button>
-         <button onClick={() => setActiveTab('preview')} className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'preview' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Eye size={16}/> Preview</button>
-      </div>
-
-      {/* --- PRINT PORTAL --- */}
-      <div id="print-only-root" className="hidden print:block print:h-auto print:static bg-white">
-         <ContentInside />
-      </div>
     </div>
   );
 }
-
-// FORCE-HMR-UPDATE

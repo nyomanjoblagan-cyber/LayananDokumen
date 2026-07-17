@@ -2,8 +2,8 @@
 
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
-  Printer, ArrowLeftCircle, Edit3, RotateCcw, 
-  Eye, LayoutTemplate, ShieldCheck, Award, Clock, Settings, Briefcase
+    Printer, ArrowLeftCircle, Edit3, RotateCcw, 
+    LayoutTemplate, ShieldCheck, Briefcase, UserCircle2, Box, Settings
 } from 'lucide-react';
 import Link from 'next/link';
 import PrintWrapper from '@/components/PrintWrapper';
@@ -36,8 +36,8 @@ interface WarrantyData {
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: WarrantyData = {
-  city: 'JAKARTA',
-  date: '', 
+  city: 'Jakarta',
+  date: '2026-07-20', 
   warrantyNo: 'GAR/2026/01/0045',
   
   vendorName: 'CV. TEKNO MANDIRI SEJAHTERA',
@@ -49,16 +49,16 @@ const INITIAL_DATA: WarrantyData = {
   
   productName: 'Unit Server Rackmount PowerEdge R750',
   serialNumber: 'SN-7890-XYZ-2026',
-  purchaseDate: '', 
+  purchaseDate: '2026-07-20', 
   
   duration: '12 Bulan (1 Tahun)',
   coverage: 'Kerusakan pada komponen internal (Hardware) dan jasa perbaikan. Tidak termasuk kerusakan akibat kelalaian penggunaan, bencana alam, atau modifikasi pihak ketiga.',
   claimMethod: 'Menghubungi layanan pelanggan kami dan melampirkan kartu garansi asli beserta bukti pembelian.'
 };
 
-// --- 3. KERTAS MUTLAK ---
-const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-slate-900 font-sans leading-snug text-[10pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>
+// --- 3. KOMPONEN KERTAS MUTLAK ---
+const Kertas = ({ children, templateId }: { children: React.ReactNode, templateId: number }) => (
+  <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[15mm] md:p-[20mm] print:p-0 text-black leading-relaxed box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto group ${templateId === 1 ? 'font-serif text-[10.5pt]' : 'font-sans text-[10pt]'}`}>
     {children}
   </div>
 );
@@ -85,373 +85,306 @@ function WarrantyBuilder() {
     setData(prev => ({ 
         ...prev, 
         date: prev.date || today,
-        purchaseDate: prev.purchaseDate || today 
+        purchaseDate: prev.purchaseDate || today
     }));
   }, []);
 
-  const handleDataChange = (field: keyof WarrantyData, val: string) => {
-    setData(prev => ({ ...prev, [field]: val }));
-  };
-
   const handleReset = () => {
-    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
+    if(typeof window !== 'undefined' && window.confirm('Reset form ke awal?')) {
         const today = new Date().toISOString().split('T')[0];
         setData({ ...INITIAL_DATA, date: today, purchaseDate: today });
     }
   };
 
-  const formatDateSafe = (dateString: string) => {
-    if(!dateString) return '...';
-    try {
-        return new Date(dateString + 'T00:00:00').toLocaleDateString('id-ID', {dateStyle:'long'});
-    } catch { return dateString; }
+  const handleStringChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setData({ ...data, [e.target.name]: e.target.value });
   };
 
+  const formatDateString = (dateString: string) => {
+      if(!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const activeTemplateName = templateId === 1 ? 'Legal Formal (Serif)' : 'Modern Premium (Sans)';
+
+  const TemplateMenu = () => (
+      <div className="absolute top-full right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-100 rounded-xl shadow-xl p-2 z-[9999]">
+          <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-sky-50 rounded-lg text-sm font-bold flex items-center gap-3 transition-colors ${templateId === 1 ? 'bg-sky-50 text-sky-700' : 'text-slate-600'}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-sky-500' : 'bg-slate-300'}`}></div> Legal Formal (Serif)
+          </button>
+          <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false)}} className={`w-full text-left p-3 hover:bg-sky-50 rounded-lg text-sm font-bold flex items-center gap-3 transition-colors ${templateId === 2 ? 'bg-sky-50 text-sky-700' : 'text-slate-600'}`}>
+              <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-sky-500' : 'bg-slate-300'}`}></div> Modern Premium (Sans)
+          </button>
+      </div>
+  );
+
   const DocumentContent = () => {
-    if (templateId === 1) {
-      // --- TEMPLATE 1: SERTIFIKAT (GOLD) ---
       return (
-        <Kertas className="border-8 border-double border-amber-200">
-           {/* HEADER */}
-           <div className="flex justify-between items-center border-b-2 border-slate-900 pb-6 mb-8 shrink-0 break-inside-avoid">
-             <div className="flex items-center gap-3">
-                <div className="p-3 bg-slate-900 rounded-lg text-white">
-                   <Award size={32} />
-                </div>
-                <div>
-                   <h1 className="text-xl font-black uppercase tracking-tighter leading-none text-slate-900">{data.vendorName}</h1>
-                   <p className="text-[10px] text-slate-500 mt-1 uppercase font-bold tracking-widest">Quality Assurance & Warranty</p>
-                </div>
-             </div>
-             <div className="text-right">
-                <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded text-[10px] font-black uppercase inline-block border border-amber-200">Official Warranty</div>
-                <p className="text-[10px] mt-1 font-mono text-slate-600">No: {data.warrantyNo}</p>
-             </div>
-           </div>
+        <Kertas templateId={templateId}>
+          <div className="text-center mb-8 border-b-2 border-slate-800 pb-4">
+             <h1 className="font-bold text-xl md:text-2xl uppercase tracking-wide">SERTIFIKAT GARANSI RESMI</h1>
+             <p className="mt-2 text-sm tracking-widest">NO: {data.warrantyNo}</p>
+          </div>
 
-           <div className="text-center mb-10 shrink-0 break-inside-avoid">
-             <h2 className="text-3xl font-black uppercase tracking-widest text-amber-600 font-serif">SERTIFIKAT GARANSI</h2>
-             <div className="w-32 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
-           </div>
+          <div className="mb-8 text-justify">
+             <p>Sertifikat ini diterbitkan sebagai bukti jaminan kualitas dan perlindungan atas produk yang dibeli. Dengan ini kami menyatakan bahwa produk yang tercantum di bawah ini dilindungi oleh Garansi Resmi sesuai dengan syarat dan ketentuan yang berlaku.</p>
+          </div>
 
-           <div className="space-y-6 flex-grow font-serif text-[11pt] leading-relaxed px-4 text-slate-800">
-             <p className="text-justify break-inside-avoid">Dengan ini <b>{data.vendorName}</b> memberikan jaminan kualitas dan layanan purnajual kepada pelanggan kami:</p>
+          {/* INFORMASI PRODUK */}
+          <div className="mb-6 border border-slate-300 p-4 break-inside-avoid relative overflow-hidden">
+             <div className="absolute top-0 right-0 bg-slate-800 text-white text-[10px] font-bold px-3 py-1 uppercase">Informasi Produk</div>
+             <table className="w-full mt-3">
+                 <tbody>
+                     <tr><td className="w-40 py-1.5 align-top text-slate-500 text-xs font-bold uppercase tracking-wider">Nama Produk</td><td className="w-4 align-top text-slate-400">:</td><td className="py-1.5 font-bold uppercase">{data.productName}</td></tr>
+                     <tr><td className="w-40 py-1.5 align-top text-slate-500 text-xs font-bold uppercase tracking-wider">Serial Number</td><td className="w-4 align-top text-slate-400">:</td><td className="py-1.5 font-mono bg-slate-100 px-2 rounded w-max inline-block">{data.serialNumber}</td></tr>
+                     <tr><td className="w-40 py-1.5 align-top text-slate-500 text-xs font-bold uppercase tracking-wider">Tanggal Pembelian</td><td className="w-4 align-top text-slate-400">:</td><td className="py-1.5">{formatDateString(data.purchaseDate)}</td></tr>
+                 </tbody>
+             </table>
+          </div>
+
+          {/* INFORMASI PELANGGAN & VENDOR */}
+          <div className="grid grid-cols-2 gap-4 mb-8 break-inside-avoid">
+              <div className="border border-slate-300 p-4">
+                  <p className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2">Diberikan Kepada (Pelanggan)</p>
+                  <p className="font-bold uppercase text-sm mb-1">{data.clientName}</p>
+                  <p className="text-xs text-slate-700">{data.clientAddress}</p>
+              </div>
+              <div className="border border-slate-300 p-4 bg-slate-50">
+                  <p className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2">Diterbitkan Oleh (Vendor)</p>
+                  <p className="font-bold uppercase text-sm mb-1">{data.vendorName}</p>
+                  <p className="text-xs text-slate-700 mb-1">{data.vendorAddress}</p>
+                  <p className="text-xs font-mono text-slate-600">Tel: {data.vendorPhone}</p>
+              </div>
+          </div>
+
+          {/* KETENTUAN GARANSI */}
+          <div className="mb-8 break-inside-avoid">
+             <h2 className="font-bold text-sm uppercase mb-3 border-b border-slate-200 pb-1">Syarat & Ketentuan Garansi</h2>
              
-             <div className="ml-6 space-y-1 border-l-4 border-amber-200 pl-4 py-2 break-inside-avoid">
-                <div className="grid grid-cols-[140px_10px_1fr]"><span>Nama Pelanggan</span><span>:</span><span className="font-bold uppercase">{data.clientName}</span></div>
-                <div className="grid grid-cols-[140px_10px_1fr]"><span>Alamat</span><span>:</span><span>{data.clientAddress}</span></div>
+             <div className="mb-4">
+                 <p className="font-bold text-xs uppercase text-slate-500 mb-1">1. Masa Berlaku Garansi</p>
+                 <p className="ml-4 font-bold">{data.duration} terhitung sejak Tanggal Pembelian.</p>
              </div>
-
-             <p className="break-inside-avoid">Atas pembelian produk/jasa sebagai berikut:</p>
-             <div className="bg-amber-50 p-6 rounded-xl border border-amber-100 break-inside-avoid">
-                <div className="grid grid-cols-2 gap-8">
-                   <div className="space-y-2">
-                      <label className="text-[9px] font-black text-amber-800 uppercase tracking-widest block border-b border-amber-200 pb-1">Detail Barang</label>
-                      <p className="font-bold text-sm text-slate-800">{data.productName}</p>
-                      <p className="text-xs font-mono text-slate-500 uppercase">S/N: {data.serialNumber}</p>
-                   </div>
-                   <div className="space-y-2">
-                      <label className="text-[9px] font-black text-amber-800 uppercase tracking-widest block border-b border-amber-200 pb-1">Masa Berlaku</label>
-                      <p className="font-bold text-sm text-emerald-600 uppercase">{data.duration}</p>
-                      <p className="text-xs text-slate-500">Mulai: {formatDateSafe(data.purchaseDate)}</p>
-                   </div>
-                </div>
+             
+             <div className="mb-4">
+                 <p className="font-bold text-xs uppercase text-slate-500 mb-1">2. Cakupan Perlindungan</p>
+                 <p className="ml-4 text-justify">{data.coverage}</p>
              </div>
-
-             <div className="space-y-4 pt-2">
-                <div className="space-y-1 break-inside-avoid">
-                   <h4 className="font-bold text-sm uppercase flex items-center gap-2 text-amber-700 tracking-tight"><ShieldCheck size={14}/> Lingkup Jaminan:</h4>
-                   <p className="text-sm text-slate-600 italic leading-relaxed text-justify">{data.coverage}</p>
-                </div>
-                <div className="space-y-1 break-inside-avoid">
-                   <h4 className="font-bold text-sm uppercase flex items-center gap-2 text-blue-700 tracking-tight"><Clock size={14}/> Prosedur Klaim:</h4>
-                   <p className="text-sm text-slate-600 leading-relaxed text-justify">{data.claimMethod}</p>
-                </div>
+             
+             <div className="mb-4">
+                 <p className="font-bold text-xs uppercase text-slate-500 mb-1">3. Prosedur Klaim</p>
+                 <p className="ml-4 text-justify">{data.claimMethod}</p>
              </div>
-           </div>
+          </div>
 
-           {/* FOOTER */}
-           <div className="shrink-0 mt-8 flex justify-between items-end border-t-2 border-slate-100 pt-6 px-4 break-inside-avoid">
-              <div className="text-center w-48">
-                 <div className="p-2 border-2 border-dashed border-slate-200 rounded-lg mb-2 opacity-50">
-                    <Settings size={24} className="mx-auto text-slate-400" />
-                    <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">Stamp Area</p>
-                 </div>
+          {/* TANDA TANGAN */}
+          <div className="mt-16 break-inside-avoid">
+              <div className="flex justify-end text-center">
+                  <div className="w-64">
+                      <p className="mb-1">{data.city}, {formatDateString(data.date)}</p>
+                      <p className="font-bold mb-24 uppercase">{data.vendorName}</p>
+                      
+                      <div className="border-t border-slate-800 pt-2 w-48 mx-auto">
+                          <p className="font-bold uppercase text-xs">Authorized Signature</p>
+                      </div>
+                  </div>
               </div>
-              <div className="text-center w-64">
-                 <p className="text-xs text-slate-500 mb-14 uppercase tracking-tighter font-bold">{data.city}, {formatDateSafe(data.date)}</p>
-                 <div className="relative inline-block">
-                    <p className="font-bold underline uppercase text-sm leading-none text-slate-900">{data.vendorName}</p>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase mt-1 tracking-widest">Authorized Signature</p>
-                 </div>
-              </div>
-           </div>
+          </div>
+          
+          <div className="mt-12 text-center border-t border-dashed border-slate-300 pt-4 opacity-50">
+              <p className="text-[9px] uppercase tracking-widest">Sertifikat ini sah dan mengikat apabila dilengkapi dengan bukti pembelian yang valid.</p>
+          </div>
         </Kertas>
       );
-    } else {
-      // --- TEMPLATE 2: SURAT RESMI (FORMAL) ---
-      return (
-        <Kertas className="font-serif">
-           <div className="text-center mb-8 border-b-2 border-slate-900 pb-4 shrink-0 break-inside-avoid">
-              <h1 className="text-xl font-bold uppercase tracking-wide text-slate-900">{data.vendorName}</h1>
-              <p className="text-sm font-sans text-slate-700">{data.vendorAddress} | Telp: {data.vendorPhone}</p>
-           </div>
-
-           <div className="text-center mb-8 shrink-0 break-inside-avoid">
-              <h2 className="text-lg font-bold underline uppercase text-slate-900">SURAT JAMINAN GARANSI</h2>
-              <p className="text-sm font-bold mt-1 text-slate-700">Nomor: {data.warrantyNo}</p>
-           </div>
-
-           <div className="space-y-6 text-justify flex-grow text-[11pt] leading-relaxed text-slate-900">
-              <div className="break-inside-avoid">
-                <p className="mb-2">Yang bertanda tangan di bawah ini:</p>
-                <div className="ml-4">
-                   <table className="w-full text-sm">
-                      <tbody>
-                         <tr><td className="w-32 font-bold align-top">Perusahaan</td><td className="w-4 align-top">:</td><td className="font-bold">{data.vendorName}</td></tr>
-                         <tr><td className="font-bold align-top">Alamat</td><td className="w-4 align-top">:</td><td>{data.vendorAddress}</td></tr>
-                      </tbody>
-                   </table>
-                </div>
-              </div>
-
-              <div className="break-inside-avoid">
-                <p className="mb-2">Dengan ini memberikan jaminan garansi penuh atas kualitas produk/jasa kepada:</p>
-                <div className="ml-4">
-                   <table className="w-full text-sm">
-                      <tbody>
-                         <tr><td className="w-32 font-bold align-top">Nama Pelanggan</td><td className="w-4 align-top">:</td><td className="font-bold uppercase">{data.clientName}</td></tr>
-                         <tr><td className="font-bold align-top">Alamat</td><td className="w-4 align-top">:</td><td>{data.clientAddress}</td></tr>
-                      </tbody>
-                   </table>
-                </div>
-              </div>
-
-              <div className="break-inside-avoid">
-                <p className="mb-2">Adapun rincian barang/jasa yang dijamin adalah sebagai berikut:</p>
-                <table className="w-full mt-2 border-collapse border border-slate-900 text-sm">
-                   <tbody>
-                     <tr><td className="border border-slate-900 p-2 font-bold w-1/3 bg-slate-100">Nama Produk/Jasa</td><td className="border border-slate-900 p-2 uppercase font-bold">{data.productName}</td></tr>
-                     <tr><td className="border border-slate-900 p-2 font-bold w-1/3 bg-slate-100">Nomor Seri / S/N</td><td className="border border-slate-900 p-2 font-mono">{data.serialNumber}</td></tr>
-                     <tr><td className="border border-slate-900 p-2 font-bold w-1/3 bg-slate-100">Tanggal Pembelian</td><td className="border border-slate-900 p-2">{formatDateSafe(data.purchaseDate)}</td></tr>
-                     <tr><td className="border border-slate-900 p-2 font-bold w-1/3 bg-slate-100">Masa Garansi</td><td className="border border-slate-900 p-2 font-bold underline decoration-double">{data.duration}</td></tr>
-                   </tbody>
-                </table>
-              </div>
-
-              <div className="space-y-4 break-inside-avoid pt-2">
-                 <div>
-                    <p className="font-bold underline mb-1">Syarat dan Ketentuan (Lingkup Jaminan):</p>
-                    <p className="italic">{data.coverage}</p>
-                 </div>
-                 <div>
-                    <p className="font-bold underline mb-1">Prosedur Klaim Garansi:</p>
-                    <p>{data.claimMethod}</p>
-                 </div>
-              </div>
-           </div>
-
-           <div className="shrink-0 mt-12 grid grid-cols-2 gap-8 break-inside-avoid">
-              <div className="text-center w-56 flex flex-col justify-end">
-                 <p className="mb-20 text-sm">Mengetahui/Menerima,</p>
-                 <p className="font-bold underline uppercase text-sm leading-none">({data.clientName})</p>
-                 <p className="text-[10px] mt-1 text-slate-500">Pihak Pelanggan</p>
-              </div>
-              <div className="text-center w-56 ml-auto flex flex-col justify-end">
-                 <p className="text-sm mb-2">{data.city}, {formatDateSafe(data.date)}</p>
-                 <p className="mb-14 text-sm">Pihak Penjamin,</p>
-                 <p className="font-bold underline uppercase text-sm leading-none">({data.vendorName})</p>
-                 <p className="text-[10px] mt-1 text-slate-500">Authorized Signature</p>
-              </div>
-           </div>
-        </Kertas>
-      );
-    }
   };
 
   if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+      {/* BULLETPROOF PRINT CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { size: A4; margin: 20mm; } 
-          body { background: white; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          @page { size: A4 portrait; margin: 15mm; } 
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
-          #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
           * { box-sizing: border-box !important; }
         }
       ` }} />
-      
-      {/* NAVBAR */}
-      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 h-16 flex items-center px-4 justify-between font-sans">
+
+      {/* HEADER NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-[999] border-b border-slate-800 h-16 flex items-center px-4 justify-between font-sans">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-              <ArrowLeftCircle size={20} className="text-blue-400" />
+              <ArrowLeftCircle size={20} className="text-sky-400" />
               <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
             </Link>
             <div className="h-6 w-px bg-slate-700 mx-1"></div>
             <div className="flex flex-col">
-              <h1 className="font-black text-sm tracking-widest uppercase text-white">Surat Garansi</h1>
-              <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Enterprise Tools</span>
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Sertifikat Garansi</h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative hidden md:block">
-               <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors">
-                  <LayoutTemplate size={16}/> {templateId === 1 ? 'Sertifikat (Gold)' : 'Surat (Formal)'}
-               </button>
-               {showTemplateMenu && (
-                 <div className="absolute top-full right-0 mt-2 w-56 bg-white text-slate-800 border border-slate-200 rounded-xl shadow-xl p-2 z-[60]">
-                    <button onClick={() => {setTemplateId(1); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-amber-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 1 ? 'bg-amber-50 text-amber-700' : ''}`}>
-                        <div className={`w-2 h-2 rounded-full ${templateId === 1 ? 'bg-amber-500' : 'bg-slate-300'}`}></div> 
-                        Sertifikat (Gold)
-                    </button>
-                    <button onClick={() => {setTemplateId(2); setShowTemplateMenu(false);}} className={`w-full text-left p-3 hover:bg-blue-50 rounded-lg text-sm font-medium flex items-center gap-2 ${templateId === 2 ? 'bg-blue-50 text-blue-700' : ''}`}>
-                        <div className={`w-2 h-2 rounded-full ${templateId === 2 ? 'bg-blue-500' : 'bg-slate-300'}`}></div> 
-                        Surat (Formal)
-                    </button>
-                 </div>
-               )}
+          <div className="flex items-center gap-3 relative">
+            <div className="relative">
+                <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all text-white">
+                    <LayoutTemplate size={14} className="text-sky-400" /> 
+                    <span className="hidden md:inline">{activeTemplateName}</span>
+                </button>
+                {showTemplateMenu && <TemplateMenu />}
             </div>
-            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-emerald-600 hover:bg-emerald-500 px-5 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 flex items-center gap-2 transition-all">
-              <Printer size={16} /> <span className="hidden md:inline">Cetak Dokumen</span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-sky-600 hover:bg-sky-500 px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-sky-900/50 active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
             </button>
           </div>
       </div>
 
       {/* MOBILE TABS */}
-      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-40 no-print font-sans">
-        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'editor' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500'}`}>
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-[998] no-print font-sans">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'editor' ? 'text-sky-700 border-b-2 border-sky-700 bg-sky-50' : 'text-slate-500'}`}>
           <Edit3 size={16} /> Editor
         </button>
-        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${mobileView === 'preview' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-500'}`}>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'preview' ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50' : 'text-slate-500'}`}>
           <Printer size={16} /> Preview
         </button>
       </div>
 
- <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative ">
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:h-auto print:overflow-visible print:block relative">
+        
         {/* EDITOR SIDEBAR */}
-        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[450px] lg:w-[500px] bg-white border-r border-slate-200 h-[calc(100vh-64px)] md:sticky md:top-16 z-30 no-print shadow-xl shrink-0`}>
-          <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center shrink-0">
-            <div>
-              <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
-                <Briefcase size={18} className="text-emerald-600" /> Editor Garansi
-              </h2>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Lengkapi data sertifikat</p>
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 h-full z-[90] no-print shadow-xl shrink-0`}>
+            <div className="p-5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
+                <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
+                  <ShieldCheck size={18} className="text-sky-600" /> Editor Garansi Produk
+                </h2>
+                <button onClick={handleReset} className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-lg" title="Reset Form">
+                  <RotateCcw size={16}/>
+                </button>
             </div>
-            <button onClick={handleReset} className="text-slate-400 hover:text-rose-500 p-2 hover:bg-rose-50 rounded-lg transition-colors" title="Reset Formulir">
-              <RotateCcw size={16} />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
-            {/* 1. Header Invoice */}
-            <div className="space-y-4">
-              <h3 className="font-bold text-slate-800 bg-slate-100 p-2 rounded border-l-4 border-blue-800 text-sm">1. Detail Dokumen</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">No. Garansi</label>
-                  <input type="text" value={data.warrantyNo} onChange={(e) => handleDataChange('warrantyNo', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
+            
+            <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar pb-32">
+                
+                {/* 1. INFORMASI METADATA */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Settings size={14} className="text-slate-600"/> Metadata Garansi
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">No. Garansi</label>
+                        <input type="text" name="warrantyNo" value={data.warrantyNo} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tgl Terbit</label>
+                        <input type="date" name="date" value={data.date} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
+                      </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kota Penerbitan</label>
+                    <input type="text" name="city" value={data.city} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Tgl. Terbit</label>
-                  <input type="date" value={data.date} onChange={(e) => handleDataChange('date', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
+
+                {/* 2. IDENTITAS PRODUK */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Box size={14} className="text-indigo-600"/> Identitas Produk
+                  </h3>
+                  <div className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama / Tipe Produk</label>
+                        <input type="text" name="productName" value={data.productName} onChange={handleStringChange} className="w-full bg-indigo-50 border border-indigo-200 rounded-xl p-2.5 text-sm font-bold text-indigo-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Serial Number</label>
+                            <input type="text" name="serialNumber" value={data.serialNumber} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-mono text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tanggal Pembelian</label>
+                            <input type="date" name="purchaseDate" value={data.purchaseDate} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                          </div>
+                      </div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Kota Penerbitan</label>
-                 <input type="text" value={data.city} onChange={(e) => handleDataChange('city', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
+
+                {/* 3. SYARAT & KETENTUAN */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <ShieldCheck size={14} className="text-emerald-600"/> Syarat & Ketentuan Garansi
+                  </h3>
+                  <div className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Masa Berlaku (Durasi)</label>
+                        <input type="text" name="duration" value={data.duration} onChange={handleStringChange} className="w-full bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-sm font-bold text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cakupan Perlindungan (S&K)</label>
+                        <textarea name="coverage" value={data.coverage} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 h-24 resize-none focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"></textarea>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Prosedur Klaim</label>
+                        <textarea name="claimMethod" value={data.claimMethod} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 h-20 resize-none focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"></textarea>
+                      </div>
+                  </div>
+                </div>
+
+                {/* 4. PIHAK TERLIBAT */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Briefcase size={14} className="text-amber-600"/> Vendor & Pelanggan
+                  </h3>
+                  <div className="space-y-6">
+                      
+                      <div className="space-y-4">
+                          <p className="text-[10px] font-bold uppercase text-amber-600 tracking-wider">A. Vendor (Penerbit)</p>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Vendor/Toko</label>
+                            <input type="text" name="vendorName" value={data.vendorName} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">No. Telepon Vendor</label>
+                            <input type="text" name="vendorPhone" value={data.vendorPhone} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alamat Vendor</label>
+                            <textarea name="vendorAddress" value={data.vendorAddress} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all"></textarea>
+                          </div>
+                      </div>
+
+                      <div className="border-t border-slate-100 pt-4 space-y-4">
+                          <p className="text-[10px] font-bold uppercase text-amber-600 tracking-wider">B. Klien (Pelanggan)</p>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Pelanggan / Perusahaan</label>
+                            <input type="text" name="clientName" value={data.clientName} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alamat Pelanggan</label>
+                            <textarea name="clientAddress" value={data.clientAddress} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 h-16 resize-none focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all"></textarea>
+                          </div>
+                      </div>
+
+                  </div>
+                </div>
+
             </div>
-
-            {/* 2. Pihak Penjual */}
-            <div className="space-y-4">
-              <h3 className="font-bold text-slate-800 bg-slate-100 p-2 rounded border-l-4 border-blue-800 text-sm">2. Data Penjamin (Vendor)</h3>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nama Perusahaan / Vendor</label>
-                <input type="text" value={data.vendorName} onChange={(e) => handleDataChange('vendorName', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Alamat Penjamin</label>
-                <textarea value={data.vendorAddress} onChange={(e) => handleDataChange('vendorAddress', e.target.value)} rows={2} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-              <div>
-                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nomor Telepon</label>
-                 <input type="text" value={data.vendorPhone} onChange={(e) => handleDataChange('vendorPhone', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-            </div>
-
-            {/* 3. Pihak Pembeli */}
-            <div className="space-y-4">
-              <h3 className="font-bold text-slate-800 bg-slate-100 p-2 rounded border-l-4 border-blue-800 text-sm">3. Data Pelanggan (Client)</h3>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nama Pelanggan</label>
-                <input type="text" value={data.clientName} onChange={(e) => handleDataChange('clientName', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Alamat Pelanggan</label>
-                <textarea value={data.clientAddress} onChange={(e) => handleDataChange('clientAddress', e.target.value)} rows={2} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-            </div>
-
-            {/* 4. Rincian Produk & Garansi */}
-            <div className="space-y-4">
-              <h3 className="font-bold text-slate-800 bg-slate-100 p-2 rounded border-l-4 border-blue-800 text-sm">4. Rincian Barang & Garansi</h3>
-              
-              <div>
-                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nama Produk / Barang</label>
-                 <input type="text" value={data.productName} onChange={(e) => handleDataChange('productName', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                 <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nomor Seri / SN</label>
-                    <input type="text" value={data.serialNumber} onChange={(e) => handleDataChange('serialNumber', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold font-mono text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-                 </div>
-                 <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Tgl. Pembelian</label>
-                    <input type="date" value={data.purchaseDate} onChange={(e) => handleDataChange('purchaseDate', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-                 </div>
-              </div>
-
-              <div>
-                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Masa Garansi</label>
-                 <input type="text" value={data.duration} onChange={(e) => handleDataChange('duration', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Cth: 12 Bulan / 1 Tahun" />
-              </div>
-
-              <div>
-                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Syarat & Ketentuan (Coverage)</label>
-                 <textarea value={data.coverage} onChange={(e) => handleDataChange('coverage', e.target.value)} rows={3} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-              
-              <div>
-                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Prosedur Klaim</label>
-                 <textarea value={data.claimMethod} onChange={(e) => handleDataChange('claimMethod', e.target.value)} rows={2} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-            </div>
-
-            <div className="pb-10"></div>
-          </div>
         </aside>
 
-        {/* PREVIEW AREA */}
-        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide`}>
-           <div className="scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 origin-top">
+        {/* PREVIEW AREA (BULLETPROOF PRINT TARGET) */}
+        <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block print:h-auto print:w-full`}>
+           
+           <div id="print-only-root" className="print:w-full print:max-w-none print:min-w-0 print:min-h-0 mx-auto origin-top transition-transform duration-300 scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 mb-[-120mm] md:mb-0 print:scale-100 print:transform-none print:mb-0">
               <DocumentContent />
            </div>
-        </main>
-      </div>
 
-      <div className="no-print hidden md:block">
-         <PrintWrapper documentName="Surat Garansi" price={10000} />
-      </div>
+           {/* Paywall Monetisasi - Diletakkan di luar print flow */}
+           <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
+              <PrintWrapper documentName="Sertifikat Garansi Resmi" price={10000} />
+           </div>
 
-      {/* PRINT-ONLY ROOT */}
-      <div id="print-only-root" className="hidden print:h-auto print:static">
-         <div className="bg-white"><DocumentContent /></div>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
