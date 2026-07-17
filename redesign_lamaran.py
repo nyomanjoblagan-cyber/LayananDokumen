@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\lamaran\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: LamaranPage.tsx
@@ -49,7 +54,7 @@ const INITIAL_DATA: LamaranData = {
   
   namaPenerima: 'HRD Manager',
   perusahaanTujuan: 'PT. INOVASI DIGITAL TEKNOLOGI',
-  alamatTujuan: 'Gedung Cyber Lt. 10\nJl. Kuningan Barat No. 8, Jakarta Selatan 12710',
+  alamatTujuan: 'Gedung Cyber Lt. 10\\nJl. Kuningan Barat No. 8, Jakarta Selatan 12710',
   
   namaLengkap: 'Budi Hartanto, S.Kom.',
   tempatLahir: 'Bandung',
@@ -63,7 +68,7 @@ const INITIAL_DATA: LamaranData = {
   posisiDilamar: 'Senior Frontend Developer',
   sumberInfo: 'portal lowongan kerja TechJobs.id pada tanggal 10 Juli 2026',
   pengalamanKeahlian: 'Saya memiliki pengalaman selama 3 tahun bekerja sebagai Frontend Engineer dengan fokus pada ekosistem React, Next.js, dan Tailwind CSS. Selama bekerja, saya telah berhasil memimpin tim dalam migrasi sistem legacy ke arsitektur modern yang meningkatkan performa aplikasi hingga 40%. Saya juga terbiasa bekerja dengan metodologi Agile/Scrum dan berkolaborasi erat dengan tim UI/UX serta Backend.',
-  daftarLampiran: '1. Curriculum Vitae (CV)\n2. Fotokopi Ijazah Terakhir\n3. Fotokopi Transkrip Nilai\n4. Portofolio Project\n5. Pas Foto 4x6'
+  daftarLampiran: '1. Curriculum Vitae (CV)\\n2. Fotokopi Ijazah Terakhir\\n3. Fotokopi Transkrip Nilai\\n4. Portofolio Project\\n5. Pas Foto 4x6'
 };
 
 // --- 3. KERTAS MUTLAK ---
@@ -369,7 +374,7 @@ function LamaranBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Surat_Lamaran_${data.namaLengkap.replace(/\s+/g, '_')}`} price={10000} />
+              <PrintWrapper documentName={`Surat_Lamaran_${data.namaLengkap.replace(/\\s+/g, '_')}`} price={10000} />
            </div>
 
         </div>
@@ -378,3 +383,10 @@ function LamaranBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
