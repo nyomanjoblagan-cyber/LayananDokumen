@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\hilang-kirim\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: HilangKirimPage.tsx
@@ -367,3 +372,10 @@ function LostPackageBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

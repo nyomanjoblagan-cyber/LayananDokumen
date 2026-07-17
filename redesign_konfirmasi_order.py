@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\konfirmasi-order\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: KonfirmasiOrderPage.tsx
@@ -67,13 +72,13 @@ const INITIAL_DATA: ProcurementData = {
   estDeliveryDate: '2026-08-15',
   
   issuerName: 'PT. NUSANTARA MAKMUR SEJAHTERA',
-  issuerAddress: 'Gedung Menara Merdeka Lt. 14\nJl. Jend. Sudirman Kav 21, Jakarta Selatan 12920',
+  issuerAddress: 'Gedung Menara Merdeka Lt. 14\\nJl. Jend. Sudirman Kav 21, Jakarta Selatan 12920',
   issuerContact: '+62 21 5551234',
   issuerEmail: 'procurement@nusantaramakmur.co.id',
   issuerTaxId: '01.234.567.8-091.000',
 
   recipientName: 'PT. KREATIF LOGISTIK SOLUSINDO',
-  recipientAddress: 'Kawasan Industri Cikarang Blok B-12\nBekasi, Jawa Barat 17530',
+  recipientAddress: 'Kawasan Industri Cikarang Blok B-12\\nBekasi, Jawa Barat 17530',
   recipientContact: 'Bpk. Ahmad (Sales Director)',
   recipientEmail: 'sales@kreatiflogistik.co.id',
 
@@ -90,7 +95,7 @@ const INITIAL_DATA: ProcurementData = {
   shippingMethod: 'Vendor Delivery Fleet',
   paymentTerms: 'Net 30 Days after Invoice Date',
   notes: 'Harap melampirkan Faktur Pajak yang sah saat penagihan tagihan ini.',
-  termsAndConditions: '1. Barang yang dikirim harus 100% baru dan sesuai dengan spesifikasi di atas.\n2. Keterlambatan pengiriman akan dikenakan denda keterlambatan sebesar 1‰ (satu permil) per hari kalender.\n3. Garansi perangkat minimal 1 (satu) tahun sejak Berita Acara Serah Terima (BAST) ditandatangani.',
+  termsAndConditions: '1. Barang yang dikirim harus 100% baru dan sesuai dengan spesifikasi di atas.\\n2. Keterlambatan pengiriman akan dikenakan denda keterlambatan sebesar 1‰ (satu permil) per hari kalender.\\n3. Garansi perangkat minimal 1 (satu) tahun sejak Berita Acara Serah Terima (BAST) ditandatangani.',
 
   authorizedSignName: 'Budi Santoso',
   authorizedSignTitle: 'Chief Procurement Officer'
@@ -582,3 +587,10 @@ function OrderBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

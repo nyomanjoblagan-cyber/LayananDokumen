@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\katalog-deskripsi\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: KatalogDeskripsiPage.tsx
@@ -48,9 +53,9 @@ const INITIAL_DATA: KatalogData = {
   
   deskripsiUtama: 'Mesin kopi profesional dengan sistem dual-boiler dan pompa putar (rotary pump) yang mampu menghasilkan ekstraksi espresso sempurna secara konsisten. Sangat cocok untuk coffee shop dengan volume tinggi (hingga 300 cup per hari).',
   
-  specList: 'Daya Listrik: 2.200 Watt\\nTegangan: 220V / 50Hz\\nKapasitas Boiler: 5 Liter\\nDimensi (PxLxT): 55cm x 45cm x 50cm\\nBerat: 35 Kg\\nMaterial: Stainless Steel 304',
+  specList: 'Daya Listrik: 2.200 Watt\nTegangan: 220V / 50Hz\nKapasitas Boiler: 5 Liter\nDimensi (PxLxT): 55cm x 45cm x 50cm\nBerat: 35 Kg\nMaterial: Stainless Steel 304',
   
-  fiturList: 'Layar sentuh TFT 3.5 inci\\nProfil suhu ekstraksi yang dapat diatur (PID)\\nPre-infusion otomatis\\nSteam wand anti-panas (cool touch)',
+  fiturList: 'Layar sentuh TFT 3.5 inci\nProfil suhu ekstraksi yang dapat diatur (PID)\nPre-infusion otomatis\nSteam wand anti-panas (cool touch)',
   
   syaratKetentuan: 'Garansi resmi 1 tahun untuk sparepart dan 2 tahun untuk service (heating element). Pengiriman gratis untuk wilayah Jabodetabek. Instalasi dan training dasar penggunaan termasuk dalam harga.'
 };
@@ -152,7 +157,7 @@ function KatalogBuilder() {
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 border-b-2 border-slate-300 pb-2 mb-4">Spesifikasi Teknis</h3>
                 <table className="w-full text-sm">
                     <tbody>
-                        {data.specList.split('\\n').filter(Boolean).map((spec, i) => {
+                        {data.specList.split('\n').filter(Boolean).map((spec, i) => {
                             const [key, val] = spec.split(':');
                             return (
                                 <tr key={i} className="border-b border-slate-100 last:border-0">
@@ -169,7 +174,7 @@ function KatalogBuilder() {
             <div className="break-inside-avoid">
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 border-b-2 border-slate-300 pb-2 mb-4">Fitur Unggulan</h3>
                 <ul className="space-y-3">
-                    {data.fiturList.split('\\n').filter(Boolean).map((fitur, i) => (
+                    {data.fiturList.split('\n').filter(Boolean).map((fitur, i) => (
                         <li key={i} className="flex gap-3 text-sm">
                             <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 font-bold text-[10px]">✓</span>
                             <span className="text-slate-800 leading-snug">{fitur}</span>
@@ -362,3 +367,10 @@ function KatalogBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

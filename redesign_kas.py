@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\kas\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: KasPage.tsx
@@ -380,3 +385,10 @@ function BukuKasBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

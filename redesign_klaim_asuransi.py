@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\klaim-asuransi\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SuratKlaimAsuransiPage.tsx
@@ -54,7 +59,7 @@ const INITIAL_DATA: KlaimData = {
   
   jenisAsuransi: 'Kendaraan Bermotor',
   namaPerusahaanAsuransi: 'PT Asuransi Maju Jaya',
-  alamatAsuransi: 'Gedung Asuransi Tower, Jl. Sudirman No. 45\nJakarta Pusat, 10220',
+  alamatAsuransi: 'Gedung Asuransi Tower, Jl. Sudirman No. 45\\nJakarta Pusat, 10220',
   
   namaTertanggung: 'Budi Santoso',
   noPolis: 'POL-9988-7766-5544',
@@ -433,3 +438,10 @@ function KlaimBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

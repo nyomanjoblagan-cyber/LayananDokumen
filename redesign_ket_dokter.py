@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\ket-dokter\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: KetDokterPage.tsx
@@ -363,3 +368,10 @@ function MedicalBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
