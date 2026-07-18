@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\pernyataan-ortu\index.tsx"
+    
+    new_content = """'use client';
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeftCircle, Edit3, RotateCcw, User, Users, GraduationCap, MapPin, CheckCircle
@@ -391,7 +396,7 @@ function ParentStatementBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Pernyataan_Izin_Ortu_${data.childName.replace(/\s+/g, '_')}`} price={35000} />
+              <PrintWrapper documentName={`Pernyataan_Izin_Ortu_${data.childName.replace(/\\s+/g, '_')}`} price={35000} />
            </div>
 
         </div>
@@ -400,3 +405,10 @@ function ParentStatementBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
