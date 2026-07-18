@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\pernyataan-kerja\index.tsx"
+    
+    new_content = """'use client';
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeftCircle, Edit3, RotateCcw, User, FileText, CheckCircle
@@ -288,7 +293,7 @@ function PernyataanBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Pernyataan_Kerja_${data.nama.replace(/\s+/g, '_')}`} price={30000} />
+              <PrintWrapper documentName={`Pernyataan_Kerja_${data.nama.replace(/\\s+/g, '_')}`} price={30000} />
            </div>
 
         </div>
@@ -297,3 +302,10 @@ function PernyataanBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
