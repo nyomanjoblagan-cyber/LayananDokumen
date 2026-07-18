@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\pph\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: BuktiPotongPPh21Page.tsx
@@ -512,7 +517,7 @@ function PPh21Builder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Bukti_Potong_1721_A1_${data.namaPenerima.replace(/\s+/g, '_')}`} price={85000} />
+              <PrintWrapper documentName={`Bukti_Potong_1721_A1_${data.namaPenerima.replace(/\\s+/g, '_')}`} price={85000} />
            </div>
 
         </div>
@@ -521,3 +526,10 @@ function PPh21Builder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
