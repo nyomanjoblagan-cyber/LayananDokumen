@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\promosi\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SuratPromosiPage.tsx
@@ -80,9 +85,9 @@ const DEFAULT_DATA: PromosiData = {
   namaPenandatangan: "Andi Wijaya",
   jabatanPenandatangan: "Direktur Utama",
   
-  menimbang: "a. Bahwa untuk kelancaran kegiatan operasional perusahaan dan mendukung pencapaian target bisnis, perlu dilakukan pengisian jabatan pada Departemen Marketing.\nb. Bahwa berdasarkan hasil penilaian kinerja, Saudara/i Budi Santoso dinilai memenuhi syarat, memiliki kapabilitas, dan dedikasi yang baik untuk menduduki jabatan Manager Marketing.\nc. Bahwa berdasarkan pertimbangan sebagaimana dimaksud pada huruf a dan b, perlu ditetapkan dengan Surat Keputusan Direksi.",
-  mengingat: "1. Anggaran Dasar Perusahaan beserta seluruh perubahannya.\n2. Peraturan Perusahaan (PP) / Perjanjian Kerja Bersama (PKB) yang berlaku di lingkungan PT Maju Mundur Sejahtera.\n3. Hasil Keputusan Rapat Direksi PT Maju Mundur Sejahtera tanggal 10 Juni 2026.",
-  tembusan: "1. Board of Directors\n2. HRD & GA Department\n3. Finance & Accounting Department\n4. Atasan Langsung\n5. Arsip",
+  menimbang: "a. Bahwa untuk kelancaran kegiatan operasional perusahaan dan mendukung pencapaian target bisnis, perlu dilakukan pengisian jabatan pada Departemen Marketing.\\nb. Bahwa berdasarkan hasil penilaian kinerja, Saudara/i Budi Santoso dinilai memenuhi syarat, memiliki kapabilitas, dan dedikasi yang baik untuk menduduki jabatan Manager Marketing.\\nc. Bahwa berdasarkan pertimbangan sebagaimana dimaksud pada huruf a dan b, perlu ditetapkan dengan Surat Keputusan Direksi.",
+  mengingat: "1. Anggaran Dasar Perusahaan beserta seluruh perubahannya.\\n2. Peraturan Perusahaan (PP) / Perjanjian Kerja Bersama (PKB) yang berlaku di lingkungan PT Maju Mundur Sejahtera.\\n3. Hasil Keputusan Rapat Direksi PT Maju Mundur Sejahtera tanggal 10 Juni 2026.",
+  tembusan: "1. Board of Directors\\n2. HRD & GA Department\\n3. Finance & Accounting Department\\n4. Atasan Langsung\\n5. Arsip",
 };
 
 // --- HELPERS ---
@@ -480,7 +485,7 @@ function PromosiBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`SK_Promosi_${data.namaKaryawan.replace(/\s+/g, '_')}`} price={85000} />
+              <PrintWrapper documentName={`SK_Promosi_${data.namaKaryawan.replace(/\\s+/g, '_')}`} price={85000} />
            </div>
 
         </div>
@@ -489,3 +494,10 @@ function PromosiBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
