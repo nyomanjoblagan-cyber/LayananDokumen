@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\po\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: PurchaseOrderPage.tsx
@@ -61,7 +66,7 @@ const INITIAL_DATA: POData = {
   city: 'JAKARTA',
   
   companyName: 'PT. KARYA MAJU SENTOSA',
-  companyInfo: 'Jl. Industri Raya No. 88, Cikarang\nEmail: procurement@kms.com | Telp: 021-8999-7777',
+  companyInfo: 'Jl. Industri Raya No. 88, Cikarang\\nEmail: procurement@kms.com | Telp: 021-8999-7777',
   
   vendorName: 'CV. BESI BAJA UTAMA',
   vendorContact: 'IBU RATNA SARI',
@@ -77,7 +82,7 @@ const INITIAL_DATA: POData = {
   ],
   
   taxRate: 11,
-  notes: '1. Mohon lampirkan Invoice & Surat Jalan saat pengiriman.\n2. Barang harus diterima sebelum jam 16.00 WIB.',
+  notes: '1. Mohon lampirkan Invoice & Surat Jalan saat pengiriman.\\n2. Barang harus diterima sebelum jam 16.00 WIB.',
   termsPayment: '30 Days After Invoice Received',
   termsDelivery: 'DDP (Delivered Duty Paid) Gudang Cikarang',
   signer: 'BUDI SANTOSO',
@@ -557,7 +562,7 @@ function POToolBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Purchase_Order_${data.no.replace(/\//g, '_')}`} price={45000} />
+              <PrintWrapper documentName={`Purchase_Order_${data.no.replace(/\\//g, '_')}`} price={45000} />
            </div>
 
         </div>
@@ -566,3 +571,10 @@ function POToolBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
