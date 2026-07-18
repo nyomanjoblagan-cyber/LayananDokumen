@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\rujukan\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: RujukanTemplate.tsx
@@ -69,7 +74,7 @@ const INITIAL_DATA: RujukanData = {
   pemeriksaanFisik: 'TD: 160/100 mmHg, Nadi: 90x/mnt, RR: 20x/mnt, Suhu: 36.5 C',
   diagnosaAwal: 'Susp. Coronary Artery Disease (CAD)',
   kodeICD10: 'I20.9 - Angina Pectoris, Unspecified',
-  terapiDiberikan: '1. Amlodipine 10mg (1x1)\n2. Aspirin 80mg (1x1)\n3. Oksigen nasal kanul 2 lpm',
+  terapiDiberikan: '1. Amlodipine 10mg (1x1)\\n2. Aspirin 80mg (1x1)\\n3. Oksigen nasal kanul 2 lpm',
   alasanRujuk: 'Memerlukan pemeriksaan penunjang lebih lanjut (EKG, Echocardiography) dan penanganan spesialistik.',
   
   namaDokter: 'dr. Andi Gunawan',
@@ -410,7 +415,7 @@ function RujukanBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Rujukan_Medis_${data.namaPasien.replace(/\s+/g, '_')}`} price={25000} />
+              <PrintWrapper documentName={`Rujukan_Medis_${data.namaPasien.replace(/\\s+/g, '_')}`} price={25000} />
            </div>
 
         </div>
@@ -419,3 +424,10 @@ function RujukanBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

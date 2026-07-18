@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\resign-akademik\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: UndurDiriPendidikanPage.tsx
@@ -402,7 +407,7 @@ function WithdrawalBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Resign_Akademik_${data.namaPihak1.replace(/\s+/g, '_')}`} price={35000} />
+              <PrintWrapper documentName={`Resign_Akademik_${data.namaPihak1.replace(/\\s+/g, '_')}`} price={35000} />
            </div>
 
         </div>
@@ -411,3 +416,10 @@ function WithdrawalBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
