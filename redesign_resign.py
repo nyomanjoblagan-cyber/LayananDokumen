@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\resign\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SuratResignPage.tsx
@@ -48,7 +53,7 @@ const getInitialData = (): ResignData => {
     namaPenerima: 'Bpk. Budi Santoso',
     jabatanPenerima: 'HRD Manager',
     namaPerusahaan: 'PT INDONESIA MAJU SEJAHTERA',
-    alamatPerusahaan: 'Gedung Menara Mulia, Lantai 5\nJl. Gatot Subroto, Jakarta',
+    alamatPerusahaan: 'Gedung Menara Mulia, Lantai 5\\nJl. Gatot Subroto, Jakarta',
     
     namaKaryawan: 'Andi Pratama, S.Kom.',
     jabatanKaryawan: 'Senior Software Engineer',
@@ -56,7 +61,7 @@ const getInitialData = (): ResignData => {
     
     tanggalEfektif: formattedNextMonth,
     alasanResign: '', // Dikosongkan agar opsional
-    ucapanTerimaKasih: 'Saya mengucapkan banyak terima kasih atas kesempatan yang telah diberikan kepada saya untuk belajar dan berkembang bersama perusahaan ini. Saya juga memohon maaf yang sebesar-besarnya apabila selama saya bekerja terdapat kesalahan maupun kekurangan.\n\nSaya berharap perusahaan akan terus berkembang dan semakin sukses di masa yang akan datang. Saya bersedia untuk membantu proses transisi pekerjaan (handover) agar berjalan dengan lancar hingga tanggal terakhir saya bekerja.',
+    ucapanTerimaKasih: 'Saya mengucapkan banyak terima kasih atas kesempatan yang telah diberikan kepada saya untuk belajar dan berkembang bersama perusahaan ini. Saya juga memohon maaf yang sebesar-besarnya apabila selama saya bekerja terdapat kesalahan maupun kekurangan.\\n\\nSaya berharap perusahaan akan terus berkembang dan semakin sukses di masa yang akan datang. Saya bersedia untuk membantu proses transisi pekerjaan (handover) agar berjalan dengan lancar hingga tanggal terakhir saya bekerja.',
   };
 };
 
@@ -301,7 +306,7 @@ function ResignBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Resign_${data.namaKaryawan.replace(/\s+/g, '_')}`} price={35000} />
+              <PrintWrapper documentName={`Resign_${data.namaKaryawan.replace(/\\s+/g, '_')}`} price={35000} />
            </div>
 
         </div>
@@ -310,3 +315,10 @@ function ResignBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

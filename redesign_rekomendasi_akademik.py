@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\rekomendasi-akademik\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: RekomendasiAkademikPage.tsx
@@ -9,7 +14,7 @@
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeftCircle, Edit3, RotateCcw, Building2, UserCircle2, 
-  PenTool, Award, ChevronDown, FileText, Scale, GraduationCap
+  PenTool, Award, ChevronDown, FileText, Scale
 } from 'lucide-react';
 import Link from 'next/link';
 import PrintWrapper from '@/components/PrintWrapper';
@@ -430,7 +435,7 @@ function RecommendationBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Rekomendasi_Akademik_${data.party2Name.replace(/\s+/g, '_')}`} price={35000} />
+              <PrintWrapper documentName={`Rekomendasi_Akademik_${data.party2Name.replace(/\\s+/g, '_')}`} price={35000} />
            </div>
 
         </div>
@@ -439,3 +444,10 @@ function RecommendationBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
