@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Script from 'next/script';
-import { Printer, CheckCircle, Loader2, ShieldCheck } from 'lucide-react';
+import { Printer, CheckCircle, Loader2, ShieldCheck, Lightbulb } from 'lucide-react';
 import ViralWatermark from './ViralWatermark';
 
 interface PrintWrapperProps {
@@ -222,6 +222,18 @@ export default function PrintWrapper({
         <div className="text-center mb-6 mt-2">
           <h3 className="font-black text-slate-800 text-lg uppercase tracking-tight mb-2">Opsi Cetak Dokumen</h3>
           <p className="text-slate-500 text-sm">Pilih opsi cetak yang sesuai dengan kebutuhan Anda.</p>
+        </div>
+
+        <div className="mb-6 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-left flex items-start gap-3">
+          <div className="mt-0.5 text-amber-500 shrink-0">
+            <Lightbulb size={20} />
+          </div>
+          <div>
+            <h4 className="font-bold text-amber-900 text-xs uppercase tracking-wider mb-1">Tips Cetak Resmi</h4>
+            <p className="text-xs text-amber-800 leading-relaxed">
+              Agar dokumen terlihat bersih dan sah, pastikan Anda <strong>menghilangkan centang (uncheck) "Headers and footers"</strong> pada pengaturan printer Anda sebelum mencetak.
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
