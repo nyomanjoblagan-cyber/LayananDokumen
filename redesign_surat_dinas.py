@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\surat-dinas\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SuratDinasPage.tsx
@@ -48,9 +53,9 @@ interface SuratDinasData {
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: SuratDinasData = {
-  kopInstansi: 'PEMERINTAH KABUPATEN SLEMAN\nDINAS KOMUNIKASI DAN INFORMATIKA',
+  kopInstansi: 'PEMERINTAH KABUPATEN SLEMAN\\nDINAS KOMUNIKASI DAN INFORMATIKA',
   kopAlamat: 'Jalan Parasamya No. 1, Beran, Tridadi, Sleman, Yogyakarta 55511',
-  kopKontak: 'Telepon: (0274) 868405, Faksimile: (0274) 868405\nEmail: diskominfo@slemankab.go.id, Website: diskominfo.slemankab.go.id',
+  kopKontak: 'Telepon: (0274) 868405, Faksimile: (0274) 868405\\nEmail: diskominfo@slemankab.go.id, Website: diskominfo.slemankab.go.id',
   
   nomorSurat: '090/123/KOMINFO/2026',
   sifat: 'Biasa',
@@ -160,7 +165,7 @@ function SuratDinasBuilder() {
 
       <div className="text-justify mb-4 break-inside-avoid">
         <p>Dengan hormat,</p>
-        <p className="mt-2 text-justify">Sehubungan dengan tugas kedinasan untuk {data.agenda}, dengan ini kami menugaskan pegawai di lingkungan {data.kopInstansi.split('\n')[0]} yang tersebut di bawah ini:</p>
+        <p className="mt-2 text-justify">Sehubungan dengan tugas kedinasan untuk {data.agenda}, dengan ini kami menugaskan pegawai di lingkungan {data.kopInstansi.split('\\n')[0]} yang tersebut di bawah ini:</p>
       </div>
 
       {/* DATA PEGAWAI */}
@@ -421,7 +426,7 @@ function SuratDinasBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`SuratDinas_${data.pegawaiNama.replace(/\s+/g, '_')}`} price={35000} />
+              <PrintWrapper documentName={`SuratDinas_${data.pegawaiNama.replace(/\\s+/g, '_')}`} price={35000} />
            </div>
 
         </div>
@@ -430,3 +435,10 @@ function SuratDinasBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

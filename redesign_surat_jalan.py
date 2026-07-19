@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\surat-jalan\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SuratJalanPage.tsx
@@ -58,7 +63,7 @@ const INITIAL_DATA: SuratJalanData = {
   tanggal: '2026-07-13',
   noPO: 'PO-MJU-26-0042',
   namaPenerima: 'PT. MAKMUR JAYA UTAMA',
-  alamatPenerima: 'Jl. Rungkut Industri Raya No. 45\nKawasan SIER, Surabaya 60293',
+  alamatPenerima: 'Jl. Rungkut Industri Raya No. 45\\nKawasan SIER, Surabaya 60293',
   upPenerima: 'Bpk. Herman (Warehouse Manager)',
   jenisKendaraan: 'Truk Fuso Box',
   nopol: 'B 9988 XYZ',
@@ -471,3 +476,10 @@ function SuratJalanBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
