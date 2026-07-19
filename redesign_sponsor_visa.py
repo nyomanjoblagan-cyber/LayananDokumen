@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\sponsor-visa\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SponsorVisaPage.tsx
@@ -352,7 +357,7 @@ function VisaSponsorBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Sponsorship_${data.applicantName.replace(/\s+/g, '_')}`} price={75000} />
+              <PrintWrapper documentName={`Sponsorship_${data.applicantName.replace(/\\s+/g, '_')}`} price={75000} />
            </div>
 
         </div>
@@ -361,3 +366,10 @@ function VisaSponsorBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

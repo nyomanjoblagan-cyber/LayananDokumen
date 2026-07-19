@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\spk\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SPKPage.tsx
@@ -28,7 +33,7 @@ function terbilang(angka: number): string {
   else if (angka < 1000000000) res = terbilang(Math.floor(angka / 1000000)) + " Juta " + terbilang(angka % 1000000);
   else if (angka < 1000000000000) res = terbilang(Math.floor(angka / 1000000000)) + " Milyar " + terbilang(angka % 1000000000);
   else if (angka < 1000000000000000) res = terbilang(Math.floor(angka / 1000000000000)) + " Triliun " + terbilang(angka % 1000000000000);
-  return res.trim().replace(/\s+/g, ' ');
+  return res.trim().replace(/\\s+/g, ' ');
 }
 
 const formatRupiah = (num: number) => {
@@ -480,3 +485,10 @@ function SPKBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
