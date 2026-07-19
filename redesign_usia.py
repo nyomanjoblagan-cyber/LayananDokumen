@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\usia\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: UsiaPage.tsx
@@ -44,7 +49,7 @@ interface UsiaData {
 
 // --- 2. DATA DEFAULT ---
 const INITIAL_DATA: UsiaData = {
-  namaInstansi: 'PEMERINTAH KABUPATEN DEMAK\nKECAMATAN KARANGANYAR\nDESA SUKAMAJU',
+  namaInstansi: 'PEMERINTAH KABUPATEN DEMAK\\nKECAMATAN KARANGANYAR\\nDESA SUKAMAJU',
   alamatInstansi: 'Jl. Balai Desa No. 1, Kec. Karanganyar, Kab. Demak 59582',
   kontakInstansi: 'Telp: (0291) 123456 | Email: pemdes.sukamaju@demak.go.id',
   
@@ -167,7 +172,7 @@ function UsiaBuilder() {
       {/* TANDA TANGAN */}
       <div className="flex justify-end px-4 break-inside-avoid mt-8">
         <div className="text-center w-64">
-            <p className="mb-2">{data.namaInstansi.split('\n')[0].replace('PEMERINTAH KABUPATEN ', '').replace('PEMERINTAH KOTA ', '')}, {formatDateDisplay(data.tanggalSurat)}<br/>{data.jabatanPejabat}</p>
+            <p className="mb-2">{data.namaInstansi.split('\\n')[0].replace('PEMERINTAH KABUPATEN ', '').replace('PEMERINTAH KOTA ', '')}, {formatDateDisplay(data.tanggalSurat)}<br/>{data.jabatanPejabat}</p>
             <div className="h-24 flex justify-center items-center">
                  <span className="text-gray-300 text-[10px] print:hidden">(TTD & Stempel)</span>
             </div>
@@ -371,7 +376,7 @@ function UsiaBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`KeteranganUsia_${data.namaAnak.replace(/\s+/g, '_')}`} price={15000} />
+              <PrintWrapper documentName={`KeteranganUsia_${data.namaAnak.replace(/\\s+/g, '_')}`} price={15000} />
            </div>
 
         </div>
@@ -380,3 +385,10 @@ function UsiaBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
