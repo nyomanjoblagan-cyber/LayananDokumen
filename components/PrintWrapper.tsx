@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Script from 'next/script';
 import { Printer, CheckCircle, Loader2, ShieldCheck } from 'lucide-react';
+import ViralWatermark from './ViralWatermark';
 
 interface PrintWrapperProps {
   documentName: string;
@@ -205,9 +206,13 @@ export default function PrintWrapper({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return !isPremium ? <ViralWatermark url={`https://layanandokumen.com/tools/${documentName.toLowerCase().replace(/\s+/g, '-')}`} /> : null;
+  }
 
   return (
+    <>
+    {!isPremium && <ViralWatermark url={`https://layanandokumen.com/tools/${documentName.toLowerCase().replace(/\s+/g, '-')}`} />}
     <div id="print-modal-overlay" className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl relative animate-in zoom-in-95 duration-200">
         <button onClick={() => setIsOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
@@ -316,6 +321,7 @@ export default function PrintWrapper({
           @page { 
             size: A4; 
             margin: 2.54cm !important; 
+            color: black !important;
           }
           
           /* Override Tailwind constraints */
@@ -328,6 +334,21 @@ export default function PrintWrapper({
           #print-only-root {
             display: block !important;
           }
+          /* Print Watermark layanandokumen.com (opsi gratis) */
+          ${!isPremium ? `
+          body.print-free #print-only-root::after {
+            content: "layanandokumen.com";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 5rem;
+            color: rgba(0, 0, 0, 0.05);
+            z-index: 9999;
+            pointer-events: none;
+            white-space: nowrap;
+          }` : ''}
+          
           /* Sembunyikan modal pembayaran saat dialog print muncul (jika eksekusi sinkron) */
           #print-modal-overlay {
             display: none !important;
@@ -363,5 +384,6 @@ export default function PrintWrapper({
         }
       ` }} />
     </div>
+    </>
   );
 }
