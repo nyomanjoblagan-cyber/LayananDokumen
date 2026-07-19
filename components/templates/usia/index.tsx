@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: UsiaPage.tsx
@@ -102,7 +104,7 @@ function UsiaBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'instansi' | 'anak' | 'ortu' | 'keterangan'>('instansi');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<UsiaData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<UsiaData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

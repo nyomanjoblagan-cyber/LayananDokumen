@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: IjazahSementaraPage.tsx
@@ -103,7 +105,7 @@ function SKLBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'kampus' | 'mahasiswa' | 'lulus'>('kampus');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<SKLData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<SKLData>(INITIAL_DATA);
   const [logo, setLogo] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

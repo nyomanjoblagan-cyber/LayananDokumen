@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SuratKuasaPage.tsx
@@ -99,7 +101,7 @@ function KuasaToolBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pemberi' | 'penerima' | 'kuasa'>('pemberi');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<KuasaData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<KuasaData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

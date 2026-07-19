@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: sku.tsx
@@ -138,7 +140,7 @@ export default function SkuPage() {
 function SkuBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<SkuData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<SkuData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'desa' | 'pemohon' | 'usaha' | 'legal'>('desa');
 
   useEffect(() => {

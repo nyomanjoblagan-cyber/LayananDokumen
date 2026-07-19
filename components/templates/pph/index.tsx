@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: BuktiPotongPPh21Page.tsx
@@ -156,7 +158,7 @@ export default function BuktiPotongPPh21Page() {
 function PPh21Builder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PPhData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PPhData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'header' | 'pemotong' | 'penerima' | 'penghasilan' | 'ttd'>('header');
 
   useEffect(() => {

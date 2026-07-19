@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
@@ -81,7 +83,7 @@ export default function SuratIzinCutiPage() {
 function CutiBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<CutiData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<CutiData>(INITIAL_DATA);
 
   useEffect(() => setIsClient(true), []);
 

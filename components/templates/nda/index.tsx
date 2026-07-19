@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: NDAPage.tsx
@@ -90,7 +92,7 @@ export default function NDAPage() {
 function NdaToolBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<NdaData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<NdaData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'info' | 'p1' | 'p2' | 'isi'>('info');
 
   useEffect(() => {

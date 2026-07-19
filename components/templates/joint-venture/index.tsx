@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: JointVenturePage.tsx
@@ -129,7 +131,7 @@ function JVBuilder() {
   // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<JVData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<JVData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'identitas' | 'proyek' | 'finansial' | 'exit'>('identitas');
 
   useEffect(() => {

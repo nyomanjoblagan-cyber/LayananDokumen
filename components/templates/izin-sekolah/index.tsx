@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: IzinSekolahPage.tsx
@@ -90,7 +92,7 @@ function IzinBuilder() {
   // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<IzinData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<IzinData>(INITIAL_DATA);
   
   useEffect(() => {
     setIsClient(true);

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: TandaTerimaPage.tsx
@@ -95,7 +97,7 @@ function ReceiptBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pengirim' | 'penerima' | 'item' | 'ttd'>('pengirim');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<ReceiptData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<ReceiptData>(INITIAL_DATA);
   const [items, setItems] = useState<ReceiptItem[]>(INITIAL_ITEMS);
 
   useEffect(() => {

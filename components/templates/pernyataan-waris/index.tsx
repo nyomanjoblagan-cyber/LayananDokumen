@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: PernyataanWarisPage.tsx
@@ -107,7 +109,7 @@ export default function PernyataanWarisPage() {
 function HeirStatementBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<WarisData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<WarisData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'pewaris' | 'ahliwaris' | 'objek' | 'klausul'>('pewaris');
 
   useEffect(() => {

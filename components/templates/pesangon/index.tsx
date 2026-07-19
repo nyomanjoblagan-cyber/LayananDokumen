@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: PesangonPage.tsx
@@ -131,7 +133,7 @@ export default function PesangonPage() {
 function PesangonBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PesangonData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PesangonData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'pihak1' | 'pihak2' | 'phk'>('pihak1');
 
   useEffect(() => {

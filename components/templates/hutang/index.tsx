@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: HutangPiutangPage.tsx
@@ -113,7 +115,7 @@ function DebtAgreementBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<DebtData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<DebtData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

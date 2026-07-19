@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SKPanitiaPage.tsx
@@ -107,7 +109,7 @@ export default function SKPanitiaPage() {
 function PanitiaBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PanitiaData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PanitiaData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'kop' | 'diktum' | 'panitia'>('kop');
 
   useEffect(() => {

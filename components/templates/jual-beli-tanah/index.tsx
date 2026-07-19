@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: JualBeliTanahPage.tsx
@@ -97,7 +99,7 @@ export default function JualBeliTanahPage() {
 function LandSaleBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<LandSaleData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<LandSaleData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'identitas' | 'tanah' | 'finansial'>('identitas');
 
   useEffect(() => {

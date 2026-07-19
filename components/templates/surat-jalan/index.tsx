@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SuratJalanPage.tsx
@@ -108,7 +110,7 @@ function SuratJalanBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pengirim' | 'penerima' | 'barang' | 'ekspedisi' | 'ttd'>('pengirim');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<SuratJalanData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<SuratJalanData>(INITIAL_DATA);
   const [items, setItems] = useState<SJItem[]>(INITIAL_ITEMS);
 
   useEffect(() => {

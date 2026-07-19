@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 import PrintWrapper from '@/components/PrintWrapper';
 
 import { useState, Suspense, useEffect } from 'react';
@@ -102,7 +104,7 @@ export default function PenghasilanOrtuPage() {
 function PenghasilanOrtuBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PenghasilanData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PenghasilanData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'ortu' | 'anak' | 'gaji' | 'desa'>('ortu');
 
   useEffect(() => {

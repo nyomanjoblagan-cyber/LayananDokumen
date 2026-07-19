@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: KeteranganPenghasilanPage.tsx
@@ -91,7 +93,7 @@ export default function KeteranganPenghasilanPage() {
 function IncomeBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<IncomeData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<IncomeData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'perusahaan' | 'karyawan' | 'penghasilan'>('perusahaan');
 
   useEffect(() => {

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: LabaRugiPage.tsx
@@ -125,7 +127,7 @@ export default function LabaRugiPage() {
 function FinancialBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<IncomeStatementData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<IncomeStatementData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'info' | 'revCogs' | 'opex' | 'other'>('info');
 
   useEffect(() => {

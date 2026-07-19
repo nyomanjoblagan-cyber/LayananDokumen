@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
@@ -100,7 +102,7 @@ export default function FranchisePage() {
 function FranchiseBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<FranchiseData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<FranchiseData>(INITIAL_DATA);
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
 

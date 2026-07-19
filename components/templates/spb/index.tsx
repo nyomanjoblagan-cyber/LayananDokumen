@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SPBPage.tsx
@@ -112,7 +114,7 @@ function PaymentOrderBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'perusahaan' | 'penerima' | 'transaksi'>('perusahaan');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PaymentData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PaymentData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

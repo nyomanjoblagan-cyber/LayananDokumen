@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: sktm.tsx
@@ -113,7 +115,7 @@ export default function SktmPage() {
 function SktmBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<SktmData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<SktmData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'pihak1' | 'anak' | 'instansi' | 'ketentuan'>('pihak1');
 
   useEffect(() => {

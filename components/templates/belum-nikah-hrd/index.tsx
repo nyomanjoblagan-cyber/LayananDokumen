@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
@@ -81,7 +83,7 @@ export default function BelumMenikahHRDPage() {
 function BelumMenikahHRDBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<StatusData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<StatusData>(INITIAL_DATA);
 
   useEffect(() => setIsClient(true), []);
 

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
@@ -92,7 +94,7 @@ export default function FinancePage() {
 function FinanceBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<FinanceData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<FinanceData>(INITIAL_DATA);
   const [templateId, setTemplateId] = useState<number>(1);
   const [docType, setDocType] = useState<'invoice' | 'kuitansi' | 'nota'>('invoice');
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);

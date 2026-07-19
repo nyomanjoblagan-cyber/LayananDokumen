@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: IzinPasanganPage.tsx
@@ -108,7 +110,7 @@ function PartnerConsentBuilder() {
   // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PartnerData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PartnerData>(INITIAL_DATA);
   
   useEffect(() => {
     setIsClient(true);

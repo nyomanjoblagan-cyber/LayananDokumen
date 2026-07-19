@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: StopStudiPage.tsx
@@ -100,7 +102,7 @@ function StopStudiBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'kampus' | 'mahasiswa' | 'alasan'>('kampus');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<StopStudiData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<StopStudiData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

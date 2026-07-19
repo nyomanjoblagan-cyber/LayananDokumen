@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: KprPage.tsx
@@ -118,7 +120,7 @@ export default function KprPage() {
 function KprBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<KprData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<KprData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'admin' | 'fasilitas' | 'pemohon' | 'pekerjaan'>('admin');
 
   useEffect(() => {

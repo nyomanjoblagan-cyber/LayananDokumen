@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: PenawaranPage.tsx
@@ -103,7 +105,7 @@ export default function PenawaranPage() {
 function PenawaranBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<QuoteData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<QuoteData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'info' | 'klien' | 'item' | 'syarat'>('info');
 
   useEffect(() => {

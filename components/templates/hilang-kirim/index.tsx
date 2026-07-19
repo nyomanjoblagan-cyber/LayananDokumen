@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: HilangKirimPage.tsx
@@ -81,7 +83,7 @@ export default function HilangKirimPage() {
 function LostPackageBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<LostData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<LostData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'pelapor' | 'paket' | 'kronologi'>('pelapor');
 
   useEffect(() => {

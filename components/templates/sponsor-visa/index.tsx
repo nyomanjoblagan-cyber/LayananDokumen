@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SponsorVisaPage.tsx
@@ -87,7 +89,7 @@ function VisaSponsorBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'sponsor' | 'applicant' | 'embassy'>('sponsor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<VisaData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<VisaData>(INITIAL_DATA);
   const [logo, setLogo] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: JualBeliKendaraanPage.tsx
@@ -66,7 +68,7 @@ export default function JualBeliKendaraanPage() {
 function VehicleSaleBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<SaleData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<SaleData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'identitas' | 'kendaraan' | 'finansial'>('identitas');
 
   useEffect(() => {

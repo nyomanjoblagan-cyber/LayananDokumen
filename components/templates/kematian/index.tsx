@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: KematianPage.tsx
@@ -115,7 +117,7 @@ export default function KematianPage() {
 function KematianBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<KematianData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<KematianData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'almarhum' | 'pihak1' | 'pihak2' | 'opsi'>('almarhum');
 
   useEffect(() => {

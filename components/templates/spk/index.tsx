@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SPKPage.tsx
@@ -139,7 +141,7 @@ function SPKBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pihak1' | 'pihak2' | 'proyek' | 'pembayaran'>('pihak1');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<SpkData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<SpkData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

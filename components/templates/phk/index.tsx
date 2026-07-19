@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SuratPHKTemplate.tsx
@@ -119,7 +121,7 @@ function PHKBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pihak1' | 'pihak2' | 'phk' | 'kompensasi' | 'pembayaran'>('pihak1');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PHKData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PHKData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

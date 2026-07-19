@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: TanahAmanPage.tsx
@@ -98,7 +100,7 @@ function LandSafetyBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'kop' | 'pemilik' | 'objek' | 'batas' | 'saksi'>('kop');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<LandData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<LandData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: PajakTanahPage.tsx
@@ -91,7 +93,7 @@ export default function PajakTanahPage() {
 function TaxBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<DesaTaxData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<DesaTaxData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'kop' | 'wp' | 'objek' | 'status'>('kop');
 
   useEffect(() => {

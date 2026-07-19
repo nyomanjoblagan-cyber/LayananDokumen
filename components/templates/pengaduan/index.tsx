@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
@@ -88,7 +90,7 @@ export default function PengaduanPage() {
 function ComplaintBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<ComplaintData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<ComplaintData>(INITIAL_DATA);
   const [templateId, setTemplateId] = useState<number>(1);
 
   useEffect(() => {

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: PaklaringPage.tsx
@@ -77,7 +79,7 @@ function PaklaringBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'perusahaan' | 'karyawan' | 'keterangan'>('perusahaan');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PaklaringData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PaklaringData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

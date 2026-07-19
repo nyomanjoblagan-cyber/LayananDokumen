@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: UndurDiriPendidikanPage.tsx
@@ -98,7 +100,7 @@ function WithdrawalBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pemohon' | 'instansi' | 'alasan' | 'legal'>('pemohon');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<WithdrawalData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<WithdrawalData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SponsorshipPage.tsx
@@ -96,7 +98,7 @@ function SponsorshipBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'event' | 'sponsor' | 'paket'>('event');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<SponsorData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<SponsorData>(INITIAL_DATA);
   const [logo, setLogo] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: TestamentDocumentPage.tsx
@@ -128,7 +130,7 @@ function TestamentBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pewasiat' | 'eksekutor' | 'ahliwaris' | 'saksi'>('pewasiat');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<TestamentData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<TestamentData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

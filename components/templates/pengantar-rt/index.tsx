@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 import React, { useState, Suspense, useEffect } from 'react';
 import PrintWrapper from '@/components/PrintWrapper';
@@ -96,7 +98,7 @@ export default function PengantarRtPage() {
 
 function PengantarRtBuilder() {
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PengantarRtData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PengantarRtData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'info' | 'pihak1' | 'pihak2' | 'klausul'>('info');
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
 

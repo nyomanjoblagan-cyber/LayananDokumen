@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: PenagihanPage.tsx
@@ -117,7 +119,7 @@ function PenagihanBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pengirim' | 'klien' | 'tagihan' | 'bank'>('pengirim');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PenagihanData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PenagihanData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

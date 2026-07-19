@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: IMBSederhanaPage.tsx
@@ -86,7 +88,7 @@ function IMBBuilder() {
   // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<IMBData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<IMBData>(INITIAL_DATA);
   
   useEffect(() => {
     setIsClient(true);

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: KontrakKerjaPage.tsx
@@ -96,7 +98,7 @@ export default function KontrakKerjaPage() {
 function ContractBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<ContractData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<ContractData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'doc' | 'comp' | 'emp' | 'job'>('doc');
 
   useEffect(() => {

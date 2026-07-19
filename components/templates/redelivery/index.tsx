@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: RedeliveryTemplate.tsx
@@ -120,7 +122,7 @@ function RedeliveryBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'surat' | 'shipment' | 'perubahan' | 'ttd'>('surat');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<RedeliveryData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<RedeliveryData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

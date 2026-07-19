@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: TerbilangPage.tsx
@@ -97,7 +99,7 @@ function TerbilangBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'info' | 'transaksi' | 'ttd'>('info');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<KwitansiData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<KwitansiData>(INITIAL_DATA);
   const [terbilangStr, setTerbilangStr] = useState('');
 
   useEffect(() => {

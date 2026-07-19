@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: IzinBarangTemplate.tsx
@@ -91,7 +93,7 @@ function IzinBarangBuilder() {
   // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<IzinBarangData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<IzinBarangData>(INITIAL_DATA);
   const [items, setItems] = useState<BarangItem[]>([
     { id: '1', namaBarang: 'Besi Plat Galvanis 2mm', qty: 50, satuan: 'Lembar', keterangan: 'Kondisi Baik' },
     { id: '2', namaBarang: 'Cat Epoxy Primer', qty: 10, satuan: 'Kaleng', keterangan: 'Lot #12345' },

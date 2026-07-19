@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 import PrintWrapper from '@/components/PrintWrapper';
 
 import { useState, Suspense, useEffect } from 'react';
@@ -84,7 +86,7 @@ export default function PernyataanKehilanganPage() {
 function LossReportBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<LossReportData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<LossReportData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'pelapor' | 'barang' | 'kejadian' | 'lainnya'>('pelapor');
 
   useEffect(() => {

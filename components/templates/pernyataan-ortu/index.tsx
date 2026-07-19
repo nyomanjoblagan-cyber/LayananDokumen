@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeftCircle, Edit3, RotateCcw, User, Users, GraduationCap, MapPin, CheckCircle
@@ -87,7 +89,7 @@ export default function PernyataanOrtuPage() {
 function ParentStatementBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<ParentData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<ParentData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'ortu' | 'anak' | 'kegiatan' | 'klausul'>('ortu');
 
   useEffect(() => {

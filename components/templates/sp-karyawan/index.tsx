@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SPKaryawanPage.tsx
@@ -104,7 +106,7 @@ function SPKaryawanBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'perusahaan' | 'karyawan' | 'klausul'>('perusahaan');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<SanctionData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<SanctionData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

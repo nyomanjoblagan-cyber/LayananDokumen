@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: label-pengiriman.tsx (B2B Logistics)
@@ -91,7 +93,7 @@ function B2BShippingLabelBuilder() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<B2BLabelData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<B2BLabelData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'routing' | 'shipper' | 'consignee' | 'cargo'>('routing');
 
   useEffect(() => {

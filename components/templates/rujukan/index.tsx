@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: RujukanTemplate.tsx
@@ -109,7 +111,7 @@ function RujukanBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'faskes' | 'pasien' | 'medis'>('faskes');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<RujukanData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<RujukanData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

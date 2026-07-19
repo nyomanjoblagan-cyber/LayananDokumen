@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: KuasaPajakPage.tsx
@@ -131,7 +133,7 @@ export default function KuasaPajakPage() {
 function KuasaBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<ProxyData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<ProxyData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'p1' | 'p2' | 'pajak'>('p1');
 
   useEffect(() => {

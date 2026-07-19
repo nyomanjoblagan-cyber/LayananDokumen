@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: RawatInapPage.tsx
@@ -103,7 +105,7 @@ function InpatientBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'rs' | 'pasien' | 'perawatan' | 'ttd'>('rs');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<InpatientData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<InpatientData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

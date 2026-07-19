@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: PenelitianPage.tsx
@@ -105,7 +107,7 @@ function ResearchBuilder() {
   const [isClient, setIsClient] = useState(false);
   const [templateId, setTemplateId] = useState<number>(1);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [data, setData] = useState<ResearchData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<ResearchData>(INITIAL_DATA);
   
   useEffect(() => {
     setIsClient(true);

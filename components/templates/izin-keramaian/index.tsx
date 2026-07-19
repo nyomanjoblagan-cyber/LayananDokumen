@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: IzinKeramaianPage.tsx
@@ -102,7 +104,7 @@ function IzinKeramaianBuilder() {
   // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<IzinKeramaianData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<IzinKeramaianData>(INITIAL_DATA);
   
   useEffect(() => {
     setIsClient(true);

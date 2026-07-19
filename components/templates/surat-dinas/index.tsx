@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SuratDinasPage.tsx
@@ -111,7 +113,7 @@ function SuratDinasBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'kop' | 'pegawai' | 'tujuan' | 'waktu' | 'ttd'>('kop');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<SuratDinasData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<SuratDinasData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

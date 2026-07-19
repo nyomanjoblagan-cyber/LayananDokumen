@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SuratKlaimAsuransiPage.tsx
@@ -95,7 +97,7 @@ export default function SuratKlaimAsuransiPage() {
 function KlaimBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<KlaimData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<KlaimData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'surat' | 'tertanggung' | 'kejadian'>('surat');
 
   useEffect(() => {

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: LamaranPage.tsx
@@ -85,7 +87,7 @@ export default function LamaranPage() {
 function LamaranBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<LamaranData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<LamaranData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'tujuan' | 'pelamar' | 'isi'>('tujuan');
 
   useEffect(() => {

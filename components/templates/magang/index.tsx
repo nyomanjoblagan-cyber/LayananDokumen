@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 import PrintWrapper from '@/components/PrintWrapper';
 
 import { useState, Suspense, useEffect } from 'react';
@@ -78,7 +80,7 @@ export default function MagangPage() {
 
 function MagangBuilder() {
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<MagangData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<MagangData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'pihak1' | 'pihak2' | 'ketentuan'>('pihak1');
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
 

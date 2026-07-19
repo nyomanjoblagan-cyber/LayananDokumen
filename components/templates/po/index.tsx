@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: PurchaseOrderPage.tsx
@@ -103,7 +105,7 @@ export default function PurchaseOrderPage() {
 function POToolBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<POData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<POData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'info' | 'vendor' | 'item' | 'terms'>('info');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logo, setLogo] = useState<string | null>(null);

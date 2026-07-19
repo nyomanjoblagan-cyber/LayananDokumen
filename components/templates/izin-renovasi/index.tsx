@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: IzinRenovasiPage.tsx
@@ -72,7 +74,7 @@ function RenovasiBuilder() {
   // --- STATE SYSTEM ---
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<RenovasiData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<RenovasiData>(INITIAL_DATA);
   
   useEffect(() => {
     setIsClient(true);

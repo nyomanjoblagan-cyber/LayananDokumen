@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: KatalogDeskripsiPage.tsx
@@ -74,7 +76,7 @@ export default function KatalogDeskripsiPage() {
 function KatalogBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<KatalogData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<KatalogData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'produk' | 'deskripsi' | 'syarat'>('produk');
 
   useEffect(() => {

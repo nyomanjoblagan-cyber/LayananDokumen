@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
@@ -109,7 +111,7 @@ export default function BeasiswaPage() {
 function BeasiswaBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<AgreementData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<AgreementData>(INITIAL_DATA);
 
   useEffect(() => setIsClient(true), []);
 

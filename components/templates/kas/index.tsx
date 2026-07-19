@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: KasPage.tsx
@@ -77,7 +79,7 @@ export default function BukuKasPage() {
 function BukuKasBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<KasData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<KasData>(INITIAL_DATA);
   const [transactions, setTransactions] = useState<KasTransaction[]>(INITIAL_TX);
   const [activeTab, setActiveTab] = useState<'pengaturan' | 'transaksi'>('transaksi');
 

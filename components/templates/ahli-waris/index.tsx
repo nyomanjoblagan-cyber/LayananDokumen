@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
@@ -124,7 +126,7 @@ export default function AhliWarisPage() {
 function AhliWarisBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<AhliWarisData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<AhliWarisData>(INITIAL_DATA);
 
   useEffect(() => setIsClient(true), []);
 

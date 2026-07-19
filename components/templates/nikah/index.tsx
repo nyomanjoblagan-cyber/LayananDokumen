@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: PengantarNikahPage.tsx
@@ -91,7 +93,7 @@ export default function PengantarNikahPage() {
 function PrenupBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PrenupData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<PrenupData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'info' | 'p1' | 'p2' | 'isi'>('info');
 
   useEffect(() => {

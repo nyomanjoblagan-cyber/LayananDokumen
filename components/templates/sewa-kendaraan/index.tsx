@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SewaKendaraanPage.tsx
@@ -114,7 +116,7 @@ function VehicleRentalBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'pihak1' | 'pihak2' | 'kendaraan' | 'ketentuan'>('pihak1');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<RentalData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<RentalData>(INITIAL_DATA);
 
   useEffect(() => {
     setIsClient(true);

@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: KetDokterPage.tsx
@@ -77,7 +79,7 @@ export default function KetDokterPage() {
 function MedicalBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<MedicalData>(INITIAL_DATA);
+  const [data, setData] = useFormSync<MedicalData>(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<'klinik' | 'pasien' | 'medis'>('pasien');
 
   useEffect(() => {
