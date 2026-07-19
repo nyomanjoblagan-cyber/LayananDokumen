@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\sp-karyawan\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SPKaryawanPage.tsx
@@ -66,9 +71,9 @@ const INITIAL_DATA: SanctionData = {
     department: 'Data & Analytics'
   },
   
-  menimbang: 'a. Bahwa Sdr. Reza Aditya Pratama telah terbukti melakukan pelanggaran disiplin kerja berupa manipulasi data kehadiran dan mangkir tanpa keterangan yang sah selama 3 (tiga) hari berturut-turut pada tanggal 1, 2, dan 3 Juli 2026.\n\nb. Bahwa tindakan tersebut merupakan bentuk ketidakdisiplinan yang mengganggu kelancaran operasional perusahaan dan bertentangan dengan nilai-nilai integritas.\n\nc. Bahwa berdasarkan evaluasi dan pemeriksaan oleh Departemen HRD pada tanggal 8 Juli 2026, perlu diambil tindakan tegas sebagai bentuk pembinaan karyawan.',
-  mengingat: '1. Undang-Undang No. 13 Tahun 2003 tentang Ketenagakerjaan beserta peraturan perubahannya.\n2. Peraturan Perusahaan (PP) PT. Korporat Global Nusantara Pasal 24 Ayat (3) huruf (a) dan (b) mengenai Kehadiran dan Waktu Kerja.\n3. Kode Etik dan Perilaku Karyawan (Code of Conduct) terkait integritas profesional.',
-  menetapkan: '1. Memberikan SURAT PERINGATAN kepada Sdr. Reza Aditya Pratama.\n2. Surat Peringatan ini berlaku selama masa waktu yang telah ditentukan.\n3. Apabila di kemudian hari Saudara kembali melakukan pelanggaran disiplin atau tata tertib perusahaan, maka Perusahaan berhak untuk menjatuhkan sanksi yang lebih berat hingga Pemutusan Hubungan Kerja (PHK).'
+  menimbang: 'a. Bahwa Sdr. Reza Aditya Pratama telah terbukti melakukan pelanggaran disiplin kerja berupa manipulasi data kehadiran dan mangkir tanpa keterangan yang sah selama 3 (tiga) hari berturut-turut pada tanggal 1, 2, dan 3 Juli 2026.\\n\\nb. Bahwa tindakan tersebut merupakan bentuk ketidakdisiplinan yang mengganggu kelancaran operasional perusahaan dan bertentangan dengan nilai-nilai integritas.\\n\\nc. Bahwa berdasarkan evaluasi dan pemeriksaan oleh Departemen HRD pada tanggal 8 Juli 2026, perlu diambil tindakan tegas sebagai bentuk pembinaan karyawan.',
+  mengingat: '1. Undang-Undang No. 13 Tahun 2003 tentang Ketenagakerjaan beserta peraturan perubahannya.\\n2. Peraturan Perusahaan (PP) PT. Korporat Global Nusantara Pasal 24 Ayat (3) huruf (a) dan (b) mengenai Kehadiran dan Waktu Kerja.\\n3. Kode Etik dan Perilaku Karyawan (Code of Conduct) terkait integritas profesional.',
+  menetapkan: '1. Memberikan SURAT PERINGATAN kepada Sdr. Reza Aditya Pratama.\\n2. Surat Peringatan ini berlaku selama masa waktu yang telah ditentukan.\\n3. Apabila di kemudian hari Saudara kembali melakukan pelanggaran disiplin atau tata tertib perusahaan, maka Perusahaan berhak untuk menjatuhkan sanksi yang lebih berat hingga Pemutusan Hubungan Kerja (PHK).'
 };
 
 // --- HELPERS ---
@@ -387,7 +392,7 @@ function SPKaryawanBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`SP_Karyawan_${data.sanctionType}_${data.employee.fullName.replace(/\s+/g, '_')}`} price={45000} />
+              <PrintWrapper documentName={`SP_Karyawan_${data.sanctionType}_${data.employee.fullName.replace(/\\s+/g, '_')}`} price={45000} />
            </div>
 
         </div>
@@ -396,3 +401,10 @@ function SPKaryawanBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
