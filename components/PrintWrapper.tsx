@@ -82,14 +82,12 @@ export default function PrintWrapper({
       document.body.classList.add('print-free');
     }
 
-    // 2. Tutup popup modal
-    setIsOpen(false);
+    // 2. Eksekusi print secara sinkron (langsung)
+    // MENCEGAH BUG iOS SAFARI: window.print() di dalam setTimeout sering diblokir popup blocker!
+    window.print();
     
-    // 3. Eksekusi print langsung di main window (Native Print)
-    // Beri jeda 500ms agar React selesai render penutupan modal
-    setTimeout(() => {
-      window.print();
-    }, 500);
+    // 3. Tutup popup modal setelah print dialog muncul/ditutup
+    setIsOpen(false);
   };
 
   const handleCetakGratis = () => {
@@ -162,7 +160,7 @@ export default function PrintWrapper({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div id="print-modal-overlay" className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl relative animate-in zoom-in-95 duration-200">
         <button onClick={() => setIsOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
            ✕
@@ -267,6 +265,10 @@ export default function PrintWrapper({
           }
           #print-only-root {
             display: block !important;
+          }
+          /* Sembunyikan modal pembayaran saat dialog print muncul (jika eksekusi sinkron) */
+          #print-modal-overlay {
+            display: none !important;
           }
           
           /* Typography paksa MS Word */
