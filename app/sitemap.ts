@@ -28,6 +28,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.8,
     },
+    {
+      url: `${baseUrl}/panduan/kebijakan-revisi`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
   ]
 
   // 3. Generate routes untuk ke-99+ tools secara dinamis dari TEMPLATES
