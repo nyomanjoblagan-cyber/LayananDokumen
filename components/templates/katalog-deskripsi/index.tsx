@@ -23,6 +23,7 @@ interface KatalogData {
   namaPerusahaan: string;
   website: string;
   kontak: string;
+  fotoProduk: string;
   
   namaProduk: string;
   kategori: string;
@@ -41,6 +42,7 @@ const INITIAL_DATA: KatalogData = {
   namaPerusahaan: 'PT. TEKNOLOGI MASA DEPAN',
   website: 'www.tekno-masa.com',
   kontak: 'Sales: 0811-2233-4455 | Email: sales@tekno-masa.com',
+  fotoProduk: '',
   
   namaProduk: 'Mesin Kopi Espresso Otomatis Seri X-900',
   kategori: 'Peralatan Dapur Komersial',
@@ -97,6 +99,46 @@ function KatalogBuilder() {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 600;
+        const MAX_HEIGHT = 600;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Kompresi agar tidak berat di localStorage
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        handleDataChange('fotoProduk', dataUrl);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   // --- KOMPONEN ISI SURAT ---
   const DocumentContent = () => {
     return (
@@ -115,12 +157,16 @@ function KatalogBuilder() {
 
         {/* PRODUK INFO UTAMA */}
         <div className="flex gap-6 mb-8 break-inside-avoid">
-            {/* GAMBAR PLACEHOLDER */}
-            <div className="w-48 h-48 bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center shrink-0">
-                <div className="text-center text-slate-400">
-                    <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p className="text-[10px] uppercase font-bold tracking-widest">FOTO PRODUK</p>
-                </div>
+            {/* GAMBAR PRODUK */}
+            <div className="w-48 h-48 bg-slate-100 border-2 border-slate-200 flex items-center justify-center shrink-0 overflow-hidden relative rounded-xl">
+                {data.fotoProduk ? (
+                    <img src={data.fotoProduk} alt="Foto Produk" className="w-full h-full object-cover" />
+                ) : (
+                    <div className="text-center text-slate-400">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p className="text-[10px] uppercase font-bold tracking-widest">FOTO PRODUK</p>
+                    </div>
+                )}
             </div>
 
             <div className="flex-1">
@@ -272,6 +318,15 @@ function KatalogBuilder() {
                       <Box size={14} className="text-fuchsia-600"/> Data Produk Utama
                     </h3>
                     <div className="space-y-4">
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Foto Produk (Maks 2MB)</label>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              onChange={handleImageUpload} 
+                              className="w-full bg-slate-50 p-2 border border-slate-200 rounded-xl text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-fuchsia-100 file:text-fuchsia-700 hover:file:bg-fuchsia-200 outline-none transition-all cursor-pointer" 
+                            />
+                        </div>
                         <div>
                             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Produk</label>
                             <input className="w-full bg-fuchsia-50 p-2.5 border border-fuchsia-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-fuchsia-500 outline-none uppercase" value={data.namaProduk} onChange={e => handleDataChange('namaProduk', e.target.value)} />
