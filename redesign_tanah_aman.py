@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\tanah-aman\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: TanahAmanPage.tsx
@@ -45,7 +50,7 @@ const INITIAL_DATA: LandData = {
   city: 'Denpasar',
   date: '2026-07-13', 
   docNo: '590/042/PEM/I/2026',
-  issuerOffice: 'PEMERINTAH KOTA DENPASAR\nKECAMATAN DENPASAR UTARA\nDESA PEMECUTAN KAJA',
+  issuerOffice: 'PEMERINTAH KOTA DENPASAR\\nKECAMATAN DENPASAR UTARA\\nDESA PEMECUTAN KAJA',
   villageHead: 'I NYOMAN GEDE, S.E.',
   villageJob: 'Perbekel Pemecutan Kaja',
   
@@ -397,7 +402,7 @@ function LandSafetyBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`TanahAman_${data.ownerName.replace(/\s+/g, '_')}`} price={45000} />
+              <PrintWrapper documentName={`TanahAman_${data.ownerName.replace(/\\s+/g, '_')}`} price={45000} />
            </div>
 
         </div>
@@ -406,3 +411,10 @@ function LandSafetyBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()

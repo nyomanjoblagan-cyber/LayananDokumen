@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\tanda-terima\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: TandaTerimaPage.tsx
@@ -375,7 +380,7 @@ function ReceiptBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`TandaTerima_${data.receiverName.replace(/\s+/g, '_')}`} price={25000} />
+              <PrintWrapper documentName={`TandaTerima_${data.receiverName.replace(/\\s+/g, '_')}`} price={25000} />
            </div>
 
         </div>
@@ -384,3 +389,10 @@ function ReceiptBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
