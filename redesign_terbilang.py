@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\terbilang\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: TerbilangPage.tsx
@@ -298,7 +303,7 @@ function TerbilangBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Kwitansi_${data.noKwitansi.replace(/\s+/g, '_').replace(/\//g, '-')}`} price={10000} />
+              <PrintWrapper documentName={`Kwitansi_${data.noKwitansi.replace(/\\s+/g, '_').replace(/\\//g, '-')}`} price={10000} />
            </div>
 
         </div>
@@ -307,3 +312,10 @@ function TerbilangBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
