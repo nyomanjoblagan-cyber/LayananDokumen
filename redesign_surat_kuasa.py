@@ -1,4 +1,9 @@
-'use client';
+import sys
+
+def main():
+    file_path = r"d:\WEB DESIGN\LayananDokumen\components\templates\surat-kuasa\index.tsx"
+    
+    new_content = """'use client';
 
 /**
  * FILE: SuratKuasaPage.tsx
@@ -61,7 +66,7 @@ const INITIAL_DATA: KuasaData = {
   
   jenisKuasa: 'KHUSUS',
   purposeTitle: 'PENGAMBILAN BPKB KENDARAAN BERMOTOR',
-  purposeDetail: 'Mengambil Buku Pemilik Kendaraan Bermotor (BPKB) pada instansi terkait dengan rincian:\n- Merk/Type: Honda Vario 125\n- No. Polisi: B 1234 XXX\n- No. Rangka: MH1JM123456789\n- Atas Nama: Budi Santoso',
+  purposeDetail: 'Mengambil Buku Pemilik Kendaraan Bermotor (BPKB) pada instansi terkait dengan rincian:\\n- Merk/Type: Honda Vario 125\\n- No. Polisi: B 1234 XXX\\n- No. Rangka: MH1JM123456789\\n- Atas Nama: Budi Santoso',
   
   hakSubstitusi: 'TANPA HAK SUBSTITUSI',
 };
@@ -375,7 +380,7 @@ function KuasaToolBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`SuratKuasa_${data.penerimaName.replace(/\s+/g, '_')}`} price={35000} />
+              <PrintWrapper documentName={`SuratKuasa_${data.penerimaName.replace(/\\s+/g, '_')}`} price={35000} />
            </div>
 
         </div>
@@ -384,3 +389,10 @@ function KuasaToolBuilder() {
     </div>
   );
 }
+"""
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+if __name__ == "__main__":
+    main()
