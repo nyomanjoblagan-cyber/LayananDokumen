@@ -25,6 +25,8 @@ export default function PrintWrapper({
   const [clientKey, setClientKey] = useState(process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '');
   const [isOpen, setIsOpen] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+  const [isRecovering, setIsRecovering] = useState(false);
 
   useEffect(() => {
     // 1. Keamanan Dasar: Paksa mode 'print-free' aktif sejak awal (Mencegah bypass Ctrl+P)
@@ -59,6 +61,12 @@ export default function PrintWrapper({
         const expiredAt = localStorage.getItem(storageKey);
         if (expiredAt && parseInt(expiredAt) > Date.now()) {
           setIsPremium(true);
+        }
+        
+        const pendingKey = 'layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_');
+        const savedPendingId = localStorage.getItem(pendingKey);
+        if (savedPendingId) {
+          setPendingOrderId(savedPendingId);
         }
       } catch (e) {}
       setIsOpen(true);
@@ -121,6 +129,13 @@ export default function PrintWrapper({
       const resData = await res.json();
       if (!res.ok) throw new Error(resData.message || 'Gagal mengambil token');
 
+      // Simpan pending order id sebelum popup Snap terbuka
+      try {
+        const pendingKey = 'layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_');
+        localStorage.setItem(pendingKey, resData.order_id);
+        setPendingOrderId(resData.order_id);
+      } catch(e) {}
+
       window.snap.pay(resData.token, {
         onSuccess: function (result: any) {
           console.log('Payment success:', result);
@@ -130,6 +145,10 @@ export default function PrintWrapper({
             const storageKey = 'layanandokumen_paid_' + documentName.replace(/\s+/g, '_');
             const expireTime = Date.now() + (24 * 60 * 60 * 1000); // 24 jam dari sekarang
             localStorage.setItem(storageKey, expireTime.toString());
+            
+            const pendingKey = 'layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_');
+            localStorage.removeItem(pendingKey);
+            setPendingOrderId(null);
           } catch (e) {}
           
           alert('Pembayaran Berhasil!\n\nAnda dapat merevisi dan mencetak ulang dokumen ini sepuasnya secara gratis selama 24 jam ke depan.');
@@ -154,6 +173,35 @@ export default function PrintWrapper({
       alert('Terjadi kesalahan: ' + err.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRestorePayment = async () => {
+    if (!pendingOrderId) return;
+    setIsRecovering(true);
+    try {
+      const res = await fetch(`/api/check-payment?order_id=${pendingOrderId}`);
+      const data = await res.json();
+
+      if (res.ok && data.status === 'success') {
+        const storageKey = 'layanandokumen_paid_' + documentName.replace(/\s+/g, '_');
+        const expireTime = Date.now() + (24 * 60 * 60 * 1000);
+        localStorage.setItem(storageKey, expireTime.toString());
+        
+        const pendingKey = 'layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_');
+        localStorage.removeItem(pendingKey);
+        setPendingOrderId(null);
+        setIsPremium(true);
+        alert('Pemulihan berhasil! Akses Cetak Premium Anda telah aktif kembali.');
+      } else if (data.status === 'pending') {
+        alert('Pembayaran Anda masih berstatus tertunda (pending). Silakan selesaikan pembayaran terlebih dahulu.');
+      } else {
+        alert('Sistem Midtrans melaporkan transaksi tidak berhasil atau kedaluwarsa.');
+      }
+    } catch (e: any) {
+      alert('Terjadi kesalahan saat memulihkan pembayaran.');
+    } finally {
+      setIsRecovering(false);
     }
   };
 
@@ -223,6 +271,20 @@ export default function PrintWrapper({
             )}
           </button>
         </div>
+
+        {pendingOrderId && !isPremium && (
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-center flex flex-col items-center gap-2 animate-in slide-in-from-top-2 duration-200">
+            <span className="text-xs text-blue-700">Sudah bayar tapi gagal cetak karena tab tertutup?</span>
+            <button 
+              onClick={handleRestorePayment}
+              disabled={isRecovering}
+              className="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full transition-colors flex items-center gap-2 disabled:opacity-70"
+            >
+              {isRecovering ? <Loader2 size={14} className="animate-spin" /> : null}
+              Pulihkan Pembayaran
+            </button>
+          </div>
+        )}
 
         {showTerms && (
           <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 text-left text-sm animate-in slide-in-from-top-2 duration-200">
