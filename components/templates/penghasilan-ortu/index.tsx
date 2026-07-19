@@ -28,6 +28,7 @@ interface PenghasilanData {
   potongan: number;
   jumlahTanggungan: number;
   
+  logoPemda: string;
   kopPemda: string;
   kecamatan: string;
   desa: string;
@@ -55,6 +56,7 @@ const INITIAL_DATA: PenghasilanData = {
   potongan: 500000,
   jumlahTanggungan: 3,
 
+  logoPemda: '',
   kopPemda: 'PEMERINTAH KABUPATEN SLEMAN',
   kecamatan: 'KECAMATAN NGAGLIK',
   desa: 'PEMERINTAH KALURAHAN SARDONOHARJO',
@@ -117,6 +119,44 @@ function PenghasilanOrtuBuilder() {
     setData(prev => ({ ...prev, [field]: val }));
   };
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 300;
+        const MAX_HEIGHT = 300;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        setData(prev => ({ ...prev, logoPemda: canvas.toDataURL('image/png') }));
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleReset = () => {
     if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua perubahan akan hilang.')) {
         setData({ ...INITIAL_DATA });
@@ -143,8 +183,14 @@ function PenghasilanOrtuBuilder() {
               {/* KOP SURAT RESMI */}
               <div className="flex items-center justify-between border-b-[3px] border-double border-black pb-4 mb-6">
                   {/* LOGO GARUDA / PEMDA */}
-                  <div className="w-[80px] h-[90px] flex-shrink-0 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md">
-                      <span className="text-xs text-center text-gray-400 font-sans">Logo<br/>Pemda</span>
+                  <div className="w-[80px] h-[90px] flex-shrink-0 flex items-center justify-center overflow-hidden">
+                      {data.logoPemda ? (
+                          <img src={data.logoPemda} alt="Logo Pemda" className="w-full h-full object-contain" />
+                      ) : (
+                          <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center print:hidden">
+                              <span className="text-[10px] text-center text-gray-400 font-sans leading-tight">Logo<br/>Pemda</span>
+                          </div>
+                      )}
                   </div>
                   
                   {/* TEXT KOP */}
@@ -509,6 +555,11 @@ function PenghasilanOrtuBuilder() {
                   <CheckCircle2 size={16} className="text-purple-500/50" />
                 </div>
                 
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wide">Logo Garuda / Pemda</label>
+                  <input type="file" accept="image/*" onChange={handleLogoUpload} className="w-full p-2 bg-neutral-950 border border-neutral-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl text-sm font-bold transition-all text-neutral-400 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-purple-500/20 file:text-purple-400 hover:file:bg-purple-500/30 cursor-pointer outline-none" />
+                </div>
+
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wide">Pemerintah Kabupaten/Kota</label>
                   <input className="w-full p-3 bg-neutral-950 border border-neutral-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl text-sm font-bold transition-all text-white" value={data.kopPemda} onChange={e => handleDataChange('kopPemda', e.target.value.toUpperCase())} placeholder="PEMERINTAH KABUPATEN SLEMAN" />

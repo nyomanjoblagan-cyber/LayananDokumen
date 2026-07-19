@@ -14,6 +14,7 @@ import PrintWrapper from '@/components/PrintWrapper';
 interface StatusData {
   govLevel: string;
   district: string;
+  logoInstansi: string;
   village: string;
   address_office: string;
   no: string;
@@ -37,6 +38,7 @@ interface StatusData {
 const INITIAL_DATA: StatusData = {
   govLevel: 'PEMERINTAH KOTA BANDUNG',
   district: 'KECAMATAN COBLONG',
+  logoInstansi: '',
   village: 'KELURAHAN DAGO',
   address_office: 'Jl. Ir. H. Juanda No. 100, Bandung',
   no: '474 / 088 / Kel-Dago / 2026',
@@ -102,12 +104,56 @@ function BelumMenikahHRDBuilder() {
       return new Date(dateString).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
   };
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 300;
+        const MAX_HEIGHT = 300;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        setData(prev => ({ ...prev, logoInstansi: canvas.toDataURL('image/png') }));
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const DocumentContent = () => (
     <Kertas>
       {/* KOP SURAT */}
       <div className="border-b-[4px] border-double border-black pb-3 mb-6 relative break-inside-avoid">
-         <div className="absolute left-0 top-0 w-24 h-24 border-2 border-gray-300 border-dashed flex items-center justify-center text-gray-400 text-xs no-print opacity-50 group-hover:opacity-100 transition-opacity">
-           [ Logo Garuda / Pemda ]
+         <div className="absolute left-0 top-0 w-24 h-24 flex items-center justify-center overflow-hidden">
+           {data.logoInstansi ? (
+             <img src={data.logoInstansi} alt="Logo" className="w-full h-full object-contain" />
+           ) : (
+             <div className="w-full h-full border-2 border-gray-300 border-dashed flex items-center justify-center text-gray-400 text-xs no-print opacity-50 group-hover:opacity-100 transition-opacity text-center">
+               [ Logo Garuda / Pemda ]
+             </div>
+           )}
          </div>
          <div className="text-center px-24">
            <h2 className="text-[14pt] font-bold tracking-wider uppercase m-0 leading-tight">{data.govLevel || "[NAMA KABUPATEN/KOTA]"}</h2>
@@ -249,6 +295,10 @@ function BelumMenikahHRDBuilder() {
                     <Landmark size={14} className="text-sky-600"/> Data Wilayah (Kop Surat)
                   </h3>
                   <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Logo Garuda / Pemda</label>
+                      <input type="file" accept="image/*" onChange={handleLogoUpload} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-sm text-slate-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer outline-none" />
+                    </div>
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Pemerintah Kabupaten / Kota</label>
                       <input type="text" name="govLevel" value={data.govLevel} onChange={handleStringChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />

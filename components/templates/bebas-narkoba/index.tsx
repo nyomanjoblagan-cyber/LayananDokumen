@@ -14,6 +14,7 @@ const INITIAL_DATA = {
   satker: "RUMAH SAKIT BHAYANGKARA H.S. SAMSOERI MERTOJOSO",
   alamatInstansi: "Jl. Ahmad Yani No.116, Gayungan, Kota Surabaya, Jawa Timur",
   noSurat: "SKHPN / 1234 / VII / 2026 / RS.Bhy",
+  logoInstansi: "",
   
   dokterNama: "dr. SARTIKA AYU, M.Kes",
   dokterNrp: "AKBP NRP. 78051234",
@@ -73,6 +74,44 @@ function BebasNarkobaBuilder() {
     }));
   };
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 300;
+        const MAX_HEIGHT = 300;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        setFormData(prev => ({ ...prev, logoInstansi: canvas.toDataURL('image/png') }));
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleReset = () => {
     if (typeof window !== 'undefined' && window.confirm('Reset formulir ke awal? Semua data yang telah diisi akan hilang.')) {
       setFormData({ ...INITIAL_DATA });
@@ -88,8 +127,14 @@ function BebasNarkobaBuilder() {
     <Kertas>
       {/* Kop Surat Section */}
       <div className="border-b-[4px] border-double border-black pb-3 mb-6 relative break-inside-avoid">
-         <div className="absolute left-0 top-0 w-24 h-24 border-2 border-gray-300 border-dashed rounded-full flex items-center justify-center text-gray-400 text-xs no-print opacity-50 group-hover:opacity-100 transition-opacity">
-           [ Logo Instansi ]
+         <div className="absolute left-0 top-0 w-24 h-24 flex items-center justify-center overflow-hidden">
+           {formData.logoInstansi ? (
+             <img src={formData.logoInstansi} alt="Logo" className="w-full h-full object-contain" />
+           ) : (
+             <div className="w-full h-full border-2 border-gray-300 border-dashed rounded-full flex items-center justify-center text-gray-400 text-xs no-print opacity-50 group-hover:opacity-100 transition-opacity">
+               [ Logo Instansi ]
+             </div>
+           )}
          </div>
          <div className="text-center px-24">
            <h2 className="text-lg font-bold tracking-wider uppercase m-0 leading-tight">{formData.instansi || "[NAMA INSTANSI]"}</h2>
@@ -229,13 +274,17 @@ function BebasNarkobaBuilder() {
                 
                 {/* 1. INSTANSI & KOP */}
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                  <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <Building2 size={14} className="text-sky-600"/> Kop Surat & Instansi
+                  <h3 className="text-xs font-black uppercase text-slate-800 tracking-tight flex items-center gap-2 border-b pb-3 border-slate-100">
+                    <Building2 size={14} className="text-slate-600"/> Data Instansi
                   </h3>
                   <div className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Instansi Induk (Cth: KEPOLISIAN RI / KEMENKES)</label>
-                      <input type="text" name="instansi" value={formData.instansi} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Logo Instansi</label>
+                        <input type="file" accept="image/*" onChange={handleLogoUpload} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-sm text-slate-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Instansi Induk (Cth: KEPOLISIAN RI / KEMENKES)</label>
+                        <input type="text" name="instansi" value={formData.instansi} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500 outline-none transition-all" />
                     </div>
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Daerah / Wilayah</label>
