@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Script from 'next/script';
-import { Printer, CheckCircle, Loader2 } from 'lucide-react';
+import { Printer, CheckCircle, Loader2, ShieldCheck } from 'lucide-react';
 
 interface PrintWrapperProps {
   documentName: string;
@@ -24,6 +24,7 @@ export default function PrintWrapper({
   const [isLoading, setIsLoading] = useState(false);
   const [clientKey, setClientKey] = useState(process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '');
   const [isOpen, setIsOpen] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   useEffect(() => {
     // 1. Keamanan Dasar: Paksa mode 'print-free' aktif sejak awal (Mencegah bypass Ctrl+P)
@@ -205,7 +206,13 @@ export default function PrintWrapper({
               <br/>
               <span className="text-[10px] opacity-80 mt-1 inline-block">Edit dan cetak ulang dokumen ini sepuasnya tanpa bayar lagi.</span>
               <br/>
-              <a href="/panduan/kebijakan-revisi" target="_blank" className="text-[10px] text-emerald-300 underline hover:text-white mt-1.5 inline-block opacity-90 transition-colors">Pelajari S&K Garansi</a>
+              <button 
+                type="button" 
+                onClick={(e) => { e.stopPropagation(); setShowTerms(!showTerms); }} 
+                className="text-[10px] text-emerald-300 underline hover:text-white mt-1.5 inline-block opacity-90 transition-colors"
+              >
+                {showTerms ? 'Tutup S&K Garansi' : 'Pelajari S&K Garansi'}
+              </button>
             </p>
             <span className="mt-auto font-black text-white bg-emerald-600 px-4 py-1 rounded-full text-sm flex items-center gap-2">
                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Memproses...</> : isPremium ? 'Sudah Dibayar' : `Rp ${price.toLocaleString('id-ID')}`}
@@ -218,6 +225,20 @@ export default function PrintWrapper({
             )}
           </button>
         </div>
+
+        {showTerms && (
+          <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 text-left text-sm animate-in slide-in-from-top-2 duration-200">
+            <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+              <ShieldCheck size={16} className="text-emerald-500"/> Syarat & Ketentuan Bebas Revisi 24 Jam
+            </h4>
+            <ul className="list-disc pl-5 space-y-1 text-slate-600 text-[11px] leading-relaxed">
+              <li>Akses berlaku <strong>24 jam penuh</strong> terhitung sejak pembayaran sukses.</li>
+              <li>Wajib menggunakan <strong>perangkat dan browser yang sama</strong>.</li>
+              <li>Akses akan <strong>hangus</strong> jika Anda melakukan Clear Cache / Hapus Riwayat.</li>
+              <li>Selama sesi aktif, Anda bebas menekan "Cetak Premium" berkali-kali secara gratis.</li>
+            </ul>
+          </div>
+        )}
 
         {/* Script Snap Midtrans */}
         <Script 
