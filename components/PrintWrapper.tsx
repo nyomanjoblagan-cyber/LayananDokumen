@@ -132,6 +132,8 @@ export default function PrintWrapper({
             const expireTime = Date.now() + (24 * 60 * 60 * 1000); // 24 jam dari sekarang
             localStorage.setItem(storageKey, expireTime.toString());
           } catch (e) {}
+          
+          alert('Pembayaran Berhasil!\n\nAnda dapat merevisi dan mencetak ulang dokumen ini sepuasnya secara gratis selama 24 jam ke depan.');
 
           setIsPremium(true);
           executePrint(true);
@@ -194,7 +196,15 @@ export default function PrintWrapper({
               {isPremium ? <CheckCircle size={24} /> : <Printer size={24} />}
             </div>
             <h4 className="font-bold text-white mb-1 text-center">Cetak Premium</h4>
-            <p className="text-xs text-emerald-100 text-center mb-4">Bebas watermark, hasil cetak profesional dan bersih</p>
+            <p className="text-xs text-emerald-100 text-center mb-4">
+              Bebas watermark, hasil cetak profesional.
+              <br/><br/>
+              <span className="bg-emerald-700/50 px-2 py-1 rounded text-[10px] font-bold border border-emerald-400/30 inline-block">
+                GARANSI REVISI 24 JAM
+              </span>
+              <br/>
+              <span className="text-[10px] opacity-80 mt-1 inline-block">Edit dan cetak ulang dokumen ini sepuasnya tanpa bayar lagi.</span>
+            </p>
             <span className="mt-auto font-black text-white bg-emerald-600 px-4 py-1 rounded-full text-sm flex items-center gap-2">
                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Memproses...</> : isPremium ? 'Sudah Dibayar' : `Rp ${price.toLocaleString('id-ID')}`}
             </span>
