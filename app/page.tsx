@@ -35,6 +35,7 @@ export default function HomePage() {
         { name: "Surat Perintah Bayar", href: "/tools/spb" },
         { name: "Surat Konfirmasi Pesanan", href: "/tools/konfirmasi-order" },
         { name: "Laporan Laba Rugi Sederhana", href: "/tools/laba-rugi" },
+        { name: "Katalog & Deskripsi Produk", href: "/tools/katalog-deskripsi" },
       ]
     },
     {
