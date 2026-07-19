@@ -573,7 +573,7 @@ function OrderBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName="B2B_Order" price={20000} />
+              <PrintWrapper documentName="B2B_Order" price={5000} />
            </div>
 
         </div>

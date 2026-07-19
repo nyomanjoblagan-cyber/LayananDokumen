@@ -375,7 +375,7 @@ function BelumMenikahHRDBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName="Surat Keterangan Belum Menikah (Kelurahan/Desa)" price={15000} />
+              <PrintWrapper documentName="Surat Keterangan Belum Menikah (Kelurahan/Desa)" price={5000} />
            </div>
 
         </div>

@@ -591,7 +591,7 @@ function HeirStatementBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Kesepakatan_Waris_${data.deceasedName.replace(/\s+/g, '_')}`} price={85000} />
+              <PrintWrapper documentName={`Kesepakatan_Waris_${data.deceasedName.replace(/\s+/g, '_')}`} price={5000} />
            </div>
 
         </div>

@@ -537,7 +537,7 @@ function VehicleSaleBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName="Jual_Beli_Kendaraan" price={25000} />
+              <PrintWrapper documentName="Jual_Beli_Kendaraan" price={10000} />
            </div>
 
         </div>

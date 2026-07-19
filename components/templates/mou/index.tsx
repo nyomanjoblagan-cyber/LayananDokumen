@@ -515,7 +515,7 @@ function MOUBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`MOU_Kerjasama_${data.p1Name.replace(/\s+/g, '_')}`} price={40000} />
+              <PrintWrapper documentName={`MOU_Kerjasama_${data.p1Name.replace(/\s+/g, '_')}`} price={10000} />
            </div>
 
         </div>

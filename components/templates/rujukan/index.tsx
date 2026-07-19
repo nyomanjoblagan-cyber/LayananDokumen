@@ -410,7 +410,7 @@ function RujukanBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Rujukan_Medis_${data.namaPasien.replace(/\s+/g, '_')}`} price={25000} />
+              <PrintWrapper documentName={`Rujukan_Medis_${data.namaPasien.replace(/\s+/g, '_')}`} price={5000} />
            </div>
 
         </div>

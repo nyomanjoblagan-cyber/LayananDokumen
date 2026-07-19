@@ -446,7 +446,7 @@ function B2BShippingLabelBuilder() {
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print">
          {/* Hidden in UI but present for logic if needed */}
-         <PrintWrapper documentName="B2B Logistics BOL" price={15000} />
+         <PrintWrapper documentName="B2B Logistics BOL" price={5000} />
       </div>
 
       <div id="print-only-root" className="hidden print:h-auto print:static"><LabelContent /></div>

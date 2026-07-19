@@ -343,7 +343,7 @@ function BusinessPlanBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName="Business Plan / Proposal Usaha" price={25000} />
+              <PrintWrapper documentName="Business Plan / Proposal Usaha" price={10000} />
            </div>
 
         </div>

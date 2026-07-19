@@ -375,7 +375,7 @@ function ResearchBuilder() {
       
       {/* AREA TOMBOL MONETISASI */}
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Rekomendasi_Penelitian" price={15000} />
+         <PrintWrapper documentName="Rekomendasi_Penelitian" price={5000} />
       </div>
 
       <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><ResearchContent /></div></div>

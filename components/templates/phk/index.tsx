@@ -623,7 +623,7 @@ function PHKBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Perjanjian_PHK_${data.namaPihakKedua.replace(/\s+/g, '_')}`} price={75000} />
+              <PrintWrapper documentName={`Perjanjian_PHK_${data.namaPihakKedua.replace(/\s+/g, '_')}`} price={5000} />
            </div>
 
         </div>

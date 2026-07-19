@@ -424,7 +424,7 @@ function KlaimBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName="Klaim_Asuransi" price={15000} />
+              <PrintWrapper documentName="Klaim_Asuransi" price={5000} />
            </div>
 
         </div>

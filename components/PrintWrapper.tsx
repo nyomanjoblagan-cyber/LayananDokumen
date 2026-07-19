@@ -51,7 +51,17 @@ export default function PrintWrapper({
     window.addEventListener('contextmenu', handleContextMenu);
     window.addEventListener('keydown', handleKeyDown);
 
-    const handleOpen = () => setIsOpen(true);
+    const handleOpen = () => {
+      // Cek apakah ada sesi premium aktif untuk dokumen ini (24 jam)
+      try {
+        const storageKey = 'layanandokumen_paid_' + documentName.replace(/\s+/g, '_');
+        const expiredAt = localStorage.getItem(storageKey);
+        if (expiredAt && parseInt(expiredAt) > Date.now()) {
+          setIsPremium(true);
+        }
+      } catch (e) {}
+      setIsOpen(true);
+    };
     window.addEventListener('open-print-modal', handleOpen);
     
     return () => {
@@ -59,7 +69,7 @@ export default function PrintWrapper({
       window.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isPremium]);
+  }, [isPremium, documentName]);
 
   const executePrint = (isPremiumPrint: boolean) => {
     // 1. Set mode (Premium/Free) ke body untuk trigger CSS watermark
@@ -92,6 +102,12 @@ export default function PrintWrapper({
       return;
     }
     
+    // Jika ternyata user sudah premium (dari cache/localStorage), langsung cetak
+    if (isPremium) {
+       executePrint(true);
+       return;
+    }
+
     setIsLoading(true);
     try {
       const res = await fetch('/api/get-snap-token', {
@@ -109,6 +125,14 @@ export default function PrintWrapper({
       window.snap.pay(resData.token, {
         onSuccess: function (result: any) {
           console.log('Payment success:', result);
+          
+          // Simpan sesi premium ke localStorage selama 24 jam (Typo Protection)
+          try {
+            const storageKey = 'layanandokumen_paid_' + documentName.replace(/\s+/g, '_');
+            const expireTime = Date.now() + (24 * 60 * 60 * 1000); // 24 jam dari sekarang
+            localStorage.setItem(storageKey, expireTime.toString());
+          } catch (e) {}
+
           setIsPremium(true);
           executePrint(true);
         },

@@ -445,7 +445,7 @@ function ComplaintBuilder() {
       </div>
 
       <div className="no-print hidden md:block">
-         <PrintWrapper documentName="Surat Pengaduan" price={10000} />
+         <PrintWrapper documentName="Surat Pengaduan" price={5000} />
       </div>
 
       {/* PRINT-ONLY ROOT */}

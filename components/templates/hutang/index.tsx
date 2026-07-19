@@ -806,7 +806,7 @@ function DebtAgreementBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName="Perjanjian Hutang Piutang" price={15000} />
+              <PrintWrapper documentName="Perjanjian Hutang Piutang" price={10000} />
            </div>
 
         </div>

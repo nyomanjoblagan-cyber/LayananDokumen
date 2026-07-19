@@ -557,7 +557,7 @@ function POToolBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Purchase_Order_${data.no.replace(/\//g, '_')}`} price={45000} />
+              <PrintWrapper documentName={`Purchase_Order_${data.no.replace(/\//g, '_')}`} price={5000} />
            </div>
 
         </div>

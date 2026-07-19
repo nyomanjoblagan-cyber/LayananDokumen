@@ -298,7 +298,7 @@ function TerbilangBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Kwitansi_${data.noKwitansi.replace(/\s+/g, '_').replace(/\//g, '-')}`} price={10000} />
+              <PrintWrapper documentName={`Kwitansi_${data.noKwitansi.replace(/\s+/g, '_').replace(/\//g, '-')}`} price={5000} />
            </div>
 
         </div>

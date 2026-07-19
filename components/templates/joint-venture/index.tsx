@@ -657,7 +657,7 @@ function JVBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName="B2B_Joint_Venture" price={100000} />
+              <PrintWrapper documentName="B2B_Joint_Venture" price={10000} />
            </div>
 
         </div>

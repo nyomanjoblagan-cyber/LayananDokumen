@@ -514,7 +514,7 @@ function DamaiBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Perjanjian_Damai_${data.p1Name.replace(/\s+/g, '_')}`} price={65000} />
+              <PrintWrapper documentName={`Perjanjian_Damai_${data.p1Name.replace(/\s+/g, '_')}`} price={10000} />
            </div>
 
         </div>

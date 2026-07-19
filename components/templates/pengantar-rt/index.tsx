@@ -692,7 +692,7 @@ function PengantarRtBuilder() {
       </div>
     
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">
-         <PrintWrapper documentName="Dokumen_pengantar_rt" price={15000} />
+         <PrintWrapper documentName="Dokumen_pengantar_rt" price={5000} />
       </div>
     </div>
   );

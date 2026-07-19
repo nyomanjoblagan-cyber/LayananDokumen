@@ -446,7 +446,7 @@ function VehicleRentalBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Sewa_Kendaraan_${data.plateNumber.replace(/\s+/g, '_')}`} price={45000} />
+              <PrintWrapper documentName={`Sewa_Kendaraan_${data.plateNumber.replace(/\s+/g, '_')}`} price={10000} />
            </div>
 
         </div>

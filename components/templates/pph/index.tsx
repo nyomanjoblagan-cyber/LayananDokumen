@@ -512,7 +512,7 @@ function PPh21Builder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Bukti_Potong_1721_A1_${data.namaPenerima.replace(/\s+/g, '_')}`} price={85000} />
+              <PrintWrapper documentName={`Bukti_Potong_1721_A1_${data.namaPenerima.replace(/\s+/g, '_')}`} price={5000} />
            </div>
 
         </div>

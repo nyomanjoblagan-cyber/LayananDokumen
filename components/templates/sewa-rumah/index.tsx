@@ -511,7 +511,7 @@ function HouseRentalBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Sewa_Properti_${data.tenantName.replace(/\s+/g, '_')}`} price={50000} />
+              <PrintWrapper documentName={`Sewa_Properti_${data.tenantName.replace(/\s+/g, '_')}`} price={10000} />
            </div>
 
         </div>

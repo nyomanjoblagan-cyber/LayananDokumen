@@ -502,7 +502,7 @@ function CVBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName="Curriculum Vitae" price={10000} />
+              <PrintWrapper documentName="Curriculum Vitae" price={5000} />
            </div>
 
         </div>

@@ -538,7 +538,7 @@ function PanitiaBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`SK_Panitia_${data.nomorSk.replace(/[^a-zA-Z0-9]/g, '_')}`} price={45000} />
+              <PrintWrapper documentName={`SK_Panitia_${data.nomorSk.replace(/[^a-zA-Z0-9]/g, '_')}`} price={5000} />
            </div>
 
         </div>

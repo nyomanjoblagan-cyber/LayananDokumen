@@ -470,7 +470,7 @@ function FakturBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName="Faktur Pajak B2B" price={15000} />
+              <PrintWrapper documentName="Faktur Pajak B2B" price={5000} />
            </div>
 
         </div>

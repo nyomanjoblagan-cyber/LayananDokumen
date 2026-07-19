@@ -352,7 +352,7 @@ function VisaSponsorBuilder() {
 
            {/* Paywall Monetisasi - Diletakkan di luar print flow */}
            <div className="no-print mt-12 w-full max-w-[210mm] mx-auto pb-20">
-              <PrintWrapper documentName={`Sponsorship_${data.applicantName.replace(/\s+/g, '_')}`} price={75000} />
+              <PrintWrapper documentName={`Sponsorship_${data.applicantName.replace(/\s+/g, '_')}`} price={5000} />
            </div>
 
         </div>
