@@ -316,11 +316,11 @@ export default function HomePage() {
                       )
                    ) : (
                       [
-                        { name: "Surat Jual Beli Tanah", tag: "Legal", href: "/tools/jual-beli-tanah" },
-                        { name: "Surat Kuasa Pengambilan", tag: "Umum", href: "/tools/surat-kuasa" },
-                        { name: "Perjanjian Hutang Piutang", tag: "Bisnis", href: "/tools/hutang" },
-                        { name: "Kalkulator PPh 21", tag: "Pajak", href: "/tools/pph" },
-                        { name: "Invoice UMKM", tag: "Keuangan", href: "/tools/finance?mode=invoice" }
+                        { name: "Surat Perjanjian Hutang Piutang", tag: "Legal", href: "/tools/hutang-piutang" },
+                        { name: "Surat Somasi (Teguran Hukum)", tag: "Legal", href: "/tools/somasi" },
+                        { name: "Surat Izin Orang Tua / Suami", tag: "Karir", href: "/tools/izin-ortu" },
+                        { name: "Perjanjian Bagi Hasil (Syirkah)", tag: "Bisnis", href: "/tools/bagi-hasil" },
+                        { name: "Surat Perjanjian Pra-Nikah", tag: "Legal", href: "/tools/pra-nikah" },
                       ].map((item, idx) => (
                         <li key={idx}>
                            <Link href={item.href} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-500 hover:shadow-md hover:bg-white transition-all group">
