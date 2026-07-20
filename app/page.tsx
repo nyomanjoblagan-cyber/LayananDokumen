@@ -317,10 +317,11 @@ export default function HomePage() {
                    ) : (
                       [
                         { name: "Surat Perjanjian Hutang Piutang", tag: "Legal", href: "/tools/hutang-piutang" },
+                        { name: "Surat Jual Beli Tanah", tag: "Legal", href: "/tools/jual-beli-tanah" },
+                        { name: "CV Maker ATS Friendly", tag: "Karir", href: "/tools/cv" },
                         { name: "Surat Somasi (Teguran Hukum)", tag: "Legal", href: "/tools/somasi" },
                         { name: "Surat Izin Orang Tua / Suami", tag: "Karir", href: "/tools/izin-ortu" },
-                        { name: "Perjanjian Bagi Hasil (Syirkah)", tag: "Bisnis", href: "/tools/bagi-hasil" },
-                        { name: "Surat Perjanjian Pra-Nikah", tag: "Legal", href: "/tools/pra-nikah" },
+                        { name: "Kuitansi Pembayaran", tag: "Bisnis", href: "/tools/kuitansi" },
                       ].map((item, idx) => (
                         <li key={idx}>
                            <Link href={item.href} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-500 hover:shadow-md hover:bg-white transition-all group">
