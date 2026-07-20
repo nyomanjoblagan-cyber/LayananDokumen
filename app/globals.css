@@ -77,6 +77,6 @@
   #print-only-root {
     transform: scale(0.43) !important;
     margin-bottom: -160mm !important; 
-    transform-origin: top center !important;
+    transform-origin: top left !important;
   }
 }
