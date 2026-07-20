@@ -126,19 +126,19 @@ function MedicalBuilder() {
     return (
       <Kertas>
         {/* KOP SURAT ELEGANT */}
-        <div className="flex items-center gap-6 mb-8 pb-6 border-b-[4px] border-emerald-800 relative">
-            <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center border-2 border-emerald-800 shrink-0">
-                <BadgePlus className="w-12 h-12 text-emerald-800" />
+        <div className="flex items-center gap-6 mb-4 pb-4 border-b-[4px] border-emerald-800 relative">
+            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center border-2 border-emerald-800 shrink-0">
+                <BadgePlus className="w-10 h-10 text-emerald-800" />
             </div>
-            <div className="flex-1 text-center pr-24">
-                <h1 className="font-black text-2xl uppercase tracking-widest text-emerald-900 mb-2">{data.clinicName}</h1>
+            <div className="flex-1 text-center pr-20">
+                <h1 className="font-black text-xl uppercase tracking-widest text-emerald-900 mb-1">{data.clinicName}</h1>
                 <p className="text-sm font-semibold text-slate-700 leading-snug">{data.clinicAddress}</p>
                 <p className="text-xs text-slate-500 mt-1">S.I.P: {data.doctorSip}</p>
             </div>
         </div>
 
-        <div className="text-center mb-8">
-            <h2 className="font-bold text-xl uppercase underline tracking-wider">SURAT KETERANGAN SAKIT</h2>
+        <div className="text-center mb-6">
+            <h2 className="font-bold text-lg uppercase underline tracking-wider">SURAT KETERANGAN SAKIT</h2>
         </div>
 
         <p className="mb-4 text-justify">
