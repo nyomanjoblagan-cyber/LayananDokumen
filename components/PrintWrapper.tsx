@@ -373,7 +373,7 @@ export default function PrintWrapper({
             content: '';
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' width='400' height='400'%3E%3Ctext x='50%25' y='50%25' transform='rotate(-45 200 200)' fill='rgba(0,0,0,0.08)' font-family='sans-serif' font-size='24' font-weight='bold' letter-spacing='4' text-anchor='middle'%3ELAYANANDOKUMEN.COM%3C/text%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' width='400' height='400'%3E%3Ctext x='50%25' y='50%25' transform='rotate(-45 200 200)' fill='rgba(0,0,0,0.03)' font-family='sans-serif' font-size='24' font-weight='bold' letter-spacing='4' text-anchor='middle'%3ELAYANANDOKUMEN.COM%3C/text%3E%3C/svg%3E");
             background-repeat: repeat;
             z-index: 2147483647;
             pointer-events: none;
