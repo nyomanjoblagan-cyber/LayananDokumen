@@ -346,21 +346,8 @@ export default function PrintWrapper({
           #print-only-root {
             display: block !important;
           }
-          /* Print Watermark layanandokumen.com (opsi gratis) */
-          ${!isPremium ? `
-          body.print-free #print-only-root::after {
-            content: "layanandokumen.com";
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 5rem;
-            color: rgba(0, 0, 0, 0.05);
-            z-index: 9999;
-            pointer-events: none;
-            white-space: nowrap;
-          }` : ''}
-          
+          /* Print Watermark layanandokumen.com dihapus karena duplikat dengan yang kapital */
+
           /* Sembunyikan modal pembayaran saat dialog print muncul (jika eksekusi sinkron) */
           #print-modal-overlay {
             display: none !important;
