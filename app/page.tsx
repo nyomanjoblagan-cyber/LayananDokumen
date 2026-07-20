@@ -195,14 +195,14 @@ export default function HomePage() {
   })).filter(group => group.items.length > 0);
 
   return (
-    <main className="min-h-screen font-sans text-slate-900 bg-[#f8fafc]">
+    <main className="min-h-screen font-sans text-slate-900 bg-slate-50">
       <style dangerouslySetInnerHTML={{ __html: `
         html { scroll-behavior: smooth !important; }
       ` }} />
 
-      <div className="fixed inset-0 z-0 pointer-events-none">
-         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-         <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-emerald-400 opacity-20 blur-[100px]"></div>
+      <div className="fixed inset-0 z-0 pointer-events-none flex justify-center">
+         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_14px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+         <div className="absolute top-0 -z-10 h-[400px] w-[600px] rounded-full bg-gradient-to-b from-emerald-400/20 to-transparent blur-[100px]"></div>
       </div>
 
       <header className="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
@@ -250,18 +250,18 @@ export default function HomePage() {
       <section className="relative z-10 pt-10 pb-6 md:pt-16 md:pb-10 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 space-y-6">
-             <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-full px-3 py-1">
+             <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 bg-white border border-emerald-100/60 shadow-sm rounded-full px-3 py-1.5 transition-all hover:shadow-md">
                    <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                    </span>
-                   <span className="text-[10px] font-bold text-emerald-700 tracking-wide uppercase">Gratis Seumur Hidup</span>
+                   <span className="text-[10px] font-bold text-emerald-700 tracking-wide uppercase">100% Gratis & Tanpa Login</span>
                 </div>
-                <h2 className="text-3xl lg:text-5xl font-black tracking-tight text-slate-900 leading-[1.15]">Buat Dokumen Resmi <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">Lengkap & Instan.</span></h2>
+                <h2 className="text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight text-slate-900 leading-[1.15]">Buat Dokumen Resmi <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-700 drop-shadow-sm">Lengkap & Instan.</span></h2>
                 <div className="text-sm md:text-base text-slate-600 max-w-xl leading-relaxed space-y-3">
-                   <p>Generator otomatis untuk surat menyurat, kontrak bisnis, legalitas aset, hingga administrasi desa. Tinggal isi formulir, jadi PDF siap cetak.</p>
-                   <p className="hidden md:block text-slate-500 text-sm">Didesain khusus untuk UMKM, karyawan, dan mahasiswa Indonesia. Data Anda aman dan diproses lokal di browser.</p>
+                   <p className="font-medium text-slate-700">Generator otomatis untuk surat menyurat, kontrak bisnis, legalitas aset, hingga administrasi desa. Tinggal isi formulir, jadi PDF siap cetak dalam hitungan detik.</p>
+                   <p className="hidden md:block text-slate-500 text-sm">Didesain khusus untuk UMKM, karyawan, dan seluruh masyarakat Indonesia. Privasi 100% aman karena data diproses lokal di dalam browser Anda.</p>
                 </div>
              </div>
              <div className="max-w-lg relative group">
