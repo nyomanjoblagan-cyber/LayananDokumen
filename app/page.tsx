@@ -258,7 +258,7 @@ export default function HomePage() {
                    </span>
                    <span className="text-[10px] font-bold text-emerald-700 tracking-wide uppercase">100% Gratis & Tanpa Login</span>
                 </div>
-                <h2 className="text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight text-slate-900 leading-[1.15]">Buat Dokumen Resmi <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-700 drop-shadow-sm">Lengkap & Instan.</span></h2>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight text-slate-900 leading-[1.15]">Buat Dokumen Resmi <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-700 drop-shadow-sm">Lengkap & Instan.</span></h2>
                 <div className="text-sm md:text-base text-slate-600 max-w-xl leading-relaxed space-y-3">
                    <p className="font-medium text-slate-700">Generator otomatis untuk surat menyurat, kontrak bisnis, legalitas aset, hingga administrasi desa. Tinggal isi formulir, jadi PDF siap cetak dalam hitungan detik.</p>
                    <p className="hidden md:block text-slate-500 text-sm">Didesain khusus untuk UMKM, karyawan, dan seluruh masyarakat Indonesia. Privasi 100% aman karena data diproses lokal di dalam browser Anda.</p>
