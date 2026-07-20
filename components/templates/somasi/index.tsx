@@ -63,7 +63,7 @@ function SomasiBuilder() {
 
     return (
       <Kertas>
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex justify-between items-start mb-4">
             <div>
                 <p>{data.city}, {formatDateSafe(data.date)}</p>
                 <div className="mt-4">
@@ -74,7 +74,7 @@ function SomasiBuilder() {
             </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4">
             <p>Kepada Yth,</p>
             <p className="font-bold uppercase">{data.receiverName}</p>
             <p className="w-1/2">{data.receiverAddress}</p>
@@ -100,17 +100,17 @@ function SomasiBuilder() {
             Oleh karena itu, melalui surat ini kami memberikan <strong>Peringatan Keras / SOMASI</strong> kepada Saudara/i agar segera menyelesaikan kewajiban tersebut dan melakukan pembayaran selambat-lambatnya dalam waktu <strong>{data.deadlineDays} ({(data.deadlineDays.toString())}) hari</strong> sejak surat ini diterima.
         </p>
 
-        <p className="mb-6 text-justify">
+        <p className="mb-4 text-justify">
             Apabila sampai dengan batas waktu tersebut Saudara/i tetap tidak menunjukkan iktikad baik untuk menyelesaikan kewajiban, maka kami akan menempuh jalur hukum secara tegas, baik hukum Perdata (Gugatan Wanprestasi) maupun Pidana (Laporan Kepolisian).
         </p>
 
-        <p className="mb-12">
+        <p className="mb-8">
             Demikian surat Somasi / Teguran Hukum ini kami sampaikan untuk menjadi perhatian dan segera dilaksanakan.
         </p>
 
         {/* TANDA TANGAN */}
         <div className="break-inside-avoid">
-            <p className="mb-24">Hormat Kami,</p>
+            <p className="mb-16">Hormat Kami,</p>
             <p className="font-bold underline uppercase">{data.senderName}</p>
             <p className="text-sm">{data.senderContact}</p>
         </div>

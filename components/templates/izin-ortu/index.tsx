@@ -63,16 +63,16 @@ function IzinOrtuBuilder() {
 
     return (
       <Kertas>
-        <div className="text-center mb-10">
+        <div className="text-center mb-6">
             <h1 className="font-bold text-lg uppercase underline tracking-wide">SURAT IZIN {data.p1Relation.toUpperCase()}</h1>
         </div>
 
-        <p className="mb-6 text-justify">
+        <p className="mb-4 text-justify">
             Yang bertanda tangan di bawah ini:
         </p>
 
         {/* PEMBERI IZIN */}
-        <div className="mb-8">
+        <div className="mb-4">
             <div className="ml-4 space-y-2">
                 <div className="flex"><div className="w-48">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p1Name}</div></div>
                 <div className="flex"><div className="w-48">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.p1Birth}</div></div>
@@ -81,12 +81,12 @@ function IzinOrtuBuilder() {
             </div>
         </div>
 
-        <p className="mb-6 text-justify">
+        <p className="mb-4 text-justify">
             Selaku <strong>{data.p1Relation}</strong> dari:
         </p>
 
         {/* YANG DIBERI IZIN */}
-        <div className="mb-8">
+        <div className="mb-4">
             <div className="ml-4 space-y-2">
                 <div className="flex"><div className="w-48">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p2Name}</div></div>
                 <div className="flex"><div className="w-48">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.p2Birth}</div></div>
@@ -95,26 +95,26 @@ function IzinOrtuBuilder() {
             </div>
         </div>
 
-        <p className="mb-6 text-justify leading-loose">
+        <p className="mb-4 text-justify">
             Dengan ini menyatakan bahwa kami memberikan <strong>IZIN SEPENUHNYA</strong> kepada anak/istri/suami kami tersebut di atas untuk <strong>{data.purpose}</strong> di <strong>{data.companyName}</strong> yang berlokasi di <strong>{data.location}</strong>.
         </p>
         
-        <p className="mb-6 text-justify leading-loose">
+        <p className="mb-4 text-justify">
             Kami juga menyatakan persetujuan dan tidak keberatan apabila yang bersangkutan ditempatkan atau ditugaskan sesuai dengan ketentuan dan peraturan yang berlaku di perusahaan tersebut. Segala risiko yang timbul akibat pekerjaan tersebut menjadi tanggung jawab kami sepenuhnya.
         </p>
 
-        <p className="mb-12 text-justify">
+        <p className="mb-8 text-justify">
             Demikian Surat Izin {data.p1Relation} ini dibuat dengan sebenar-benarnya dalam keadaan sadar dan tanpa paksaan dari pihak manapun untuk dipergunakan sebagaimana mestinya.
         </p>
 
         {/* TANDA TANGAN */}
-        <div className="flex justify-between mt-12 mb-20 text-center break-inside-avoid">
+        <div className="flex justify-between mt-8 mb-10 text-center break-inside-avoid">
             <div className="w-1/2">
                 {/* Kosong untuk layout */}
             </div>
             <div className="w-1/2">
                 <p className="mb-1">{data.city}, {formatDateSafe(data.date)}</p>
-                <p className="mb-24">Yang Memberi Izin,<br/><span className="text-[10px]">({data.p1Relation})</span></p>
+                <p className="mb-16">Yang Memberi Izin,<br/><span className="text-[10px]">({data.p1Relation})</span></p>
                 <p className="font-bold underline uppercase">{data.p1Name}</p>
             </div>
         </div>
