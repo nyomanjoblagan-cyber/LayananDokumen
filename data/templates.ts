@@ -1,4 +1,39 @@
 export const TEMPLATES: Record<string, any> = {
+  "bagi-hasil": {
+    title: "Buat Surat Perjanjian Bagi Hasil (Syirkah) Otomatis",
+    description: "Generator Surat Perjanjian Bagi Hasil / Syirkah online. Cocok untuk bisnis franchise, kedai kopi, atau patungan modal.",
+    seoGuide: "Panduan lengkap Surat Perjanjian Bagi Hasil (Syirkah). Dokumen ini mengatur pembagian deviden, tanggung jawab kerugian, dan wewenang operasional antar pemodal. Buat secara instan dan aman di sini.",
+    category: "Bisnis & UMKM",
+    price: 10000
+  },
+  "hutang-piutang": {
+    title: "Buat Surat Perjanjian Hutang Piutang Otomatis",
+    description: "Generator Surat Perjanjian Hutang Piutang online. Buat surat utang resmi bermeterai dengan jaminan atau tanpa jaminan dalam hitungan detik.",
+    seoGuide: "Surat Perjanjian Hutang Piutang sangat penting untuk memberikan kekuatan hukum (legalitas) saat meminjamkan uang. Dokumen ini dilengkapi pasal penyelesaian sengketa, denda keterlambatan, dan klausul jaminan (opsional).",
+    category: "Legal & Aset",
+    price: 10000
+  },
+  "izin-ortu": {
+    title: "Buat Surat Izin Orang Tua / Suami Otomatis",
+    description: "Generator Surat Izin Orang Tua / Suami untuk keperluan melamar kerja, magang, atau bekerja di luar negeri (TKI).",
+    seoGuide: "Banyak instansi seperti BUMN, Pabrik, dan agen PJTKI mensyaratkan pelamar melampirkan Surat Izin Orang Tua atau Suami. Gunakan generator ini untuk membuat surat baku yang siap cetak dengan format resmi.",
+    category: "HRD & Karir",
+    price: 10000
+  },
+  "pra-nikah": {
+    title: "Buat Surat Perjanjian Pra-Nikah (Prenuptial) Otomatis",
+    description: "Generator Surat Perjanjian Pra-Nikah (Prenuptial Agreement). Atur pemisahan harta bawaan dan harta bersama dengan mudah.",
+    seoGuide: "Surat Perjanjian Pra-Nikah sangat penting untuk melindungi aset pribadi yang diperoleh sebelum pernikahan dan mencegah sengketa harta gono-gini di kemudian hari sesuai Undang-Undang Perkawinan.",
+    category: "Legal & Aset",
+    price: 10000
+  },
+  "somasi": {
+    title: "Buat Surat Somasi (Teguran Hukum) Otomatis",
+    description: "Generator Surat Somasi Pertama/Kedua/Terakhir. Dokumen peringatan hukum profesional untuk penagihan utang atau wanprestasi.",
+    seoGuide: "Surat Somasi (Teguran Hukum) adalah langkah krusial sebelum membawa kasus wanprestasi, hutang macet, atau penipuan ke jalur hukum (Polisi/Pengadilan). Buat surat somasi formal Anda secara instan di sini.",
+    category: "Legal & Aset",
+    price: 10000
+  },
   "ahli-waris": {
     title: "Buat Surat Ahli Waris Otomatis (PDF)",
     description: "Generator Surat Ahli Waris online. Isi form langsung jadi, cetak tanpa watermark, cepat dan praktis.",
