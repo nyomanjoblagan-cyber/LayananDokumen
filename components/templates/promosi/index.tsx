@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SuratPromosiPage.tsx
@@ -122,7 +124,7 @@ function PromosiBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'perusahaan' | 'karyawan' | 'promosi' | 'sk'>('perusahaan');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PromosiData>(DEFAULT_DATA);
+  const [data, setData] = useFormSync<PromosiData>(DEFAULT_DATA);
 
   useEffect(() => {
     setIsClient(true);

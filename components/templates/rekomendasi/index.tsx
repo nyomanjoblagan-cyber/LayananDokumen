@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: RekomendasiKerjaPage.tsx
@@ -99,7 +101,7 @@ function RekomendasiBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'perusahaan' | 'surat' | 'karyawan' | 'penilaian'>('perusahaan');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<RekomendasiData>(DEFAULT_DATA);
+  const [data, setData] = useFormSync<RekomendasiData>(DEFAULT_DATA);
 
   useEffect(() => {
     setIsClient(true);

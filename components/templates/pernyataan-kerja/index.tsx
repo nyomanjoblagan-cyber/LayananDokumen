@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 import React, { useState, Suspense, useEffect } from 'react';
 import { 
   Printer, ArrowLeftCircle, Edit3, RotateCcw, User, FileText, CheckCircle
@@ -64,7 +66,7 @@ function PernyataanBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'identitas' | 'isi'>('identitas');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<PernyataanKerjaData>(DEFAULT_DATA);
+  const [data, setData] = useFormSync<PernyataanKerjaData>(DEFAULT_DATA);
 
   useEffect(() => {
     setIsClient(true);

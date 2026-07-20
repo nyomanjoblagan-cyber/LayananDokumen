@@ -1,4 +1,6 @@
 'use client';
+import { useFormSync } from '@/lib/useFormSync';
+
 
 /**
  * FILE: SuratResignPage.tsx
@@ -80,7 +82,7 @@ function ResignBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<'tujuan' | 'karyawan' | 'isi'>('tujuan');
   const [isClient, setIsClient] = useState(false);
-  const [data, setData] = useState<ResignData>(getInitialData());
+  const [data, setData] = useFormSync<ResignData>(getInitialData());
 
   useEffect(() => {
     setIsClient(true);
