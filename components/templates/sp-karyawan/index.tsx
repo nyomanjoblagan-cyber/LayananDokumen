@@ -193,7 +193,7 @@ function SPKaryawanBuilder() {
       {/* TANDA TANGAN */}
       <div className="flex justify-between px-4 break-inside-avoid mt-8">
         <div className="text-center w-64">
-            <p className="mb-2 uppercase font-bold text-white selection:text-transparent">SPACER</p>
+            <div className="mb-2 h-6"></div>
             <div className="h-24 flex justify-center items-center">
             </div>
             <p className="font-bold underline uppercase">{data.employee.fullName}</p>

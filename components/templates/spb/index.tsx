@@ -186,7 +186,7 @@ function PaymentOrderBuilder() {
       {/* TANDA TANGAN */}
       <div className="flex justify-between px-4 break-inside-avoid mt-16">
         <div className="text-center w-64">
-            <p className="mb-1 uppercase font-bold text-white selection:text-transparent">SPACER</p>
+            <div className="mb-1 h-6"></div>
             <p className="mb-2 font-bold uppercase">Penerima Perintah<br/>(Keuangan / Bendahara)</p>
             <div className="h-24 flex justify-center items-center">
             </div>
