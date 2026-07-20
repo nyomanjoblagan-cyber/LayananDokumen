@@ -153,13 +153,13 @@ function PaymentOrderBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* KOP SURAT */}
-      <div className="flex flex-col items-center border-b-[3px] border-black pb-4 mb-8">
+      <div className="flex flex-col items-center border-b-[3px] border-black pb-4 mb-6">
         <h1 className="text-2xl font-black uppercase tracking-widest">{data.companyName}</h1>
         <p className="text-sm mt-1 text-center px-8">{data.companyAddress}</p>
       </div>
 
       {/* JUDUL */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="font-bold text-xl underline uppercase tracking-widest">SURAT PERINTAH BAYAR</h2>
         <p className="font-bold mt-1">Nomor: {data.docNo}</p>
       </div>
@@ -177,14 +177,14 @@ function PaymentOrderBuilder() {
         <div className="flex mb-1"><div className="w-48 italic">Terbilang</div><div className="w-4">:</div><div className="flex-1 italic">"{data.amountText}"</div></div>
       </div>
 
-      <div className="mb-8 text-justify">
+      <div className="mb-6 text-justify">
         <p className="mb-2">Pembayaran tersebut merupakan pelunasan / penyelesaian atas:</p>
         <p className="font-bold uppercase text-center bg-gray-100 p-2 border border-gray-300 rounded mb-4">"{data.purpose}"</p>
         <p>Pembayaran ini harus diproses paling lambat 1 (satu) hari kerja setelah Surat Perintah Bayar ini ditandatangani. Segala bukti transfer atau tanda terima pembayaran harap dilampirkan bersama dokumen ini sebagai bukti kas keluar perusahaan.</p>
       </div>
 
       {/* TANDA TANGAN */}
-      <div className="flex justify-between px-4 break-inside-avoid mt-16">
+      <div className="flex justify-between px-4 break-inside-avoid mt-8">
         <div className="text-center w-64">
             <div className="mb-1 h-6"></div>
             <p className="mb-2 font-bold uppercase">Penerima Perintah<br/>(Keuangan / Bendahara)</p>

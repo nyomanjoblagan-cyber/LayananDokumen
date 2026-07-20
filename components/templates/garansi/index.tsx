@@ -124,17 +124,17 @@ function WarrantyBuilder() {
   const DocumentContent = () => {
       return (
         <Kertas templateId={templateId}>
-          <div className="text-center mb-8 border-b-2 border-slate-800 pb-4">
+          <div className="text-center mb-4 border-b-2 border-slate-800 pb-2">
              <h1 className="font-bold text-xl md:text-2xl uppercase tracking-wide">SERTIFIKAT GARANSI RESMI</h1>
              <p className="mt-2 text-sm tracking-widest">NO: {data.warrantyNo}</p>
           </div>
 
-          <div className="mb-8 text-justify">
+          <div className="mb-4 text-justify">
              <p>Sertifikat ini diterbitkan sebagai bukti jaminan kualitas dan perlindungan atas produk yang dibeli. Dengan ini kami menyatakan bahwa produk yang tercantum di bawah ini dilindungi oleh Garansi Resmi sesuai dengan syarat dan ketentuan yang berlaku.</p>
           </div>
 
           {/* INFORMASI PRODUK */}
-          <div className="mb-6 border border-slate-300 p-4 relative overflow-hidden">
+          <div className="mb-4 border border-slate-300 p-4 relative overflow-hidden">
              <div className="absolute top-0 right-0 bg-slate-800 text-white text-[10px] font-bold px-3 py-1 uppercase">Informasi Produk</div>
              <table className="w-full mt-3">
                  <tbody>
@@ -146,7 +146,7 @@ function WarrantyBuilder() {
           </div>
 
           {/* INFORMASI PELANGGAN & VENDOR */}
-          <div className="grid grid-cols-2 gap-4 mb-8 break-inside-avoid">
+          <div className="grid grid-cols-2 gap-4 mb-4 break-inside-avoid">
               <div className="border border-slate-300 p-4">
                   <p className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2">Diberikan Kepada (Pelanggan)</p>
                   <p className="font-bold uppercase text-sm mb-1">{data.clientName}</p>
@@ -161,7 +161,7 @@ function WarrantyBuilder() {
           </div>
 
           {/* KETENTUAN GARANSI */}
-          <div className="mb-8">
+          <div className="mb-4">
              <h2 className="font-bold text-sm uppercase mb-3 border-b border-slate-200 pb-1">Syarat & Ketentuan Garansi</h2>
              
              <div className="mb-4">
@@ -181,7 +181,7 @@ function WarrantyBuilder() {
           </div>
 
           {/* TANDA TANGAN */}
-          <div className="mt-16">
+          <div className="mt-8">
               <div className="flex justify-end text-center">
                   <div className="w-64">
                       <p className="mb-1">{data.city}, {formatDateString(data.date)}</p>
@@ -194,7 +194,7 @@ function WarrantyBuilder() {
               </div>
           </div>
           
-          <div className="mt-12 text-center border-t border-dashed border-slate-300 pt-4 opacity-50">
+          <div className="mt-6 text-center border-t border-dashed border-slate-300 pt-2 opacity-50">
               <p className="text-[9px] uppercase tracking-widest">Sertifikat ini sah dan mengikat apabila dilengkapi dengan bukti pembelian yang valid.</p>
           </div>
         </Kertas>

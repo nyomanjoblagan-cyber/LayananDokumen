@@ -208,7 +208,7 @@ function FakturBuilder() {
                           </tr>
                       ))}
                       {/* Empty rows to fill space if needed */}
-                      {data.items.length < 5 && Array(5 - data.items.length).fill(0).map((_, idx) => (
+                      {data.items.length < 3 && Array(3 - data.items.length).fill(0).map((_, idx) => (
                           <tr key={'empty-'+idx} className="border-b border-slate-200">
                               <td className="border-x border-slate-300 p-3">&nbsp;</td>
                               <td className="border-x border-slate-300 p-3">&nbsp;</td>
@@ -258,7 +258,7 @@ function FakturBuilder() {
           </div>
 
           {/* TANDA TANGAN */}
-          <div className="mt-12 flex justify-end break-inside-avoid">
+          <div className="mt-4 flex justify-end break-inside-avoid">
               <div className="text-center w-[200px]">
                   <p className="mb-1">{data.city}, {formatDate(data.date)}</p>
                   <p className="font-bold mb-4">{data.vendorName}</p>
