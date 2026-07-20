@@ -17,7 +17,7 @@ export default function HomePage() {
     {
       group: "Bisnis & UMKM",
       desc: "Transaksi & keuangan usaha.",
-      icon: Store, color: "text-emerald-700", bgHeader: "bg-emerald-50", border: "border-emerald-100",
+      icon: Store, color: "text-emerald-700", bgHeader: "bg-emerald-50", border: "border-emerald-100", accent: "border-l-emerald-500",
       items: [
         { name: "Invoice Profesional", href: "/tools/finance?mode=invoice" },
         { name: "Kwitansi Pembayaran", href: "/tools/finance?mode=kwitansi" },
@@ -41,7 +41,7 @@ export default function HomePage() {
     {
       group: "HRD & Personalia",
       desc: "Karyawan & rekrutmen.",
-      icon: Users, color: "text-blue-700", bgHeader: "bg-blue-50", border: "border-blue-100",
+      icon: Users, color: "text-blue-700", bgHeader: "bg-blue-50", border: "border-blue-100", accent: "border-l-blue-500",
       items: [
         { name: "Surat Lamaran Kerja", href: "/tools/lamaran" },
         { name: "CV Maker (ATS)", href: "/tools/cv" },
@@ -63,7 +63,7 @@ export default function HomePage() {
     {
       group: "Legal & Aset",
       desc: "Jual beli & perjanjian.",
-      icon: Gavel, color: "text-indigo-700", bgHeader: "bg-indigo-50", border: "border-indigo-100",
+      icon: Gavel, color: "text-indigo-700", bgHeader: "bg-indigo-50", border: "border-indigo-100", accent: "border-l-indigo-500",
       items: [
         { name: "Surat Perjanjian Jual Beli Tanah", href: "/tools/jual-beli-tanah" },
         { name: "Surat Perjanjian Jual Beli Kendaraan", href: "/tools/jual-beli-kendaraan" },
@@ -86,7 +86,7 @@ export default function HomePage() {
     {
       group: "Administrasi Desa",
       desc: "Surat keterangan warga.",
-      icon: Landmark, color: "text-orange-700", bgHeader: "bg-orange-50", border: "border-orange-100",
+      icon: Landmark, color: "text-orange-700", bgHeader: "bg-orange-50", border: "border-orange-100", accent: "border-l-orange-500",
       items: [
         { name: "Surat Pengantar RT/RW", href: "/tools/pengantar-rt" },
         { name: "Surat Keterangan Usaha (SKU)", href: "/tools/sku" },
@@ -109,7 +109,7 @@ export default function HomePage() {
     {
       group: "Logistik & Transport",
       desc: "Jalan & pengiriman.",
-      icon: Truck, color: "text-slate-700", bgHeader: "bg-slate-100", border: "border-slate-200",
+      icon: Truck, color: "text-slate-700", bgHeader: "bg-slate-100", border: "border-slate-200", accent: "border-l-slate-500",
       items: [
         { name: "Surat Jalan", href: "/tools/surat-jalan" },
         { name: "Berita Acara (BAST)", href: "/tools/bast" },
@@ -126,7 +126,7 @@ export default function HomePage() {
     {
       group: "Akademik & Izin",
       desc: "Sekolah & kuliah.",
-      icon: GraduationCap, color: "text-rose-700", bgHeader: "bg-rose-50", border: "border-rose-100",
+      icon: GraduationCap, color: "text-rose-700", bgHeader: "bg-rose-50", border: "border-rose-100", accent: "border-l-rose-500",
       items: [
         { name: "Surat Izin Sakit Sekolah", href: "/tools/izin-sekolah" },
         { name: "Surat Permohonan Beasiswa", href: "/tools/beasiswa" },
@@ -145,7 +145,7 @@ export default function HomePage() {
     {
       group: "Kesehatan",
       desc: "Medis & rujukan.",
-      icon: Stethoscope, color: "text-cyan-700", bgHeader: "bg-cyan-50", border: "border-cyan-100",
+      icon: Stethoscope, color: "text-cyan-700", bgHeader: "bg-cyan-50", border: "border-cyan-100", accent: "border-l-cyan-500",
       items: [
         { name: "Surat Rujukan Medis", href: "/tools/rujukan" },
         { name: "Surat Pernyataan Rawat Inap", href: "/tools/rawat-inap" },
@@ -156,7 +156,7 @@ export default function HomePage() {
     {
       group: "Event & Acara",
       desc: "Kegiatan & sponsor.",
-      icon: PartyPopper, color: "text-amber-700", bgHeader: "bg-amber-50", border: "border-amber-100",
+      icon: PartyPopper, color: "text-amber-700", bgHeader: "bg-amber-50", border: "border-amber-100", accent: "border-l-amber-500",
       items: [
         { name: "Proposal Sponsorship", href: "/tools/sponsorship" },
         { name: "Surat Permohonan Donasi", href: "/tools/donasi" },
@@ -167,7 +167,7 @@ export default function HomePage() {
     {
       group: "Kalkulator",
       desc: "Hitungan finansial.",
-      icon: Calculator, color: "text-violet-700", bgHeader: "bg-violet-50", border: "border-violet-100",
+      icon: Calculator, color: "text-violet-700", bgHeader: "bg-violet-50", border: "border-violet-100", accent: "border-l-violet-500",
       items: [
         { name: "Terbilang Rupiah", href: "/tools/terbilang" },
         { name: "Kalkulator KPR", href: "/tools/kpr" },
@@ -363,7 +363,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredDirectory.map((cat, idx) => (
               <Fragment key={idx}>
-                <div className={`flex flex-col bg-white border ${cat.border} rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group h-full`}>
+                <div className={`flex flex-col bg-white border ${cat.border} border-l-[4px] ${cat.accent} rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group h-full`}>
                   <div className={`px-4 py-3 border-b ${cat.border} ${cat.bgHeader} flex items-center gap-3`}>
                     <div className={`p-1.5 rounded-lg bg-white/60 shadow-sm ${cat.color}`}><cat.icon size={18} strokeWidth={2.5} /></div>
                     <div>
