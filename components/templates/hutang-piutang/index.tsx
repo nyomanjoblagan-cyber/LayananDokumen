@@ -60,10 +60,13 @@ function HutangPiutangBuilder() {
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState('pihak');
   
-  const { data, handleDataChange, handleReset } = useFormSync(
-    'layanandokumen_hutang_piutang_v1', 
-    INITIAL_DATA
-  );
+  const [data, setData] = useFormSync(INITIAL_DATA);
+  const handleDataChange = (field: string, val: any) => setData((prev: any) => ({ ...prev, [field]: val }));
+  const handleReset = () => {
+    if(typeof window !== 'undefined' && window.confirm('Reset formulir ke awal?')) {
+        setData(INITIAL_DATA);
+    }
+  };
 
   const DocumentContent = () => {
     const formatDateSafe = (dateString: string) => {
