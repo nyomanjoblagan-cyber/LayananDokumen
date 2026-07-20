@@ -75,7 +75,7 @@
    ========================================= */
 @media (max-width: 639px) {
   #print-only-root {
-    transform: scale(0.43) !important;
+    transform: scale(0.46) !important;
     margin-bottom: -160mm !important; 
     transform-origin: top left !important;
   }
