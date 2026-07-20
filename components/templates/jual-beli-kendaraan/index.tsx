@@ -110,7 +110,7 @@ function VehicleSaleBuilder() {
 
     return (
       <Kertas>
-        <div className="text-center mb-6 break-inside-avoid">
+        <div className="text-center mb-6">
             <h1 className="font-bold text-lg uppercase underline tracking-wide">PERJANJIAN JUAL BELI KENDARAAN BERMOTOR</h1>
             <p className="text-sm mt-1">Nomor: {data.nopol.replace(/\s+/g, '')}/{data.date.replace(/-/g, '')}</p>
         </div>
@@ -120,7 +120,7 @@ function VehicleSaleBuilder() {
         </p>
 
         {/* PIHAK PERTAMA */}
-        <div className="mb-4 ml-4 break-inside-avoid">
+        <div className="mb-4 ml-4">
             <p className="font-bold mb-2">PIHAK PERTAMA (I) - PENJUAL</p>
             <div className="ml-4 space-y-1">
                 <div className="flex"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p1Name}</div></div>
@@ -133,7 +133,7 @@ function VehicleSaleBuilder() {
         </div>
 
         {/* PIHAK KEDUA */}
-        <div className="mb-6 ml-4 break-inside-avoid">
+        <div className="mb-6 ml-4">
             <p className="font-bold mb-2">PIHAK KEDUA (II) - PEMBELI</p>
             <div className="ml-4 space-y-1">
                 <div className="flex"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p2Name}</div></div>
@@ -151,7 +151,7 @@ function VehicleSaleBuilder() {
 
         {/* PASAL 1 OBJEK */}
         <div className="mb-4 text-justify space-y-4">
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1">Pasal 1</h3>
                 <h3 className="font-bold text-center mb-2">OBJEK JUAL BELI</h3>
                 <p>PIHAK PERTAMA setuju untuk menjual dan menyerahkan kepada PIHAK KEDUA, dan PIHAK KEDUA setuju untuk membeli dan menerima dari PIHAK PERTAMA, 1 (satu) unit kendaraan bermotor dengan identitas sebagai berikut:</p>
@@ -167,7 +167,7 @@ function VehicleSaleBuilder() {
                 </div>
             </div>
 
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 2</h3>
                 <h3 className="font-bold text-center mb-2">HARGA DAN CARA PEMBAYARAN</h3>
                 <ol className="list-decimal ml-8 my-2 space-y-1">
@@ -178,7 +178,7 @@ function VehicleSaleBuilder() {
                 </ol>
             </div>
 
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 3</h3>
                 <h3 className="font-bold text-center mb-2">JAMINAN DAN LEGALITAS</h3>
                 <ol className="list-decimal ml-8 my-2 space-y-1">
@@ -188,7 +188,7 @@ function VehicleSaleBuilder() {
                 </ol>
             </div>
 
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 4</h3>
                 <h3 className="font-bold text-center mb-2">KONDISI KENDARAAN DAN BALIK NAMA</h3>
                 <ol className="list-decimal ml-8 my-2 space-y-1">
@@ -197,7 +197,7 @@ function VehicleSaleBuilder() {
                 </ol>
             </div>
 
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 5</h3>
                 <h3 className="font-bold text-center mb-2">SANKSI KETERLAMBATAN & PEMBATALAN</h3>
                 <ol className="list-decimal ml-8 my-2 space-y-1">
@@ -206,7 +206,7 @@ function VehicleSaleBuilder() {
                 </ol>
             </div>
 
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 6</h3>
                 <h3 className="font-bold text-center mb-2">PENUTUP</h3>
                 <p>Demikian Surat Perjanjian ini dibuat dalam rangkap 2 (dua) yang masing-masing bermeterai cukup dan mempunyai kekuatan hukum yang sama. Ditandatangani dalam keadaan sadar dan tanpa paksaan dari pihak manapun.</p>
@@ -214,7 +214,7 @@ function VehicleSaleBuilder() {
         </div>
 
         {/* TANDA TANGAN */}
-        <div className="break-inside-avoid pt-8">
+        <div className="pt-8">
             <div className="flex justify-between items-start text-center mb-8">
               <div className="w-[45%]">
                 <p className="font-bold mb-2">PIHAK PERTAMA (PENJUAL)</p>

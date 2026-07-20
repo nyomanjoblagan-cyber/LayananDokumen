@@ -95,11 +95,11 @@ function PernyataanBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* Judul Surat */}
-      <div className="text-center mb-10 break-inside-avoid">
+      <div className="text-center mb-10">
         <h1 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black inline-block pb-1">SURAT PERNYATAAN TIDAK TERIKAT KERJA</h1>
       </div>
 
-      <div className="mb-6 break-inside-avoid text-justify">
+      <div className="mb-6 text-justify">
         <p>Yang bertanda tangan di bawah ini saya:</p>
         <div className="ml-8 mt-4 space-y-2">
             <div className="flex"><div className="w-48 align-top">Nama Lengkap</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold uppercase align-top">{data.nama}</div></div>
@@ -112,7 +112,7 @@ function PernyataanBuilder() {
         </div>
       </div>
 
-      <div className="mb-6 break-inside-avoid text-justify">
+      <div className="mb-6 text-justify">
         <p>Dalam rangka <strong>{data.tujuanSurat}</strong>, dengan ini menyatakan secara sadar, tanpa paksaan dari pihak mana pun, hal-hal sebagai berikut:</p>
         <ol className="list-decimal pl-8 mt-4 space-y-3">
           <li>{data.poin1}</li>
@@ -121,7 +121,7 @@ function PernyataanBuilder() {
         </ol>
       </div>
 
-      <div className="mb-10 break-inside-avoid text-justify">
+      <div className="mb-10 text-justify">
         <p>Demikian surat pernyataan ini saya buat dengan sesungguhnya dan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
       </div>
 

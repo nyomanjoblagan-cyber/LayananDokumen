@@ -99,7 +99,7 @@ function BelumMenikahBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL SURAT */}
-      <div className="text-center mb-10 break-inside-avoid">
+      <div className="text-center mb-10">
           <h1 className="font-bold text-[14pt] uppercase tracking-wider underline underline-offset-4">SURAT PERNYATAAN BELUM PERNAH MENIKAH</h1>
       </div>
       
@@ -134,7 +134,7 @@ function BelumMenikahBuilder() {
       </div>
 
       {/* PENUTUP & TANDA TANGAN */}
-      <div className="mt-16 break-inside-avoid">
+      <div className="mt-16">
           <div className="flex justify-between items-end px-8">
               <div className="w-[45%] text-center">
                   <p className="mb-2">&nbsp;</p>

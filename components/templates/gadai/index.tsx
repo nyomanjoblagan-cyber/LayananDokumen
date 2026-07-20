@@ -223,7 +223,7 @@ function GadaiBuilder() {
               <p>PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama sepakat untuk mengikatkan diri dalam Perjanjian Gadai dengan syarat dan ketentuan sebagai berikut:</p>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="font-bold mt-6 mb-2">PASAL 1 : OBJEK GADAI & NILAI PINJAMAN</div>
               <div className="text-justify mb-4">
                   <ol className="list-decimal pl-5 space-y-2">
@@ -234,21 +234,21 @@ function GadaiBuilder() {
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="font-bold mt-6 mb-2">PASAL 2 : JANGKA WAKTU & JATUH TEMPO</div>
               <div className="text-justify mb-4">
                   <p>Jangka waktu pinjaman ditetapkan sampai dengan tanggal <b>{formatDateString(data.dueDate)}</b>. PIHAK KEDUA wajib melunasi pokok pinjaman beserta biayanya (jika ada) paling lambat pada tanggal jatuh tempo tersebut.</p>
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="font-bold mt-6 mb-2">PASAL 3 : PENITIPAN BARANG</div>
               <div className="text-justify mb-4">
                   <p>Barang gadai diserahkan dan dititipkan sepenuhnya kepada PIHAK PERTAMA. Selama masa gadai, PIHAK PERTAMA tidak diperkenankan menggunakan barang tersebut untuk kepentingan pribadi dan wajib menjaganya dengan baik.</p>
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="font-bold mt-6 mb-2">PASAL 4 : EKSEKUSI JAMINAN (WANPRESTASI)</div>
               <div className="text-justify mb-4">
                   <p>Apabila PIHAK KEDUA tidak dapat melunasi pinjaman pada tanggal jatuh tempo dan telah melewati masa toleransi selama <b>{data.toleranceDays} ({terbilang(data.toleranceDays).trim()}) hari kalender</b>, maka PIHAK PERTAMA secara sah dan tanpa perlu putusan pengadilan berhak <b>menjual/melelang barang gadai tersebut</b> untuk melunasi kewajiban hutang PIHAK KEDUA.</p>
@@ -256,7 +256,7 @@ function GadaiBuilder() {
           </div>
 
           {/* TANDA TANGAN */}
-          <div className="mt-12 break-inside-avoid">
+          <div className="mt-12">
               <p className="text-justify mb-8">Demikian Perjanjian Gadai ini dibuat dalam keadaan sadar, tanpa paksaan, dan ditandatangani di atas materai yang cukup agar memiliki kekuatan hukum yang sah.</p>
               
               <div className="flex justify-between text-center mb-16">

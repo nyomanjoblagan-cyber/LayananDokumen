@@ -112,7 +112,7 @@ function DiskonBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* KOP SURAT */}
-      <div className="border-b-4 border-black pb-4 mb-8 break-inside-avoid text-center">
+      <div className="border-b-4 border-black pb-4 mb-8 text-center">
           <h1 className="font-black text-[18pt] uppercase tracking-wider mb-1">{data.namaPerusahaan}</h1>
           <p className="text-[10pt] mb-1">{data.alamatPerusahaan}</p>
           <p className="text-[10pt]">{data.kontakPerusahaan}</p>
@@ -153,7 +153,7 @@ function DiskonBuilder() {
       </div>
 
       {/* TABEL KALKULASI */}
-      <div className="mb-8 px-4 break-inside-avoid">
+      <div className="mb-8 px-4">
          <table className="w-full border-2 border-black border-collapse">
             <tbody>
                <tr>
@@ -174,7 +174,7 @@ function DiskonBuilder() {
       </div>
 
       {/* SYARAT DAN KETENTUAN */}
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
           <p className="font-bold mb-2 underline">Syarat dan Ketentuan Berlakunya Diskon:</p>
           <div className="border border-black p-4 text-[10.5pt] leading-relaxed whitespace-pre-line bg-gray-50/50">
               {data.catatan}
@@ -188,7 +188,7 @@ function DiskonBuilder() {
       </div>
 
       {/* PENGESAHAN (TANDA TANGAN) */}
-      <div className="mt-4 break-inside-avoid">
+      <div className="mt-4">
          <div className="flex justify-between text-center items-stretch mb-4">
             <div className="w-[40%] flex flex-col justify-between">
                <p className="mb-1">Diajukan Oleh,</p>

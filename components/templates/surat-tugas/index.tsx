@@ -162,40 +162,40 @@ function SuratTugasBuilder() {
       </div>
 
       {/* JUDUL */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h2 className="font-bold text-xl underline uppercase tracking-widest">SURAT TUGAS</h2>
         <p className="font-bold mt-1">Nomor: {data.nomorSurat}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* PEMBERI TUGAS */}
-      <div className="mb-4 break-inside-avoid pl-8 border-l-2 border-black ml-4">
+      <div className="mb-4 pl-8 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-32 font-bold">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.pemberiTugas.nama}</div></div>
         <div className="flex mb-1"><div className="w-32">NIP/NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.pemberiTugas.nip}</div></div>
         <div className="flex mb-1"><div className="w-32">Jabatan</div><div className="w-4">:</div><div className="flex-1">{data.pemberiTugas.jabatan}</div></div>
         <div className="flex mb-1"><div className="w-32">Instansi</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.pemberiTugas.instansi}</div></div>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Dengan ini memberikan tugas dan perintah kepada:</p>
       </div>
 
       {/* PENERIMA TUGAS */}
-      <div className="mb-6 break-inside-avoid pl-8 border-l-2 border-black ml-4">
+      <div className="mb-6 pl-8 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-32 font-bold">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.penerimaTugas.nama}</div></div>
         <div className="flex mb-1"><div className="w-32">NIP/NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.penerimaTugas.nip}</div></div>
         <div className="flex mb-1"><div className="w-32">Jabatan</div><div className="w-4">:</div><div className="flex-1">{data.penerimaTugas.jabatan}</div></div>
       </div>
 
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h3 className="font-bold underline text-lg tracking-widest uppercase">--- UNTUK MELAKSANAKAN TUGAS ---</h3>
       </div>
 
       {/* TUGAS */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <div className="pl-4">
             <div className="flex mb-2"><div className="w-48 font-bold">Tujuan / Uraian Tugas</div><div className="w-4">:</div><div className="flex-1 text-justify">{data.tujuanTugas}</div></div>
             <div className="flex mb-2"><div className="w-48 font-bold">Lokasi Penugasan</div><div className="w-4">:</div><div className="flex-1">{data.lokasi}</div></div>
@@ -205,7 +205,7 @@ function SuratTugasBuilder() {
         </div>
       </div>
 
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <p className="font-bold underline mb-2">KETENTUAN BIAYA & FASILITAS:</p>
         <table className="w-full border-collapse border border-black mb-4">
             <thead>
@@ -229,7 +229,7 @@ function SuratTugasBuilder() {
         </table>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid">
+      <div className="text-justify mb-8">
         <p>Demikian Surat Tugas ini dibuat untuk dapat dilaksanakan dengan penuh tanggung jawab. Kepada instansi atau pihak terkait, dimohon bantuan dan kerjasamanya agar tugas ini dapat berjalan dengan lancar. Setelah selesai melaksanakan tugas, yang bersangkutan wajib memberikan laporan kepada Pemberi Tugas.</p>
       </div>
 

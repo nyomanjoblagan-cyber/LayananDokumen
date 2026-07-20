@@ -169,7 +169,7 @@ function GrantLetterBuilder() {
           </div>
 
           {/* OBJEK HIBAH */}
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="mb-4 text-justify">
                  <p>Adapun harta benda yang dihibahkan oleh PIHAK PERTAMA kepada PIHAK KEDUA memiliki rincian dan keterangan sebagai berikut:</p>
               </div>
@@ -179,7 +179,7 @@ function GrantLetterBuilder() {
           </div>
 
           {/* PERNYATAAN HUKUM */}
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-justify mb-8 space-y-2">
                   <p>Maka terhitung sejak ditandatanganinya Surat Hibah ini, segala hak kepemilikan dan kewajiban hukum yang menyertai objek hibah tersebut beralih sepenuhnya menjadi milik <b>PIHAK KEDUA</b>.</p>
                   <p>Surat Pernyataan Hibah ini bersifat final, mutlak, dan tidak dapat ditarik kembali oleh ahli waris atau pihak manapun di kemudian hari.</p>
@@ -187,7 +187,7 @@ function GrantLetterBuilder() {
           </div>
 
           {/* TANDA TANGAN */}
-          <div className="mt-12 break-inside-avoid">
+          <div className="mt-12">
               <p className="text-justify mb-8">Demikian Surat Pernyataan Hibah ini dibuat dan ditandatangani di hadapan para saksi agar dapat dipergunakan sebagaimana mestinya.</p>
               
               <div className="flex justify-between text-center mb-16">

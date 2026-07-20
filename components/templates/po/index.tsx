@@ -205,7 +205,7 @@ function POToolBuilder() {
       </div>
 
       {/* ALAMAT VENDOR & PENGIRIMAN */}
-      <div className="flex gap-8 mb-6 break-inside-avoid">
+      <div className="flex gap-8 mb-6">
           {/* VENDOR */}
           <div className="flex-1 bg-slate-50 p-4 border border-slate-200">
               <h3 className="font-bold text-xs uppercase text-slate-500 mb-2">TO (VENDOR):</h3>
@@ -222,7 +222,7 @@ function POToolBuilder() {
       </div>
 
       {/* DETAIL PO */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
           <table className="w-full border-collapse border border-slate-900 text-center">
               <thead>
                   <tr className="bg-slate-100">
@@ -257,7 +257,7 @@ function POToolBuilder() {
             </thead>
             <tbody>
                 {data.items.map((item, idx) => (
-                    <tr key={idx} className="break-inside-avoid">
+                    <tr key={idx} className="">
                         <td className="border border-slate-900 py-2 px-2 text-center">{item.qty}</td>
                         <td className="border border-slate-900 py-2 px-2 text-center">{item.unit}</td>
                         <td className="border border-slate-900 py-2 px-2">{item.name}</td>
@@ -267,7 +267,7 @@ function POToolBuilder() {
                 ))}
                 
                 {/* SPACING */}
-                <tr className="break-inside-avoid">
+                <tr className="">
                     <td className="border-l border-r border-slate-900 h-24"></td>
                     <td className="border-l border-r border-slate-900 h-24"></td>
                     <td className="border-l border-r border-slate-900 h-24"></td>
@@ -278,7 +278,7 @@ function POToolBuilder() {
         </table>
 
         {/* TOTALS */}
-        <div className="flex break-inside-avoid border-b border-l border-r border-slate-900">
+        <div className="flex border-b border-l border-r border-slate-900">
             {/* NOTES */}
             <div className="w-3/5 border-r border-slate-900 p-3">
                 <p className="font-bold text-xs uppercase mb-1">Notes / Instructions:</p>

@@ -105,7 +105,7 @@ function CutiBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL SURAT */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
           <h1 className="font-bold text-[14pt] uppercase tracking-wider underline underline-offset-4">FORMULIR PENGAJUAN CUTI KARYAWAN</h1>
       </div>
       
@@ -148,7 +148,7 @@ function CutiBuilder() {
       </div>
 
       {/* PENGESAHAN (TANDA TANGAN) */}
-      <div className="mt-4 break-inside-avoid">
+      <div className="mt-4">
          <div className="flex justify-between text-center items-stretch mb-4">
             <div className="w-[45%] flex flex-col justify-between">
                <p className="mb-2">&nbsp;</p>

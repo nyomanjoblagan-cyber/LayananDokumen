@@ -152,12 +152,12 @@ function SPKaryawanBuilder() {
       </div>
 
       {/* JUDUL */}
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h2 className="font-bold text-xl underline uppercase tracking-widest">{getSuratTitle()}</h2>
         <p className="font-bold mt-1">Nomor: {data.referenceNumber}</p>
       </div>
 
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <p className="mb-2">Surat ini ditujukan dan diberikan kepada:</p>
         <div className="pl-4 border-l-2 border-black ml-4">
             <div className="flex"><div className="w-32 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.employee.fullName}</div></div>
@@ -167,17 +167,17 @@ function SPKaryawanBuilder() {
         </div>
       </div>
 
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold underline mb-2">MENIMBANG:</h3>
         <div className="whitespace-pre-line pl-4">{data.menimbang}</div>
       </div>
 
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold underline mb-2">MENGINGAT:</h3>
         <div className="whitespace-pre-line pl-4">{data.mengingat}</div>
       </div>
 
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
         <h3 className="font-bold underline mb-2">MEMUTUSKAN / MENETAPKAN:</h3>
         <div className="whitespace-pre-line pl-4">{data.menetapkan}</div>
         <div className="mt-4 p-4 border border-gray-400 bg-gray-50 text-center">
@@ -186,7 +186,7 @@ function SPKaryawanBuilder() {
         </div>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid">
+      <div className="text-justify mb-8">
         <p>Demikian surat ini dibuat dan disampaikan agar menjadi perhatian dan untuk dapat dilaksanakan dengan sebaik-baiknya.</p>
       </div>
 

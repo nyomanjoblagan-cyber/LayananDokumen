@@ -124,24 +124,24 @@ function InpatientBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* KOP SURAT RUMAH SAKIT */}
-      <div className="text-center mb-6 break-inside-avoid border-b-[3px] border-black pb-4">
+      <div className="text-center mb-6 border-b-[3px] border-black pb-4">
         <h1 className="font-bold text-2xl uppercase tracking-wider text-green-700 print:text-black">{data.hospitalName}</h1>
         <p className="text-sm mt-1">{data.hospitalAddress}</p>
         <p className="text-sm">{data.hospitalContact}</p>
       </div>
 
       {/* JUDUL SURAT */}
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h2 className="font-bold text-xl underline uppercase">SURAT KETERANGAN RAWAT INAP</h2>
         <p className="font-bold tracking-wider mt-1">Nomor: {data.docNo}</p>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>Yang bertanda tangan di bawah ini, Dokter Pemeriksa pada <strong>{data.hospitalName}</strong>, menerangkan dengan sesungguhnya bahwa:</p>
       </div>
 
       {/* DATA PASIEN */}
-      <div className="mb-6 break-inside-avoid bg-slate-50 border border-slate-300 p-4 rounded-xl print:bg-transparent print:border-none print:p-0 print:rounded-none">
+      <div className="mb-6 bg-slate-50 border border-slate-300 p-4 rounded-xl print:bg-transparent print:border-none print:p-0 print:rounded-none">
         <div className="ml-4">
             <div className="flex mb-1.5"><div className="w-48 align-top font-bold text-slate-700 print:text-black">Nama Pasien</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold uppercase align-top">{data.patientName}</div></div>
             <div className="flex mb-1.5"><div className="w-48 align-top font-bold text-slate-700 print:text-black">No. Rekam Medis (RM)</div><div className="w-4 align-top">:</div><div className="flex-1 font-mono align-top">{data.patientRm}</div></div>
@@ -153,7 +153,7 @@ function InpatientBuilder() {
       </div>
 
       {/* DETAIL PERAWATAN */}
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <p className="mb-2">Adalah benar pasien kami yang telah menjalani masa perawatan/rawat inap di <strong>{data.hospitalName}</strong>, dengan rincian sebagai berikut:</p>
         <div className="ml-8 mb-4 border-l-2 border-green-600 pl-4 py-1 print:border-black">
             <div className="flex mb-1.5"><div className="w-40 align-top">Tanggal Masuk</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold align-top">{formatDateDisplay(data.admissionDate)}</div></div>
@@ -167,7 +167,7 @@ function InpatientBuilder() {
         </div>
       </div>
 
-      <div className="mb-10 text-justify break-inside-avoid">
+      <div className="mb-10 text-justify">
         <p>Demikian surat keterangan ini dibuat berdasarkan rekam medis yang sebenarnya agar dapat dipergunakan sebagaimana mestinya.</p>
       </div>
 

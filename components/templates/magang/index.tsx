@@ -126,7 +126,7 @@ function MagangBuilder() {
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .{ page-break-inside: avoid !important; break-inside: avoid !important; }
           .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
           * { box-sizing: border-box !important; }
         }

@@ -123,43 +123,43 @@ function LandSafetyBuilder() {
         <h1 className="text-xl font-bold uppercase whitespace-pre-line leading-tight">{data.issuerOffice}</h1>
       </div>
 
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h2 className="text-lg font-bold underline uppercase tracking-wide">Surat Pernyataan Penguasaan Fisik Bidang Tanah (Sporadik)</h2>
         <p className="mt-1">Nomor: {data.docNo}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Yang bertanda tangan di bawah ini:</p>
       </div>
 
-      <div className="mb-4 pl-4 border-l-2 border-black ml-4 break-inside-avoid">
+      <div className="mb-4 pl-4 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-40">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.ownerName}</div></div>
         <div className="flex mb-1"><div className="w-40">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.ownerNik}</div></div>
         <div className="flex mb-1"><div className="w-40">Alamat</div><div className="w-4">:</div><div className="flex-1 text-justify">{data.ownerAddress}</div></div>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Dengan ini menyatakan dengan sesungguhnya serta dengan itikad baik bahwa saya menguasai sebidang tanah yang terletak di:</p>
       </div>
 
-      <div className="mb-4 pl-4 border-l-2 border-black ml-4 break-inside-avoid">
+      <div className="mb-4 pl-4 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-40 font-bold">Jalan/Lokasi</div><div className="w-4">:</div><div className="flex-1 uppercase font-bold">{data.landLocation}</div></div>
         <div className="flex mb-1"><div className="w-40">Luas Tanah</div><div className="w-4">:</div><div className="flex-1 font-bold">± {data.landSize}</div></div>
         <div className="flex mb-1"><div className="w-40">Status Tanah</div><div className="w-4">:</div><div className="flex-1">{data.landStatus}</div></div>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Dengan batas-batas sempadan sebagai berikut:</p>
       </div>
 
-      <div className="mb-6 pl-4 border-l-2 border-black ml-4 break-inside-avoid">
+      <div className="mb-6 pl-4 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-40">Sebelah Utara</div><div className="w-4">:</div><div className="flex-1">{data.borderNorth}</div></div>
         <div className="flex mb-1"><div className="w-40">Sebelah Timur</div><div className="w-4">:</div><div className="flex-1">{data.borderEast}</div></div>
         <div className="flex mb-1"><div className="w-40">Sebelah Selatan</div><div className="w-4">:</div><div className="flex-1">{data.borderSouth}</div></div>
         <div className="flex mb-1"><div className="w-40">Sebelah Barat</div><div className="w-4">:</div><div className="flex-1">{data.borderWest}</div></div>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid leading-relaxed">
+      <div className="text-justify mb-8 leading-relaxed">
         <p className="mb-3 font-bold">Selanjutnya saya menyatakan bahwa:</p>
         <ol className="list-decimal pl-5 mb-4">
             <li className="mb-2">Bidang tanah tersebut adalah benar-benar milik saya sendiri / saya kuasai secara fisik.</li>

@@ -119,18 +119,18 @@ function WithdrawalBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h1 className="font-bold text-lg underline uppercase tracking-wider">SURAT PERNYATAAN PENGUNDURAN DIRI AKADEMIK</h1>
         <p className="font-bold uppercase mt-1">Nomor: {data.nomorSurat}</p>
       </div>
 
       {/* MUKADIMAH */}
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Pada hari ini, bertempat di <strong>{data.kota}</strong> tanggal <strong>{formatDateDisplay(data.tanggalSurat)}</strong>, yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* PIHAK 1 (Siswa/Mahasiswa) */}
-      <div className="mb-4 break-inside-avoid">
+      <div className="mb-4">
         <div className="flex mb-1">
           <div className="w-8 font-bold">I.</div>
           <div className="flex-1">
@@ -149,7 +149,7 @@ function WithdrawalBuilder() {
       </div>
 
       {/* PIHAK 2 (Instansi) */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <div className="flex mb-1">
           <div className="w-8 font-bold">II.</div>
           <div className="flex-1">
@@ -165,7 +165,7 @@ function WithdrawalBuilder() {
       </div>
 
       {/* ISI PASAL / PERNYATAAN */}
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p className="mb-3">PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama disebut <strong>PARA PIHAK</strong>. PIHAK PERTAMA dengan ini menyatakan pengunduran diri secara resmi dengan ketentuan sebagai berikut:</p>
         
         <h3 className="font-bold uppercase mt-4 mb-1">Pasal 1: Pernyataan Pengunduran Diri</h3>
@@ -181,7 +181,7 @@ function WithdrawalBuilder() {
         <p>Bahwa setelah surat pengunduran diri ini disetujui, PIHAK PERTAMA membebaskan PIHAK KEDUA dari segala tuntutan hukum (baik perdata maupun pidana) yang berhubungan dengan status akademik PIHAK PERTAMA di masa lalu, masa kini, maupun masa yang akan datang.</p>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid mt-6">
+      <div className="text-justify mb-8 mt-6">
         <p>Demikian Surat Pernyataan Pengunduran Diri ini dibuat rangkap 2 (dua), bermeterai cukup, dan masing-masing memiliki kekuatan hukum yang sama bagi PARA PIHAK.</p>
       </div>
 

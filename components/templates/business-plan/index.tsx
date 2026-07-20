@@ -106,7 +106,7 @@ function BusinessPlanBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* COVER / JUDUL PROPOSAL */}
-      <div className="text-center mb-10 break-inside-avoid border-[4px] border-double border-black p-8">
+      <div className="text-center mb-10 border-[4px] border-double border-black p-8">
           <h1 className="font-black text-[22pt] uppercase tracking-widest leading-tight">{data.companyName}</h1>
           <p className="italic text-[12pt] mt-2 mb-6">"{data.tagline}"</p>
           <div className="w-24 h-1 border-t-2 border-black mx-auto mb-6"></div>
@@ -156,7 +156,7 @@ function BusinessPlanBuilder() {
       </div>
 
       {/* PENUTUP & TANDA TANGAN */}
-      <div className="mt-16 break-inside-avoid">
+      <div className="mt-16">
           <div className="flex justify-end px-8">
               <div className="w-[45%] text-center">
                   <p className="mb-2">Dibuat di : <strong>{data.city}</strong></p>

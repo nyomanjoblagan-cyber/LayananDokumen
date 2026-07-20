@@ -94,7 +94,7 @@ const ClauseItem = ({ num, text }: { num: string, text: React.ReactNode }) => (
 );
 
 const Article = ({ title, children }: { title: string, children: React.ReactNode }) => (
-  <div className="mb-6 break-inside-avoid">
+  <div className="mb-6">
      <div className="text-center font-bold mb-4 underline uppercase">{title}</div>
      <div className="space-y-2">
         {children}
@@ -136,7 +136,7 @@ function BedaNamaBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL SURAT */}
-      <div className="text-center mb-10 pb-2 border-b-[3px] border-black border-double break-inside-avoid">
+      <div className="text-center mb-10 pb-2 border-b-[3px] border-black border-double">
           <h1 className="font-bold text-[14pt] uppercase tracking-wider underline underline-offset-4">SURAT PERNYATAAN BEDA NAMA / IDENTITAS</h1>
       </div>
       
@@ -186,7 +186,7 @@ function BedaNamaBuilder() {
       </Article>
 
       {/* PENUTUP & TANDA TANGAN */}
-      <div className="mt-8 break-inside-avoid">
+      <div className="mt-8">
           <p className="text-justify mb-12">
               Demikian Surat Pernyataan Beda Nama/Identitas ini saya buat dengan penuh kesadaran, tanpa paksaan dari pihak manapun, serta ditandatangani di atas meterai yang cukup agar dapat dipergunakan sebagaimana mestinya.
           </p>

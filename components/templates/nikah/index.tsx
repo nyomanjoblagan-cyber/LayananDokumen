@@ -123,20 +123,20 @@ function PrenupBuilder() {
     return (
       <Kertas>
         {/* HEADER / JUDUL */}
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h1 className="font-bold text-lg tracking-wider uppercase underline">PERJANJIAN PRANIKAH<br/>(PRENUPTIAL AGREEMENT)</h1>
             <p className="mt-1 font-mono text-sm">Nomor: {data.docNo}</p>
         </div>
 
         {/* PEMBUKA */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>
                 Pada hari ini, tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, dibuat dan ditandatangani Perjanjian Pranikah oleh dan antara pihak-pihak di bawah ini:
             </p>
         </div>
 
         {/* PIHAK PERTAMA */}
-        <div className="mb-4 break-inside-avoid">
+        <div className="mb-4">
             <h3 className="font-bold mb-2">I. PIHAK PERTAMA (CALON SUAMI)</h3>
             <div className="ml-6">
                 <div className="flex mb-1"><div className="w-48">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p1Name}</div></div>
@@ -148,7 +148,7 @@ function PrenupBuilder() {
         </div>
 
         {/* PIHAK KEDUA */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <h3 className="font-bold mb-2">II. PIHAK KEDUA (CALON ISTRI)</h3>
             <div className="ml-6">
                 <div className="flex mb-1"><div className="w-48">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p2Name}</div></div>
@@ -159,7 +159,7 @@ function PrenupBuilder() {
             </div>
         </div>
 
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>
                 Pihak Pertama dan Pihak Kedua secara bersama-sama selanjutnya disebut "Para Pihak". 
                 Bahwa Para Pihak bermaksud untuk melangsungkan perkawinan yang sah menurut ketentuan hukum dan agama yang berlaku di Republik Indonesia. 
@@ -168,7 +168,7 @@ function PrenupBuilder() {
         </div>
 
         {/* PASAL 1 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 1<br/>PEMISAHAN HARTA KEKAYAAN</h3>
             <p>
                 {data.hartaKekayaan === 'pisah' 
@@ -179,7 +179,7 @@ function PrenupBuilder() {
         </div>
 
         {/* PASAL 2 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 2<br/>UTANG PIUTANG DAN TANGGUNGAN FINANSIAL</h3>
             <p>
                 Segala utang piutang, kewajiban finansial, maupun perjanjian kredit yang dibuat secara sepihak oleh masing-masing pihak, baik sebelum maupun sesudah perkawinan dilangsungkan, akan menjadi beban dan tanggung jawab mutlak secara pribadi dari pihak yang bersangkutan. Pihak lainnya dibebaskan dari segala tuntutan hukum yang diakibatkan oleh gagal bayar (default).
@@ -187,7 +187,7 @@ function PrenupBuilder() {
         </div>
 
         {/* PASAL 3 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 3<br/>TANGGUNG JAWAB PAJAK (TAX LIABILITY)</h3>
             <p>
                 {data.tanggunganPajak === 'masing-masing'
@@ -198,7 +198,7 @@ function PrenupBuilder() {
         </div>
 
         {/* PASAL 4 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 4<br/>BIAYA HIDUP DAN RUMAH TANGGA</h3>
             <p>
                 Biaya hidup rutin dan keperluan operasional rumah tangga, termasuk namun tidak terbatas pada pemeliharaan tempat tinggal, pendidikan, dan kesehatan anak-anak (apabila ada), akan ditanggung dan didiskusikan bersama sesuai dengan porsi proporsional kemampuan finansial masing-masing pihak.
@@ -206,7 +206,7 @@ function PrenupBuilder() {
         </div>
 
         {/* PASAL 5 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 5<br/>PENGAWASAN DAN HAK ASUH ANAK (CHILD CUSTODY)</h3>
             <p>
                 Apabila terjadi perpisahan, perceraian, atau berakhirnya perkawinan secara hukum, maka pengaturan hak asuh anak dan tunjangan pemeliharaan anak 
@@ -218,7 +218,7 @@ function PrenupBuilder() {
         </div>
 
         {/* PASAL 6 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 6<br/>HUKUM YANG BERLAKU DAN PENYELESAIAN SENGKETA</h3>
             <p>
                 Perjanjian Pranikah ini tunduk dan ditafsirkan berdasarkan Hukum Negara Kesatuan Republik Indonesia. Setiap perselisihan terkait interpretasi maupun implementasi dari Perjanjian ini akan diselesaikan secara 
@@ -230,7 +230,7 @@ function PrenupBuilder() {
         </div>
 
         {/* PENUTUP */}
-        <div className="mb-12 text-justify break-inside-avoid">
+        <div className="mb-12 text-justify">
             <p>
                 Demikian Perjanjian Pranikah ini dibuat, disepakati, dan ditandatangani oleh Para Pihak dalam keadaan sehat jasmani dan rohani, tanpa adanya paksaan, tekanan, maupun ancaman dari pihak mana pun. Perjanjian ini dibuat rangkap 2 (dua), masing-masing bermeterai cukup dan memiliki kekuatan hukum pembuktian yang sama.
             </p>

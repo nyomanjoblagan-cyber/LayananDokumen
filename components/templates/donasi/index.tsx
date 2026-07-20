@@ -116,7 +116,7 @@ function DonationBuilder() {
   const DocumentContent = () => (
     <Kertas templateId={templateId}>
        {/* KOP SURAT */}
-       <div className="border-b-[4px] border-black pb-4 mb-8 break-inside-avoid text-center">
+       <div className="border-b-[4px] border-black pb-4 mb-8 text-center">
            <h1 className="font-black text-2xl uppercase tracking-widest">{data.orgName}</h1>
            <p className="text-[10pt] mt-1">{data.orgAddress}</p>
            <p className="text-[10pt]">Kontak: {data.contactPerson}</p>
@@ -175,7 +175,7 @@ function DonationBuilder() {
        </div>
 
        {/* PENGESAHAN (TANDA TANGAN) */}
-       <div className="mt-12 break-inside-avoid">
+       <div className="mt-12">
           <div className="text-center font-bold mb-6">Panitia Pelaksana</div>
           <div className="flex justify-between text-center items-stretch mb-4">
              <div className="w-[45%] flex flex-col justify-between">

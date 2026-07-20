@@ -129,7 +129,7 @@ function KuasaToolBuilder() {
       </div>
 
       {/* PEMBERI KUASA */}
-      <div className="mb-4 break-inside-avoid pl-4">
+      <div className="mb-4 pl-4">
         <div className="flex mb-1"><div className="w-40 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.pemberiName}</div></div>
         <div className="flex mb-1"><div className="w-40">NIK / No. KTP</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.pemberiNik}</div></div>
         <div className="flex mb-1"><div className="w-40">Tempat, Tgl. Lahir</div><div className="w-4">:</div><div className="flex-1">{data.pemberiTempatLahir}, {formatDateDisplay(data.pemberiTglLahir)}</div></div>
@@ -143,7 +143,7 @@ function KuasaToolBuilder() {
       </div>
 
       {/* PENERIMA KUASA */}
-      <div className="mb-6 break-inside-avoid pl-4">
+      <div className="mb-6 pl-4">
         <div className="flex mb-1"><div className="w-40 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.penerimaName}</div></div>
         <div className="flex mb-1"><div className="w-40">NIK / No. KTP</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.penerimaNik}</div></div>
         <div className="flex mb-1"><div className="w-40">Tempat, Tgl. Lahir</div><div className="w-4">:</div><div className="flex-1">{data.penerimaTempatLahir}, {formatDateDisplay(data.penerimaTglLahir)}</div></div>

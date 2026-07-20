@@ -130,17 +130,17 @@ function RecommendationBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL SURAT */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h1 className="font-bold text-lg underline uppercase tracking-wider">SURAT PERNYATAAN DAN REKOMENDASI AKADEMIK</h1>
         <p className="font-bold uppercase mt-1">Nomor: {data.docNo}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* PIHAK PERTAMA */}
-      <div className="mb-4 break-inside-avoid pl-8">
+      <div className="mb-4 pl-8">
         <div className="flex mb-1"><div className="w-48 font-bold">Nama Lengkap & Gelar</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.party1Name}</div></div>
         <div className="flex mb-1"><div className="w-48 font-bold">NIK / NIP</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.party1Nik}</div></div>
         <div className="flex mb-1"><div className="w-48 font-bold">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.party1Birth}</div></div>
@@ -148,16 +148,16 @@ function RecommendationBuilder() {
         <div className="flex mb-1"><div className="w-48 font-bold">Instansi / Universitas</div><div className="w-4">:</div><div className="flex-1 uppercase font-bold">{data.university}</div></div>
         <div className="flex mb-1"><div className="w-48 font-bold">Alamat Instansi</div><div className="w-4">:</div><div className="flex-1 text-justify">{data.party1Address}</div></div>
       </div>
-      <div className="text-justify mb-6 break-inside-avoid">
+      <div className="text-justify mb-6">
         <p>Dalam kapasitas kewenangan akademik dan/atau jabatan sebagaimana disebutkan di atas, selanjutnya disebut sebagai <strong>PEMBERI REKOMENDASI</strong>.</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Dengan ini memberikan Pernyataan, Kesaksian Akademik, dan Rekomendasi kepada:</p>
       </div>
 
       {/* PIHAK KEDUA */}
-      <div className="mb-4 break-inside-avoid pl-8">
+      <div className="mb-4 pl-8">
         <div className="flex mb-1"><div className="w-48 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.party2Name}</div></div>
         <div className="flex mb-1"><div className="w-48 font-bold">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.party2Nik}</div></div>
         <div className="flex mb-1"><div className="w-48 font-bold">NIM / Nomor Mahasiswa</div><div className="w-4">:</div><div className="flex-1 font-bold font-mono">{data.studentId}</div></div>
@@ -165,21 +165,21 @@ function RecommendationBuilder() {
         <div className="flex mb-1"><div className="w-48 font-bold">Pekerjaan / Status</div><div className="w-4">:</div><div className="flex-1 uppercase">{data.party2Occupation}</div></div>
         <div className="flex mb-1"><div className="w-48 font-bold">Alamat Sesuai KTP</div><div className="w-4">:</div><div className="flex-1 text-justify">{data.party2Address}</div></div>
       </div>
-      <div className="text-justify mb-6 break-inside-avoid">
+      <div className="text-justify mb-6">
         <p>Dalam hal ini bertindak untuk dan atas nama dirinya sendiri, untuk selanjutnya disebut sebagai <strong>YANG DIREKOMENDASIKAN</strong>.</p>
       </div>
 
-      <div className="text-justify mb-2 break-inside-avoid">
+      <div className="text-justify mb-2">
         <p>Adapun Pernyataan dan Rekomendasi ini diberikan dengan syarat dan ketentuan mengikat sebagai berikut:</p>
       </div>
 
       {/* PASAL 1 & 2 */}
-      <div className="mb-4 break-inside-avoid text-justify">
+      <div className="mb-4 text-justify">
         <h3 className="font-bold uppercase mb-2">Pasal 1: Hubungan Akademik</h3>
         <p>PEMBERI REKOMENDASI menyatakan dengan sebenar-benarnya bahwa mengenal YANG DIREKOMENDASIKAN dalam kapasitas hubungan akademik sebagai <strong>{data.academicRelation}</strong> selama masa studinya di {data.university}.</p>
       </div>
 
-      <div className="mb-4 break-inside-avoid text-justify">
+      <div className="mb-4 text-justify">
         <h3 className="font-bold uppercase mb-2">Pasal 2: Evaluasi Prestasi dan Integritas</h3>
         <p className="mb-2">Berdasarkan hasil pengamatan akademik dan interaksi langsung, PEMBERI REKOMENDASI memberikan kesaksian bahwa YANG DIREKOMENDASIKAN:</p>
         <ol className="list-decimal pl-5 space-y-1 ml-4">
@@ -190,19 +190,19 @@ function RecommendationBuilder() {
       </div>
 
       {/* PASAL 3 */}
-      <div className="mb-4 break-inside-avoid text-justify">
+      <div className="mb-4 text-justify">
         <h3 className="font-bold uppercase mb-2">Pasal 3: Penetapan Rekomendasi dan Tujuan</h3>
         <p className="mb-2">Berdasarkan Pasal 1 dan Pasal 2 di atas, PEMBERI REKOMENDASI menyatakan <strong>{data.recommendationLevel}</strong> kepada YANG DIREKOMENDASIKAN untuk keperluan:</p>
         <div className="text-center font-bold uppercase border border-black p-2 mx-8 bg-slate-50 print:bg-transparent">"{data.recommendationPurpose}"</div>
       </div>
 
       {/* PASAL 4 & 5 */}
-      <div className="mb-4 break-inside-avoid text-justify">
+      <div className="mb-4 text-justify">
         <h3 className="font-bold uppercase mb-2">Pasal 4: Jangka Waktu Berlaku</h3>
         <p>Surat Rekomendasi ini bersifat sah dan mengikat serta berlaku selama jangka waktu <strong>{data.validityPeriod}</strong> terhitung sejak tanggal diterbitkannya surat ini.</p>
       </div>
 
-      <div className="mb-6 break-inside-avoid text-justify">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold uppercase mb-2">Pasal 5: Pernyataan Pertanggungjawaban Mutlak</h3>
         <p>
             Surat Pernyataan dan Rekomendasi Akademik ini dibuat dengan itikad baik (<em>good faith</em>), dalam keadaan sadar dan tanpa paksaan dari pihak mana pun. Segala konsekuensi hukum yang timbul di kemudian hari terkait penyalahgunaan surat ini oleh YANG DIREKOMENDASIKAN sepenuhnya berada di luar tanggung jawab PEMBERI REKOMENDASI.

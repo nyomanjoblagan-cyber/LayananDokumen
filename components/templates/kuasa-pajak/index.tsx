@@ -167,18 +167,18 @@ function KuasaBuilder() {
     return (
       <Kertas>
         {/* JUDUL */}
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h1 className="font-bold text-lg uppercase tracking-wider underline">SURAT KUASA KHUSUS WAJIB PAJAK</h1>
             <p className="mt-1">Nomor: {data.docNo}</p>
         </div>
 
         {/* PEMBUKA */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>Yang bertanda tangan di bawah ini:</p>
         </div>
 
         {/* PEMBERI KUASA */}
-        <div className="mb-4 ml-6 break-inside-avoid">
+        <div className="mb-4 ml-6">
             <div className="flex mb-1"><div className="w-40 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p1Name}</div></div>
             <div className="flex mb-1"><div className="w-40">Nomor Induk Kependudukan</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.p1Nik}</div></div>
             <div className="flex mb-1"><div className="w-40">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.p1Pob}, {formatDateSafe(data.p1Dob)}</div></div>
@@ -201,12 +201,12 @@ function KuasaBuilder() {
             )}
         </div>
 
-        <div className="mb-4 text-justify font-bold break-inside-avoid">
+        <div className="mb-4 text-justify font-bold">
             Dengan ini memberi kuasa dengan hak substitusi ({data.substitutionRight}) kepada:
         </div>
 
         {/* PENERIMA KUASA */}
-        <div className="mb-6 ml-6 break-inside-avoid">
+        <div className="mb-6 ml-6">
             <div className="flex mb-1"><div className="w-40 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p2Name}</div></div>
             <div className="flex mb-1"><div className="w-40 font-bold">NPWP</div><div className="w-4">:</div><div className="flex-1 font-bold font-mono text-lg">{data.p2Npwp}</div></div>
             <div className="flex mb-1"><div className="w-40">Nomor Induk Kependudukan</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.p2Nik}</div></div>
@@ -220,22 +220,22 @@ function KuasaBuilder() {
         </div>
 
         {/* KLAUSUL KHUSUS */}
-        <div className="text-center font-bold mb-4 tracking-widest break-inside-avoid">
+        <div className="text-center font-bold mb-4 tracking-widest">
             ------------------------------- K H U S U S -------------------------------
         </div>
 
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             Untuk dan atas nama PEMBERI KUASA, mewakili, mendampingi, dan/atau mengurus hak dan kewajiban perpajakan pada <strong>{data.kppName}</strong>, terkait dengan jenis pajak dan masa/tahun pajak sebagai berikut:
         </div>
 
-        <div className="mb-4 ml-6 break-inside-avoid font-bold">
+        <div className="mb-4 ml-6 font-bold">
             <ul className="list-disc pl-5">
                 <li>Jenis Pajak: {data.taxType}</li>
                 <li>Tahun/Masa Pajak: {data.taxPeriod}</li>
             </ul>
         </div>
 
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             Adapun ruang lingkup wewenang yang diberikan kepada PENERIMA KUASA terbatas pada hal-hal berikut:
             <ol className="list-decimal pl-5 mt-2 space-y-1">
                 {data.scopeLaporMasa && <li>Menyiapkan, menandatangani, dan menyampaikan Surat Pemberitahuan (SPT) Masa terkait.</li>}
@@ -247,12 +247,12 @@ function KuasaBuilder() {
         </div>
 
         {data.laranganRestitusi && (
-            <div className="mb-4 text-justify font-bold break-inside-avoid border border-black p-3 bg-gray-50">
+            <div className="mb-4 text-justify font-bold border border-black p-3 bg-gray-50">
                 PENGECUALIAN / BATASAN: Surat Kuasa Khusus ini secara tegas TIDAK MEMBERIKAN WEWENANG kepada PENERIMA KUASA untuk menerima restitusi pajak/pencairan dana pengembalian kelebihan pembayaran pajak milik PEMBERI KUASA.
             </div>
         )}
 
-        <div className="mb-8 text-justify break-inside-avoid">
+        <div className="mb-8 text-justify">
             <p>
                 Segala akibat hukum yang timbul dari pelaksanaan Surat Kuasa Khusus ini sepenuhnya menjadi tanggung jawab PEMBERI KUASA. Surat Kuasa ini berlaku sejak tanggal ditandatangani dan tidak dapat ditarik kembali kecuali dengan pemberitahuan tertulis.
             </p>

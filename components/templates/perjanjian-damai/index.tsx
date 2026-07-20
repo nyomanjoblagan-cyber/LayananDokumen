@@ -148,20 +148,20 @@ function DamaiBuilder() {
     return (
       <Kertas>
         {/* HEADER / JUDUL */}
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h1 className="font-bold text-lg tracking-wider uppercase underline">SURAT PERJANJIAN PERDAMAIAN</h1>
             <p className="mt-1 font-mono text-sm">(SETTLEMENT AGREEMENT)</p>
         </div>
 
         {/* PEMBUKA */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>
                 Pada hari ini, <strong>{data.day}</strong> tanggal <strong>{formatDateSafe(data.date)}</strong> bertempat di <strong>{data.city}</strong>, dibuat dan ditandatangani Kesepakatan Perdamaian oleh dan antara pihak-pihak di bawah ini:
             </p>
         </div>
 
         {/* PIHAK PERTAMA */}
-        <div className="mb-4 break-inside-avoid">
+        <div className="mb-4">
             <h3 className="font-bold mb-2">I. PIHAK PERTAMA (PIHAK PENANGGUNG)</h3>
             <div className="ml-6">
                 <div className="flex mb-1"><div className="w-48">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p1Name}</div></div>
@@ -173,7 +173,7 @@ function DamaiBuilder() {
         </div>
 
         {/* PIHAK KEDUA */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <h3 className="font-bold mb-2">II. PIHAK KEDUA (PIHAK KORBAN / PENERIMA)</h3>
             <div className="ml-6">
                 <div className="flex mb-1"><div className="w-48">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p2Name}</div></div>
@@ -184,7 +184,7 @@ function DamaiBuilder() {
             </div>
         </div>
 
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>
                 Pihak Pertama dan Pihak Kedua secara bersama-sama selanjutnya disebut "Para Pihak". 
                 Bahwa sehubungan dengan terjadinya insiden <strong>{data.incidentTitle}</strong> pada tanggal <strong>{formatDateSafe(data.incidentDate)}</strong>, 
@@ -194,7 +194,7 @@ function DamaiBuilder() {
         </div>
 
         {/* PASAL 1 - KRONOLOGI */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 1<br/>PENGAKUAN DAN KRONOLOGI KEJADIAN</h3>
             <p>
                 Bahwa Pihak Pertama mengakui telah terjadi insiden yang merugikan Pihak Kedua dengan rincian kronologi sebagai berikut: 
@@ -203,7 +203,7 @@ function DamaiBuilder() {
         </div>
 
         {/* PASAL 2 - KOMPENSASI */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 2<br/>BENTUK PENYELESAIAN DAN KOMPENSASI</h3>
             <p>
                 Sebagai bentuk itikad baik dan tanggung jawab penuh, Pihak Pertama sepakat untuk memberikan kompensasi ganti rugi (restitusi) kepada Pihak Kedua berupa uang sejumlah <strong>{data.compensationAmount}</strong> <em>({data.compensationText})</em> yang diserahkan secara <strong>{data.compensationMethod}</strong>.
@@ -214,7 +214,7 @@ function DamaiBuilder() {
         </div>
 
         {/* PASAL 3 - PELARANGAN TUNTUTAN HUKUM */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 3<br/>PELEPASAN HAK TUNTUTAN (RELEASE AND WAIVER)</h3>
             <p>
                 Dengan ditandatanganinya Perjanjian Perdamaian ini dan diserahkannya kompensasi sebagaimana dimaksud dalam Pasal 2, maka Pihak Kedua menyatakan permasalahan ini telah <strong>SELESAI SECARA TUNTAS</strong>. Pihak Kedua melepaskan segala haknya untuk mengajukan tuntutan hukum di kemudian hari, baik secara perdata, pidana, maupun pelaporan ke instansi kepolisian (Pencabutan Laporan/Restorative Justice).
@@ -222,7 +222,7 @@ function DamaiBuilder() {
         </div>
 
         {/* PASAL 4 - SANKSI / PENALTI */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-1">Pasal 4<br/>KLAUSUL PELANGGARAN DAN DENDA (PENALTY)</h3>
             <p>
                 Apabila di kemudian hari salah satu pihak melanggar atau mengingkari isi dari Kesepakatan Perdamaian ini, termasuk mengungkit kembali permasalahan yang telah diselesaikan atau melakukan tindakan pencemaran nama baik, maka pihak yang melanggar bersedia dikenakan sanksi denda sebesar <strong>{data.penaltyAmount}</strong> <em>({data.penaltyText})</em> yang wajib dibayarkan seketika dan sekaligus kepada pihak yang dirugikan, tanpa mengurangi hak untuk menempuh jalur hukum sesuai peraturan perundang-undangan yang berlaku.
@@ -230,7 +230,7 @@ function DamaiBuilder() {
         </div>
 
         {/* PENUTUP */}
-        <div className="mb-12 text-justify break-inside-avoid">
+        <div className="mb-12 text-justify">
             <p>
                 Demikian Surat Perjanjian Perdamaian ini dibuat dalam rangkap 2 (dua), masing-masing bermeterai cukup dan memiliki kekuatan hukum pembuktian yang sama, ditandatangani oleh Para Pihak dan disaksikan oleh saksi-saksi dalam keadaan sadar dan tanpa tekanan dari pihak manapun.
             </p>
@@ -256,7 +256,7 @@ function DamaiBuilder() {
         </div>
 
         {/* SAKSI */}
-        <div className="mt-12 break-inside-avoid text-center">
+        <div className="mt-12 text-center">
             <p className="font-bold uppercase mb-8">SAKSI - SAKSI:</p>
             <div className="flex justify-around px-12">
                 <div className="w-48">

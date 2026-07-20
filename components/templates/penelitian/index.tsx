@@ -174,7 +174,7 @@ function ResearchBuilder() {
                   Berdasarkan Surat dari {data.originUniversity} Nomor: {data.originLetterNo} tanggal {data.originLetterDate} perihal Permohonan Izin Penelitian, dengan ini kami memberikan rekomendasi kepada:
                 </p>
                 
-                <div className="ml-8 mb-4 space-y-1 font-sans text-[11pt] break-inside-avoid">
+                <div className="ml-8 mb-4 space-y-1 font-sans text-[11pt]">
                     <div className="grid grid-cols-[160px_10px_1fr]"><span>Nama</span><span>:</span><span className="font-bold uppercase">{data.studentName}</span></div>
                     <div className="grid grid-cols-[160px_10px_1fr]"><span>NIM / NIK</span><span>:</span><span>{data.studentId}</span></div>
                     <div className="grid grid-cols-[160px_10px_1fr]"><span>Program Studi / Jurusan</span><span>:</span><span>{data.department}</span></div>
@@ -184,7 +184,7 @@ function ResearchBuilder() {
 
                 <p className="mb-3">Untuk melakukan Penelitian / Pengambilan Data di instansi/wilayah Saudara, dengan rincian sebagai berikut:</p>
                 
-                <div className="ml-8 mb-4 space-y-2 font-sans text-[11pt] break-inside-avoid">
+                <div className="ml-8 mb-4 space-y-2 font-sans text-[11pt]">
                     <div className="grid grid-cols-[160px_10px_1fr]"><span>Judul Penelitian</span><span>:</span><span className="font-bold">"{data.researchTitle}"</span></div>
                     <div className="grid grid-cols-[160px_10px_1fr]"><span>Lokasi Penelitian</span><span>:</span><span>{data.researchLocation}</span></div>
                     <div className="grid grid-cols-[160px_10px_1fr]"><span>Lama Penelitian</span><span>:</span><span>{data.duration}</span></div>
@@ -202,7 +202,7 @@ function ResearchBuilder() {
                 <p>Demikian Surat Rekomendasi ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
             </div>
 
-            <div className="mt-auto pt-8 shrink-0 break-inside-avoid">
+            <div className="mt-auto pt-8 shrink-0">
                 <table className="w-full table-fixed font-sans text-[11pt]">
                 <tbody>
                     <tr>
@@ -245,7 +245,7 @@ function ResearchBuilder() {
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .{ page-break-inside: avoid !important; break-inside: avoid !important; }
           .break-before-auto { break-before: auto !important; page-break-before: auto !important; }
           * { box-sizing: border-box !important; }
         }

@@ -137,7 +137,7 @@ function LamaranBuilder() {
         </div>
 
         {/* TUJUAN */}
-        <div className="mb-8 break-inside-avoid">
+        <div className="mb-8">
             <p className="mb-1">Yth.</p>
             <p className="font-bold">{data.namaPenerima}</p>
             <p className="font-bold uppercase">{data.perusahaanTujuan}</p>
@@ -145,7 +145,7 @@ function LamaranBuilder() {
         </div>
 
         {/* SALAM PEMBUKA & DATA DIRI */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p className="mb-3">Dengan hormat,</p>
             <p className="mb-4">
                 Berdasarkan informasi lowongan pekerjaan yang saya peroleh melalui {data.sumberInfo}, 
@@ -169,12 +169,12 @@ function LamaranBuilder() {
         </div>
 
         {/* ISI / KOMPETENSI */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p className="whitespace-pre-line leading-relaxed">{data.pengalamanKeahlian}</p>
         </div>
 
         {/* LAMPIRAN */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p className="mb-2">Sebagai bahan pertimbangan, saya lampirkan kelengkapan administrasi sebagai berikut:</p>
             <div className="ml-8 whitespace-pre-line leading-relaxed">
                 {data.daftarLampiran}
@@ -182,7 +182,7 @@ function LamaranBuilder() {
         </div>
 
         {/* PENUTUP */}
-        <div className="mb-12 text-justify break-inside-avoid">
+        <div className="mb-12 text-justify">
             <p>
                 Demikian surat lamaran ini saya buat dengan sebenar-benarnya. Besar harapan saya agar Bapak/Ibu bersedia memberikan kesempatan wawancara agar saya dapat menjelaskan lebih detail mengenai kualifikasi dan potensi yang saya miliki.
             </p>

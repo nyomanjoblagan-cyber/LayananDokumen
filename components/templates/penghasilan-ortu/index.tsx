@@ -219,7 +219,7 @@ function PenghasilanOrtuBuilder() {
               </div>
 
               {/* IDENTITAS ORANG TUA */}
-              <div className="ml-8 mb-6 text-justify break-inside-avoid">
+              <div className="ml-8 mb-6 text-justify">
                   <div className="flex flex-row mb-1">
                       <div className="w-56 shrink-0">Nama Lengkap</div>
                       <div className="w-6 shrink-0 text-center">:</div>
@@ -253,7 +253,7 @@ function PenghasilanOrtuBuilder() {
               </div>
 
               {/* IDENTITAS ANAK */}
-              <div className="ml-8 mb-6 text-justify break-inside-avoid">
+              <div className="ml-8 mb-6 text-justify">
                   <div className="flex flex-row mb-1">
                       <div className="w-56 shrink-0">Nama Lengkap Anak</div>
                       <div className="w-6 shrink-0 text-center">:</div>
@@ -281,7 +281,7 @@ function PenghasilanOrtuBuilder() {
                   <p className="indent-8">Dengan ini kami menerangkan bahwa rincian rata-rata penghasilan orang tua / wali tersebut di atas setiap bulannya adalah sebagai berikut:</p>
               </div>
 
-              <div className="ml-8 mb-6 text-justify break-inside-avoid">
+              <div className="ml-8 mb-6 text-justify">
                   <div className="flex flex-row mb-1">
                       <div className="w-56 shrink-0">Penghasilan / Gaji Kotor</div>
                       <div className="w-6 shrink-0 text-center">:</div>
@@ -346,7 +346,7 @@ function PenghasilanOrtuBuilder() {
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .{ page-break-inside: avoid !important; break-inside: avoid !important; }
           * { box-sizing: border-box !important; }
         }
 

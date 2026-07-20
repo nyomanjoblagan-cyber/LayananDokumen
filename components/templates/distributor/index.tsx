@@ -217,7 +217,7 @@ function DistributorBuilder() {
        </div>
 
        {/* PASAL 4 */}
-       <div className="mb-6 text-justify break-inside-avoid">
+       <div className="mb-6 text-justify">
            <h3 className="text-center font-bold mb-2 uppercase">PASAL 4<br/>SISTEM PEMBAYARAN DAN DENDA</h3>
            <ol className="list-decimal ml-6 space-y-2">
                <li className="pl-2">Setiap pemesanan produk oleh PIHAK KEDUA wajib dibayar menggunakan metode <b>{data.paymentMethod}</b>.</li>
@@ -226,7 +226,7 @@ function DistributorBuilder() {
        </div>
 
        {/* PASAL 5 */}
-       <div className="mb-10 text-justify break-inside-avoid">
+       <div className="mb-10 text-justify">
            <h3 className="text-center font-bold mb-2 uppercase">PASAL 5<br/>PENYELESAIAN SENGKETA DAN PENUTUP</h3>
            <ol className="list-decimal ml-6 space-y-2">
                <li className="pl-2">Apabila terjadi perselisihan akibat Perjanjian ini, Para Pihak sepakat untuk menyelesaikannya secara kekeluargaan/musyawarah.</li>
@@ -236,7 +236,7 @@ function DistributorBuilder() {
        </div>
 
        {/* TANDA TANGAN */}
-       <div className="mt-8 break-inside-avoid">
+       <div className="mt-8">
           <div className="flex justify-between text-center items-stretch mb-4">
              <div className="w-[45%] flex flex-col justify-between">
                 <p className="font-bold mb-1 uppercase">PIHAK PERTAMA</p>

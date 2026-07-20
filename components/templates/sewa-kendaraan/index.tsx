@@ -135,18 +135,18 @@ function VehicleRentalBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h1 className="font-bold text-lg underline uppercase tracking-wider">PERJANJIAN SEWA KENDARAAN</h1>
         <p className="font-bold uppercase mt-1">Nomor: {data.docNo}</p>
       </div>
 
       {/* MUKADIMAH */}
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Pada hari ini, bertempat di <strong>{data.city}</strong> tanggal <strong>{formatDateDisplay(data.date)}</strong>, yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* PIHAK 1 (Pemilik) */}
-      <div className="mb-4 break-inside-avoid">
+      <div className="mb-4">
         <div className="flex mb-1">
           <div className="w-8 font-bold">I.</div>
           <div className="flex-1">
@@ -162,7 +162,7 @@ function VehicleRentalBuilder() {
       </div>
 
       {/* PIHAK 2 (Penyewa) */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <div className="flex mb-1">
           <div className="w-8 font-bold">II.</div>
           <div className="flex-1">
@@ -177,12 +177,12 @@ function VehicleRentalBuilder() {
         </div>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>PARA PIHAK sepakat untuk mengikatkan diri dalam Perjanjian Sewa Kendaraan dengan ketentuan dan syarat-syarat sebagai berikut:</p>
       </div>
 
       {/* PASAL-PASAL */}
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <h3 className="font-bold uppercase mt-4 mb-1">Pasal 1: Objek Sewa</h3>
         <p>PIHAK PERTAMA menyewakan kepada PIHAK KEDUA berupa 1 (satu) unit kendaraan bermotor dengan spesifikasi:</p>
         <div className="ml-4 mt-2">
@@ -213,7 +213,7 @@ function VehicleRentalBuilder() {
         <p>Apabila terjadi perselisihan, PARA PIHAK sepakat menyelesaikan secara kekeluargaan. Jika tidak tercapai mufakat, maka diselesaikan melalui jalur hukum di Kepaniteraan <strong>{data.courtJurisdiction}</strong>.</p>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid mt-6">
+      <div className="text-justify mb-8 mt-6">
         <p>Demikian perjanjian ini dibuat rangkap 2 (dua) bermeterai cukup dan mempunyai kekuatan hukum yang sama, ditandatangani tanpa ada paksaan dari pihak mana pun.</p>
       </div>
 

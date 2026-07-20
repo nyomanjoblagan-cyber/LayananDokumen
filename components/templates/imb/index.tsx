@@ -135,7 +135,7 @@ function IMBBuilder() {
         </div>
 
         {/* KEPADA YTH */}
-        <div className="mb-8 shrink-0 break-inside-avoid">
+        <div className="mb-8 shrink-0">
             <p>Kepada Yth.</p>
             <p className="font-bold uppercase">{data.dpmptspName}</p>
             <p>di -</p>
@@ -144,7 +144,7 @@ function IMBBuilder() {
 
         {/* BODY SURAT */}
         <div className="flex-grow leading-relaxed text-justify">
-          <div className="break-inside-avoid">
+          <div className="">
               <p className="mb-4">Dengan hormat,</p>
               <p className="mb-4">Yang bertanda tangan di bawah ini:</p>
               
@@ -157,7 +157,7 @@ function IMBBuilder() {
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <p className="mb-4">Dengan ini mengajukan permohonan Izin Mendirikan Bangunan (IMB) / Persetujuan Bangunan Gedung (PBG) untuk mendirikan / mengubah / memperluas / mengurangi bangunan gedung dengan rincian sebagai berikut:</p>
     
               <div className="bg-slate-50 p-5 border border-slate-200 font-sans text-[10pt] mb-6 space-y-1.5">
@@ -172,7 +172,7 @@ function IMBBuilder() {
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <p className="mb-4">
                 Sebagai kelengkapan persyaratan, bersama ini kami lampirkan dokumen sebagai berikut:
               </p>
@@ -186,13 +186,13 @@ function IMBBuilder() {
               </ol>
           </div>
 
-          <div className="break-inside-avoid text-justify">
+          <div className="text-justify">
              <p>Demikian surat permohonan ini kami buat dengan sebenarnya. Apabila di kemudian hari ternyata dokumen yang kami lampirkan terbukti tidak benar/palsu, kami bersedia dituntut sesuai dengan ketentuan peraturan perundang-undangan. Atas perhatian dan persetujuan Bapak/Ibu, kami ucapkan terima kasih.</p>
           </div>
         </div>
 
         {/* TANDA TANGAN */}
-        <div className="shrink-0 mt-12 break-inside-avoid">
+        <div className="shrink-0 mt-12">
           <table className="w-full table-fixed">
             <tbody>
               <tr>

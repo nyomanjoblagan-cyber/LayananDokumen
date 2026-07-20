@@ -140,14 +140,14 @@ function PartnerConsentBuilder() {
 
     return (
       <Kertas>
-        <div className="text-center mb-8 border-b-2 border-black pb-2 break-inside-avoid">
+        <div className="text-center mb-8 border-b-2 border-black pb-2">
           <h1 className="font-bold text-xl uppercase tracking-wider underline">SURAT IZIN {data.partnerRelation}</h1>
         </div>
 
         <p className="mb-4 text-justify">Yang bertanda tangan di bawah ini:</p>
 
         <div className="mb-6 space-y-4">
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="flex mb-1">
                   <div className="w-48 font-semibold">Nama Lengkap</div>
                   <div className="w-4">:</div>
@@ -186,7 +186,7 @@ function PartnerConsentBuilder() {
         </p>
 
         <div className="mb-6 space-y-4">
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="flex mb-1">
                   <div className="w-48 font-semibold">Nama Lengkap</div>
                   <div className="w-4">:</div>
@@ -220,7 +220,7 @@ function PartnerConsentBuilder() {
           </div>
         </div>
 
-        <div className="mb-8 text-justify leading-relaxed break-inside-avoid">
+        <div className="mb-8 text-justify leading-relaxed">
           <p>
             Dengan ini menyatakan dengan sesungguhnya bahwa saya <strong>MEMBERIKAN IZIN / PERSETUJUAN</strong> sepenuhnya kepada {data.partnerRelation === 'SUAMI' ? 'Istri' : 'Suami'} saya tersebut di atas untuk:
           </p>
@@ -238,12 +238,12 @@ function PartnerConsentBuilder() {
           </div>
         </div>
 
-        <p className="mb-12 text-justify leading-relaxed break-inside-avoid">
+        <p className="mb-12 text-justify leading-relaxed">
           Demikian Surat Izin {data.partnerRelation} ini saya buat dengan sadar, tanpa ada paksaan dari pihak manapun, agar dapat dipergunakan sebagaimana mestinya oleh pihak-pihak yang berkepentingan.
         </p>
 
         {/* TANDA TANGAN */}
-        <div className="break-inside-avoid">
+        <div className="">
             <div className="text-right mb-4">
               <p>{data.city}, {formatDateSafe(data.date)}</p>
             </div>

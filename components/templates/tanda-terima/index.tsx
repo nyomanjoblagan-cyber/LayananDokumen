@@ -145,19 +145,19 @@ function ReceiptBuilder() {
       </div>
 
       {/* INFO PENERIMA */}
-      <div className="mb-6 border border-black p-4 break-inside-avoid text-sm">
+      <div className="mb-6 border border-black p-4 text-sm">
         <p className="font-bold underline mb-2 uppercase">Diterima Oleh / Diserahkan Kepada:</p>
         <div className="flex mb-1"><div className="w-32">Nama / Instansi</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.receiverName}</div></div>
         <div className="flex mb-1"><div className="w-32">Alamat</div><div className="w-4">:</div><div className="flex-1">{data.receiverAddress}</div></div>
         <div className="flex mb-1"><div className="w-32">No. Telp/HP</div><div className="w-4">:</div><div className="flex-1">{data.receiverPhone}</div></div>
       </div>
 
-      <div className="text-justify mb-2 break-inside-avoid text-sm">
+      <div className="text-justify mb-2 text-sm">
         <p>Telah diterima dengan baik dan lengkap barang/dokumen/pembayaran dengan rincian sebagai berikut:</p>
       </div>
 
       {/* TABEL ITEM */}
-      <div className="mb-8 break-inside-avoid">
+      <div className="mb-8">
         <table className="w-full border-collapse border border-black text-sm">
             <thead>
                 <tr className="bg-gray-100 print:bg-gray-100">

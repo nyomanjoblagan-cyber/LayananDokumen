@@ -166,7 +166,7 @@ function IzinKeramaianBuilder() {
         </div>
         
         {/* DATA PEMOHON */}
-        <div className="ml-8 mb-6 font-sans text-[10pt] border-l-4 border-slate-100 pl-6 break-inside-avoid">
+        <div className="ml-8 mb-6 font-sans text-[10pt] border-l-4 border-slate-100 pl-6">
             <div className="grid grid-cols-[170px_10px_1fr] mb-1">
               <span>Nama Lengkap</span><span>:</span><span className="font-bold uppercase tracking-tight">{data.applicantName}</span>
             </div>
@@ -194,7 +194,7 @@ function IzinKeramaianBuilder() {
         </div>
         
         {/* DATA ACARA */}
-        <div className="bg-slate-50 p-5 rounded-lg border border-slate-200 font-sans text-[10pt] mb-6 break-inside-avoid">
+        <div className="bg-slate-50 p-5 rounded-lg border border-slate-200 font-sans text-[10pt] mb-6">
             <div className="grid grid-cols-[170px_10px_1fr] mb-1.5">
               <span>Hari / Tanggal</span><span>:</span><span className="font-bold">{data.eventDay}, {formatDateSafe(data.eventDate)}</span>
             </div>
@@ -212,7 +212,7 @@ function IzinKeramaianBuilder() {
             </div>
         </div>
         
-        <div className="mb-4 break-inside-avoid">
+        <div className="mb-4">
           <p>Dalam pelaksanaan kegiatan tersebut, kami sebagai pihak penyelenggara menyatakan dan menjamin bahwa:</p>
           <ol className="list-decimal ml-8 mt-2 space-y-2 text-justify">
             <li>Akan mentaati segala ketentuan hukum dan ketertiban umum yang berlaku.</li>
@@ -229,14 +229,14 @@ function IzinKeramaianBuilder() {
           </ol>
         </div>
         
-        <div className="mb-10 text-justify break-inside-avoid">
+        <div className="mb-10 text-justify">
           <p>
             Demikian surat permohonan dan pernyataan ini kami buat dengan sebenar-benarnya dalam keadaan sadar dan tanpa paksaan. Atas perhatian, kebijaksanaan, serta izin yang diberikan, kami ucapkan terima kasih.
           </p>
         </div>
         
         {/* TANDA TANGAN */}
-        <div className="break-inside-avoid">
+        <div className="">
             <div className="flex justify-between items-start text-center mb-16">
               <div className="w-[45%]">
                 <p>Mengetahui,</p>

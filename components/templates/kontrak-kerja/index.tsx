@@ -144,20 +144,20 @@ function ContractBuilder() {
     return (
       <Kertas>
         {/* KOP / JUDUL */}
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h1 className="font-bold text-lg uppercase tracking-wider underline">PERJANJIAN KERJA {isPKWT ? 'WAKTU TERTENTU (PKWT)' : 'WAKTU TIDAK TERTENTU (PKWTT)'}</h1>
             <p className="mt-1">Nomor: {data.docNumber}</p>
         </div>
 
         {/* PEMBUKA */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>
                 Pada hari ini, tanggal <strong>{formatDateSafe(data.docDate)}</strong>, bertempat di <strong>{data.docCity}</strong>, telah dibuat dan disepakati Perjanjian Kerja {isPKWT ? 'Waktu Tertentu' : 'Waktu Tidak Tertentu'} (selanjutnya disebut "Perjanjian") oleh dan antara:
             </p>
         </div>
 
         {/* PIHAK PERTAMA */}
-        <div className="mb-6 ml-6 break-inside-avoid">
+        <div className="mb-6 ml-6">
             <div className="flex mb-1"><div className="w-6 font-bold">I.</div><div className="w-36">Nama Perusahaan</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.compName}</div></div>
             <div className="flex mb-1"><div className="w-6"></div><div className="w-36 align-top">Alamat Lengkap</div><div className="w-4 align-top">:</div><div className="flex-1 text-justify">{data.compAddress}</div></div>
             <div className="flex mb-1"><div className="w-6"></div><div className="w-36">Diwakili Oleh</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.compRep}</div></div>
@@ -169,7 +169,7 @@ function ContractBuilder() {
         </div>
 
         {/* PIHAK KEDUA */}
-        <div className="mb-6 ml-6 break-inside-avoid">
+        <div className="mb-6 ml-6">
             <div className="flex mb-1"><div className="w-6 font-bold">II.</div><div className="w-36">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.empName}</div></div>
             <div className="flex mb-1"><div className="w-6"></div><div className="w-36">Nomor KTP</div><div className="w-4">:</div><div className="flex-1">{data.empKtp}</div></div>
             <div className="flex mb-1"><div className="w-6"></div><div className="w-36">Tempat, Tgl Lahir</div><div className="w-4">:</div><div className="flex-1">{data.empPob}, {formatDateSafe(data.empDob)}</div></div>
@@ -181,14 +181,14 @@ function ContractBuilder() {
         </div>
 
         {/* KLAUSUL */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>
                 PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut "Para Pihak". Para Pihak dengan ini sepakat untuk mengikatkan diri dalam Perjanjian Kerja dengan ketentuan dan syarat-syarat sebagai berikut:
             </p>
         </div>
 
         {/* PASAL 1 */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <div className="text-center font-bold mb-2">
                 PASAL 1<br/>
                 JABATAN DAN PENEMPATAN
@@ -205,7 +205,7 @@ function ContractBuilder() {
         </div>
 
         {/* PASAL 2 */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <div className="text-center font-bold mb-2">
                 PASAL 2<br/>
                 JANGKA WAKTU {isPKWT ? 'DAN MASA PERCOBAAN' : 'PERJANJIAN'}
@@ -228,7 +228,7 @@ function ContractBuilder() {
         </div>
 
         {/* PASAL 3 */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <div className="text-center font-bold mb-2">
                 PASAL 3<br/>
                 WAKTU KERJA DAN REMUNERASI (PENGHASILAN)
@@ -242,7 +242,7 @@ function ContractBuilder() {
         </div>
 
         {/* PASAL 4 (B2B Enterprise Level Clauses) */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <div className="text-center font-bold mb-2">
                 PASAL 4<br/>
                 TATA TERTIB, KEMAHASIAAN (NDA), DAN HAK KEKAYAAN INTELEKTUAL
@@ -257,7 +257,7 @@ function ContractBuilder() {
         </div>
 
         {/* PASAL 5 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <div className="text-center font-bold mb-2">
                 PASAL 5<br/>
                 PENYELESAIAN PERSELISIHAN DAN PENUTUP
@@ -269,7 +269,7 @@ function ContractBuilder() {
             </ol>
         </div>
         
-        <p className="mb-8 text-justify break-inside-avoid">
+        <p className="mb-8 text-justify">
             Demikian Perjanjian ini dibuat, dipahami, dan ditandatangani secara sadar oleh Para Pihak tanpa paksaan dari pihak manapun, dibuat dalam rangkap 2 (dua) yang masing-masing dibubuhi meterai secukupnya dan memiliki kekuatan hukum pembuktian yang sama.
         </p>
 

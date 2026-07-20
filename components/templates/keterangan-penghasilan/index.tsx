@@ -133,12 +133,12 @@ function IncomeBuilder() {
     return (
       <Kertas>
         {/* KOP SURAT */}
-        <div className="text-center border-b-[3px] border-double border-slate-800 pb-4 mb-6 break-inside-avoid">
+        <div className="text-center border-b-[3px] border-double border-slate-800 pb-4 mb-6">
             <h1 className="font-black text-2xl uppercase tracking-widest text-slate-900">{data.p1Perusahaan}</h1>
             <p className="text-sm font-medium text-slate-700">{data.p1Alamat}</p>
         </div>
 
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h2 className="font-bold text-lg uppercase underline tracking-wider">SURAT KETERANGAN PENGHASILAN</h2>
             <p className="text-sm">Nomor: SKP/{new Date(data.tanggal).getFullYear()}/{new Date(data.tanggal).getMonth()+1}/001</p>
         </div>
@@ -148,7 +148,7 @@ function IncomeBuilder() {
         </p>
 
         {/* DATA HRD / PERUSAHAAN */}
-        <div className="mb-4 ml-8 break-inside-avoid">
+        <div className="mb-4 ml-8">
             <div className="flex mb-1"><div className="w-40">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p1Name}</div></div>
             <div className="flex mb-1"><div className="w-40">Jabatan</div><div className="w-4">:</div><div className="flex-1">{data.p1Jabatan}</div></div>
             <div className="flex mb-1"><div className="w-40">Perusahaan</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.p1Perusahaan}</div></div>
@@ -159,7 +159,7 @@ function IncomeBuilder() {
         </p>
 
         {/* DATA KARYAWAN */}
-        <div className="mb-6 ml-8 break-inside-avoid">
+        <div className="mb-6 ml-8">
             <div className="flex mb-1"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p2Name}</div></div>
             <div className="flex mb-1"><div className="w-40">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.p2Nik}</div></div>
             <div className="flex mb-1"><div className="w-40">Tempat, Tgl Lahir</div><div className="w-4">:</div><div className="flex-1">{data.p2TTL}</div></div>
@@ -172,7 +172,7 @@ function IncomeBuilder() {
         </p>
 
         {/* RINCIAN GAJI */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <table className="w-full border-collapse">
                 <tbody>
                     {/* PENERIMAAN */}

@@ -132,7 +132,7 @@ const IdentityRow = ({ label, value }: { label: string, value: string }) => (
 );
 
 const Article = ({ title, subtitle, children }: { title: string, subtitle: string, children: React.ReactNode }) => (
-  <div className="mb-6 break-inside-avoid">
+  <div className="mb-6">
      <div className="text-center font-bold mb-2">
         <p className="underline">{title}</p>
         <p>{subtitle}</p>
@@ -207,7 +207,7 @@ function AhliWarisDesaBuilder() {
     return (
       <Kertas>
         {/* KOP SURAT */}
-        <div className="flex items-center border-b-[3px] border-double border-black pb-4 mb-6 text-center relative break-inside-avoid">
+        <div className="flex items-center border-b-[3px] border-double border-black pb-4 mb-6 text-center relative">
            <div className="flex-grow px-12">
               <h3 className="text-[12pt] font-bold uppercase tracking-wide">PEMERINTAH {data.kabupaten}</h3>
               <h2 className="text-[14pt] font-black uppercase tracking-wider">KECAMATAN {data.kecamatan}</h2>
@@ -217,7 +217,7 @@ function AhliWarisDesaBuilder() {
         </div>
 
         {/* JUDUL */}
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
            <h2 className="text-[14pt] font-bold underline uppercase tracking-wide">AKTA PERNYATAAN DAN KESEPAKATAN AHLI WARIS</h2>
            <p className="text-[11pt]">Nomor Desa: {data.noSuratDesa}</p>
            <p className="text-[11pt]">Nomor Register Kecamatan: {data.noRegKecamatan}</p>
@@ -235,7 +235,7 @@ function AhliWarisDesaBuilder() {
            {data.ahliWaris.map((ahli, idx) => {
               const numeral = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'][idx] || (idx+1).toString();
               return (
-               <div key={ahli.id} className="flex break-inside-avoid mt-4">
+               <div key={ahli.id} className="flex mt-4">
                   <div className="w-8 shrink-0 font-bold">{numeral}.</div>
                   <div className="flex-1">
                      <IdentityRow label="Nama Lengkap" value={ahli.nama} />
@@ -253,7 +253,7 @@ function AhliWarisDesaBuilder() {
            })}
         </div>
 
-        <div className="text-justify mb-6 break-inside-avoid">
+        <div className="text-justify mb-6">
            <p className="mb-4">
              PIHAK PERTAMA{data.ahliWaris.length > 1 ? ', PIHAK KEDUA beserta pihak-pihak lainnya' : ''} secara bersama-sama selanjutnya disebut sebagai <strong>PARA PIHAK</strong> (Segenap Ahli Waris).
            </p>
@@ -263,7 +263,7 @@ function AhliWarisDesaBuilder() {
         </div>
 
         {/* PEWARIS */}
-        <div className="pl-4 space-y-2 mb-6 break-inside-avoid border border-black p-4">
+        <div className="pl-4 space-y-2 mb-6 border border-black p-4">
            <IdentityRow label="Nama Almarhum" value={data.pewaris.nama} />
            <IdentityRow label="NIK" value={data.pewaris.nik} />
            <IdentityRow label="Tanggal Meninggal" value={data.pewaris.tglMeninggal} />
@@ -271,7 +271,7 @@ function AhliWarisDesaBuilder() {
            <IdentityRow label="Alamat Terakhir" value={data.pewaris.alamatTerakhir} />
         </div>
 
-        <div className="text-justify mb-8 break-inside-avoid">
+        <div className="text-justify mb-8">
            <p className="indent-8 mb-4">
              Bahwa almarhum tersebut di atas (selanjutnya disebut <strong>Pewaris</strong>) telah meninggal dunia secara sah, dan PARA PIHAK sepakat untuk menuangkan kesepakatan kewarisan dengan syarat-syarat dan ketentuan sebagaimana tertuang dalam pasal-pasal berikut:
            </p>
@@ -324,7 +324,7 @@ function AhliWarisDesaBuilder() {
         </Article>
 
         {/* TANDA TANGAN */}
-        <div className="mt-12 break-inside-avoid">
+        <div className="mt-12">
            <div className="text-center mb-8">
              <p>Dibuat dan ditandatangani di: <strong>{data.kabupaten.replace('KABUPATEN ', '').replace('KOTA ', '')}</strong></p>
              <p>Pada tanggal: <strong>{data.tanggalSurat}</strong></p>
@@ -342,7 +342,7 @@ function AhliWarisDesaBuilder() {
            </div>
         </div>
 
-        <div className="mt-16 break-inside-avoid">
+        <div className="mt-16">
            <p className="font-bold text-center mb-8 underline uppercase">SAKSI - SAKSI</p>
            <div className="flex flex-wrap justify-center gap-y-12">
               <div className="w-1/2 text-center px-4">
@@ -356,7 +356,7 @@ function AhliWarisDesaBuilder() {
            </div>
         </div>
 
-        <div className="mt-16 break-inside-avoid border-t-2 border-black pt-8">
+        <div className="mt-16 border-t-2 border-black pt-8">
            <p className="text-center text-[12pt] font-bold uppercase mb-12">MENGETAHUI DAN MENGESAHKAN</p>
            <div className="flex flex-wrap justify-between">
              <div className="w-[45%] text-center">

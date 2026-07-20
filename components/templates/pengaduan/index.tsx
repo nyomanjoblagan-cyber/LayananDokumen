@@ -146,14 +146,14 @@ function ComplaintBuilder() {
         </div>
 
         {/* Tujuan */}
-        <div className="mb-8 break-inside-avoid shrink-0">
+        <div className="mb-8 shrink-0">
           <p className="mb-1">Kepada Yth.,</p>
           <p className="font-bold text-lg mb-1 leading-tight">{data.tujuan}</p>
           <div className="whitespace-pre-line text-[11pt]">{data.alamatTujuan}</div>
         </div>
 
         {/* Pembuka */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
           <p className="mb-2">Dengan hormat,</p>
           <p className="text-justify indent-8">
             Saya yang bertanda tangan di bawah ini selaku pelapor:
@@ -161,7 +161,7 @@ function ComplaintBuilder() {
         </div>
 
         {/* Identitas Pelapor */}
-        <div className="mb-6 pl-4 border-l-[3px] border-slate-300 break-inside-avoid">
+        <div className="mb-6 pl-4 border-l-[3px] border-slate-300">
           <table className="w-full pengaduan-table">
             <tbody>
               <tr>
@@ -199,14 +199,14 @@ function ComplaintBuilder() {
         </div>
 
         {/* Penghubung */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
           <p className="text-justify indent-8">
             Melalui surat ini bermaksud mengajukan laporan / pengaduan resmi atas dugaan pelanggaran / tindakan yang merugikan yang dilakukan oleh pihak terlapor, yaitu:
           </p>
         </div>
 
         {/* Identitas Terlapor */}
-        <div className="mb-6 pl-4 border-l-[3px] border-slate-800 break-inside-avoid">
+        <div className="mb-6 pl-4 border-l-[3px] border-slate-800">
           <table className="w-full pengaduan-table">
             <tbody>
               <tr>
@@ -229,7 +229,7 @@ function ComplaintBuilder() {
         </div>
 
         {/* Kronologis & Tuntutan */}
-        <div className="mb-8 break-inside-avoid">
+        <div className="mb-8">
           <p className="font-bold uppercase border-b border-black mb-2 inline-block">A. Kronologis Kejadian</p>
           <div className="whitespace-pre-line text-justify mb-6">{data.kronologis}</div>
 
@@ -237,7 +237,7 @@ function ComplaintBuilder() {
           <div className="whitespace-pre-line text-justify mb-6">{data.tuntutan}</div>
 
           {data.namaSaksi && (
-            <div className="break-inside-avoid">
+            <div className="">
               <p className="font-bold uppercase border-b border-black mb-2 inline-block">C. Saksi - Saksi</p>
               <div className="whitespace-pre-line text-justify mb-6">{data.namaSaksi}</div>
             </div>
@@ -245,7 +245,7 @@ function ComplaintBuilder() {
         </div>
 
         {/* Penutup */}
-        <div className="mb-12 break-inside-avoid">
+        <div className="mb-12">
           <p className="text-justify indent-8 mb-2">
             Demikian surat pengaduan ini saya buat dengan sebenar-benarnya dalam keadaan sadar dan tanpa ada paksaan dari pihak manapun. Saya bersedia memberikan keterangan lebih lanjut beserta bukti-bukti pendukung apabila diperlukan.
           </p>
@@ -280,7 +280,7 @@ function ComplaintBuilder() {
           body { background: white; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 100%; z-index: 9999; background: white; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .{ page-break-inside: avoid !important; break-inside: avoid !important; }
           * { box-sizing: border-box !important; }
         }
       ` }} />

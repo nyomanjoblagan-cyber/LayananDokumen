@@ -209,7 +209,7 @@ function OrderBuilder() {
         </div>
 
         {/* VENDOR INFO */}
-        <div className="mb-6 bg-slate-50 border border-slate-200 p-4 rounded-lg break-inside-avoid">
+        <div className="mb-6 bg-slate-50 border border-slate-200 p-4 rounded-lg">
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">Tujuan (Vendor/Supplier):</h3>
             <p className="font-black uppercase text-sm mb-1">{data.recipientName}</p>
             <div className="text-xs text-slate-700 whitespace-pre-line mb-1">{data.recipientAddress}</div>
@@ -217,7 +217,7 @@ function OrderBuilder() {
         </div>
 
         {/* ITEMS TABLE */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <table className="w-full text-xs">
                 <thead>
                     <tr className="bg-slate-900 text-white uppercase tracking-wider">
@@ -248,7 +248,7 @@ function OrderBuilder() {
         </div>
 
         {/* TOTALS & TERMS */}
-        <div className="flex gap-6 mb-8 break-inside-avoid">
+        <div className="flex gap-6 mb-8">
             {/* TERMS */}
             <div className="w-3/5 text-xs">
                 <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4">

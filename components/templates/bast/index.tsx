@@ -125,7 +125,7 @@ function BastBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* HEADER */}
-      <div className="text-center mb-10 pb-2 border-b-[3px] border-black border-double break-inside-avoid">
+      <div className="text-center mb-10 pb-2 border-b-[3px] border-black border-double">
           <h1 className="font-bold text-[14pt] uppercase tracking-wider underline underline-offset-4">BERITA ACARA SERAH TERIMA</h1>
           <h2 className="font-bold text-[12pt] uppercase tracking-wider mt-1">{data.handoverType.toUpperCase()}</h2>
       </div>
@@ -139,7 +139,7 @@ function BastBuilder() {
 
       {/* IDENTITAS PARA PIHAK */}
       <div className="pl-4 space-y-4 mb-6">
-          <div className="flex break-inside-avoid">
+          <div className="flex">
               <div className="w-8 shrink-0 font-bold">I.</div>
               <div className="flex-1">
                   <IdentityRow label="Nama Lengkap" value={data.p1Name} />
@@ -152,7 +152,7 @@ function BastBuilder() {
                   </div>
               </div>
           </div>
-          <div className="flex break-inside-avoid mt-6">
+          <div className="flex mt-6">
               <div className="w-8 shrink-0 font-bold">II.</div>
               <div className="flex-1">
                   <IdentityRow label="Nama Lengkap" value={data.p2Name} />
@@ -174,7 +174,7 @@ function BastBuilder() {
       </div>
 
       {/* PASAL 1 - OBJEK SERAH TERIMA */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
           <h3 className="font-bold text-center underline mb-4">PASAL 1 : OBJEK SERAH TERIMA</h3>
           <p className="text-justify mb-2">PIHAK PERTAMA telah menyerahkan kepada PIHAK KEDUA, dan PIHAK KEDUA telah menerima dari PIHAK PERTAMA berupa {data.handoverType.toLowerCase()} dengan rincian:</p>
           <table className="w-full border-collapse border border-black text-sm mt-4">
@@ -205,7 +205,7 @@ function BastBuilder() {
       </div>
 
       {/* PASAL 2 - PERALIHAN TANGGUNG JAWAB */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
           <h3 className="font-bold text-center underline mb-4">PASAL 2 : PERALIHAN TANGGUNG JAWAB</h3>
           <ClauseItem num="1" text={`Sejak ditandatanganinya Berita Acara Serah Terima ini, maka segala risiko, tanggung jawab, keamanan, dan perawatan atas objek serah terima sebagaimana dimaksud dalam Pasal 1 beralih sepenuhnya dari PIHAK PERTAMA menjadi tanggung jawab mutlak PIHAK KEDUA.`} />
           <ClauseItem num="2" text={`PIHAK PERTAMA membebaskan diri dari segala tuntutan hukum yang berkaitan dengan kerusakan, kehilangan, atau penyalahgunaan objek tersebut setelah proses serah terima ini selesai.`} />
@@ -215,7 +215,7 @@ function BastBuilder() {
       </div>
 
       {/* PASAL 3 - PENYELESAIAN SENGKETA */}
-      <div className="mb-8 break-inside-avoid">
+      <div className="mb-8">
           <h3 className="font-bold text-center underline mb-4">PASAL 3 : PENYELESAIAN SENGKETA</h3>
           <p className="text-justify indent-8">
               Apabila di kemudian hari terjadi perselisihan atau perbedaan penafsiran sehubungan dengan Berita Acara Serah Terima ini, PARA PIHAK sepakat untuk menyelesaikannya secara musyawarah mufakat. Apabila musyawarah tidak mencapai kesepakatan, maka PARA PIHAK sepakat untuk menyelesaikannya melalui <strong>{data.disputeResolution === 'pengadilan' ? 'Kepaniteraan Pengadilan Negeri' : data.disputeResolution === 'arbitrase' ? 'Badan Arbitrase Nasional Indonesia (BANI)' : 'jalur Musyawarah Kekeluargaan'} {data.courtCity && data.disputeResolution !== 'musyawarah' ? `di ${data.courtCity}` : ''}</strong>.
@@ -223,7 +223,7 @@ function BastBuilder() {
       </div>
 
       {/* PENUTUP & TANDA TANGAN */}
-      <div className="break-inside-avoid">
+      <div className="">
           <p className="text-justify mb-12">
               Demikian Berita Acara Serah Terima ini dibuat dan ditandatangani oleh PARA PIHAK dalam keadaan sehat jasmani dan rohani, tanpa adanya unsur paksaan dari pihak manapun, dibuat dalam rangkap 2 (dua) yang masing-masing memiliki kekuatan hukum yang sama.
           </p>

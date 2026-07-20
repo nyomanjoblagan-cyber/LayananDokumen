@@ -178,7 +178,7 @@ function FakturBuilder() {
           </div>
 
           {/* INFO KLIEN */}
-          <div className="mb-8 break-inside-avoid">
+          <div className="mb-8">
               <p className="font-bold text-slate-500 uppercase tracking-widest text-[8pt] mb-2">Tagihan Kepada:</p>
               <h2 className="font-black text-[12pt] uppercase">{data.clientName}</h2>
               <p className="mt-1 max-w-[300px] whitespace-pre-wrap">{data.clientAddress}</p>
@@ -199,7 +199,7 @@ function FakturBuilder() {
                   </thead>
                   <tbody>
                       {data.items.map((item, idx) => (
-                          <tr key={idx} className="border-b border-slate-200 break-inside-avoid">
+                          <tr key={idx} className="border-b border-slate-200">
                               <td className="border-x border-slate-300 p-3 text-center align-top">{idx + 1}</td>
                               <td className="border-x border-slate-300 p-3 align-top font-medium">{item.desc}</td>
                               <td className="border-x border-slate-300 p-3 text-center align-top">{item.qty}</td>

@@ -118,17 +118,17 @@ function NonBantuanBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h1 className="font-bold text-lg underline uppercase tracking-wider">SURAT PERNYATAAN TANGGUNG JAWAB MUTLAK</h1>
         <p className="font-bold mt-1">TIDAK SEDANG MENERIMA BANTUAN/BEASISWA LAIN</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* IDENTITAS */}
-      <div className="mb-6 break-inside-avoid pl-4">
+      <div className="mb-6 pl-4">
         <div className="flex"><div className="w-48 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.pihak1Nama}</div></div>
         <div className="flex"><div className="w-48">NIK / KTP</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.pihak1Nik}</div></div>
         <div className="flex"><div className="w-48">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.pihak1TempatLahir}, {formatDateDisplay(data.pihak1TanggalLahir)}</div></div>
@@ -136,7 +136,7 @@ function NonBantuanBuilder() {
         <div className="flex"><div className="w-48">Alamat Domisili KTP</div><div className="w-4">:</div><div className="flex-1">{data.pihak1Alamat}</div></div>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p className="mb-3">Sehubungan dengan persyaratan administrasi untuk <strong>{data.instansiTujuan}</strong> pada <strong>{data.periodeBerlaku}</strong>, dengan ini menyatakan dengan sebenar-benarnya bahwa:</p>
         
         <ol className="list-decimal pl-5 space-y-2 mt-2">
@@ -148,7 +148,7 @@ function NonBantuanBuilder() {
       </div>
 
       {/* PEJABAT MENGETAHUI (Opsional) */}
-      <div className="mb-6 mt-6 break-inside-avoid">
+      <div className="mb-6 mt-6">
         <p className="mb-2">Demikian pernyataan ini dibuat dalam keadaan sadar tanpa paksaan, diketahui dan dibenarkan oleh Pejabat Berwenang / Pihak Kampus / Instansi:</p>
         <div className="pl-4">
             <div className="flex"><div className="w-48">Nama Pejabat</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.pihak2Nama}</div></div>

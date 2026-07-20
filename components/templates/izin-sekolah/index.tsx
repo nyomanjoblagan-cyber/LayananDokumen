@@ -158,7 +158,7 @@ function IzinBuilder() {
         </div>
 
         {/* DATA SISWA / MAHASISWA */}
-        <div className="ml-8 mb-6 break-inside-avoid">
+        <div className="ml-8 mb-6">
             <div className="flex mb-1">
                 <div className="w-40">Nama</div>
                 <div className="w-4">:</div>
@@ -177,13 +177,13 @@ function IzinBuilder() {
         </div>
 
         {/* ISI SURAT / ALASAN */}
-        <div className="mb-4 text-justify break-inside-avoid leading-relaxed">
+        <div className="mb-4 text-justify leading-relaxed">
             <p>
                 Melalui surat ini kami memohonkan izin bagi {data.jenisTujuan === 'Sekolah' ? 'Siswa' : 'Mahasiswa'} tersebut di atas untuk <strong>TIDAK DAPAT MENGIKUTI</strong> kegiatan pembelajaran / perkuliahan pada:
             </p>
         </div>
 
-        <div className="ml-8 mb-6 font-bold break-inside-avoid">
+        <div className="ml-8 mb-6 font-bold">
             {isSingleDay ? (
                 <p>Hari/Tanggal : {formatDateSafe(data.tanggalMulai)}</p>
             ) : (
@@ -191,7 +191,7 @@ function IzinBuilder() {
             )}
         </div>
 
-        <div className="mb-8 text-justify break-inside-avoid leading-relaxed">
+        <div className="mb-8 text-justify leading-relaxed">
             {isSakit && (
                 <p>
                     Hal ini dikarenakan yang bersangkutan sedang dalam keadaan <strong>sakit ({data.keteranganSakit})</strong> dan memerlukan waktu untuk istirahat pemulihan.{' '}
@@ -213,7 +213,7 @@ function IzinBuilder() {
         </div>
 
         {/* PENUTUP */}
-        <div className="mb-12 text-justify break-inside-avoid">
+        <div className="mb-12 text-justify">
             <p>
                 Demikian surat permohonan izin ini kami sampaikan. Kami berharap Bapak/Ibu dapat memakluminya dan memberikan izin yang seperlunya. Atas perhatian dan izin yang diberikan, kami ucapkan banyak terima kasih.
             </p>

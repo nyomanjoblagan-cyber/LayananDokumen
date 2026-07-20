@@ -145,7 +145,7 @@ function IzinBarangBuilder() {
 
     return (
       <Kertas>
-        <div className="flex flex-col border border-black p-4 break-inside-avoid">
+        <div className="flex flex-col border border-black p-4">
           {/* HEADER PERUSAHAAN */}
           <div className="text-center border-b-2 border-black pb-4 mb-4">
             <h1 className="text-xl font-black uppercase tracking-wider">{data.namaPerusahaan}</h1>

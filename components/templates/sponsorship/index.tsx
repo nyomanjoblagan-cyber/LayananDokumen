@@ -156,7 +156,7 @@ function SponsorshipBuilder() {
         </div>
       </div>
 
-      <div className="mb-6 break-inside-avoid text-justify">
+      <div className="mb-6 text-justify">
         <p className="mb-4">Dengan hormat,</p>
         <p className="mb-4">
             Sehubungan dengan akan diadakannya kegiatan <strong>"{data.eventName}"</strong> yang diselenggarakan oleh {data.orgName}, kami bermaksud menawarkan kesempatan emas kepada Perusahaan yang Bapak/Ibu pimpin untuk berpartisipasi sebagai Mitra Sponsor kami.
@@ -164,14 +164,14 @@ function SponsorshipBuilder() {
       </div>
 
       {/* DETAIL EVENT */}
-      <div className="mb-6 pl-4 border-l-2 border-slate-400 ml-4 break-inside-avoid">
+      <div className="mb-6 pl-4 border-l-2 border-slate-400 ml-4">
         <div className="flex mb-1"><div className="w-40 font-bold">Nama Event</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.eventName}</div></div>
         <div className="flex mb-1"><div className="w-40">Waktu Pelaksanaan</div><div className="w-4">:</div><div className="flex-1">{data.eventDate}</div></div>
         <div className="flex mb-1"><div className="w-40">Lokasi Kegiatan</div><div className="w-4">:</div><div className="flex-1">{data.eventLocation}</div></div>
         <div className="flex mb-1"><div className="w-40">Target Peserta</div><div className="w-4">:</div><div className="flex-1">{data.targetAudience}</div></div>
       </div>
 
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
         <p className="mb-4">
             Kami meyakini bahwa keterlibatan Perusahaan Bapak/Ibu dalam kegiatan ini akan memberikan eksposur yang sangat baik dan meningkatkan <i>brand awareness</i> di kalangan peserta serta masyarakat luas.
         </p>
@@ -193,7 +193,7 @@ function SponsorshipBuilder() {
       </div>
 
       {/* TANDA TANGAN */}
-      <div className="mt-12 break-inside-avoid">
+      <div className="mt-12">
         <p className="mb-2">Hormat kami,</p>
         <p className="mb-2 font-bold uppercase">Panitia Pelaksana</p>
         <div className="h-24"></div>

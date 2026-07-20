@@ -122,20 +122,20 @@ function NdaToolBuilder() {
     return (
       <Kertas>
         {/* HEADER / JUDUL */}
-        <div className="text-center mb-8 border-b-2 border-black pb-4 break-inside-avoid">
+        <div className="text-center mb-8 border-b-2 border-black pb-4">
             <h1 className="font-black text-xl tracking-widest uppercase">NON-DISCLOSURE AGREEMENT</h1>
             <p className="font-bold tracking-widest mt-1">PERJANJIAN KERAHASIAAN INFORMASI</p>
         </div>
 
         {/* PEMBUKA */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>
                 Perjanjian Kerahasiaan Informasi ini ("Perjanjian") ditandatangani di <strong>{data.city}</strong> pada tanggal <strong>{formatDateSafe(data.date)}</strong>, oleh dan antara:
             </p>
         </div>
 
         {/* PIHAK PERTAMA (PENGUNGKAP) */}
-        <div className="mb-4 break-inside-avoid">
+        <div className="mb-4">
             <h3 className="font-bold mb-2">I. PIHAK PENGUNGKAP (DISCLOSING PARTY)</h3>
             <div className="ml-6">
                 <div className="flex mb-1"><div className="w-40">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.name1}</div></div>
@@ -149,7 +149,7 @@ function NdaToolBuilder() {
         </div>
 
         {/* PIHAK KEDUA (PENERIMA) */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <h3 className="font-bold mb-2">II. PIHAK PENERIMA (RECEIVING PARTY)</h3>
             <div className="ml-6">
                 <div className="flex mb-1"><div className="w-40">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.name2}</div></div>
@@ -162,14 +162,14 @@ function NdaToolBuilder() {
             </div>
         </div>
 
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>
                 PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama disebut "Para Pihak". Para Pihak bermaksud untuk berdiskusi, mengevaluasi, dan/atau menjalankan kerjasama terkait: <strong>{data.purpose}</strong> (selanjutnya disebut "Tujuan").
             </p>
         </div>
 
         {/* PASAL 1 */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <h3 className="font-bold mb-1">Pasal 1: Definisi Informasi Rahasia</h3>
             <p className="pl-4">
                 "Informasi Rahasia" berarti segala informasi, data, teknologi, rancangan sistem, kode sumber (source code), strategi bisnis, rahasia dagang, data keuangan, data pelanggan, atau materi apa pun yang diungkapkan oleh PIHAK PERTAMA kepada PIHAK KEDUA, baik secara lisan, tertulis, grafik, atau elektronik.
@@ -177,7 +177,7 @@ function NdaToolBuilder() {
         </div>
 
         {/* PASAL 2 */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <h3 className="font-bold mb-1">Pasal 2: Kewajiban Kerahasiaan</h3>
             <p className="pl-4 mb-2">PIHAK KEDUA dengan ini secara tegas dan tanpa syarat setuju untuk:</p>
             <ol className="list-lower-alpha pl-10 space-y-1">
@@ -188,7 +188,7 @@ function NdaToolBuilder() {
         </div>
 
         {/* PASAL 3 */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <h3 className="font-bold mb-1">Pasal 3: Pengecualian</h3>
             <p className="pl-4">
                 Kewajiban kerahasiaan tidak berlaku untuk informasi yang: (a) telah menjadi domain publik tanpa pelanggaran oleh PIHAK KEDUA; (b) secara sah diterima dari pihak ketiga tanpa kewajiban kerahasiaan; atau (c) diwajibkan untuk diungkapkan oleh putusan pengadilan atau otoritas pemerintah yang berwenang, dengan syarat PIHAK KEDUA segera memberitahu PIHAK PERTAMA secara tertulis.
@@ -196,7 +196,7 @@ function NdaToolBuilder() {
         </div>
 
         {/* PASAL 4: KLAUSUL SANKSI (CORPORATE WARFARE) */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold mb-1">Pasal 4: Sanksi dan Ganti Rugi Pelanggaran</h3>
             <p className="pl-4">
                 Apabila PIHAK KEDUA terbukti melakukan pelanggaran, kelalaian, atau pembocoran Informasi Rahasia, maka PIHAK KEDUA wajib membayar ganti rugi (Liquidated Damages) secara tunai dan seketika kepada PIHAK PERTAMA sebesar <strong>Rp {data.penaltyAmount} ({data.penaltyAmountText})</strong>. Pembayaran sanksi ini tidak menghapuskan hak PIHAK PERTAMA untuk menuntut secara pidana maupun perdata atas kerugian lanjutan.
@@ -204,7 +204,7 @@ function NdaToolBuilder() {
         </div>
 
         {/* PASAL 5 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold mb-1">Pasal 5: Pengembalian Dokumen</h3>
             <p className="pl-4">
                 Segera setelah permintaan tertulis dari PIHAK PERTAMA, atau pada saat berakhirnya kerjasama, PIHAK KEDUA wajib mengembalikan atau memusnahkan secara permanen seluruh dokumen, hard drive, atau media penyimpanan lain yang berisi Informasi Rahasia.
@@ -212,7 +212,7 @@ function NdaToolBuilder() {
         </div>
 
         {/* PENUTUP */}
-        <div className="mb-12 text-justify break-inside-avoid">
+        <div className="mb-12 text-justify">
             <p>
                 Demikian Perjanjian ini dibuat dalam 2 (dua) rangkap bermeterai cukup dan berkekuatan hukum tetap, ditandatangani secara sadar tanpa paksaan dari pihak mana pun pada hari dan tanggal yang telah disebutkan di awal.
             </p>

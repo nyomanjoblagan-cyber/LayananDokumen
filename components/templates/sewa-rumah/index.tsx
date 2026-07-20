@@ -148,17 +148,17 @@ function HouseRentalBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h1 className="font-bold text-lg underline uppercase tracking-wider">PERJANJIAN SEWA MENYEWA PROPERTI</h1>
       </div>
 
       {/* MUKADIMAH */}
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Pada hari ini, bertempat di <strong>{data.city}</strong> tanggal <strong>{formatDateDisplay(data.date)}</strong>, yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* PIHAK 1 (Pemilik) */}
-      <div className="mb-4 break-inside-avoid">
+      <div className="mb-4">
         <div className="flex mb-1">
           <div className="w-8 font-bold">I.</div>
           <div className="flex-1">
@@ -175,7 +175,7 @@ function HouseRentalBuilder() {
       </div>
 
       {/* PIHAK 2 (Penyewa) */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <div className="flex mb-1">
           <div className="w-8 font-bold">II.</div>
           <div className="flex-1">
@@ -191,12 +191,12 @@ function HouseRentalBuilder() {
         </div>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>PARA PIHAK sepakat mengikatkan diri dalam Perjanjian Sewa Menyewa dengan ketentuan pasal-pasal berikut:</p>
       </div>
 
       {/* PASAL-PASAL */}
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <h3 className="font-bold uppercase mt-4 mb-1">Pasal 1: Objek Sewa</h3>
         <p>PIHAK PERTAMA menyewakan kepada PIHAK KEDUA berupa <strong>{data.type}</strong> yang terletak di <strong>{data.addressProp}</strong> beserta fasilitas pendukung berupa: {data.facilities}.</p>
 
@@ -222,7 +222,7 @@ function HouseRentalBuilder() {
         </ol>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid mt-6">
+      <div className="text-justify mb-8 mt-6">
         <p>Demikian perjanjian ini dibuat rangkap 2 (dua) bermeterai cukup, ditandatangani dalam keadaan sehat jasmani dan rohani tanpa paksaan.</p>
       </div>
 

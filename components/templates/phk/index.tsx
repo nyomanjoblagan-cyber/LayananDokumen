@@ -142,14 +142,14 @@ function PHKBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* Judul Surat */}
-      <div className="text-center mb-8 pb-4 border-b-[3px] border-double border-black break-inside-avoid">
+      <div className="text-center mb-8 pb-4 border-b-[3px] border-double border-black">
         <h1 className="font-bold text-[14pt] uppercase tracking-wide">
           PERJANJIAN BERSAMA PEMUTUSAN HUBUNGAN KERJA
         </h1>
       </div>
 
       {/* Mukadimah */}
-      <div className="text-justify mb-6 break-inside-avoid">
+      <div className="text-justify mb-6">
         <p className="mb-4">
           Pada hari ini, <strong>{data.hariTanggalPerjanjian}</strong>, bertempat di <strong>{data.tempatPerjanjian}</strong>, yang bertanda tangan di bawah ini:
         </p>
@@ -199,7 +199,7 @@ function PHKBuilder() {
       </div>
 
       {/* Pasal 1 */}
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <div className="text-center font-bold mb-2 uppercase">
           PASAL 1<br/>KESEPAKATAN PEMUTUSAN HUBUNGAN KERJA
         </div>
@@ -210,7 +210,7 @@ function PHKBuilder() {
       </div>
 
       {/* Pasal 2 */}
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <div className="text-center font-bold mb-2 uppercase">
           PASAL 2<br/>ALASAN PEMUTUSAN HUBUNGAN KERJA
         </div>
@@ -221,7 +221,7 @@ function PHKBuilder() {
       </div>
 
       {/* Pasal 3 */}
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <div className="text-center font-bold mb-2 uppercase">
           PASAL 3<br/>HAK DAN KOMPENSASI
         </div>
@@ -275,7 +275,7 @@ function PHKBuilder() {
       </div>
 
       {/* Pasal 4 */}
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <div className="text-center font-bold mb-2 uppercase">
           PASAL 4<br/>MEKANISME PEMBAYARAN DAN PAJAK
         </div>
@@ -303,7 +303,7 @@ function PHKBuilder() {
       </div>
 
       {/* Pasal 5 & 6 */}
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <div className="text-center font-bold mb-2 uppercase">PASAL 5<br/>PENGEMBALIAN INVENTARIS DAN KERAHASIAAN</div>
         <ol className="list-decimal pl-5 space-y-1 ml-4 mb-4">
           <li>PIHAK KEDUA wajib mengembalikan seluruh fasilitas, barang inventaris, dokumen (fisik maupun digital), identitas (ID Card), dan akses sistem yang merupakan milik PIHAK PERTAMA selambat-lambatnya pada saat tanggal efektif pemutusan hubungan kerja.</li>
@@ -318,7 +318,7 @@ function PHKBuilder() {
       </div>
 
       {/* Pasal 7 & 8 */}
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <div className="text-center font-bold mb-2 uppercase">PASAL 7<br/>PENYELESAIAN PERSELISIHAN</div>
         <ol className="list-decimal pl-5 space-y-1 ml-4 mb-4">
           <li>Perjanjian Bersama ini tunduk dan ditafsirkan berdasarkan hukum Negara Republik Indonesia.</li>

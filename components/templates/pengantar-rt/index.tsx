@@ -264,7 +264,7 @@ function PengantarRtBuilder() {
 
               {/* PASAL-PASAL */}
               <div className="space-y-6">
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 1<br/>DEFINISI DAN KETENTUAN UMUM</p>
                       <p className="mb-1">Di dalam dokumen legal ini, kecuali secara tegas ditentukan lain oleh konteks kalimat, istilah-istilah di bawah ini memiliki makna sebagai berikut:</p>
                       <ol className="list-decimal ml-8 space-y-1">
@@ -274,7 +274,7 @@ function PengantarRtBuilder() {
                       </ol>
                   </div>
 
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 2<br/>OBJEK SURAT PENGANTAR (KETERANGAN DOMISILI)</p>
                       <p className="mb-1">Melalui penandatanganan dokumen ini, PIHAK PERTAMA dalam kapasitas jabatannya menerangkan dengan sebenar-benarnya dan menyatakan bahwa:</p>
                       <ol className="list-decimal ml-8 space-y-1">
@@ -284,7 +284,7 @@ function PengantarRtBuilder() {
                       </ol>
                   </div>
 
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 3<br/>MAKSUD DAN TUJUAN</p>
                       <p className="mb-1">Dokumen Surat Pengantar ini diterbitkan secara eksklusif untuk memenuhi permohonan administratif PIHAK KEDUA yang dipergunakan semata-mata dengan tujuan:</p>
                       <div className="text-center font-bold text-lg my-4 uppercase border border-black py-2 mx-8 bg-slate-50 print:bg-white print:border-2">
@@ -293,7 +293,7 @@ function PengantarRtBuilder() {
                       <p className="mb-1">Segala bentuk penggunaan dokumen ini yang menyimpang atau berada di luar dari maksud dan tujuan yang telah disebutkan di atas, merupakan bentuk pelanggaran dan menjadi tanggung jawab PIHAK KEDUA secara mutlak.</p>
                   </div>
 
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 4<br/>PERNYATAAN DAN JAMINAN</p>
                       <p className="mb-1">Sehubungan dengan penerbitan Surat Pengantar ini, PIHAK KEDUA dengan ini memberikan pernyataan dan jaminan kepada PIHAK PERTAMA bahwa:</p>
                       <ol className="list-decimal ml-8 space-y-1">
@@ -307,7 +307,7 @@ function PengantarRtBuilder() {
                       </ol>
                   </div>
 
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 5<br/>HAK DAN KEWAJIBAN PARA PIHAK</p>
                       <ol className="list-decimal ml-8 space-y-1">
                           <li className="pl-2">
@@ -324,7 +324,7 @@ function PengantarRtBuilder() {
                       </ol>
                   </div>
 
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 6<br/>MASA BERLAKU</p>
                       <ol className="list-decimal ml-8 space-y-1">
                           <li className="pl-2">Kekuatan mengikat dan legalitas dari Surat Pengantar ini mulai berlaku secara efektif terhitung sejak tanggal dokumen ini ditandatangani oleh Para Pihak dan secara resmi diketahui serta dibubuhi stempel oleh Ketua RW {data.rw}.</li>
@@ -333,7 +333,7 @@ function PengantarRtBuilder() {
                       </ol>
                   </div>
 
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 7<br/>SANKSI DAN PEMBEBASAN TANGGUNG JAWAB (INDEMNIFIKASI)</p>
                       <ol className="list-decimal ml-8 space-y-1">
                           <li className="pl-2">Dalam hal terbukti bahwa pernyataan, jaminan, maupun dokumen yang diberikan PIHAK KEDUA mengandung unsur kepalsuan, manipulasi, atau itikad buruk, maka PIHAK PERTAMA berhak penuh untuk segera membatalkan Surat Pengantar ini.</li>
@@ -342,7 +342,7 @@ function PengantarRtBuilder() {
                       </ol>
                   </div>
 
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 8<br/>KEADAAN MEMAKSA (FORCE MAJEURE)</p>
                       <ol className="list-decimal ml-8 space-y-1">
                           <li className="pl-2">Para Pihak dibebaskan dari setiap tanggung jawab atas keterlambatan atau kegagalan pemenuhan kewajiban dalam dokumen ini yang semata-mata diakibatkan oleh terjadinya Keadaan Memaksa (Force Majeure).</li>
@@ -350,7 +350,7 @@ function PengantarRtBuilder() {
                       </ol>
                   </div>
 
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 9<br/>PENYELESAIAN PERSELISIHAN</p>
                       <ol className="list-decimal ml-8 space-y-1">
                           <li className="pl-2">Apabila di kemudian hari timbul perselisihan atau perbedaan pandangan terkait pelaksanaan, penafsiran, maupun akibat dari dokumen ini, Para Pihak sepakat untuk senantiasa mengutamakan jalur musyawarah untuk mencapai mufakat dalam ruang lingkup forum musyawarah Rukun Warga (RW) setempat.</li>
@@ -358,7 +358,7 @@ function PengantarRtBuilder() {
                       </ol>
                   </div>
 
-                  <div className="text-justify break-inside-avoid">
+                  <div className="text-justify">
                       <p className="font-bold mb-2 text-center">PASAL 10<br/>PENUTUP</p>
                       <p className="mb-2">Demikian SURAT PENGANTAR DAN PERNYATAAN DOMISILI ini dibuat, dibaca, dipahami, dan ditandatangani oleh Para Pihak dalam keadaan sadar, sehat secara jasmani maupun rohani, bebas dari intervensi, tekanan, maupun paksaan dalam bentuk apapun dari pihak ketiga manapun.</p>
                       <p>Surat Pengantar ini diterbitkan dalam kondisi asli dan ditandatangani secara basah (dan/atau dibubuhi materai yang cukup) untuk dapat dipergunakan sebagaimana semestinya oleh Instansi Terkait.</p>
@@ -366,7 +366,7 @@ function PengantarRtBuilder() {
               </div>
 
               {/* TANDA TANGAN */}
-              <div className="mt-12 break-inside-avoid">
+              <div className="mt-12">
                   <div className="flex justify-between text-center pb-12 px-2 md:px-8">
                       <div className="w-2/5">
                           <p className="mb-1">{data.kabupaten}, {formatDateSafe(data.tanggalSurat)}</p>
@@ -406,7 +406,7 @@ function PengantarRtBuilder() {
           body { background: white; margin: 0; padding: 0; width: 100%; }
           .no-print { display: none !important; }
           #print-only-root { display: block !important; position: relative; width: 210mm; min-height: 297mm; z-index: 9999; background: white; font-size: 11pt; }
-          .break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+          .{ page-break-inside: avoid !important; break-inside: avoid !important; }
           * { box-sizing: border-box !important; }
         }
       ` }} />

@@ -125,7 +125,7 @@ function TaxBuilder() {
     return (
       <Kertas>
         {/* KOP SURAT */}
-        <div className="text-center border-b-[3px] border-black pb-3 mb-6 break-inside-avoid relative">
+        <div className="text-center border-b-[3px] border-black pb-3 mb-6 relative">
             <h1 className="font-bold uppercase text-sm tracking-wide">PEMERINTAH KABUPATEN {data.regency}</h1>
             <h2 className="font-bold uppercase text-md tracking-wider">KECAMATAN {data.district}</h2>
             <h3 className="font-black uppercase text-2xl tracking-widest mt-1">DESA {data.village}</h3>
@@ -133,34 +133,34 @@ function TaxBuilder() {
         </div>
 
         {/* JUDUL SURAT */}
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h4 className="font-bold text-lg uppercase tracking-wider underline">SURAT KETERANGAN PAJAK BUMI DAN BANGUNAN (PBB)</h4>
             <p className="mt-1 font-mono text-sm">Nomor: {data.letterNumber}</p>
         </div>
 
         {/* PEMBUKA */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>
                 Yang bertanda tangan di bawah ini Kepala Desa/Lurah {data.village}, Kecamatan {data.district}, Kabupaten {data.regency}, Provinsi {data.province}, dengan ini menerangkan bahwa:
             </p>
         </div>
 
         {/* WAJIB PAJAK */}
-        <div className="mb-6 ml-6 break-inside-avoid">
+        <div className="mb-6 ml-6">
             <div className="flex mb-1"><div className="w-48 font-bold">Nama Wajib Pajak</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.wpName}</div></div>
             <div className="flex mb-1"><div className="w-48">Nomor Induk Kependudukan (NIK)</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.wpNik}</div></div>
             <div className="flex mb-1"><div className="w-48">Pekerjaan</div><div className="w-4">:</div><div className="flex-1">{data.wpJob}</div></div>
             <div className="flex mb-1"><div className="w-48 align-top">Alamat Wajib Pajak</div><div className="w-4 align-top">:</div><div className="flex-1 text-justify">{data.wpAddress}</div></div>
         </div>
 
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>
                 Bahwa nama tersebut di atas adalah benar terdaftar sebagai Wajib Pajak pada Objek Pajak Bumi dan Bangunan (PBB) yang terletak di wilayah administrasi Desa {data.village}, dengan rincian objek pajak sebagai berikut:
             </p>
         </div>
 
         {/* OBJEK PAJAK */}
-        <div className="mb-6 ml-6 break-inside-avoid border border-gray-400 p-4">
+        <div className="mb-6 ml-6 border border-gray-400 p-4">
             <div className="flex mb-1"><div className="w-44 font-bold">Nomor Objek Pajak (NOP)</div><div className="w-4">:</div><div className="flex-1 font-mono font-bold tracking-wider">{data.nop}</div></div>
             <div className="flex mb-1"><div className="w-44">Tahun Pajak</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.taxYear}</div></div>
             <div className="flex mb-1"><div className="w-44 align-top">Letak Objek Pajak</div><div className="w-4 align-top">:</div><div className="flex-1">{data.objLocation}, Ds. {data.village}, Kec. {data.district}</div></div>
@@ -171,14 +171,14 @@ function TaxBuilder() {
         </div>
 
         {/* STATUS PEMBAYARAN */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>
                 Berdasarkan basis data administrasi PBB Desa {data.village} tahun pajak {data.taxYear}, status pembayaran objek pajak tersebut di atas dinyatakan <strong>{data.paymentStatus.toUpperCase()}</strong>.
             </p>
         </div>
 
         {/* PENUTUP */}
-        <div className="mb-12 text-justify break-inside-avoid">
+        <div className="mb-12 text-justify">
             <p>
                 Surat Keterangan ini dibuat dan diberikan kepada yang bersangkutan untuk dapat dipergunakan sebagaimana mestinya, antara lain untuk keperluan administrasi pertanahan, perbankan, atau urusan kedinasan lainnya.
             </p>

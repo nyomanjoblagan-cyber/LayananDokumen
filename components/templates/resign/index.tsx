@@ -109,7 +109,7 @@ function ResignBuilder() {
       </div>
 
       {/* TUJUAN SURAT */}
-      <div className="mb-8 break-inside-avoid">
+      <div className="mb-8">
         <p className="mb-1">Kepada Yth,</p>
         <p className="font-bold">{data.namaPenerima}</p>
         <p className="font-bold">{data.jabatanPenerima}</p>
@@ -118,7 +118,7 @@ function ResignBuilder() {
       </div>
 
       {/* SALAM PEMBUKA & IDENTITAS */}
-      <div className="text-justify mb-6 break-inside-avoid">
+      <div className="text-justify mb-6">
         <p className="mb-4">Dengan hormat,</p>
         <p className="mb-4">Yang bertanda tangan di bawah ini:</p>
         
@@ -152,7 +152,7 @@ function ResignBuilder() {
       </div>
 
       {/* PENUTUP & TANDA TANGAN */}
-      <div className="mt-16 break-inside-avoid">
+      <div className="mt-16">
         <p className="mb-2">Hormat saya,</p>
         <div className="h-24"></div>
         <p className="font-bold underline">{data.namaKaryawan}</p>

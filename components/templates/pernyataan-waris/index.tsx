@@ -162,16 +162,16 @@ function HeirStatementBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* HEADER */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h1 className="font-bold text-lg tracking-wider uppercase underline">SURAT PERNYATAAN KESEPAKATAN PEMBAGIAN WARIS</h1>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>Pada hari ini tanggal <strong>{formatDateSafe(data.date)}</strong> di <strong>{data.city}</strong>, yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* PIHAK PERTAMA */}
-      <div className="mb-4 break-inside-avoid">
+      <div className="mb-4">
         <h3 className="font-bold mb-1">I. PIHAK PERTAMA</h3>
         <div className="ml-6">
             <div className="flex mb-1"><div className="w-48 align-top">Nama Lengkap</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold uppercase align-top">{data.party1.name}</div></div>
@@ -184,7 +184,7 @@ function HeirStatementBuilder() {
       </div>
 
       {/* PIHAK KEDUA */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <h3 className="font-bold mb-1">II. PIHAK KEDUA</h3>
         <div className="ml-6">
             <div className="flex mb-1"><div className="w-48 align-top">Nama Lengkap</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold uppercase align-top">{data.party2.name}</div></div>
@@ -196,7 +196,7 @@ function HeirStatementBuilder() {
         </div>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>
             Pihak Pertama dan Pihak Kedua secara bersama-sama selanjutnya disebut sebagai <strong>"Para Pihak"</strong> selaku Ahli Waris yang sah. 
             Bahwa Para Pihak dengan ini menerangkan dan menyatakan secara bersama-sama terkait pewaris yang telah meninggal dunia, yaitu:
@@ -204,7 +204,7 @@ function HeirStatementBuilder() {
       </div>
 
       {/* PEWARIS */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <div className="ml-6">
             <div className="flex mb-1"><div className="w-48 align-top">Nama Pewaris (Almarhum)</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold uppercase align-top">{data.deceasedName}</div></div>
             <div className="flex mb-1"><div className="w-48 align-top">NIK</div><div className="w-4 align-top">:</div><div className="flex-1 font-mono align-top">{data.deceasedNik}</div></div>
@@ -213,12 +213,12 @@ function HeirStatementBuilder() {
         </div>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>Bahwa semasa hidupnya, Pewaris meninggalkan Harta Warisan/Tirkah (Harta Peninggalan) yang belum dibagikan dengan rincian sebagai berikut:</p>
       </div>
 
       {/* OBJEK WARIS */}
-      <div className="mb-6 break-inside-avoid px-6">
+      <div className="mb-6 px-6">
         <table className="w-full border-collapse border border-slate-900 text-[10pt]">
             <thead>
                 <tr>
@@ -239,7 +239,7 @@ function HeirStatementBuilder() {
         </table>
       </div>
 
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <p>
             Atas Harta Peninggalan tersebut di atas, Para Pihak dengan iktikad baik, secara kekeluargaan, tanpa ada paksaan maupun tekanan dari pihak mana pun telah sepakat dan mufakat 
             untuk melakukan pembagian Harta Warisan dengan ketentuan dan syarat-syarat sebagai berikut:
@@ -247,7 +247,7 @@ function HeirStatementBuilder() {
       </div>
 
       {/* KLAUSUL PASAL-PASAL */}
-      <div className="mb-6 break-inside-avoid text-justify space-y-4">
+      <div className="mb-6 text-justify space-y-4">
         <div>
             <h3 className="font-bold text-center mb-1">Pasal 1<br/>METODE PEMBAGIAN WARIS</h3>
             <p>
@@ -284,7 +284,7 @@ function HeirStatementBuilder() {
         </div>
       </div>
 
-      <div className="mb-10 text-justify break-inside-avoid">
+      <div className="mb-10 text-justify">
         <p>Demikian Surat Pernyataan Kesepakatan Pembagian Waris ini dibuat dalam keadaan sadar, sehat jasmani dan rohani, bermeterai cukup dan memiliki kekuatan hukum yang mengikat Para Pihak dan/atau para ahli warisnya.</p>
       </div>
 
@@ -308,7 +308,7 @@ function HeirStatementBuilder() {
       </div>
 
       {/* SAKSI */}
-      <div className="mt-12 break-inside-avoid text-center">
+      <div className="mt-12 text-center">
         <p className="font-bold uppercase mb-8">SAKSI - SAKSI:</p>
         <div className="flex justify-around px-12">
             <div className="w-48">

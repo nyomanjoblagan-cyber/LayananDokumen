@@ -155,7 +155,7 @@ function PenagihanBuilder() {
     return (
       <Kertas>
         {/* KOP SURAT */}
-        <div className="text-center border-b-[3px] border-double border-slate-900 pb-4 mb-6 break-inside-avoid relative">
+        <div className="text-center border-b-[3px] border-double border-slate-900 pb-4 mb-6 relative">
             <h1 className="font-black uppercase text-2xl tracking-widest text-slate-900">{data.namaPengirim}</h1>
             <p className="text-[10pt] mt-1">{data.alamatPengirim}</p>
             <p className="text-[9pt] font-sans mt-1">Telp: {data.teleponPengirim} | Email: {data.emailPengirim} | Web: {data.websitePengirim}</p>
@@ -179,7 +179,7 @@ function PenagihanBuilder() {
         </div>
 
         {/* TUJUAN */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <p>Kepada Yth,</p>
             <p className="font-bold uppercase">{data.namaKlien}</p>
             <p className="font-bold underline">U.P: {data.upKlien}</p>
@@ -188,7 +188,7 @@ function PenagihanBuilder() {
             <p className="ml-4 font-bold">Tempat</p>
         </div>
 
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>Dengan hormat,</p>
             <p className="mt-2 indent-8">
                 Merujuk pada Perjanjian Kerja Sama Nomor: <strong>{data.nomorKontrak}</strong> tanggal <strong>{formatDateSafe(data.tanggalKontrak)}</strong> antara {data.namaPengirim} dengan {data.namaKlien}, 
@@ -201,7 +201,7 @@ function PenagihanBuilder() {
         </div>
 
         {/* RINCIAN TAGIHAN */}
-        <div className="mb-6 break-inside-avoid px-8">
+        <div className="mb-6 px-8">
             <p className="font-bold mb-2">Adapun rincian tagihan beserta sanksi denda keterlambatan adalah sebagai berikut:</p>
             <table className="w-full border-collapse border border-slate-400 text-[10pt]">
                 <tbody>
@@ -228,7 +228,7 @@ function PenagihanBuilder() {
             </table>
         </div>
 
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p className="indent-8">
                 Kami meminta Saudara untuk segera melakukan pelunasan Total Tagihan sebesar <strong>{formatRupiah(totalTagihan)}</strong> selambat-lambatnya 
                 dalam waktu <strong>3 (tiga) hari kerja</strong> sejak diterimanya surat ini, melalui transfer bank ke rekening operasional kami:
@@ -236,7 +236,7 @@ function PenagihanBuilder() {
         </div>
 
         {/* BANK */}
-        <div className="mb-6 ml-8 break-inside-avoid p-4 border border-slate-300 bg-slate-50">
+        <div className="mb-6 ml-8 p-4 border border-slate-300 bg-slate-50">
             <table className="font-bold text-[10pt]">
                 <tbody>
                     <tr><td className="w-32">Nama Bank</td><td className="w-4">:</td><td className="uppercase">{data.namaBank} {data.cabangBank}</td></tr>
@@ -246,7 +246,7 @@ function PenagihanBuilder() {
             </table>
         </div>
 
-        <div className="mb-8 text-justify break-inside-avoid">
+        <div className="mb-8 text-justify">
             <p className="indent-8 font-bold text-rose-800 print:text-black">
                 Apabila dalam batas waktu yang telah ditentukan Saudara tidak juga melakukan pelunasan atau menunjukkan iktikad baik, 
                 maka kami selaku kuasa hukum/departemen legal berhak melakukan tindakan hukum lebih lanjut, baik secara Perdata (Gugatan Wanprestasi) 
@@ -268,7 +268,7 @@ function PenagihanBuilder() {
         </div>
 
         {/* TEMBUSAN */}
-        <div className="mt-12 text-[9pt] break-inside-avoid">
+        <div className="mt-12 text-[9pt]">
             <p className="font-bold underline mb-1">Tembusan:</p>
             <ol className="list-decimal list-inside pl-2">
                 <li>{data.tembusan1}</li>

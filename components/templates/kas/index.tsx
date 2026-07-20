@@ -127,7 +127,7 @@ function BukuKasBuilder() {
     return (
       <Kertas>
         {/* HEADER LAPORAN */}
-        <div className="text-center border-b-2 border-black pb-4 mb-6 break-inside-avoid">
+        <div className="text-center border-b-2 border-black pb-4 mb-6">
             <h1 className="text-xl font-black uppercase tracking-widest">{data.namaPerusahaan}</h1>
             <h2 className="text-lg font-bold uppercase mt-1">{data.judulLaporan}</h2>
             <p className="text-sm mt-1 uppercase">Periode: {data.periode}</p>
@@ -148,7 +148,7 @@ function BukuKasBuilder() {
                 </thead>
                 <tbody>
                     {/* BARIS SALDO AWAL */}
-                    <tr className="font-semibold bg-gray-50 break-inside-avoid">
+                    <tr className="font-semibold bg-gray-50">
                         <td className="border border-black p-2 text-center">-</td>
                         <td className="border border-black p-2 text-center">-</td>
                         <td className="border border-black p-2">SALDO AWAL</td>
@@ -165,7 +165,7 @@ function BukuKasBuilder() {
                             transactions.slice(0, index + 1).reduce((sum, t) => sum + (Number(t.kredit) || 0), 0);
                         
                         return (
-                            <tr key={tx.id} className="break-inside-avoid">
+                            <tr key={tx.id} className="">
                                 <td className="border border-black p-2 text-center">{tx.tanggal}</td>
                                 <td className="border border-black p-2 text-center">{tx.noBukti}</td>
                                 <td className="border border-black p-2">{tx.keterangan}</td>
@@ -177,13 +177,13 @@ function BukuKasBuilder() {
                     })}
 
                     {/* BARIS TOTAL */}
-                    <tr className="font-bold bg-gray-100 break-inside-avoid">
+                    <tr className="font-bold bg-gray-100">
                         <td colSpan={3} className="border border-black p-2 text-right uppercase">Total Mutasi</td>
                         <td className="border border-black p-2 text-right text-emerald-700">{formatCurrency(totalDebit)}</td>
                         <td className="border border-black p-2 text-right text-rose-700">{formatCurrency(totalKredit)}</td>
                         <td className="border border-black p-2 bg-gray-200"></td>
                     </tr>
-                    <tr className="font-black bg-gray-200 text-[10pt] break-inside-avoid">
+                    <tr className="font-black bg-gray-200 text-[10pt]">
                         <td colSpan={5} className="border border-black p-2 text-right uppercase">SALDO AKHIR PERIODE INI</td>
                         <td className="border border-black p-2 text-right">{formatCurrency(saldoAkhir)}</td>
                     </tr>

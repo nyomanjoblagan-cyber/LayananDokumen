@@ -162,7 +162,7 @@ function JVBuilder() {
 
     return (
       <Kertas>
-        <div className="text-center mb-8 border-b-2 border-black pb-2 break-inside-avoid">
+        <div className="text-center mb-8 border-b-2 border-black pb-2">
           <h1 className="font-bold text-lg uppercase tracking-wider underline">PERJANJIAN KERJA SAMA (JOINT VENTURE)</h1>
           <p className="text-sm font-semibold mt-1">Nomor: {data.docNo}</p>
         </div>
@@ -172,7 +172,7 @@ function JVBuilder() {
         </p>
 
         {/* PIHAK PERTAMA */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
           <p className="font-bold mb-2 underline">PIHAK PERTAMA (I)</p>
           <div className="ml-8 space-y-1">
             <div className="flex">
@@ -202,7 +202,7 @@ function JVBuilder() {
         </div>
 
         {/* PIHAK KEDUA */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
           <p className="font-bold mb-2 underline">PIHAK KEDUA (II)</p>
           <div className="ml-8 space-y-1">
             <div className="flex">
@@ -237,7 +237,7 @@ function JVBuilder() {
 
         {/* PASAL 1 - 3 */}
         <div className="mb-4 text-justify space-y-4">
-          <div className="break-inside-avoid">
+          <div className="">
               <h3 className="font-bold text-center mb-1">Pasal 1</h3>
               <h3 className="font-bold text-center mb-2">MAKSUD DAN TUJUAN</h3>
               <p>PARA PIHAK sepakat untuk mendirikan usaha bersama dan/atau melaksanakan proyek dengan rincian sebagai berikut:</p>
@@ -248,7 +248,7 @@ function JVBuilder() {
               </ul>
           </div>
           
-          <div className="break-inside-avoid">
+          <div className="">
               <h3 className="font-bold text-center mb-1 mt-6">Pasal 2</h3>
               <h3 className="font-bold text-center mb-2">NILAI INVESTASI DAN MODAL</h3>
               <p>1. Total nilai investasi yang dibutuhkan untuk pelaksanaan kerja sama ini adalah sebesar <strong>{data.investmentAmount}</strong>.</p>
@@ -260,7 +260,7 @@ function JVBuilder() {
               <p>3. Seluruh dana disetorkan ke rekening bersama yang akan dibuka khusus atas persetujuan PARA PIHAK selambat-lambatnya 7 (tujuh) hari kerja setelah perjanjian ini ditandatangani.</p>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <h3 className="font-bold text-center mb-1 mt-6">Pasal 3</h3>
               <h3 className="font-bold text-center mb-2">PEMBAGIAN KEUNTUNGAN DAN KERUGIAN</h3>
               <p>1. <strong>*Profit Sharing* (Bagi Hasil):</strong> Keuntungan bersih (*Net Profit*) dari hasil kerja sama ini akan dibagikan dengan proporsi:</p>
@@ -278,7 +278,7 @@ function JVBuilder() {
         
         {/* PASAL 4 - 6 */}
         <div className="mb-4 text-justify space-y-4">
-          <div className="break-inside-avoid">
+          <div className="">
               <h3 className="font-bold text-center mb-1 mt-6">Pasal 4</h3>
               <h3 className="font-bold text-center mb-2">HAK DAN KEWAJIBAN</h3>
               <p><strong>Hak dan Kewajiban PIHAK PERTAMA:</strong></p>
@@ -295,7 +295,7 @@ function JVBuilder() {
               </ol>
           </div>
           
-          <div className="break-inside-avoid">
+          <div className="">
               <h3 className="font-bold text-center mb-1 mt-6">Pasal 5</h3>
               <h3 className="font-bold text-center mb-2">STRATEGI KELUAR (*EXIT STRATEGY*) DAN PENALTI</h3>
               <p>1. Apabila salah satu pihak berniat untuk mengundurkan diri atau menarik modalnya sebelum berakhirnya Jangka Waktu (Pasal 1), pihak tersebut wajib memberikan pemberitahuan tertulis (*Notice*) selambat-lambatnya <strong>{data.exitNoticeDays} hari kalender</strong> sebelumnya.</p>
@@ -303,7 +303,7 @@ function JVBuilder() {
               <p>3. Pihak yang bertahan memiliki Hak Penolakan Pertama (*Right of First Refusal*) untuk membeli saham/porsi modal pihak yang keluar berdasarkan valuasi independen.</p>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <h3 className="font-bold text-center mb-1 mt-6">Pasal 6</h3>
               <h3 className="font-bold text-center mb-2">KEADAAN KAHAR (*FORCE MAJEURE*)</h3>
               <p>1. PARA PIHAK dibebaskan dari tanggung jawab atas kegagalan pemenuhan kewajiban jika disebabkan oleh *Force Majeure* (bencana alam, perang, kebijakan pemerintah yang memblokir usaha secara langsung, huru-hara).</p>
@@ -313,14 +313,14 @@ function JVBuilder() {
 
         {/* PASAL 7 - 8 */}
         <div className="mb-12 text-justify space-y-4">
-          <div className="break-inside-avoid">
+          <div className="">
               <h3 className="font-bold text-center mb-1 mt-6">Pasal 7</h3>
               <h3 className="font-bold text-center mb-2">PENYELESAIAN SENGKETA</h3>
               <p>1. Segala perselisihan yang timbul akan diselesaikan secara musyawarah mufakat.</p>
               <p>2. Apabila musyawarah gagal, PARA PIHAK sepakat untuk menyelesaikannya secara hukum melalui Pengadilan Negeri sesuai wilayah yurisdiksi di {data.city}.</p>
           </div>
           
-          <div className="break-inside-avoid">
+          <div className="">
               <h3 className="font-bold text-center mb-1 mt-6">Pasal 8</h3>
               <h3 className="font-bold text-center mb-2">PENUTUP</h3>
               <p>Perjanjian ini dibuat dalam rangkap 2 (dua), bermeterai cukup (Rp 10.000) dan ditandatangani oleh PARA PIHAK dalam keadaan sehat, sadar, tanpa paksaan, serta masing-masing memiliki kekuatan hukum yang sama.</p>
@@ -328,7 +328,7 @@ function JVBuilder() {
         </div>
 
         {/* TANDA TANGAN */}
-        <div className="break-inside-avoid">
+        <div className="">
             <div className="flex justify-between items-start text-center mb-8">
               <div className="w-[45%]">
                 <p className="font-bold mb-2">PIHAK PERTAMA</p>

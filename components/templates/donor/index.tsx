@@ -126,7 +126,7 @@ function DonorBuilder() {
        </div>
 
        {/* IDENTITAS PENDONOR */}
-       <div className="ml-8 mb-6 break-inside-avoid">
+       <div className="ml-8 mb-6">
            <div className="flex mb-2"><span className="w-48 inline-block">Nama Lengkap</span><span className="mr-2">:</span><span className="font-bold uppercase">{data.donorName}</span></div>
            <div className="flex mb-2"><span className="w-48 inline-block">NIK</span><span className="mr-2">:</span><span>{data.donorNik}</span></div>
            <div className="flex mb-2"><span className="w-48 inline-block">Golongan Darah</span><span className="mr-2">:</span><span className="font-bold text-red-700">{data.bloodType}</span></div>

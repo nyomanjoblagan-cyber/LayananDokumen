@@ -119,11 +119,11 @@ function ParentStatementBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* Judul Surat */}
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h1 className="text-lg font-bold uppercase tracking-wide border-b-[3px] border-black inline-block pb-1">SURAT PERNYATAAN IZIN ORANG TUA / WALI</h1>
       </div>
 
-      <div className="mb-6 break-inside-avoid text-justify">
+      <div className="mb-6 text-justify">
         <p>Yang bertanda tangan di bawah ini:</p>
         <div className="ml-8 mt-4 space-y-2">
             <div className="flex"><div className="w-48 align-top">Nama Lengkap</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold uppercase align-top">{data.parentName}</div></div>
@@ -135,7 +135,7 @@ function ParentStatementBuilder() {
         </div>
       </div>
 
-      <div className="mb-6 break-inside-avoid text-justify">
+      <div className="mb-6 text-justify">
         <p>Dengan ini menyatakan dengan sesungguhnya bahwa saya <strong>MEMBERIKAN IZIN / PERSETUJUAN PENUH</strong> kepada anak/anggota keluarga saya yang berada di bawah perwalian saya:</p>
         <div className="ml-8 mt-4 space-y-2 p-3 border border-slate-300 bg-slate-50">
             <div className="flex"><div className="w-48 align-top">Nama Lengkap</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold uppercase align-top">{data.childName}</div></div>
@@ -146,7 +146,7 @@ function ParentStatementBuilder() {
         </div>
       </div>
 
-      <div className="mb-6 break-inside-avoid text-justify">
+      <div className="mb-6 text-justify">
         <p>Untuk mengikuti dan berpartisipasi dalam kegiatan dengan rincian sebagai berikut:</p>
         <div className="ml-8 mt-4 space-y-2">
             <div className="flex"><div className="w-48 align-top">Nama Kegiatan</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold align-top">{data.activityName}</div></div>
@@ -156,7 +156,7 @@ function ParentStatementBuilder() {
         </div>
       </div>
 
-      <div className="mb-8 break-inside-avoid text-justify">
+      <div className="mb-8 text-justify">
         <p className="font-bold border-b border-black inline-block mb-2">KLAUSUL INDEMNIFIKASI (PELEPASAN TUNTUTAN):</p>
         <ol className="list-decimal pl-8 space-y-3 mt-2">
           <li>Bahwa saya mengetahui dan menyadari sepenuhnya segala risiko dan konsekuensi yang mungkin timbul dari keikutsertaan anak/anggota keluarga saya dalam kegiatan tersebut di atas.</li>
@@ -165,7 +165,7 @@ function ParentStatementBuilder() {
         </ol>
       </div>
 
-      <div className="mb-10 break-inside-avoid text-justify">
+      <div className="mb-10 text-justify">
         <p>Demikian surat pernyataan izin dan kesepakatan ini saya buat dengan sadar, sehat jasmani dan rohani, serta tanpa adanya unsur paksaan dari pihak manapun untuk dipergunakan sebagaimana mestinya.</p>
       </div>
 

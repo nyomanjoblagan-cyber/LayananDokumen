@@ -115,7 +115,7 @@ function CVBuilder() {
       {templateId === 1 ? (
         /* FORMAT 1: CLASSIC ATS-FRIENDLY (HARVARD STYLE) */
         <div className="text-black font-serif text-[10.5pt] leading-relaxed max-w-[800px] mx-auto">
-          <div className="text-center border-b-[1.5px] border-black pb-4 mb-5 break-inside-avoid">
+          <div className="text-center border-b-[1.5px] border-black pb-4 mb-5">
             <h1 className="text-3xl font-bold uppercase tracking-wide mb-1" style={{ letterSpacing: '0.05em' }}>{personalInfo.fullName}</h1>
             <p className="text-[11pt] italic mb-2">{personalInfo.jobTitle}</p>
             <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-[10pt]">
@@ -127,16 +127,16 @@ function CVBuilder() {
             </div>
           </div>
           {personalInfo.summary && (
-            <div className="mb-6 break-inside-avoid">
+            <div className="mb-6">
               <p className="text-justify indent-8">{personalInfo.summary}</p>
             </div>
           )}
           {experiences.length > 0 && (
             <div className="mb-6">
-              <h2 className="text-[11pt] font-bold uppercase tracking-widest border-b-[1px] border-black pb-1 mb-3 text-center break-inside-avoid">Professional Experience</h2>
+              <h2 className="text-[11pt] font-bold uppercase tracking-widest border-b-[1px] border-black pb-1 mb-3 text-center">Professional Experience</h2>
               <div className="space-y-4">
                 {experiences.map((exp) => (
-                  <div key={exp.id} className="break-inside-avoid">
+                  <div key={exp.id} className="">
                     <div className="flex justify-between items-end mb-0.5">
                       <h3 className="font-bold text-[11pt]">{exp.company}</h3>
                       <span className="text-[10pt] italic">{exp.startDate} - {exp.endDate}</span>
@@ -151,7 +151,7 @@ function CVBuilder() {
             </div>
           )}
           {educations.length > 0 && (
-            <div className="mb-6 break-inside-avoid">
+            <div className="mb-6">
               <h2 className="text-[11pt] font-bold uppercase tracking-widest border-b-[1px] border-black pb-1 mb-3 text-center">Education</h2>
               <div className="space-y-3">
                 {educations.map((edu) => (
@@ -167,7 +167,7 @@ function CVBuilder() {
             </div>
           )}
           {skills.length > 0 && (
-            <div className="mb-6 break-inside-avoid">
+            <div className="mb-6">
               <h2 className="text-[11pt] font-bold uppercase tracking-widest border-b-[1px] border-black pb-1 mb-3 text-center">Core Competencies</h2>
               <div className="flex flex-wrap gap-x-2 gap-y-1 justify-center">
                 {skills.map((skill, idx) => (
@@ -201,7 +201,7 @@ function CVBuilder() {
             {/* Left Column: Sidebar */}
             <div className="w-[75mm] bg-slate-50 p-[12mm] border-r border-slate-100 flex flex-col gap-10">
               {educations.length > 0 && (
-                <div className="break-inside-avoid">
+                <div className="">
                   <h3 className="text-[11pt] font-black uppercase tracking-widest text-purple-900 mb-6 flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center"><GraduationCap size={16} className="text-emerald-700"/></div>
                     Edukasi
@@ -219,7 +219,7 @@ function CVBuilder() {
                 </div>
               )}
               {skills.length > 0 && (
-                <div className="break-inside-avoid">
+                <div className="">
                   <h3 className="text-[11pt] font-black uppercase tracking-widest text-purple-900 mb-6 flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center"><Code size={16} className="text-amber-600"/></div>
                     Keahlian
@@ -239,7 +239,7 @@ function CVBuilder() {
             {/* Right Column: Main Content */}
             <div className="flex-1 p-[12mm] flex flex-col gap-10 bg-white">
               {personalInfo.summary && (
-                <div className="break-inside-avoid">
+                <div className="">
                   <h3 className="text-[11pt] font-black uppercase tracking-widest text-purple-900 mb-4 flex items-center gap-2 border-b-2 border-slate-100 pb-3">
                     <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center"><User size={16} className="text-purple-700"/></div>
                     Profil Singkat
@@ -249,13 +249,13 @@ function CVBuilder() {
               )}
               {experiences.length > 0 && (
                 <div>
-                  <h3 className="text-[11pt] font-black uppercase tracking-widest text-purple-900 mb-6 flex items-center gap-2 border-b-2 border-slate-100 pb-3 break-inside-avoid">
+                  <h3 className="text-[11pt] font-black uppercase tracking-widest text-purple-900 mb-6 flex items-center gap-2 border-b-2 border-slate-100 pb-3">
                     <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center"><Briefcase size={16} className="text-purple-700"/></div>
                     Pengalaman Kerja
                   </h3>
                   <div className="space-y-8">
                     {experiences.map((exp) => (
-                      <div key={exp.id} className="break-inside-avoid">
+                      <div key={exp.id} className="">
                         <div className="flex justify-between items-start mb-1">
                           <h4 className="font-bold text-[12pt] text-slate-900">{exp.position}</h4>
                           <span className="text-[8.5pt] font-bold text-purple-700 uppercase tracking-wider bg-purple-50 border border-purple-100 px-2.5 py-1 rounded-lg">{exp.startDate} - {exp.endDate}</span>

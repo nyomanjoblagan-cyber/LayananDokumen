@@ -193,14 +193,14 @@ function PenawaranBuilder() {
         </div>
 
         {/* PEMBUKA */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>Dengan hormat,</p>
             <p className="mt-2">{data.executiveSummary}</p>
             <p className="mt-2 font-bold">Berikut adalah rincian penawaran harga yang kami ajukan:</p>
         </div>
 
         {/* TABEL ITEM */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <table className="w-full border-collapse border border-slate-900 text-[9pt]">
                 <thead>
                     <tr className="bg-slate-100 print:bg-slate-200 uppercase font-bold tracking-wider">
@@ -251,7 +251,7 @@ function PenawaranBuilder() {
         </div>
 
         {/* SYARAT DAN KETENTUAN */}
-        <div className="mb-8 break-inside-avoid">
+        <div className="mb-8">
             <h4 className="font-bold uppercase border-b-2 border-slate-900 inline-block mb-2">Syarat & Ketentuan (Terms & Conditions)</h4>
             <div className="text-justify whitespace-pre-line text-[9pt] leading-relaxed">
                 {data.terms}

@@ -185,25 +185,25 @@ function PanitiaBuilder() {
         {/* HALAMAN 1: SK */}
         <Kertas>
             {/* KOP SURAT */}
-            <div className="text-center border-b-[3px] border-black pb-3 mb-6 break-inside-avoid relative">
+            <div className="text-center border-b-[3px] border-black pb-3 mb-6 relative">
                 <div className="font-bold uppercase text-md tracking-wider leading-snug whitespace-pre-line">{data.kopInstansi}</div>
                 <p className="text-[9pt] italic mt-2 font-sans">{data.kopKontak}</p>
             </div>
 
             {/* JUDUL SK */}
-            <div className="text-center mb-8 break-inside-avoid">
+            <div className="text-center mb-8">
                 <h1 className="font-bold text-lg uppercase tracking-wider">{data.judulSk}</h1>
                 <p className="font-bold text-md mt-1">NOMOR: {data.nomorSk}</p>
                 <p className="font-bold text-md mt-4 uppercase">TENTANG</p>
                 <p className="font-bold text-md uppercase mt-1 w-4/5 mx-auto">{data.tentang}</p>
             </div>
 
-            <div className="text-center font-bold mb-6 break-inside-avoid">
+            <div className="text-center font-bold mb-6">
                 <p className="uppercase">{data.judulSk.split(' ')[0] || 'KEPALA'} {data.kopInstansi.split('\n')[0]}</p>
             </div>
 
             {/* MENIMBANG & MENGINGAT */}
-            <div className="mb-6 break-inside-avoid">
+            <div className="mb-6">
                 <table className="w-full text-justify">
                     <tbody>
                         <tr>
@@ -234,12 +234,12 @@ function PanitiaBuilder() {
                 </table>
             </div>
 
-            <div className="text-center font-bold mb-6 break-inside-avoid">
+            <div className="text-center font-bold mb-6">
                 <p>MEMUTUSKAN:</p>
             </div>
 
             {/* DIKTUM */}
-            <div className="mb-8 break-inside-avoid text-justify">
+            <div className="mb-8 text-justify">
                 <table className="w-full">
                     <tbody>
                         <tr>
@@ -287,12 +287,12 @@ function PanitiaBuilder() {
                 </table>
             </div>
 
-            <div className="text-center font-bold mb-8 break-inside-avoid uppercase">
+            <div className="text-center font-bold mb-8 uppercase">
                 <h3>SUSUNAN KEPANITIAAN</h3>
                 <h3 className="w-4/5 mx-auto">{data.tentang}</h3>
             </div>
 
-            <div className="mb-12 break-inside-avoid">
+            <div className="mb-12">
                 <table className="w-full border-collapse border border-black text-[10pt]">
                     <thead>
                         <tr className="bg-gray-100">

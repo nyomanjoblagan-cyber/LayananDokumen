@@ -119,7 +119,7 @@ function RenovasiBuilder() {
 
     return (
       <Kertas>
-        <div className="flex flex-col h-full border border-black p-6 break-inside-avoid">
+        <div className="flex flex-col h-full border border-black p-6">
             
             <div className="text-center border-b-2 border-black pb-4 mb-6">
                 <h1 className="text-xl font-black uppercase tracking-widest">SURAT PERMOHONAN IZIN RENOVASI</h1>
@@ -143,7 +143,7 @@ function RenovasiBuilder() {
                 <p>Saya yang bertanda tangan di bawah ini selaku Pemilik / Penyewa Unit:</p>
             </div>
 
-            <div className="ml-4 mb-6 border-l-4 border-gray-300 pl-4 break-inside-avoid">
+            <div className="ml-4 mb-6 border-l-4 border-gray-300 pl-4">
                 <div className="flex mb-1">
                     <div className="w-40 font-semibold">Nama Lengkap</div>
                     <div className="w-4">:</div>
@@ -166,11 +166,11 @@ function RenovasiBuilder() {
                 </div>
             </div>
 
-            <div className="mb-4 break-inside-avoid">
+            <div className="mb-4">
                 <p>Bersama surat ini, bermaksud untuk mengajukan izin pelaksanaan pekerjaan renovasi / *fit out* pada unit tersebut di atas dengan rincian sebagai berikut:</p>
             </div>
 
-            <div className="mb-6 p-4 bg-gray-50 border border-gray-200 break-inside-avoid">
+            <div className="mb-6 p-4 bg-gray-50 border border-gray-200">
                 <div className="flex mb-2">
                     <div className="w-40 font-semibold">Jenis Pekerjaan</div>
                     <div className="w-4">:</div>
@@ -198,7 +198,7 @@ function RenovasiBuilder() {
                 </div>
             </div>
 
-            <div className="mb-8 text-justify break-inside-avoid">
+            <div className="mb-8 text-justify">
                 <p className="mb-2">Sebagai Pemilik / Penyewa Unit, saya menjamin bahwa selama masa pelaksanaan renovasi:</p>
                 <ol className="list-decimal ml-8 space-y-1">
                     <li>Pekerjaan hanya akan dilakukan pada jam kerja yang diizinkan oleh pihak pengelola.</li>

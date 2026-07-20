@@ -120,32 +120,32 @@ function RekomendasiBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* HEADER SURAT KEPUTUSAN */}
-      <div className="text-center mb-6 break-inside-avoid border-b-2 border-black pb-4">
+      <div className="text-center mb-6 border-b-2 border-black pb-4">
         <h1 className="font-bold text-xl uppercase tracking-wider">{data.namaPerusahaan}</h1>
         <p className="text-sm">{data.alamatPerusahaan}</p>
         <p className="text-sm">Telp: {data.teleponPerusahaan} | Email: {data.emailPerusahaan}</p>
       </div>
 
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h2 className="font-bold text-lg underline uppercase">SURAT REKOMENDASI KERJA</h2>
         <p className="font-bold mt-1">No: {data.nomorSurat}</p>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>Yang bertanda tangan di bawah ini:</p>
       </div>
       
-      <div className="ml-8 mb-6 break-inside-avoid">
+      <div className="ml-8 mb-6">
         <div className="flex mb-1"><div className="w-40 font-bold">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.namaPenandatangan}</div></div>
         <div className="flex mb-1"><div className="w-40 font-bold">Jabatan</div><div className="w-4">:</div><div className="flex-1 uppercase">{data.jabatanPenandatangan}</div></div>
         <div className="flex mb-1"><div className="w-40 font-bold">Perusahaan</div><div className="w-4">:</div><div className="flex-1 uppercase font-bold">{data.namaPerusahaan}</div></div>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>Bertindak atas nama {data.namaPerusahaan}, menerangkan dengan sesungguhnya bahwa:</p>
       </div>
 
-      <div className="ml-8 mb-6 break-inside-avoid">
+      <div className="ml-8 mb-6">
         <div className="flex mb-1"><div className="w-40 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.namaKaryawan}</div></div>
         <div className="flex mb-1"><div className="w-40 font-bold">NIK</div><div className="w-4">:</div><div className="flex-1">{data.nik}</div></div>
         <div className="flex mb-1"><div className="w-40 font-bold">Jabatan Terakhir</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.jabatanTerakhir}</div></div>
@@ -153,12 +153,12 @@ function RekomendasiBuilder() {
         <div className="flex mb-1"><div className="w-40 font-bold">Masa Kerja</div><div className="w-4">:</div><div className="flex-1">{formatDateDisplay(data.tanggalMulai)} s/d {formatDateDisplay(data.tanggalSelesai)}</div></div>
       </div>
 
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <p className="mb-2">{data.alasanRekomendasi}</p>
         <p>Yang bersangkutan telah mengakhiri hubungan kerja dengan perusahaan kami dengan alasan: <strong>{data.alasanKeluar}</strong></p>
       </div>
 
-      <div className="mb-10 text-justify break-inside-avoid">
+      <div className="mb-10 text-justify">
         <p>Oleh karena itu, kami dengan senang hati merekomendasikan Saudara/i <strong>{data.namaKaryawan}</strong> untuk dapat bergabung dan memberikan kontribusi terbaik di perusahaan atau institusi yang Bapak/Ibu pimpin.</p>
         <p className="mt-2">Demikian surat rekomendasi kerja ini dibuat agar dapat digunakan sebagaimana mestinya.</p>
       </div>

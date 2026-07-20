@@ -134,7 +134,7 @@ function WarrantyBuilder() {
           </div>
 
           {/* INFORMASI PRODUK */}
-          <div className="mb-6 border border-slate-300 p-4 break-inside-avoid relative overflow-hidden">
+          <div className="mb-6 border border-slate-300 p-4 relative overflow-hidden">
              <div className="absolute top-0 right-0 bg-slate-800 text-white text-[10px] font-bold px-3 py-1 uppercase">Informasi Produk</div>
              <table className="w-full mt-3">
                  <tbody>
@@ -161,7 +161,7 @@ function WarrantyBuilder() {
           </div>
 
           {/* KETENTUAN GARANSI */}
-          <div className="mb-8 break-inside-avoid">
+          <div className="mb-8">
              <h2 className="font-bold text-sm uppercase mb-3 border-b border-slate-200 pb-1">Syarat & Ketentuan Garansi</h2>
              
              <div className="mb-4">
@@ -181,7 +181,7 @@ function WarrantyBuilder() {
           </div>
 
           {/* TANDA TANGAN */}
-          <div className="mt-16 break-inside-avoid">
+          <div className="mt-16">
               <div className="flex justify-end text-center">
                   <div className="w-64">
                       <p className="mb-1">{data.city}, {formatDateString(data.date)}</p>

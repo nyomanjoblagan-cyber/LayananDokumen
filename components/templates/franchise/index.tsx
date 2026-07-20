@@ -200,7 +200,7 @@ function FranchiseBuilder() {
               <p className="mt-2">Berdasarkan hal-hal tersebut, Para Pihak sepakat untuk mengikatkan diri dalam Perjanjian Waralaba ini dengan syarat dan ketentuan sebagai berikut:</p>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mt-6 mb-4">PASAL 1<br/>OBJEK DAN LOKASI USAHA</div>
               <div className="text-justify mb-4">
                   <p>PIHAK PERTAMA memberikan hak kepada PIHAK KEDUA untuk menjalankan usaha dengan merek <b>"{data.p1Brand}"</b> secara eksklusif di lokasi operasional berikut:</p>
@@ -208,14 +208,14 @@ function FranchiseBuilder() {
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mt-6 mb-4">PASAL 2<br/>JANGKA WAKTU</div>
               <div className="text-justify mb-4">
                   <p>Perjanjian ini berlaku untuk jangka waktu <b>{data.contractDuration} Tahun</b> terhitung sejak tanggal penandatanganan Perjanjian ini, dan dapat diperpanjang atas kesepakatan tertulis Para Pihak paling lambat 3 (tiga) bulan sebelum berakhirnya Perjanjian.</p>
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mt-6 mb-4">PASAL 3<br/>BIAYA WARALABA DAN ROYALTI</div>
               <div className="text-justify mb-4">
                   <ol className="list-decimal pl-5 space-y-2">
@@ -226,28 +226,28 @@ function FranchiseBuilder() {
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mt-6 mb-4">PASAL 4<br/>HAK EKSKLUSIVITAS WILAYAH</div>
               <div className="text-justify mb-4">
                   <p>PIHAK PERTAMA menjamin bahwa selama Perjanjian ini berlaku, PIHAK PERTAMA tidak akan membuka atau memberikan izin waralaba kepada pihak ketiga lainnya untuk merek <b>"{data.p1Brand}"</b> di dalam radius <b>{data.exclusiveRadius}</b> dari lokasi operasional PIHAK KEDUA.</p>
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mt-6 mb-4">PASAL 5<br/>LARANGAN PINDAH TANGAN (SUB-LEASE)</div>
               <div className="text-justify mb-4">
                   <p>PIHAK KEDUA dilarang keras untuk mengalihkan, memindahtangankan, menyewakan kembali, atau mensub-waralabakan (sub-franchise) hak operasi ini kepada pihak ketiga mana pun tanpa persetujuan tertulis sebelumnya dari PIHAK PERTAMA. Pelanggaran atas ketentuan ini akan mengakibatkan pemutusan sepihak oleh PIHAK PERTAMA.</p>
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mt-6 mb-4">PASAL 6<br/>DENDA DAN SANKSI (PENALTY)</div>
               <div className="text-justify mb-4">
                   <p>Dalam hal PIHAK KEDUA secara sengaja membocorkan rahasia dagang, resep standar, tata cara operasional (SOP), atau memproduksi bahan baku di luar standar PIHAK PERTAMA, maka PIHAK KEDUA wajib membayar denda penalti kepada PIHAK PERTAMA sebesar <b>{data.penaltyFee}</b> dan Perjanjian ini batal demi hukum.</p>
               </div>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mt-6 mb-4">PASAL 7<br/>PENYELESAIAN SENGKETA & FORCE MAJEURE</div>
               <div className="text-justify mb-8">
                   <ol className="list-decimal pl-5 space-y-2">
@@ -258,7 +258,7 @@ function FranchiseBuilder() {
           </div>
 
           {/* TANDA TANGAN */}
-          <div className="mt-12 break-inside-avoid">
+          <div className="mt-12">
               <p className="text-center mb-8">Demikian Perjanjian ini dibuat dalam rangkap 2 (dua) bermaterai cukup dan memiliki kekuatan hukum yang sama bagi Para Pihak.</p>
               
               <div className="flex justify-between text-center mb-16">

@@ -130,20 +130,20 @@ function StopStudiBuilder() {
         </div>
       </div>
 
-      <div className="mb-8 break-inside-avoid">
+      <div className="mb-8">
         <p>Yth.</p>
         <p className="font-bold">{data.tujuan}</p>
         <p className="font-bold">{data.namaKampus}</p>
         <p>{data.alamatKampus}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Dengan hormat,</p>
         <p>Saya yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* DATA MAHASISWA */}
-      <div className="mb-6 break-inside-avoid pl-8 border-l-2 border-black ml-4">
+      <div className="mb-6 pl-8 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-32">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.namaMahasiswa}</div></div>
         <div className="flex mb-1"><div className="w-32">NIM / NPM</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.nim}</div></div>
         <div className="flex mb-1"><div className="w-32">Program Studi</div><div className="w-4">:</div><div className="flex-1">{data.programStudi}</div></div>
@@ -153,14 +153,14 @@ function StopStudiBuilder() {
         <div className="flex mb-1"><div className="w-32">No. HP / Email</div><div className="w-4">:</div><div className="flex-1">{data.noTelp} / {data.email}</div></div>
       </div>
 
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <p className="mb-2">Bersama surat ini bermaksud untuk mengajukan permohonan <strong>Pengunduran Diri (Stop Studi)</strong> sebagai mahasiswa {data.namaKampus}, dikarenakan:</p>
         <div className="pl-4 italic text-justify leading-relaxed">
             "{data.alasan}"
         </div>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid">
+      <div className="text-justify mb-8">
         <p>Demikian surat permohonan ini saya buat dengan kesadaran penuh, tanpa ada unsur paksaan dari pihak manapun, serta telah berdiskusi dan mendapatkan persetujuan dari Orang Tua/Wali.</p>
         <p className="mt-2">Atas perhatian, bimbingan, serta ilmu yang telah diberikan selama ini, saya mengucapkan banyak terima kasih.</p>
       </div>

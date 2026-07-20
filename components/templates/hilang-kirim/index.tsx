@@ -127,7 +127,7 @@ function LostPackageBuilder() {
 
     return (
       <Kertas>
-        <div className="text-center mb-8 border-b-2 border-black pb-4 break-inside-avoid">
+        <div className="text-center mb-8 border-b-2 border-black pb-4">
             <h1 className="font-bold text-xl uppercase tracking-widest underline">SURAT PERNYATAAN KEHILANGAN BARANG</h1>
             <p className="text-sm mt-2">Nomor: {data.docNo}</p>
         </div>
@@ -137,7 +137,7 @@ function LostPackageBuilder() {
         </p>
 
         {/* DATA PELAPOR */}
-        <div className="mb-6 ml-8 break-inside-avoid">
+        <div className="mb-6 ml-8">
             <div className="flex mb-1"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.declarantName}</div></div>
             <div className="flex mb-1"><div className="w-40">Nomor Identitas (NIK)</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.declarantNik}</div></div>
             <div className="flex mb-1"><div className="w-40">Nomor HP/Telepon</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.declarantPhone}</div></div>
@@ -149,7 +149,7 @@ function LostPackageBuilder() {
         </p>
 
         {/* DATA PAKET */}
-        <div className="mb-6 ml-8 break-inside-avoid">
+        <div className="mb-6 ml-8">
             <div className="flex mb-1"><div className="w-40">Perusahaan Ekspedisi</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.courierName}</div></div>
             <div className="flex mb-1"><div className="w-40">Nomor Resi (AWB)</div><div className="w-4">:</div><div className="flex-1 font-bold underline font-mono">{data.awbNumber}</div></div>
             <div className="flex mb-1"><div className="w-40">Tanggal Pengiriman</div><div className="w-4">:</div><div className="flex-1">{formatDateSafe(data.sendDate)}</div></div>
@@ -158,19 +158,19 @@ function LostPackageBuilder() {
         </div>
 
         {/* KRONOLOGI */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p className="font-bold mb-2">Kronologi / Keterangan Tambahan:</p>
             <p className="ml-8">{data.chronology}</p>
         </div>
 
-        <div className="mb-12 text-justify break-inside-avoid">
+        <div className="mb-12 text-justify">
             <p>
                 Surat pernyataan ini dibuat sebagai syarat kelengkapan administrasi untuk mengajukan proses klaim ganti rugi (asuransi/investigasi) kepada pihak {data.courierName}. Saya bertanggung jawab penuh secara hukum apabila di kemudian hari terdapat keterangan palsu dalam pernyataan ini.
             </p>
         </div>
 
         {/* TANDA TANGAN */}
-        <div className="break-inside-avoid">
+        <div className="">
             <div className="flex justify-between items-start text-center mb-8">
               <div className="w-[45%]">
                 <p className="mb-2">Mengetahui / Saksi,</p>

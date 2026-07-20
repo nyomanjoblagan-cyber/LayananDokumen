@@ -166,17 +166,17 @@ function SKLBuilder() {
       </div>
 
       {/* JUDUL SKL */}
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h2 className="font-bold text-xl underline uppercase tracking-widest">SURAT KETERANGAN LULUS</h2>
         <p className="font-bold mt-1">Nomor: {data.docNo}</p>
       </div>
 
-      <div className="text-justify mb-6 break-inside-avoid">
+      <div className="text-justify mb-6">
         <p>Dekan {data.facultyName} {data.universityName} menerangkan dengan sesungguhnya bahwa:</p>
       </div>
 
       {/* DATA MAHASISWA */}
-      <div className="mb-8 pl-8 break-inside-avoid text-[12pt]">
+      <div className="mb-8 pl-8 text-[12pt]">
         <div className="flex mb-1.5"><div className="w-48 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase text-[13pt]">{data.studentName}</div></div>
         <div className="flex mb-1.5"><div className="w-48 font-bold">NIM</div><div className="w-4">:</div><div className="flex-1 font-mono font-bold text-[12pt]">{data.nim}</div></div>
         <div className="flex mb-1.5"><div className="w-48">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.placeBirth}, {formatDateDisplay(data.dateBirth)}</div></div>
@@ -185,7 +185,7 @@ function SKLBuilder() {
       </div>
 
       {/* HASIL KELULUSAN */}
-      <div className="text-justify mb-8 break-inside-avoid leading-loose">
+      <div className="text-justify mb-8 leading-loose">
         <p>Berdasarkan hasil Rapat Yudisium {data.facultyName} pada tanggal <strong>{formatDateDisplay(data.yudisiumDate)}</strong>, mahasiswa tersebut di atas dinyatakan <strong>LULUS</strong> dengan Indeks Prestasi Kumulatif (IPK) <strong>{data.ipk}</strong>, predikat kelulusan <strong>"{data.predicate}"</strong>.</p>
         
         <p className="mt-4">Kepadanya berhak diberikan gelar akademik <strong>{data.title}</strong> beserta segala hak dan kewajiban yang melekat pada gelar tersebut.</p>

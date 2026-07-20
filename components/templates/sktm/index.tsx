@@ -145,17 +145,17 @@ function SktmBuilder() {
       </div>
 
       {/* JUDUL */}
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h2 className="font-bold text-lg underline uppercase tracking-widest">SURAT KETERANGAN TIDAK MAMPU (SKTM)</h2>
         <p className="font-bold mt-1">Nomor: {data.docNumber}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Yang bertanda tangan di bawah ini Kepala Desa <strong>{data.villageName}</strong>, Kecamatan <strong>{data.subdistrictName}</strong>, Kabupaten <strong>{data.regencyName}</strong>, menerangkan dengan sebenarnya bahwa:</p>
       </div>
 
       {/* PIHAK 1 (Orang Tua / Wali) */}
-      <div className="mb-4 break-inside-avoid pl-8">
+      <div className="mb-4 pl-8">
         <p className="font-bold underline mb-2 uppercase text-sm">I. Data Orang Tua / Wali Pemohon</p>
         <div className="flex"><div className="w-48 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.pihak1Name}</div></div>
         <div className="flex"><div className="w-48">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.pihak1Nik}</div></div>
@@ -165,7 +165,7 @@ function SktmBuilder() {
       </div>
 
       {/* ANAK / TANGGUNGAN */}
-      <div className="mb-6 break-inside-avoid pl-8">
+      <div className="mb-6 pl-8">
         <p className="mb-2">Adalah benar yang bersangkutan merupakan orang tua / wali / penanggung jawab dari:</p>
         <p className="font-bold underline mb-2 uppercase text-sm">II. Data Tanggungan / Anak</p>
         <div className="flex"><div className="w-48 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.childName}</div></div>
@@ -175,7 +175,7 @@ function SktmBuilder() {
         <div className="flex"><div className="w-48">Alamat Domisili</div><div className="w-4">:</div><div className="flex-1">{data.childAddress}</div></div>
       </div>
 
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
         <p className="mb-4">Orang tersebut di atas, berdasarkan Surat Keterangan Pengantar RT/RW dan catatan/register kependudukan pada Kantor Desa {data.villageName}, adalah benar warga desa kami yang keadaan ekonomi/sosialnya termasuk dalam kategori <strong>Keluarga Pra-Sejahtera (Tidak Mampu)</strong> dengan penghasilan keluarga rata-rata per bulan <strong>{data.penghasilan}</strong>.</p>
         
         <p className="mb-2">Surat Keterangan ini dibuat dan diberikan untuk keperluan:</p>

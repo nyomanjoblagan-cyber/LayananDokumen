@@ -126,7 +126,7 @@ function BebasNarkobaBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* Kop Surat Section */}
-      <div className="border-b-[4px] border-double border-black pb-3 mb-6 relative break-inside-avoid">
+      <div className="border-b-[4px] border-double border-black pb-3 mb-6 relative">
          <div className="absolute left-0 top-0 w-24 h-24 flex items-center justify-center overflow-hidden">
            {formData.logoInstansi ? (
              <img src={formData.logoInstansi} alt="Logo" className="w-full h-full object-contain" />
@@ -144,12 +144,12 @@ function BebasNarkobaBuilder() {
          </div>
       </div>
 
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h1 className="text-[14pt] font-bold underline underline-offset-4 mb-1 uppercase tracking-wide">SURAT KETERANGAN HASIL PEMERIKSAAN NARKOBA</h1>
         <p className="text-[11pt] font-bold">Nomor: {formData.noSurat || "___________________________"}</p>
       </div>
 
-      <div className="mb-6 space-y-2 text-justify leading-relaxed break-inside-avoid">
+      <div className="mb-6 space-y-2 text-justify leading-relaxed">
         <p>Yang bertanda tangan di bawah ini menerangkan dengan sesungguhnya bahwa:</p>
         <table className="w-full mt-2 ml-4">
           <tbody>
@@ -159,7 +159,7 @@ function BebasNarkobaBuilder() {
           </tbody>
         </table>
         <p className="mt-4">Telah melakukan pemeriksaan fisik dan tes laboratorium atas permintaan dari / terhadap seseorang yang bernama:</p>
-        <table className="w-full mt-2 ml-4 break-inside-avoid">
+        <table className="w-full mt-2 ml-4">
           <tbody>
             <tr><td className="w-48 py-1 align-top">Nama Terperiksa</td><td className="w-4 py-1 align-top">:</td><td className="py-1 font-bold uppercase">{formData.pasienNama || "_______________________"}</td></tr>
             <tr><td className="w-48 py-1 align-top">Tempat, Tanggal Lahir</td><td className="w-4 py-1 align-top">:</td><td className="py-1">{formData.pasienTempatLahir || "___________"}, {formatDateSafe(formData.pasienTanggalLahir)}</td></tr>
@@ -172,7 +172,7 @@ function BebasNarkobaBuilder() {
         </table>
       </div>
 
-      <div className="mb-6 space-y-3 text-justify leading-relaxed break-inside-avoid">
+      <div className="mb-6 space-y-3 text-justify leading-relaxed">
         <p>Telah dilakukan anamnesa, pemeriksaan fisik, serta uji saring (Rapid Test) Narkotika, Psikotropika, dan Zat Adiktif (NAPZA) lainnya melalui spesimen Urine yang dilakukan pada tanggal {formatDateSafe(formData.tanggalDikeluarkan)} dengan hasil pemeriksaan sebagai berikut:</p>
         <div className="ml-8 my-4 border border-black p-4 inline-block w-[80%] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] print:shadow-none print:border-2">
            <table className="w-full">

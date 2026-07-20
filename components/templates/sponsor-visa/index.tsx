@@ -142,7 +142,7 @@ function VisaSponsorBuilder() {
         </div>
       </div>
 
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <p className="font-bold underline mb-4">Subject: Sponsorship Letter for Visa Application</p>
         <p className="mb-4">Dear Sir/Madam,</p>
         <p className="mb-4 text-justify">
@@ -151,13 +151,13 @@ function VisaSponsorBuilder() {
         </p>
       </div>
 
-      <div className="mb-6 pl-4 border-l-2 border-slate-400 ml-4 break-inside-avoid">
+      <div className="mb-6 pl-4 border-l-2 border-slate-400 ml-4">
         <div className="flex mb-1"><div className="w-32 font-bold">Name</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.applicantName}</div></div>
         <div className="flex mb-1"><div className="w-32">Passport No.</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.passportNo}</div></div>
         <div className="flex mb-1"><div className="w-32">Relationship</div><div className="w-4">:</div><div className="flex-1">{data.relation}</div></div>
       </div>
 
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
         <p className="mb-4">
             The applicant plans to travel on {formatDateDisplay(data.travelDate)} for approximately {data.duration}. 
             I hereby declare and guarantee that I will take full responsibility for all financial expenses incurred during the trip, 
@@ -173,7 +173,7 @@ function VisaSponsorBuilder() {
         </p>
       </div>
 
-      <div className="mt-12 break-inside-avoid">
+      <div className="mt-12">
         <p className="mb-2">Sincerely yours,</p>
         <div className="h-24"></div>
         <p className="font-bold underline uppercase">{data.sponsorName}</p>

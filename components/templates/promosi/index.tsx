@@ -146,20 +146,20 @@ function PromosiBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* HEADER SURAT KEPUTUSAN */}
-      <div className="text-center mb-6 break-inside-avoid border-b-2 border-black pb-4">
+      <div className="text-center mb-6 border-b-2 border-black pb-4">
         <h1 className="font-bold text-xl uppercase tracking-wider">{data.namaPerusahaan}</h1>
         <p className="text-sm">{data.alamatPerusahaan}</p>
         <p className="text-sm">Telp: {data.teleponPerusahaan} | Email: {data.emailPerusahaan}</p>
       </div>
 
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h2 className="font-bold text-lg underline uppercase">SURAT KEPUTUSAN DIREKSI</h2>
         <p className="font-bold uppercase tracking-wider mt-1">Nomor: {data.nomorSurat}</p>
         <p className="font-bold uppercase tracking-wider mt-2">TENTANG<br/>PROMOSI JABATAN KARYAWAN</p>
       </div>
 
       {/* MENIMBANG & MENGINGAT */}
-      <div className="mb-6 break-inside-avoid text-justify">
+      <div className="mb-6 text-justify">
           <div className="flex mb-2">
               <div className="w-28 font-bold uppercase">Menimbang</div>
               <div className="w-4">:</div>
@@ -172,12 +172,12 @@ function PromosiBuilder() {
           </div>
       </div>
 
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h3 className="font-bold uppercase text-lg tracking-wider">MEMUTUSKAN</h3>
       </div>
 
       {/* PASAL 1 - PENETAPAN */}
-      <div className="mb-4 break-inside-avoid text-justify">
+      <div className="mb-4 text-justify">
         <h3 className="font-bold uppercase mb-2">Pasal 1: Penetapan Promosi</h3>
         <p className="mb-2">Mempromosikan dan menetapkan jabatan karyawan di bawah ini:</p>
         <div className="ml-8 mb-2">
@@ -200,7 +200,7 @@ function PromosiBuilder() {
       </div>
 
       {/* PASAL 2 - KOMPENSASI */}
-      <div className="mb-4 break-inside-avoid text-justify">
+      <div className="mb-4 text-justify">
         <h3 className="font-bold uppercase mb-2">Pasal 2: Kompensasi dan Hak</h3>
         <p className="mb-2">Seiring dengan promosi ini, maka struktur kompensasi karyawan disesuaikan menjadi:</p>
         <div className="ml-8 mb-2 border border-black max-w-md p-3">
@@ -220,7 +220,7 @@ function PromosiBuilder() {
       </div>
 
       {/* PASAL 3 - KETENTUAN LAIN */}
-      <div className="mb-6 break-inside-avoid text-justify">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold uppercase mb-2">Pasal 3: Ketentuan Lain-Lain</h3>
         <p>
             1. Keputusan ini berlaku efektif sejak tanggal <strong>{formatDateDisplay(data.tanggalEfektif)}</strong>.<br/>

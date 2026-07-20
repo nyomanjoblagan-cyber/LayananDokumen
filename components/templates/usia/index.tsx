@@ -130,17 +130,17 @@ function UsiaBuilder() {
       </div>
 
       {/* JUDUL SURAT */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h2 className="text-lg font-bold underline uppercase tracking-wide">SURAT KETERANGAN USIA</h2>
         <p className="mt-1">Nomor: {data.nomorSurat}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Yang bertanda tangan di bawah ini {data.jabatanPejabat}, menerangkan dengan sesungguhnya bahwa:</p>
       </div>
 
       {/* DATA ANAK */}
-      <div className="mb-6 pl-4 border-l-2 border-black ml-4 break-inside-avoid">
+      <div className="mb-6 pl-4 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.namaAnak}</div></div>
         <div className="flex mb-1"><div className="w-40">Tempat, Tgl Lahir</div><div className="w-4">:</div><div className="flex-1">{data.tempatLahirAnak}, {formatDateDisplay(data.tanggalLahirAnak)}</div></div>
         <div className="flex mb-1"><div className="w-40">Jenis Kelamin</div><div className="w-4">:</div><div className="flex-1">{data.jenisKelaminAnak}</div></div>
@@ -148,19 +148,19 @@ function UsiaBuilder() {
         <div className="flex mb-1"><div className="w-40">Alamat</div><div className="w-4">:</div><div className="flex-1">{data.alamatAnak}</div></div>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Anak tersebut adalah benar-benar anak kandung dari:</p>
       </div>
 
       {/* DATA ORTU */}
-      <div className="mb-6 pl-4 border-l-2 border-black ml-4 break-inside-avoid">
+      <div className="mb-6 pl-4 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-40">Nama Orang Tua</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.namaOrtu}</div></div>
         <div className="flex mb-1"><div className="w-40">Umur</div><div className="w-4">:</div><div className="flex-1">{data.umurOrtu}</div></div>
         <div className="flex mb-1"><div className="w-40">Pekerjaan</div><div className="w-4">:</div><div className="flex-1">{data.pekerjaanOrtu}</div></div>
         <div className="flex mb-1"><div className="w-40">Alamat</div><div className="w-4">:</div><div className="flex-1">{data.alamatOrtu}</div></div>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid leading-relaxed">
+      <div className="text-justify mb-8 leading-relaxed">
         <p className="mb-3">Adapun Surat Keterangan Usia ini dibuat dan dipergunakan untuk: <strong>"{data.keperluan}"</strong>.</p>
         <p className="mb-3 italic">Catatan Tambahan: {data.keteranganTambahan}</p>
         <p>Demikian Surat Keterangan ini dibuat dengan sebenarnya agar dapat dipergunakan sebagaimana mestinya.</p>

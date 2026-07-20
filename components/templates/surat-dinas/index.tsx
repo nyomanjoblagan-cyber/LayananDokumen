@@ -155,30 +155,30 @@ function SuratDinasBuilder() {
         </div>
       </div>
 
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <p>Yth. {data.tujuanInstansi}</p>
         <p>di {data.tujuanKota}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Dengan hormat,</p>
         <p className="mt-2 text-justify">Sehubungan dengan tugas kedinasan untuk {data.agenda}, dengan ini kami menugaskan pegawai di lingkungan {data.kopInstansi.split('\n')[0]} yang tersebut di bawah ini:</p>
       </div>
 
       {/* DATA PEGAWAI */}
-      <div className="mb-6 pl-8 border-l-2 border-black ml-4 break-inside-avoid">
+      <div className="mb-6 pl-8 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-40 font-bold">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.pegawaiNama}</div></div>
         <div className="flex mb-1"><div className="w-40">NIP</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.pegawaiNip}</div></div>
         <div className="flex mb-1"><div className="w-40">Pangkat/Gol.</div><div className="w-4">:</div><div className="flex-1">{data.pegawaiPangkat}</div></div>
         <div className="flex mb-1"><div className="w-40">Jabatan</div><div className="w-4">:</div><div className="flex-1">{data.pegawaiJabatan}</div></div>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Untuk melaksanakan perjalanan dinas dengan ketentuan sebagai berikut:</p>
       </div>
 
       {/* DETAIL TUGAS */}
-      <div className="mb-6 pl-8 border-l-2 border-black ml-4 break-inside-avoid">
+      <div className="mb-6 pl-8 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-40 font-bold">Tujuan / Agenda</div><div className="w-4">:</div><div className="flex-1 text-justify">{data.agenda}</div></div>
         <div className="flex mb-1"><div className="w-40 font-bold">Instansi Tujuan</div><div className="w-4">:</div><div className="flex-1">{data.tujuanInstansi}, {data.tujuanKota}</div></div>
         <div className="flex mb-1"><div className="w-40 font-bold">Waktu Pelaksanaan</div><div className="w-4">:</div><div className="flex-1">
@@ -188,7 +188,7 @@ function SuratDinasBuilder() {
         <div className="flex mb-1"><div className="w-40 font-bold">Alat Transportasi</div><div className="w-4">:</div><div className="flex-1">{data.jenisKendaraan}</div></div>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid">
+      <div className="text-justify mb-8">
         <p>Demikian Surat Tugas ini dibuat untuk dapat dilaksanakan dengan penuh tanggung jawab. Kepada instansi atau pihak terkait, dimohon kerjasamanya agar tugas ini dapat berjalan dengan lancar. Setelah selesai melaksanakan tugas, yang bersangkutan diwajibkan memberikan laporan hasil perjalanan dinas.</p>
       </div>
 

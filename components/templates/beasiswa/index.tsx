@@ -91,7 +91,7 @@ const ClauseItem = ({ num, text }: { num: string, text: React.ReactNode }) => (
 );
 
 const Article = ({ title, children }: { title: string, children: React.ReactNode }) => (
-  <div className="mb-6 break-inside-avoid">
+  <div className="mb-6">
      <div className="text-center font-bold mb-4 underline uppercase">{title}</div>
      <div className="space-y-2">
         {children}
@@ -133,7 +133,7 @@ function BeasiswaBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* HEADER */}
-      <div className="text-center mb-10 pb-2 border-b-[3px] border-black border-double break-inside-avoid">
+      <div className="text-center mb-10 pb-2 border-b-[3px] border-black border-double">
           <h1 className="font-bold text-[14pt] uppercase tracking-wider underline underline-offset-4">PERJANJIAN PEMBERIAN BEASISWA</h1>
           <h2 className="font-bold text-[12pt] uppercase tracking-wider mt-1">{data.namaBeasiswa}</h2>
       </div>
@@ -147,7 +147,7 @@ function BeasiswaBuilder() {
 
       {/* IDENTITAS PARA PIHAK */}
       <div className="pl-4 space-y-4 mb-6">
-          <div className="flex break-inside-avoid">
+          <div className="flex">
               <div className="w-8 shrink-0 font-bold">I.</div>
               <div className="flex-1">
                   <IdentityRow label="Nama Instansi/Perusahaan" value={data.instansiName} />
@@ -159,7 +159,7 @@ function BeasiswaBuilder() {
                   </div>
               </div>
           </div>
-          <div className="flex break-inside-avoid mt-6">
+          <div className="flex mt-6">
               <div className="w-8 shrink-0 font-bold">II.</div>
               <div className="flex-1">
                   <IdentityRow label="Nama Lengkap" value={data.penerimaName} />
@@ -174,7 +174,7 @@ function BeasiswaBuilder() {
           </div>
       </div>
 
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
           <p>
               PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut sebagai <strong>PARA PIHAK</strong>. PARA PIHAK dengan ini menerangkan dan menyatakan telah sepakat untuk mengikatkan diri dalam Perjanjian Pemberian Beasiswa dengan syarat dan ketentuan sebagaimana tercantum dalam pasal-pasal berikut:
           </p>
@@ -209,7 +209,7 @@ function BeasiswaBuilder() {
       </Article>
 
       {/* TANDA TANGAN */}
-      <div className="mt-16 break-inside-avoid">
+      <div className="mt-16">
           <div className="flex justify-between text-center px-8">
               <div className="w-[45%]">
                   <p className="font-bold mb-24 uppercase">PIHAK PERTAMA<br/>Pemberi Beasiswa,</p>

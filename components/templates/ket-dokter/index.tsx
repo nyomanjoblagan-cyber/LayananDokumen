@@ -126,7 +126,7 @@ function MedicalBuilder() {
     return (
       <Kertas>
         {/* KOP SURAT ELEGANT */}
-        <div className="flex items-center gap-6 mb-8 pb-6 border-b-[4px] border-emerald-800 relative break-inside-avoid">
+        <div className="flex items-center gap-6 mb-8 pb-6 border-b-[4px] border-emerald-800 relative">
             <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center border-2 border-emerald-800 shrink-0">
                 <BadgePlus className="w-12 h-12 text-emerald-800" />
             </div>
@@ -137,7 +137,7 @@ function MedicalBuilder() {
             </div>
         </div>
 
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h2 className="font-bold text-xl uppercase underline tracking-wider">SURAT KETERANGAN SAKIT</h2>
         </div>
 
@@ -146,7 +146,7 @@ function MedicalBuilder() {
         </p>
 
         {/* DATA PASIEN */}
-        <div className="mb-6 ml-8 break-inside-avoid">
+        <div className="mb-6 ml-8">
             <div className="flex mb-1"><div className="w-32">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.patientName}</div></div>
             <div className="flex mb-1"><div className="w-32">Umur</div><div className="w-4">:</div><div className="flex-1">{data.patientAge}</div></div>
             <div className="flex mb-1"><div className="w-32">Jenis Kelamin</div><div className="w-4">:</div><div className="flex-1">{data.patientGender}</div></div>
@@ -159,7 +159,7 @@ function MedicalBuilder() {
         </p>
 
         {/* DIAGNOSA */}
-        <div className="mb-6 p-4 border border-slate-300 bg-slate-50 text-justify break-inside-avoid italic">
+        <div className="mb-6 p-4 border border-slate-300 bg-slate-50 text-justify italic">
             "{data.examinationResult}"
         </div>
 

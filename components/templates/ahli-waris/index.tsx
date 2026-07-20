@@ -173,7 +173,7 @@ function AhliWarisBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h1 className="text-[12pt] font-bold uppercase underline underline-offset-4 tracking-wider mb-1">{data.judulPernyataan}</h1>
       </div>
 
@@ -211,7 +211,7 @@ function AhliWarisBuilder() {
         </p>
         
         {data.ahliWaris.map((aw, index) => (
-          <div key={aw.id} className="mb-3 ml-4 break-inside-avoid">
+          <div key={aw.id} className="mb-3 ml-4">
             <table className="w-full">
               <tbody>
                 <tr>
@@ -244,7 +244,7 @@ function AhliWarisBuilder() {
       </div>
 
       {/* TANDA TANGAN AHLI WARIS */}
-      <div className="break-inside-avoid">
+      <div className="">
         <div className="flex justify-end mb-4">
           <p>{data.kotaPembuatan}, {data.tanggalPembuatan}</p>
         </div>
@@ -261,7 +261,7 @@ function AhliWarisBuilder() {
 
       {/* SAKSI */}
       {data.saksi.length > 0 && (
-        <div className="mt-12 break-inside-avoid">
+        <div className="mt-12">
           <p className="mb-4">Saksi-saksi:</p>
           <div className="grid grid-cols-2 gap-y-16 gap-x-4 ml-4">
             {data.saksi.map((s, index) => (
@@ -278,7 +278,7 @@ function AhliWarisBuilder() {
       )}
 
       {/* PENGESAHAN PEJABAT */}
-      <div className="mt-16 pt-8 border-t-2 border-double border-black break-inside-avoid">
+      <div className="mt-16 pt-8 border-t-2 border-double border-black">
         <h3 className="text-center font-bold uppercase tracking-wider mb-8">MENGESAHKAN / MENGETAHUI</h3>
         <div className="flex justify-between w-full text-center">
            <div className="w-[45%]">

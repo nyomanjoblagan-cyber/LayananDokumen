@@ -156,7 +156,7 @@ function KatalogBuilder() {
         </div>
 
         {/* PRODUK INFO UTAMA */}
-        <div className="flex gap-6 mb-8 break-inside-avoid">
+        <div className="flex gap-6 mb-8">
             {/* GAMBAR PRODUK */}
             <div className="w-48 h-48 bg-slate-100 border-2 border-slate-200 flex items-center justify-center shrink-0 overflow-hidden relative rounded-xl">
                 {data.fotoProduk ? (
@@ -190,13 +190,13 @@ function KatalogBuilder() {
         </div>
 
         {/* DESKRIPSI UTAMA */}
-        <div className="mb-8 break-inside-avoid text-justify text-[11pt] leading-relaxed text-slate-800">
+        <div className="mb-8 text-justify text-[11pt] leading-relaxed text-slate-800">
             {data.deskripsiUtama}
         </div>
 
         <div className="grid grid-cols-2 gap-8 mb-8">
             {/* SPESIFIKASI */}
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 border-b-2 border-slate-300 pb-2 mb-4">Spesifikasi Teknis</h3>
                 <table className="w-full text-sm">
                     <tbody>
@@ -214,7 +214,7 @@ function KatalogBuilder() {
             </div>
 
             {/* FITUR */}
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 border-b-2 border-slate-300 pb-2 mb-4">Fitur Unggulan</h3>
                 <ul className="space-y-3">
                     {data.fiturList.split('\\n').filter(Boolean).map((fitur, i) => (
@@ -228,7 +228,7 @@ function KatalogBuilder() {
         </div>
 
         {/* FOOTER / S&K */}
-        <div className="border-t border-slate-300 pt-6 mt-12 break-inside-avoid">
+        <div className="border-t border-slate-300 pt-6 mt-12">
             <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Syarat & Ketentuan Pembelian</h4>
             <p className="text-xs text-slate-600 leading-relaxed text-justify">{data.syaratKetentuan}</p>
         </div>

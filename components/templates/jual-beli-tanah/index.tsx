@@ -144,7 +144,7 @@ function LandSaleBuilder() {
 
     return (
       <Kertas>
-        <div className="text-center mb-6 break-inside-avoid">
+        <div className="text-center mb-6">
             <h1 className="font-bold text-lg uppercase underline tracking-wide">PERJANJIAN PENGIKATAN JUAL BELI TANAH</h1>
         </div>
 
@@ -153,7 +153,7 @@ function LandSaleBuilder() {
         </p>
 
         {/* PIHAK PERTAMA */}
-        <div className="mb-4 ml-4 break-inside-avoid">
+        <div className="mb-4 ml-4">
             <p className="font-bold mb-2 underline">PIHAK PERTAMA (PENJUAL)</p>
             <div className="ml-4 space-y-1">
                 <div className="flex"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p1Name}</div></div>
@@ -166,7 +166,7 @@ function LandSaleBuilder() {
         </div>
 
         {/* PIHAK KEDUA */}
-        <div className="mb-6 ml-4 break-inside-avoid">
+        <div className="mb-6 ml-4">
             <p className="font-bold mb-2 underline">PIHAK KEDUA (PEMBELI)</p>
             <div className="ml-4 space-y-1">
                 <div className="flex"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p2Name}</div></div>
@@ -184,7 +184,7 @@ function LandSaleBuilder() {
 
         {/* PASAL 1 - OBJEK */}
         <div className="mb-4 text-justify space-y-4">
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1">Pasal 1</h3>
                 <h3 className="font-bold text-center mb-2">OBJEK JUAL BELI</h3>
                 <p>Objek dari perjanjian ini adalah Sebidang Tanah milik PIHAK PERTAMA dengan rincian identitas sebagai berikut:</p>
@@ -203,7 +203,7 @@ function LandSaleBuilder() {
             </div>
 
             {/* PASAL 2 - HARGA & PEMBAYARAN */}
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 2</h3>
                 <h3 className="font-bold text-center mb-2">HARGA DAN MEKANISME PEMBAYARAN</h3>
                 <ol className="list-decimal ml-8 my-2 space-y-1">
@@ -215,7 +215,7 @@ function LandSaleBuilder() {
             </div>
 
             {/* PASAL 3 - JAMINAN */}
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 3</h3>
                 <h3 className="font-bold text-center mb-2">JAMINAN PIHAK PERTAMA</h3>
                 <p>PIHAK PERTAMA menjamin sepenuhnya bahwa:</p>
@@ -227,7 +227,7 @@ function LandSaleBuilder() {
             </div>
 
             {/* PASAL 4 - PENYERAHAN */}
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 4</h3>
                 <h3 className="font-bold text-center mb-2">PENYERAHAN FISIK DAN SURAT</h3>
                 <ol className="list-decimal ml-8 my-2 space-y-1">
@@ -237,7 +237,7 @@ function LandSaleBuilder() {
             </div>
 
             {/* PASAL 5 - WANPRESTASI & PEMBATALAN */}
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 5</h3>
                 <h3 className="font-bold text-center mb-2">KLAUSUL PEMBATALAN (WANPRESTASI)</h3>
                 <ol className="list-decimal ml-8 my-2 space-y-1">
@@ -247,14 +247,14 @@ function LandSaleBuilder() {
             </div>
 
             {/* PASAL 6 - PAJAK */}
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 6</h3>
                 <h3 className="font-bold text-center mb-2">PAJAK DAN BIAYA BALIK NAMA</h3>
                 <p>Segala pajak, termasuk namun tidak terbatas pada Pajak Penghasilan (PPh), Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB), honorarium Notaris/PPAT, serta biaya balik nama sertifikat, akan <strong>{data.taxBorneBy}</strong>.</p>
             </div>
 
             {/* PASAL 7 - PENUTUP */}
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 7</h3>
                 <h3 className="font-bold text-center mb-2">PENUTUP</h3>
                 <p>Demikian Perjanjian ini dibuat dalam rangkap 2 (dua), bermeterai cukup dan ditandatangani oleh PARA PIHAK tanpa ada paksaan dari pihak manapun.</p>
@@ -262,7 +262,7 @@ function LandSaleBuilder() {
         </div>
 
         {/* TANDA TANGAN */}
-        <div className="break-inside-avoid pt-8">
+        <div className="pt-8">
             <div className="flex justify-between items-start text-center mb-8">
               <div className="w-[45%]">
                 <p className="font-bold mb-2">PIHAK PERTAMA (PENJUAL)</p>

@@ -179,12 +179,12 @@ function SuratJalanBuilder() {
         </div>
       </div>
 
-      <div className="text-justify mb-2 break-inside-avoid text-sm">
+      <div className="text-justify mb-2 text-sm">
         <p>Bersama surat ini, kami kirimkan barang-barang sebagai berikut:</p>
       </div>
 
       {/* TABEL BARANG */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <table className="w-full border-collapse border border-black text-sm">
             <thead>
                 <tr className="bg-gray-100 print:bg-gray-100">
@@ -211,7 +211,7 @@ function SuratJalanBuilder() {
         </table>
       </div>
 
-      <div className="mb-8 text-sm break-inside-avoid">
+      <div className="mb-8 text-sm">
         <p className="font-bold underline">Catatan / Keterangan:</p>
         <p>{data.catatan}</p>
       </div>

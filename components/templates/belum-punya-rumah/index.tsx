@@ -100,7 +100,7 @@ function HomeDeclarationBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL SURAT */}
-      <div className="text-center mb-10 break-inside-avoid">
+      <div className="text-center mb-10">
           <h1 className="font-bold text-[14pt] uppercase tracking-wider underline underline-offset-4">SURAT PERNYATAAN BELUM MEMILIKI RUMAH</h1>
       </div>
       
@@ -133,7 +133,7 @@ function HomeDeclarationBuilder() {
       </div>
 
       {/* PENUTUP & TANDA TANGAN */}
-      <div className="mt-12 break-inside-avoid">
+      <div className="mt-12">
           <div className="flex justify-between items-end px-8">
               <div className="w-[45%] text-center">
                   {/* Kolom Kiri Kosong / Saksi Jika Ada */}
@@ -156,7 +156,7 @@ function HomeDeclarationBuilder() {
       </div>
 
       {/* PENGESAHAN RT / RW / KELURAHAN */}
-      <div className="mt-16 break-inside-avoid pt-8 border-t-2 border-black border-dashed">
+      <div className="mt-16 pt-8 border-t-2 border-black border-dashed">
          <p className="text-center font-bold uppercase underline mb-8">MENGETAHUI / MENGESAHKAN</p>
          <div className="flex justify-between px-4 text-center items-stretch">
             <div className="w-[30%] flex flex-col justify-between">

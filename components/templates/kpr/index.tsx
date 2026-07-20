@@ -175,13 +175,13 @@ function KprBuilder() {
         </div>
 
         {/* JUDUL */}
-        <div className="text-center mb-6 break-inside-avoid">
+        <div className="text-center mb-6">
             <h2 className="text-lg underline font-black tracking-widest uppercase">FORMULIR APLIKASI KREDIT PEMILIKAN RUMAH (KPR)</h2>
             <p className="italic text-[10px] font-semibold text-slate-600 mt-1">*Mohon diisi dengan huruf cetak dengan sebenar-benarnya</p>
         </div>
 
         {/* I. FASILITAS KREDIT */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <h3 className="text-[11px] bg-slate-900 text-white px-3 py-1 font-bold uppercase mb-3 rounded-sm flex items-center gap-2"><Home size={14}/> I. FASILITAS KREDIT YANG DIMOHON</h3>
             <div className="px-2">
                 <table className="w-full text-xs">
@@ -220,7 +220,7 @@ function KprBuilder() {
         </div>
 
         {/* II. DATA PRIBADI */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <h3 className="text-[11px] bg-slate-900 text-white px-3 py-1 font-bold uppercase mb-3 rounded-sm flex items-center gap-2"><UserCircle2 size={14}/> II. DATA PRIBADI PEMOHON</h3>
             <div className="px-2">
                 <table className="w-full text-xs">
@@ -293,7 +293,7 @@ function KprBuilder() {
         </div>
 
         {/* III. DATA PEKERJAAN */}
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <h3 className="text-[11px] bg-slate-900 text-white px-3 py-1 font-bold uppercase mb-3 rounded-sm flex items-center gap-2"><Briefcase size={14}/> III. DATA PEKERJAAN & PENGHASILAN</h3>
             <div className="px-2">
                 <table className="w-full text-xs">
@@ -327,7 +327,7 @@ function KprBuilder() {
         </div>
 
         {/* IV. DATA PEMBELIAN */}
-        <div className="mb-8 break-inside-avoid">
+        <div className="mb-8">
             <h3 className="text-[11px] bg-slate-900 text-white px-3 py-1 font-bold uppercase mb-3 rounded-sm flex items-center gap-2"><Wallet size={14}/> IV. INFORMASI KEUANGAN PROPERTI</h3>
             <div className="px-2 flex gap-8">
                 <div className="w-1/2">
@@ -343,7 +343,7 @@ function KprBuilder() {
         </div>
 
         {/* PERNYATAAN */}
-        <div className="mb-12 text-justify text-[10px] text-slate-700 leading-relaxed break-inside-avoid px-2">
+        <div className="mb-12 text-justify text-[10px] text-slate-700 leading-relaxed px-2">
             <p className="font-bold mb-2">PERNYATAAN PEMOHON:</p>
             <ol className="list-decimal pl-5 space-y-1">
                 <li>Dengan ini saya menyatakan bahwa semua informasi yang saya berikan dalam formulir aplikasi ini beserta seluruh dokumen lampirannya adalah benar, lengkap, dan sah.</li>

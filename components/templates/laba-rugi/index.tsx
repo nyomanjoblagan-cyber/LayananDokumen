@@ -178,7 +178,7 @@ function FinancialBuilder() {
     return (
       <Kertas>
         {/* KOP / JUDUL */}
-        <div className="text-center mb-8 border-b-2 border-slate-900 pb-4 break-inside-avoid">
+        <div className="text-center mb-8 border-b-2 border-slate-900 pb-4">
             <h1 className="font-black text-2xl uppercase tracking-widest text-slate-900">{data.companyName}</h1>
             <h2 className="font-bold text-lg uppercase tracking-wider text-slate-700 mt-1">Laporan Laba Rugi (Income Statement)</h2>
             <p className="text-sm font-semibold text-slate-500 uppercase mt-1">Periode Berakhir pada {data.periodEnd}</p>
@@ -186,7 +186,7 @@ function FinancialBuilder() {
         </div>
 
         {/* TABEL LABA RUGI ACCOUNTING FORMAT */}
-        <div className="mb-8 break-inside-avoid">
+        <div className="mb-8">
             <table className="w-full text-[11px] font-sans">
                 <tbody>
                     {/* PENDAPATAN (REVENUE) */}

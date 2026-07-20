@@ -148,7 +148,7 @@ function KematianBuilder() {
 
     return (
       <Kertas>
-        <div className="text-center mb-6 break-inside-avoid">
+        <div className="text-center mb-6">
             <h1 className="font-bold text-lg uppercase underline tracking-wide">SURAT PERNYATAAN BERSAMA KEMATIAN DAN KESEPAKATAN AHLI WARIS</h1>
         </div>
 
@@ -157,7 +157,7 @@ function KematianBuilder() {
         </p>
 
         {/* PIHAK PERTAMA */}
-        <div className="mb-4 ml-4 break-inside-avoid">
+        <div className="mb-4 ml-4">
             <p className="font-bold mb-2">PIHAK PERTAMA (Ahli Waris I)</p>
             <div className="ml-4 space-y-1">
                 <div className="flex"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.pihak1Name}</div></div>
@@ -171,7 +171,7 @@ function KematianBuilder() {
         </div>
 
         {/* PIHAK KEDUA */}
-        <div className="mb-6 ml-4 break-inside-avoid">
+        <div className="mb-6 ml-4">
             <p className="font-bold mb-2">PIHAK KEDUA (Ahli Waris II)</p>
             <div className="ml-4 space-y-1">
                 <div className="flex"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.pihak2Name}</div></div>
@@ -190,7 +190,7 @@ function KematianBuilder() {
 
         {/* ALMARHUM */}
         <div className="mb-4 text-justify space-y-4">
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1">Pasal 1</h3>
                 <h3 className="font-bold text-center mb-2">KETERANGAN KEMATIAN</h3>
                 <p>Bahwa pada tanggal <strong>{formatDateSafe(data.aDateOfDeath)}</strong>, telah meninggal dunia anggota keluarga kami, dengan rincian identitas sebagai berikut:</p>
@@ -205,25 +205,25 @@ function KematianBuilder() {
                 </div>
             </div>
 
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 2</h3>
                 <h3 className="font-bold text-center mb-2">HARTA PENINGGALAN (WARISAN)</h3>
                 <p>Bahwa terkait seluruh harta benda yang ditinggalkan oleh Almarhum/Almarhumah (baik berupa harta bergerak, tidak bergerak, maupun simpanan di Bank), Para Pihak sepakat bahwa penyelesaiannya adalah: <strong>{data.warisanMetode}</strong>.</p>
             </div>
 
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 3</h3>
                 <h3 className="font-bold text-center mb-2">HUTANG PIUTANG</h3>
                 <p>Apabila di kemudian hari diketahui bahwa Almarhum/Almarhumah masih memiliki kewajiban/hutang kepada pihak lain (baik Perorangan, Bank, maupun Lembaga Pembiayaan lainnya), maka Para Pihak sepakat bahwa kewajiban tersebut: <strong>{data.hutangTanggungan}</strong>.</p>
             </div>
 
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 4</h3>
                 <h3 className="font-bold text-center mb-2">DOMISILI HUKUM</h3>
                 <p>Surat Pernyataan ini dibuat dengan itikad baik dan tanpa adanya paksaan dari pihak manapun. Apabila di kemudian hari timbul perselisihan yang tidak dapat diselesaikan secara musyawarah mufakat, maka Para Pihak sepakat untuk memilih domisili hukum yang tetap di <strong>{data.sengketaDomisili}</strong>.</p>
             </div>
 
-            <div className="break-inside-avoid">
+            <div className="">
                 <h3 className="font-bold text-center mb-1 mt-6">Pasal 5</h3>
                 <h3 className="font-bold text-center mb-2">PENUTUP</h3>
                 <p>Demikian Surat Pernyataan Bersama ini dibuat untuk dapat dipergunakan sebagaimana mestinya, baik sebagai dokumen administrasi, pencairan dana, balik nama, maupun keperluan perbankan dan instansi pemerintah lainnya.</p>
@@ -231,7 +231,7 @@ function KematianBuilder() {
         </div>
 
         {/* TANDA TANGAN */}
-        <div className="break-inside-avoid pt-8">
+        <div className="pt-8">
             <div className="flex justify-between items-start text-center mb-8">
               <div className="w-[45%]">
                 <p className="font-bold mb-2">PIHAK PERTAMA (Ahli Waris I)</p>

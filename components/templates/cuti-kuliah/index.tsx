@@ -171,7 +171,7 @@ function CutiBuilder() {
       </div>
 
       {/* PENGESAHAN (TANDA TANGAN) */}
-      <div className="mt-4 break-inside-avoid">
+      <div className="mt-4">
          <div className="flex justify-between text-center items-stretch mb-4">
             <div className="w-[40%] flex flex-col justify-between">
                <p className="mb-2">&nbsp;</p>

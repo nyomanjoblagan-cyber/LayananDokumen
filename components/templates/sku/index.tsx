@@ -167,17 +167,17 @@ function SkuBuilder() {
       </div>
 
       {/* JUDUL */}
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h2 className="font-bold text-lg underline uppercase tracking-widest">SURAT KETERANGAN USAHA (SKU)</h2>
         <p className="font-bold mt-1">Nomor: {data.letterNumber}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Yang bertanda tangan di bawah ini Kepala Desa <strong>{data.villageName}</strong>, Kecamatan <strong>{data.subDistrictName}</strong>, Kabupaten <strong>{data.districtName}</strong>, menerangkan dengan sebenarnya bahwa:</p>
       </div>
 
       {/* PIHAK 1 (Pemohon) */}
-      <div className="mb-6 break-inside-avoid pl-8">
+      <div className="mb-6 pl-8">
         <div className="flex"><div className="w-48 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.pihak1Name}</div></div>
         <div className="flex"><div className="w-48">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.pihak1Nik}</div></div>
         <div className="flex"><div className="w-48">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.pihak1Pob}, {formatDateDisplay(data.pihak1Dob)}</div></div>
@@ -186,12 +186,12 @@ function SkuBuilder() {
         <div className="flex"><div className="w-48">Alamat Domisili</div><div className="w-4">:</div><div className="flex-1">{data.pihak1Address}</div></div>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Berdasarkan pengamatan kami dan keterangan dari RT/RW setempat, nama tersebut di atas benar-benar memiliki dan menjalankan usaha di wilayah kami, dengan rincian sebagai berikut:</p>
       </div>
 
       {/* DETAIL USAHA */}
-      <div className="mb-6 break-inside-avoid pl-8 bg-gray-50 border border-gray-200 p-4 rounded-md">
+      <div className="mb-6 pl-8 bg-gray-50 border border-gray-200 p-4 rounded-md">
         <div className="flex mb-1"><div className="w-44">Nama Usaha</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.businessName}</div></div>
         <div className="flex mb-1"><div className="w-44">Bidang/Jenis Usaha</div><div className="w-4">:</div><div className="flex-1">{data.businessType}</div></div>
         <div className="flex mb-1"><div className="w-44">Alamat Tempat Usaha</div><div className="w-4">:</div><div className="flex-1">{data.businessAddress}</div></div>
@@ -201,7 +201,7 @@ function SkuBuilder() {
         <div className="flex mb-1"><div className="w-44">Skala Usaha</div><div className="w-4">:</div><div className="flex-1">{data.skalaUsaha}</div></div>
       </div>
 
-      <div className="mb-8 text-justify break-inside-avoid leading-relaxed">
+      <div className="mb-8 text-justify leading-relaxed">
         <p className="mb-2">Surat Keterangan Usaha ini diterbitkan sebagai kelengkapan administrasi untuk:</p>
         <p className="font-bold uppercase text-center border-b-2 border-black inline-block px-4 mx-auto block mb-4 w-fit">"{data.tujuanPembuatan}"</p>
         <p>Demikian Surat Keterangan Usaha ini dibuat dengan sebenar-benarnya agar dapat dipergunakan sebagaimana mestinya. Kami tidak bertanggung jawab secara materil maupun hukum atas resiko yang timbul dari penyalahgunaan surat keterangan ini, termasuk gagal bayar dan/atau resiko finansial lainnya.</p>

@@ -145,7 +145,7 @@ function BelumMenikahHRDBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* KOP SURAT */}
-      <div className="border-b-[4px] border-double border-black pb-3 mb-6 relative break-inside-avoid">
+      <div className="border-b-[4px] border-double border-black pb-3 mb-6 relative">
          <div className="absolute left-0 top-0 w-24 h-24 flex items-center justify-center overflow-hidden">
            {data.logoInstansi ? (
              <img src={data.logoInstansi} alt="Logo" className="w-full h-full object-contain" />
@@ -164,7 +164,7 @@ function BelumMenikahHRDBuilder() {
       </div>
       
       {/* JUDUL SURAT */}
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
           <h1 className="font-bold text-[14pt] uppercase tracking-wider underline underline-offset-4">SURAT KETERANGAN BELUM MENIKAH</h1>
           <p className="text-[11pt] mt-1">Nomor: {data.no}</p>
       </div>
@@ -201,7 +201,7 @@ function BelumMenikahHRDBuilder() {
       </div>
 
       {/* PENUTUP & TANDA TANGAN */}
-      <div className="mt-16 break-inside-avoid">
+      <div className="mt-16">
           <div className="flex justify-between items-end px-8">
               <div className="w-[45%] text-center">
                   <p className="mb-2">&nbsp;</p>

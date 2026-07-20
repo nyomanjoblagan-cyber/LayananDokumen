@@ -141,7 +141,7 @@ function RedeliveryBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* KOP SURAT (Disediakan oleh user / Perusahaan Pemohon) */}
-      <div className="text-center mb-6 break-inside-avoid border-b-2 border-slate-900 pb-4">
+      <div className="text-center mb-6 border-b-2 border-slate-900 pb-4">
         <h1 className="font-bold text-2xl uppercase tracking-wider text-slate-900">{data.perusahaanPemohon}</h1>
       </div>
 
@@ -158,17 +158,17 @@ function RedeliveryBuilder() {
         </div>
       </div>
 
-      <div className="mb-4 text-center break-inside-avoid">
+      <div className="mb-4 text-center">
         <h2 className="font-bold text-lg underline uppercase">PERMOHONAN REDELIVERY / PERUBAHAN TUJUAN</h2>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>Dengan hormat,</p>
         <p>Sehubungan dengan kedatangan kapal dan peti kemas di bawah pengawasan perusahaan pelayaran Bapak/Ibu, kami selaku pihak terkait memohon bantuan untuk melakukan perubahan rute/tujuan akhir (Redelivery) dengan rincian data sebagai berikut:</p>
       </div>
 
       {/* DATA SHIPMENT */}
-      <div className="mb-4 break-inside-avoid">
+      <div className="mb-4">
         <h3 className="font-bold uppercase text-xs mb-1">A. Data Pengiriman (Shipment Details)</h3>
         <div className="ml-4 border border-slate-400 p-2 text-sm bg-slate-50 print:bg-transparent print:border-black">
             <div className="flex"><div className="w-48 font-bold">Vessel / Voyage</div><div className="w-4">:</div><div className="flex-1 uppercase">{data.vessel}</div></div>
@@ -183,7 +183,7 @@ function RedeliveryBuilder() {
       </div>
 
       {/* PERUBAHAN TUJUAN */}
-      <div className="mb-4 break-inside-avoid">
+      <div className="mb-4">
         <h3 className="font-bold uppercase text-xs mb-1">B. Rincian Perubahan (Redelivery Details)</h3>
         <div className="flex ml-4 border border-slate-400 print:border-black text-sm">
             <div className="flex-1 p-2 border-r border-slate-400 print:border-black bg-rose-50 print:bg-transparent">
@@ -199,19 +199,19 @@ function RedeliveryBuilder() {
         </div>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>Alasan dilakukannya perubahan/redelivery ini adalah: <strong>{data.alasan}</strong></p>
       </div>
 
       {/* INDEMNITY CLAUSE */}
       {data.indemnityClause && (
-        <div className="mb-6 text-justify break-inside-avoid border border-slate-400 print:border-black p-3 text-sm italic">
+        <div className="mb-6 text-justify border border-slate-400 print:border-black p-3 text-sm italic">
             <strong>LETTER OF INDEMNITY (Klausul Ganti Rugi):</strong><br/>
             Dengan disetujuinya permohonan perubahan ini, kami membebaskan pihak {data.shippingLine} dari segala tuntutan hukum, klaim kerugian material maupun imaterial dari pihak manapun di kemudian hari atas perubahan tujuan penyerahan barang ini. Kami bersedia menanggung seluruh biaya tambahan yang timbul akibat proses redelivery ini.
         </div>
       )}
 
-      <div className="mb-10 text-justify break-inside-avoid">
+      <div className="mb-10 text-justify">
         <p>Demikian surat permohonan ini kami sampaikan. Atas perhatian dan kerjasama Bapak/Ibu, kami ucapkan terima kasih.</p>
       </div>
 

@@ -211,7 +211,7 @@ function DebtAgreementBuilder() {
           </p>
 
           <div className="mb-4 space-y-4">
-            <div className="break-inside-avoid">
+            <div className="">
                 <div className="flex mb-1">
                     <div className="w-6">1.</div>
                     <div className="w-40 font-semibold">Nama Lengkap</div>
@@ -247,7 +247,7 @@ function DebtAgreementBuilder() {
                 </p>
             </div>
 
-            <div className="break-inside-avoid mt-4">
+            <div className="mt-4">
                 <div className="flex mb-1">
                     <div className="w-6">2.</div>
                     <div className="w-40 font-semibold">Nama Lengkap</div>
@@ -293,7 +293,7 @@ function DebtAgreementBuilder() {
             <li>Bahwa PARA PIHAK sepakat untuk mengikatkan diri dalam Perjanjian Hutang Piutang ini dengan syarat dan ketentuan yang diatur dalam pasal-pasal di bawah ini.</li>
           </ul>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mb-4 mt-6">
                 <p>PASAL 1</p>
                 <p>OBJEK PERJANJIAN</p>
@@ -305,7 +305,7 @@ function DebtAgreementBuilder() {
               </ol>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mb-4 mt-6">
                 <p>PASAL 2</p>
                 <p>JANGKA WAKTU DAN JATUH TEMPO</p>
@@ -316,7 +316,7 @@ function DebtAgreementBuilder() {
               </ol>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mb-4 mt-6">
                 <p>PASAL 3</p>
                 <p>MEKANISME PENGEMBALIAN DAN BUNGA</p>
@@ -331,7 +331,7 @@ function DebtAgreementBuilder() {
               </ol>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mb-4 mt-6">
                 <p>PASAL 4</p>
                 <p>JAMINAN (AGUNAN)</p>
@@ -349,7 +349,7 @@ function DebtAgreementBuilder() {
               </ol>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mb-4 mt-6">
                 <p>PASAL 5</p>
                 <p>SANKSI DAN WANPRESTASI</p>
@@ -362,7 +362,7 @@ function DebtAgreementBuilder() {
               </ol>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mb-4 mt-6">
                 <p>PASAL 6</p>
                 <p>FORCE MAJEURE (KEADAAN MEMAKSA)</p>
@@ -374,7 +374,7 @@ function DebtAgreementBuilder() {
               </ol>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mb-4 mt-6">
                 <p>PASAL 7</p>
                 <p>PENYELESAIAN SENGKETA</p>
@@ -385,7 +385,7 @@ function DebtAgreementBuilder() {
               </ol>
           </div>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="text-center font-bold mb-4 mt-6">
                 <p>PASAL 8</p>
                 <p>PENUTUP</p>
@@ -396,12 +396,12 @@ function DebtAgreementBuilder() {
               </ol>
           </div>
 
-          <p className="mt-8 mb-12 text-justify break-inside-avoid">
+          <p className="mt-8 mb-12 text-justify">
             Demikian Surat Perjanjian ini dibuat dan ditandatangani oleh PARA PIHAK di <strong>{data.city}</strong> pada hari dan tanggal sebagaimana tersebut pada awal Perjanjian, dalam keadaan sadar dan tanpa adanya paksaan dari pihak manapun.
           </p>
 
           {/* SIGNATURES */}
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="flex justify-between px-8 text-center text-sm mb-12">
                   <div className="w-64">
                      <p className="font-bold uppercase mb-1">PIHAK KEDUA (DEBITUR)</p>
@@ -444,7 +444,7 @@ function DebtAgreementBuilder() {
           </p>
 
           <div className="mb-4 space-y-4">
-            <div className="break-inside-avoid">
+            <div className="">
                 <div className="flex mb-1">
                     <div className="w-6"></div>
                     <div className="w-40 font-semibold">Nama Lengkap</div>
@@ -486,7 +486,7 @@ function DebtAgreementBuilder() {
           </p>
 
           <div className="mb-6 space-y-4">
-            <div className="break-inside-avoid">
+            <div className="">
                 <div className="flex mb-1">
                     <div className="w-6"></div>
                     <div className="w-40 font-semibold">Nama Lengkap</div>
@@ -515,7 +515,7 @@ function DebtAgreementBuilder() {
             Sehubungan dengan pengakuan hutang tersebut, Saya dengan ini menyetujui dan mengikatkan diri pada ketentuan-ketentuan sebagai berikut:
           </p>
 
-          <div className="break-inside-avoid">
+          <div className="">
               <ol className="list-decimal ml-8 space-y-2 text-justify mb-8">
                 <li>Bahwa Saya benar-benar memiliki hutang sejumlah <strong>{formatRupiah(data.amount)} ({data.amountText})</strong> yang telah Saya terima secara penuh pada tanggal <strong>{formatDateSafe(data.loanDate)}</strong>.</li>
                 <li>Bahwa Saya berjanji dan sanggup akan melunasi hutang tersebut paling lambat pada tanggal <strong>{formatDateSafe(data.dueDate)}</strong>.</li>
@@ -525,12 +525,12 @@ function DebtAgreementBuilder() {
               </ol>
           </div>
 
-          <p className="mt-8 mb-12 text-justify break-inside-avoid">
+          <p className="mt-8 mb-12 text-justify">
             Demikian Surat Pernyataan Pengakuan Hutang ini Saya buat dengan sebenar-benarnya dalam keadaan sehat jasmani dan rohani, serta tanpa adanya paksaan dari pihak manapun untuk dapat dipergunakan sebagaimana mestinya.
           </p>
 
           {/* SIGNATURES */}
-          <div className="break-inside-avoid">
+          <div className="">
               <div className="flex justify-end text-center text-sm mb-12 mt-8">
                   <div className="w-64">
                      <p className="font-bold uppercase mb-2">YANG MEMBUAT PERNYATAAN,</p>
@@ -617,7 +617,7 @@ function DebtAgreementBuilder() {
 
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-32 custom-scrollbar">
               
-              <div className="bg-emerald-50 rounded-2xl shadow-sm border border-emerald-100 overflow-hidden break-inside-avoid">
+              <div className="bg-emerald-50 rounded-2xl shadow-sm border border-emerald-100 overflow-hidden">
                 <div className="px-4 py-3 border-b border-emerald-200 flex items-center gap-2">
                    <Wallet size={14} className="text-emerald-600" />
                    <h3 className="text-xs font-bold text-emerald-800 uppercase">Isi Otomatis (Preset)</h3>

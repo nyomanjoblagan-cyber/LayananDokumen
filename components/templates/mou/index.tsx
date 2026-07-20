@@ -136,20 +136,20 @@ function MOUBuilder() {
     return (
       <Kertas>
         {/* JUDUL */}
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h1 className="font-bold text-lg uppercase tracking-wider underline">SURAT PERJANJIAN KERJASAMA (MOU)</h1>
             <p className="mt-1 font-bold">Tentang {data.cooperationTitle}</p>
         </div>
 
         {/* PEMBUKA */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>
                 Pada hari ini, <strong>{data.day}</strong> tanggal <strong>{formatDateSafe(data.date)}</strong>, bertempat di <strong>{data.city}</strong>, kami yang bertanda tangan di bawah ini:
             </p>
         </div>
 
         {/* PIHAK PERTAMA */}
-        <div className="mb-6 ml-6 break-inside-avoid">
+        <div className="mb-6 ml-6">
             <div className="flex mb-1"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p1Name}</div></div>
             <div className="flex mb-1"><div className="w-40">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.p1Nik}</div></div>
             <div className="flex mb-1"><div className="w-40">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.p1Pob}, {formatDateSafe(data.p1Dob)}</div></div>
@@ -161,7 +161,7 @@ function MOUBuilder() {
         </div>
 
         {/* PIHAK KEDUA */}
-        <div className="mb-6 ml-6 break-inside-avoid">
+        <div className="mb-6 ml-6">
             <div className="flex mb-1"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.p2Name}</div></div>
             <div className="flex mb-1"><div className="w-40">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.p2Nik}</div></div>
             <div className="flex mb-1"><div className="w-40">Tempat, Tanggal Lahir</div><div className="w-4">:</div><div className="flex-1">{data.p2Pob}, {formatDateSafe(data.p2Dob)}</div></div>
@@ -172,7 +172,7 @@ function MOUBuilder() {
             </div>
         </div>
 
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <p>
                 PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama selanjutnya disebut <strong>PARA PIHAK</strong>. 
                 Dengan ini PARA PIHAK sepakat untuk mengikatkan diri dalam Perjanjian Kerjasama dengan ketentuan dan syarat-syarat (Pasal-pasal) sebagai berikut:
@@ -180,7 +180,7 @@ function MOUBuilder() {
         </div>
 
         {/* PASAL 1 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-2">PASAL 1<br/>RUANG LINGKUP KERJASAMA</h3>
             <p>
                 Ruang lingkup kerjasama ini adalah {data.scope}
@@ -188,7 +188,7 @@ function MOUBuilder() {
         </div>
 
         {/* PASAL 2 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-2">PASAL 2<br/>HAK DAN KEWAJIBAN PIHAK PERTAMA</h3>
             <ol className="list-decimal pl-5 space-y-1">
                 <li><strong>Hak Pihak Pertama:</strong> {data.rightsP1}</li>
@@ -197,7 +197,7 @@ function MOUBuilder() {
         </div>
 
         {/* PASAL 3 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-2">PASAL 3<br/>HAK DAN KEWAJIBAN PIHAK KEDUA</h3>
             <ol className="list-decimal pl-5 space-y-1">
                 <li><strong>Hak Pihak Kedua:</strong> {data.rightsP2}</li>
@@ -206,7 +206,7 @@ function MOUBuilder() {
         </div>
 
         {/* PASAL 4 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-2">PASAL 4<br/>NILAI PEMBIAYAAN DAN PEMBAYARAN</h3>
             <ol className="list-decimal pl-5 space-y-1">
                 <li>Nilai total pembiayaan atas kerjasama ini adalah sebesar <strong>{data.financingAmount}</strong>.</li>
@@ -216,7 +216,7 @@ function MOUBuilder() {
         </div>
 
         {/* PASAL 5 */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-2">PASAL 5<br/>JANGKA WAKTU</h3>
             <p>
                 Perjanjian ini berlaku selama <strong>{data.period}</strong> terhitung sejak tanggal ditandatanganinya perjanjian ini, 
@@ -225,14 +225,14 @@ function MOUBuilder() {
         </div>
 
         {/* PASAL 6: ENTERPRISE CLAUSES */}
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-2">PASAL 6<br/>FORCE MAJEURE (KEADAAN KAHAR)</h3>
             <p>
                 PARA PIHAK dibebaskan dari tanggung jawab atas keterlambatan atau kegagalan dalam memenuhi kewajiban yang disebabkan oleh keadaan memaksa (Force Majeure) seperti bencana alam, huru-hara, perang, atau kebijakan pemerintah yang menghalangi pelaksanaan kewajiban. Pihak yang mengalami Force Majeure wajib memberitahukan secara tertulis kepada pihak lainnya selambat-lambatnya 7 (tujuh) hari kalender sejak kejadian.
             </p>
         </div>
 
-        <div className="mb-6 text-justify break-inside-avoid">
+        <div className="mb-6 text-justify">
             <h3 className="font-bold text-center mb-2">PASAL 7<br/>PENYELESAIAN SENGKETA & DOMISILI HUKUM</h3>
             <p>
                 Apabila di kemudian hari timbul sengketa atau perselisihan akibat pelaksanaan perjanjian ini, PARA PIHAK sepakat untuk menyelesaikannya secara musyawarah untuk mufakat. Apabila musyawarah tidak mencapai mufakat, maka PARA PIHAK sepakat untuk menyelesaikan sengketa tersebut melalui Kantor Kepaniteraan Pengadilan Negeri setempat.
@@ -240,7 +240,7 @@ function MOUBuilder() {
         </div>
 
         {/* PENUTUP */}
-        <div className="mb-12 text-justify break-inside-avoid">
+        <div className="mb-12 text-justify">
             <p>
                 Demikian Perjanjian Kerjasama (MOU) ini dibuat dalam rangkap 2 (dua), masing-masing bermeterai cukup dan mempunyai kekuatan hukum yang sama, ditandatangani oleh PARA PIHAK dalam keadaan sadar dan tanpa paksaan dari pihak manapun.
             </p>

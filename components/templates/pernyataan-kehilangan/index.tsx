@@ -114,11 +114,11 @@ function LossReportBuilder() {
 
     return (
       <Kertas>
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h1 className="font-bold text-xl tracking-wide uppercase border-b-[3px] border-black inline-block pb-1">SURAT PERNYATAAN KEHILANGAN</h1>
         </div>
 
-        <div className="mb-6 break-inside-avoid text-justify">
+        <div className="mb-6 text-justify">
             <p>Yang bertanda tangan di bawah ini:</p>
             <div className="ml-4 mt-2">
                 <table className="w-full text-justify">
@@ -134,7 +134,7 @@ function LossReportBuilder() {
             </div>
         </div>
 
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>
                 Dengan ini menyatakan dengan sebenar-benarnya bahwa saya telah <strong>KEHILANGAN</strong> barang/dokumen penting dengan rincian sebagai berikut:
             </p>
@@ -149,7 +149,7 @@ function LossReportBuilder() {
             </div>
         </div>
 
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>Barang/dokumen tersebut diperkirakan hilang pada:</p>
             <div className="ml-4 mt-2 mb-2">
                 <table className="w-full">
@@ -164,7 +164,7 @@ function LossReportBuilder() {
             <p className="indent-8 mt-1 italic">"{data.lossChronology}"</p>
         </div>
 
-        <div className="mb-8 text-justify break-inside-avoid">
+        <div className="mb-8 text-justify">
             <p className="mb-2">Adapun upaya pencarian yang telah dilakukan adalah: <em>"{data.searchEfforts}"</em>.</p>
             <p className="mb-2">Surat pernyataan ini dibuat dengan tujuan: <strong>{data.purpose}</strong>.</p>
             <p className="mt-4 font-bold border-l-4 border-slate-900 pl-3 py-1 bg-slate-100 italic">

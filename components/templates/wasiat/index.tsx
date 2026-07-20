@@ -165,17 +165,17 @@ function TestamentBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL */}
-      <div className="text-center mb-10 break-inside-avoid">
+      <div className="text-center mb-10">
         <h1 className="text-2xl font-bold uppercase tracking-widest underline decoration-2 underline-offset-4">SURAT WASIAT</h1>
         <p className="mt-2 text-sm font-semibold tracking-widest">(LAST WILL AND TESTAMENT)</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Pada hari ini, tanggal {formatDateDisplay(data.date)}, bertempat di {data.city}, saya yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* PEWASIAT */}
-      <div className="mb-6 pl-4 border-l-2 border-black ml-4 break-inside-avoid">
+      <div className="mb-6 pl-4 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-40 font-bold">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.testatorName}</div></div>
         <div className="flex mb-1"><div className="w-40">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.testatorNik}</div></div>
         <div className="flex mb-1"><div className="w-40">Tempat, Tgl Lahir</div><div className="w-4">:</div><div className="flex-1">{data.testatorBirthPlace}, {formatDateDisplay(data.testatorBirthDate)}</div></div>
@@ -183,13 +183,13 @@ function TestamentBuilder() {
         <div className="flex mb-1"><div className="w-40">Alamat</div><div className="w-4">:</div><div className="flex-1 text-justify">{data.testatorAddress}</div></div>
       </div>
 
-      <div className="text-justify mb-6 break-inside-avoid leading-relaxed">
+      <div className="text-justify mb-6 leading-relaxed">
         <p>Selanjutnya disebut sebagai <strong>"PEWASIAT"</strong>.</p>
         <p className="mt-3">Dengan keadaan sehat jasmani dan rohani, sadar sepenuhnya tanpa adanya paksaan, tekanan, atau pengaruh dari pihak manapun, dengan ini menyatakan kehendak terakhir dan wasiat (<i>Testament</i>) saya sebagai berikut:</p>
       </div>
 
       {/* PASAL 1 - EKSEKUTOR */}
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold mb-2">PASAL 1 - PENUNJUKAN PELAKSANA WASIAT (EKSEKUTOR)</h3>
         <p className="mb-2">Saya menunjuk dan memberi kuasa penuh kepada:</p>
         <div className="pl-4 border-l-2 border-black ml-4 mb-2">
@@ -201,12 +201,12 @@ function TestamentBuilder() {
       </div>
 
       {/* PASAL 2 - PEMBAGIAN */}
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold mb-2">PASAL 2 - PEMBAGIAN HARTA WARISAN (AHLI WARIS / PENERIMA WASIAT)</h3>
         <p className="mb-3">Saya memberikan dan mewasiatkan harta benda milik saya kepada pihak-pihak di bawah ini, dengan rincian sebagai berikut:</p>
         
         {data.beneficiaries.map((b, i) => (
-            <div key={b.id} className="mb-4 pl-4 border-l-2 border-black ml-4 break-inside-avoid">
+            <div key={b.id} className="mb-4 pl-4 border-l-2 border-black ml-4">
                 <p className="font-bold">2.{i+1} Diberikan Kepada: <span className="uppercase">{b.name}</span></p>
                 <div className="flex mb-1"><div className="w-32">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{b.nik}</div></div>
                 <div className="flex mb-1"><div className="w-32">Status/Hubungan</div><div className="w-4">:</div><div className="flex-1">{b.relation}</div></div>
@@ -216,7 +216,7 @@ function TestamentBuilder() {
       </div>
 
       {/* PASAL 3 - PESAN KHUSUS */}
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold mb-2">PASAL 3 - PESAN DAN KEHENDAK KHUSUS</h3>
         <p className="italic pl-4 border-l-2 border-gray-400 ml-4 leading-relaxed">
             "{data.specialMessage}"
@@ -224,7 +224,7 @@ function TestamentBuilder() {
       </div>
 
       {/* PASAL 4 - PENUTUP */}
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
         <h3 className="font-bold mb-2">PASAL 4 - KETENTUAN PENUTUP</h3>
         <p className="leading-relaxed">
             Surat Wasiat ini membatalkan dan mencabut semua wasiat, hibah wasiat, atau janji-janji pembagian harta yang pernah saya buat sebelumnya. Apabila terdapat bagian dari Surat Wasiat ini yang dianggap tidak sah secara hukum, maka tidak akan membatalkan pasal-pasal lain yang sah.

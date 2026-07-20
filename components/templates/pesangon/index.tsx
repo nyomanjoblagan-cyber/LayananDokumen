@@ -167,17 +167,17 @@ function PesangonBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* HEADER */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h1 className="font-bold text-lg tracking-wider uppercase underline">PERJANJIAN BERSAMA (BIPARTIT)</h1>
         <p className="font-bold tracking-widest text-sm mt-1">PENYELESAIAN PEMUTUSAN HUBUNGAN KERJA (PHK)</p>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>Pada hari ini, tanggal <strong>{formatDateSafe(data.date)}</strong> bertempat di <strong>{data.city}</strong>, telah disepakati Perjanjian Bersama Penyelesaian Pemutusan Hubungan Kerja (selanjutnya disebut "Perjanjian") oleh dan antara:</p>
       </div>
 
       {/* PIHAK PERTAMA */}
-      <div className="mb-4 break-inside-avoid">
+      <div className="mb-4">
         <h3 className="font-bold mb-1">I. PIHAK PERTAMA (PERUSAHAAN)</h3>
         <div className="ml-6">
             <div className="flex mb-1"><div className="w-48 align-top">Nama Lengkap</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold uppercase align-top">{data.p1Name}</div></div>
@@ -190,7 +190,7 @@ function PesangonBuilder() {
       </div>
 
       {/* PIHAK KEDUA */}
-      <div className="mb-6 break-inside-avoid">
+      <div className="mb-6">
         <h3 className="font-bold mb-1">II. PIHAK KEDUA (KARYAWAN)</h3>
         <div className="ml-6">
             <div className="flex mb-1"><div className="w-48 align-top">Nama Lengkap</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold uppercase align-top">{data.p2Name}</div></div>
@@ -202,14 +202,14 @@ function PesangonBuilder() {
         </div>
       </div>
 
-      <div className="mb-4 text-justify break-inside-avoid">
+      <div className="mb-4 text-justify">
         <p>
             Pihak Pertama dan Pihak Kedua secara bersama-sama disebut "Para Pihak". Para Pihak dengan itikad baik telah mencapai kesepakatan mufakat terkait Pemutusan Hubungan Kerja dengan ketentuan dan syarat-syarat sebagai berikut:
         </p>
       </div>
 
       {/* KLAUSUL PASAL-PASAL */}
-      <div className="mb-6 break-inside-avoid text-justify space-y-4">
+      <div className="mb-6 text-justify space-y-4">
         <div>
             <h3 className="font-bold text-center mb-1">Pasal 1<br/>PEMUTUSAN HUBUNGAN KERJA</h3>
             <p>
@@ -253,7 +253,7 @@ function PesangonBuilder() {
         </div>
       </div>
 
-      <div className="mb-10 text-justify break-inside-avoid">
+      <div className="mb-10 text-justify">
         <p>Demikian Perjanjian Bersama (Bipartit) ini dibuat dalam keadaan sadar, sehat jasmani dan rohani, bermeterai cukup dan memiliki kekuatan hukum yang mengikat Para Pihak.</p>
       </div>
 

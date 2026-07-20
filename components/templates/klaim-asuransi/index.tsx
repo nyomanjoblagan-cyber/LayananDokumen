@@ -147,7 +147,7 @@ function KlaimBuilder() {
             </div>
         </div>
 
-        <div className="mb-6 break-inside-avoid">
+        <div className="mb-6">
             <p>Kepada Yth.,</p>
             <p className="font-bold uppercase">{data.namaPerusahaanAsuransi}</p>
             <div className="whitespace-pre-line">{data.alamatAsuransi}</div>
@@ -157,7 +157,7 @@ function KlaimBuilder() {
         <p className="mb-4 text-justify">Yang bertanda tangan di bawah ini, Pemegang Polis/Tertanggung:</p>
 
         {/* TERTANGGUNG */}
-        <div className="mb-6 ml-8 break-inside-avoid">
+        <div className="mb-6 ml-8">
             <div className="flex mb-1"><div className="w-40">Nama Lengkap</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.namaTertanggung}</div></div>
             <div className="flex mb-1"><div className="w-40">Nomor Polis</div><div className="w-4">:</div><div className="flex-1 font-bold font-mono">{data.noPolis}</div></div>
             <div className="flex mb-1"><div className="w-40">Nomor KTP/Identitas</div><div className="w-4">:</div><div className="flex-1">{data.noIdentitas}</div></div>
@@ -169,7 +169,7 @@ function KlaimBuilder() {
         <p className="mb-4 text-justify">Bersama surat ini, saya bermaksud untuk mengajukan klaim atas kerugian yang saya alami pada pertanggungan asuransi tersebut, dengan rincian kejadian sebagai berikut:</p>
 
         {/* KEJADIAN */}
-        <div className="mb-6 ml-8 break-inside-avoid">
+        <div className="mb-6 ml-8">
             <div className="flex mb-1"><div className="w-40">Waktu Kejadian</div><div className="w-4">:</div><div className="flex-1 font-bold">{formatDateSafe(data.tanggalKejadian)} / Jam {data.waktuKejadian}</div></div>
             <div className="flex mb-1"><div className="w-40 align-top">Lokasi Kejadian</div><div className="w-4 align-top">:</div><div className="flex-1 font-bold text-justify">{data.lokasiKejadian}</div></div>
             <div className="flex mb-1"><div className="w-40">Penyebab</div><div className="w-4">:</div><div className="flex-1 text-rose-700 font-bold">{data.penyebabKejadian}</div></div>
@@ -186,7 +186,7 @@ function KlaimBuilder() {
         </p>
 
         {/* REKENING */}
-        <div className="mb-8 ml-8 break-inside-avoid">
+        <div className="mb-8 ml-8">
             <div className="flex mb-1"><div className="w-40">Nama Bank</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.namaBank}</div></div>
             <div className="flex mb-1"><div className="w-40">Kantor Cabang</div><div className="w-4">:</div><div className="flex-1">{data.cabangBank}</div></div>
             <div className="flex mb-1"><div className="w-40">Nomor Rekening</div><div className="w-4">:</div><div className="flex-1 font-bold font-mono text-lg">{data.noRekening}</div></div>

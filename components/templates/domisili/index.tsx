@@ -151,7 +151,7 @@ function DomisiliBuilder() {
        </div>
 
        {/* IDENTITAS PIHAK KEDUA */}
-       <div className="ml-8 mb-6 break-inside-avoid">
+       <div className="ml-8 mb-6">
            <div className="flex mb-1"><span className="w-44 inline-block">Nama Lengkap</span><span className="mr-2">:</span><span className="font-bold uppercase">{data.namaPihakKedua}</span></div>
            <div className="flex mb-1"><span className="w-44 inline-block">NIK</span><span className="mr-2">:</span><span>{data.nikPihakKedua}</span></div>
            <div className="flex mb-1"><span className="w-44 inline-block">Tempat, Tgl Lahir</span><span className="mr-2">:</span><span>{data.tempatLahirPihakKedua}, {data.tanggalLahirPihakKedua}</span></div>
@@ -175,7 +175,7 @@ function DomisiliBuilder() {
                <p className="mb-4">
                    Bahwa nama yang tersebut di atas adalah Penanggung Jawab / Pimpinan dari Perusahaan/Badan Usaha:
                </p>
-               <div className="ml-8 mb-4 break-inside-avoid">
+               <div className="ml-8 mb-4">
                    <div className="flex mb-1"><span className="w-44 inline-block">Nama Perusahaan</span><span className="mr-2">:</span><span className="font-bold uppercase">{data.namaPerusahaan}</span></div>
                    <div className="flex mb-1"><span className="w-44 inline-block">Akta Pendirian</span><span className="mr-2">:</span><span>{data.aktaPendirian}</span></div>
                    <div className="flex mb-1"><span className="w-44 inline-block">NPWP Perusahaan</span><span className="mr-2">:</span><span>{data.npwpPerusahaan}</span></div>
@@ -198,7 +198,7 @@ function DomisiliBuilder() {
        </div>
 
        {/* PENGESAHAN (TANDA TANGAN) */}
-       <div className="mt-8 break-inside-avoid">
+       <div className="mt-8">
           <div className="flex justify-between text-center items-stretch mb-4">
              <div className="w-[45%] flex flex-col justify-between">
                 <p className="mb-4 invisible">Tanda Tangan</p>

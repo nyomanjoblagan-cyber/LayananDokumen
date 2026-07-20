@@ -160,17 +160,17 @@ function SPKBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL */}
-      <div className="text-center mb-6 break-inside-avoid">
+      <div className="text-center mb-6">
         <h2 className="font-bold text-xl underline uppercase tracking-widest">SURAT PERINTAH KERJA (SPK)</h2>
         <p className="font-bold mt-1">Nomor: {data.docNo}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Pada hari ini, tanggal <strong>{formatDateDisplay(data.docDate)}</strong>, bertempat di <strong>{data.city}</strong>, yang bertanda tangan di bawah ini:</p>
       </div>
 
       {/* PIHAK PERTAMA */}
-      <div className="mb-4 break-inside-avoid pl-4">
+      <div className="mb-4 pl-4">
         <div className="flex mb-1"><div className="w-32 font-bold">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.pihak1Name}</div></div>
         <div className="flex mb-1"><div className="w-32">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.pihak1Nik}</div></div>
         <div className="flex mb-1"><div className="w-32">TTL</div><div className="w-4">:</div><div className="flex-1">{data.pihak1Birth}</div></div>
@@ -181,7 +181,7 @@ function SPKBuilder() {
       </div>
 
       {/* PIHAK KEDUA */}
-      <div className="mb-6 break-inside-avoid pl-4">
+      <div className="mb-6 pl-4">
         <div className="flex mb-1"><div className="w-32 font-bold">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.pihak2Name}</div></div>
         <div className="flex mb-1"><div className="w-32">NIK</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.pihak2Nik}</div></div>
         <div className="flex mb-1"><div className="w-32">TTL</div><div className="w-4">:</div><div className="flex-1">{data.pihak2Birth}</div></div>
@@ -191,12 +191,12 @@ function SPKBuilder() {
         <p className="mt-2">Dalam hal ini bertindak untuk dan atas nama Instansi/Perusahaan tersebut, selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong> (Pelaksana Pekerjaan).</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Kedua belah pihak sepakat untuk mengikatkan diri dalam Perjanjian/Surat Perintah Kerja ini dengan ketentuan dan syarat-syarat sebagai berikut:</p>
       </div>
 
       {/* PASAL-PASAL */}
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold underline text-center mb-2">PASAL 1 : LINGKUP PEKERJAAN</h3>
         <p>PIHAK PERTAMA memberikan tugas dan PIHAK KEDUA menerima tugas tersebut untuk melaksanakan pekerjaan dengan rincian sebagai berikut:</p>
         <div className="pl-4 mt-2">
@@ -205,13 +205,13 @@ function SPKBuilder() {
         </div>
       </div>
 
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold underline text-center mb-2">PASAL 2 : JANGKA WAKTU PELAKSANAAN</h3>
         <p>1. Pekerjaan tersebut pada Pasal 1 harus diselesaikan dalam waktu yang telah ditetapkan.</p>
         <p>2. Waktu pelaksanaan dimulai pada tanggal <strong>{formatDateDisplay(data.startDate)}</strong> dan harus selesai seluruhnya pada tanggal <strong>{formatDateDisplay(data.endDate)}</strong>.</p>
       </div>
 
-      <div className="mb-6 text-justify break-inside-avoid">
+      <div className="mb-6 text-justify">
         <h3 className="font-bold underline text-center mb-2">PASAL 3 : NILAI KONTRAK & PEMBAYARAN</h3>
         <p>1. Total Nilai Pekerjaan (Nilai Kontrak) disepakati sebesar <strong>{formatRupiah(data.totalAmount)}</strong> (<em>{terbilang(data.totalAmount)} Rupiah</em>), sudah termasuk pajak dan biaya-biaya lain yang timbul dalam pelaksanaan pekerjaan.</p>
         <p>2. Sistem pembayaran dilakukan secara bertahap:</p>
@@ -223,14 +223,14 @@ function SPKBuilder() {
         <p className="mt-2">3. Pembayaran ditransfer ke rekening PIHAK KEDUA: <strong>{data.bankAccount}</strong>.</p>
       </div>
 
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
         <h3 className="font-bold underline text-center mb-2">PASAL 4 : DENDA & MASA PEMELIHARAAN</h3>
         <p>1. Masa Pemeliharaan disepakati selama <strong>{data.masaPemeliharaan}</strong> terhitung sejak Berita Acara Serah Terima (BAST) I ditandatangani.</p>
         <p>2. Keterlambatan penyelesaian pekerjaan akan dikenakan denda sebesar <strong>{data.dendaPerHari}</strong> per hari keterlambatan.</p>
         <p>3. Apabila terjadi sengketa, akan diselesaikan secara musyawarah dan kekeluargaan.</p>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid">
+      <div className="text-justify mb-8">
         <p>Demikian Surat Perintah Kerja (SPK) ini dibuat dalam rangkap 2 (dua), bermaterai cukup dan masing-masing mempunyai kekuatan hukum yang sama.</p>
       </div>
 

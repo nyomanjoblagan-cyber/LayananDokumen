@@ -107,40 +107,40 @@ function PaklaringBuilder() {
     return (
       <Kertas>
         {/* KOP SURAT (CORPORATE) */}
-        <div className="text-center border-b-[3px] border-black pb-4 mb-8 break-inside-avoid relative">
+        <div className="text-center border-b-[3px] border-black pb-4 mb-8 relative">
             <h1 className="font-black uppercase text-2xl tracking-widest text-blue-900 print:text-black">{data.namaPerusahaan}</h1>
             <p className="text-[10pt] mt-1">{data.alamatPerusahaan}</p>
             <p className="text-[10pt] font-mono">{data.kontakPerusahaan}</p>
         </div>
 
         {/* JUDUL SURAT */}
-        <div className="text-center mb-8 break-inside-avoid">
+        <div className="text-center mb-8">
             <h4 className="font-bold text-xl uppercase tracking-wider underline">SURAT KETERANGAN PENGALAMAN KERJA</h4>
             <p className="mt-1 font-mono text-sm tracking-widest uppercase">CERTIFICATE OF EMPLOYMENT</p>
             <p className="mt-1 font-mono text-sm">No: {data.nomorSurat}</p>
         </div>
 
         {/* PEMBUKA */}
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>
                 Yang bertanda tangan di bawah ini:
             </p>
         </div>
 
-        <div className="mb-6 ml-6 break-inside-avoid">
+        <div className="mb-6 ml-6">
             <div className="flex mb-1"><div className="w-48">Nama</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.namaPimpinan}</div></div>
             <div className="flex mb-1"><div className="w-48">Jabatan</div><div className="w-4">:</div><div className="flex-1">{data.jabatanPimpinan}</div></div>
             <div className="flex mb-1"><div className="w-48">Perusahaan</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.namaPerusahaan}</div></div>
         </div>
 
-        <div className="mb-4 text-justify break-inside-avoid">
+        <div className="mb-4 text-justify">
             <p>
                 Dengan ini menerangkan dengan sesungguhnya bahwa:
             </p>
         </div>
 
         {/* KARYAWAN */}
-        <div className="mb-6 ml-6 break-inside-avoid">
+        <div className="mb-6 ml-6">
             <div className="flex mb-1"><div className="w-48 font-bold">Nama Karyawan</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase">{data.namaKaryawan}</div></div>
             <div className="flex mb-1"><div className="w-48">Nomor Induk Karyawan (NIK)</div><div className="w-4">:</div><div className="flex-1 font-mono">{data.nikKaryawan}</div></div>
             <div className="flex mb-1"><div className="w-48">Jabatan Terakhir</div><div className="w-4">:</div><div className="flex-1 font-bold">{data.jabatanTerakhir}</div></div>
@@ -148,7 +148,7 @@ function PaklaringBuilder() {
         </div>
 
         {/* ISI KETERANGAN */}
-        <div className="mb-4 text-justify break-inside-avoid leading-relaxed">
+        <div className="mb-4 text-justify leading-relaxed">
             <p>
                 Telah bekerja pada perusahaan kami, <strong>{data.namaPerusahaan}</strong> terhitung sejak tanggal <strong>{formatDateSafe(data.masaKerjaMulai)}</strong> sampai dengan tanggal <strong>{formatDateSafe(data.masaKerjaAkhir)}</strong>.
             </p>
@@ -162,7 +162,7 @@ function PaklaringBuilder() {
         </div>
 
         {/* PENUTUP */}
-        <div className="mb-16 text-justify break-inside-avoid">
+        <div className="mb-16 text-justify">
             <p>
                 Demikian Surat Keterangan Pengalaman Kerja (Paklaring) ini dibuat dengan sebenarnya agar dapat dipergunakan sebagaimana mestinya.
             </p>

@@ -159,17 +159,17 @@ function PaymentOrderBuilder() {
       </div>
 
       {/* JUDUL */}
-      <div className="text-center mb-8 break-inside-avoid">
+      <div className="text-center mb-8">
         <h2 className="font-bold text-xl underline uppercase tracking-widest">SURAT PERINTAH BAYAR</h2>
         <p className="font-bold mt-1">Nomor: {data.docNo}</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Bersama surat ini, kami memberikan instruksi dan perintah kepada Bagian Keuangan / Bendahara Perusahaan untuk segera melakukan pencairan dana / pembayaran kepada pihak di bawah ini:</p>
       </div>
 
       {/* DATA PENERIMA & TRANSAKSI */}
-      <div className="mb-6 break-inside-avoid pl-4 border-l-2 border-black ml-4">
+      <div className="mb-6 pl-4 border-l-2 border-black ml-4">
         <div className="flex mb-1"><div className="w-48 font-bold">Nama Penerima / Vendor</div><div className="w-4">:</div><div className="flex-1 font-bold uppercase text-[12pt]">{data.recipientName}</div></div>
         <div className="flex mb-1"><div className="w-48">Bank Tujuan</div><div className="w-4">:</div><div className="flex-1">{data.recipientBank}</div></div>
         <div className="flex mb-1"><div className="w-48">Nomor Rekening</div><div className="w-4">:</div><div className="flex-1 font-mono font-bold">{data.recipientAccount}</div></div>
@@ -177,7 +177,7 @@ function PaymentOrderBuilder() {
         <div className="flex mb-1"><div className="w-48 italic">Terbilang</div><div className="w-4">:</div><div className="flex-1 italic">"{data.amountText}"</div></div>
       </div>
 
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
         <p className="mb-2">Pembayaran tersebut merupakan pelunasan / penyelesaian atas:</p>
         <p className="font-bold uppercase text-center bg-gray-100 p-2 border border-gray-300 rounded mb-4">"{data.purpose}"</p>
         <p>Pembayaran ini harus diproses paling lambat 1 (satu) hari kerja setelah Surat Perintah Bayar ini ditandatangani. Segala bukti transfer atau tanda terima pembayaran harap dilampirkan bersama dokumen ini sebagai bukti kas keluar perusahaan.</p>
