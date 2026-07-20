@@ -120,11 +120,11 @@ function KuasaToolBuilder() {
   const DocumentContent = () => (
     <Kertas>
       {/* JUDUL */}
-      <div className="text-center mb-8 break-inside-avoid mt-8">
+      <div className="text-center mb-8 mt-8">
         <h2 className="font-bold text-xl underline uppercase tracking-widest">SURAT KUASA {data.jenisKuasa}</h2>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Yang bertanda tangan di bawah ini:</p>
       </div>
 
@@ -138,7 +138,7 @@ function KuasaToolBuilder() {
         <p className="mt-2 text-justify">Selanjutnya dalam Surat Kuasa ini disebut sebagai <strong>PEMBERI KUASA</strong>.</p>
       </div>
 
-      <div className="text-justify mb-4 break-inside-avoid">
+      <div className="text-justify mb-4">
         <p>Dengan ini memberikan kuasa penuh dengan hak substitusi sebagaimana disebutkan di bawah ini, kepada:</p>
       </div>
 
@@ -152,12 +152,12 @@ function KuasaToolBuilder() {
         <p className="mt-2 text-justify">Selanjutnya dalam Surat Kuasa ini disebut sebagai <strong>PENERIMA KUASA</strong>.</p>
       </div>
 
-      <div className="mb-6 text-center break-inside-avoid">
+      <div className="mb-6 text-center">
         <h3 className="font-bold underline text-lg tracking-widest uppercase">--- KHUSUS UNTUK ---</h3>
       </div>
 
       {/* ISI KUASA */}
-      <div className="mb-8 text-justify break-inside-avoid">
+      <div className="mb-8 text-justify">
         <p className="font-bold uppercase text-center mb-4">"{data.purposeTitle}"</p>
         <div className="whitespace-pre-line leading-relaxed">{data.purposeDetail}</div>
         <p className="mt-4">
@@ -168,7 +168,7 @@ function KuasaToolBuilder() {
         </p>
       </div>
 
-      <div className="text-justify mb-8 break-inside-avoid">
+      <div className="text-justify mb-8">
         <p>Demikian Surat Kuasa ini dibuat dengan sebenar-benarnya dalam keadaan sadar dan tanpa paksaan dari pihak manapun, untuk dipergunakan sebagaimana mestinya.</p>
       </div>
 
