@@ -290,7 +290,7 @@ function B2BShippingLabelBuilder() {
           </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] relative z-10 print:block print:h-auto print:overflow-visible">
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] relative z-10 print:hidden">
         
         {/* EDITOR SIDEBAR */}
         <div className={`no-print w-full md:w-[480px] bg-slate-900/60 backdrop-blur-xl border-r border-white/10 flex flex-col h-full absolute md:relative z-20 transition-transform duration-300 ${mobileView === 'preview' ? '-translate-x-full print:translate-x-0 md:translate-x-0' : 'translate-x-0'}`}>
