@@ -466,7 +466,7 @@ export default function HomePage() {
             <h5 className="text-slate-900 font-bold text-sm flex items-center gap-2"><ShieldCheck size={16} className="text-emerald-600" />LayananDokumen.com</h5>
             <p className="text-[11px] leading-relaxed text-slate-500 pr-4">Platform utilitas publik gratis. Praktis, Cepat, dan Aman.</p>
           </div>
-          <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-[11px]">
+          <div className="md:col-span-7 grid grid-cols-2 gap-6 text-[11px]">
             <div><h6 className="text-slate-900 font-semibold mb-2">Populer</h6>
               <ul className="space-y-1">
                 <li><Link href="/tools/hutang" className="hover:text-emerald-600">Hutang Piutang</Link></li>
@@ -480,9 +480,6 @@ export default function HomePage() {
                 <li><Link href="/legalitas?tab=disclaimer" className="hover:text-emerald-600">Disclaimer</Link></li>
                 <li><Link href="/legalitas?tab=syarat" className="hover:text-emerald-600">Syarat Ketentuan</Link></li>
               </ul>
-            </div>
-            <div className="text-right flex flex-col justify-end">
-              <p className="text-[10px] text-slate-400">&copy; 2026 LayananDokumen.com</p>
             </div>
           </div>
         </div>
