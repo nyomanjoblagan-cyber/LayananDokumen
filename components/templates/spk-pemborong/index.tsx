@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useFormSync } from '@/lib/useFormSync';
-import { PrintWrapper } from '@/components/shared/PrintWrapper';
+import PrintWrapper from '@/components/PrintWrapper';
 
 const INITIAL_DATA = {
   hari: 'Senin',
