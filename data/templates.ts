@@ -655,5 +655,26 @@ export const TEMPLATES: Record<string, any> = {
     seoGuide: "Kesepakatan Harta Gono-Gini digunakan oleh pasangan bercerai untuk membagi rumah, kendaraan, atau melunasi utang bersama secara damai, sebelum dibawa ke ranah hukum.",
     category: "Legal & Aset",
     price: 20000
+  },
+  "sewa-vila": {
+    title: "Perjanjian Sewa Vila / Properti Komersial Otomatis",
+    description: "Generator Kontrak Sewa Vila Jangka Panjang (Leasehold). Dilengkapi klausul anti sub-lease dan deportasi.",
+    seoGuide: "Kontrak premium untuk penyewaan vila atau properti komersial kepada WNA/Ekspatriat. Lindungi aset miliaran Anda dengan klausul asuransi dan larangan menyewakan kembali (AirBnb).",
+    category: "Legal & Aset",
+    price: 35000
+  },
+  "vendor-supplier": {
+    title: "Perjanjian Kerjasama Vendor & Supplier Otomatis",
+    description: "Generator Kontrak Pengadaan Barang B2B. Kunci SLA, denda, dan termin pembayaran invoice.",
+    seoGuide: "Kontrak wajib untuk departemen Purchasing / Pengadaan. Kunci supplier Anda agar patuh pada standar kualitas (SLA) dan hindari manipulasi tagihan.",
+    category: "Bisnis & UMKM",
+    price: 20000
+  },
+  "kontrak-it": {
+    title: "Kontrak Jasa IT / Freelance Developer Otomatis",
+    description: "Generator Kontrak Jasa Pembuatan Website/Software. Amankan hak developer atas Source Code.",
+    seoGuide: "Senjata andalan freelancer IT. Tetapkan batasan revisi maksimal, termin pembayaran, dan tahan Source Code sampai pelunasan 100% dari klien diterima.",
+    category: "Bisnis & UMKM",
+    price: 25000
   }
 };

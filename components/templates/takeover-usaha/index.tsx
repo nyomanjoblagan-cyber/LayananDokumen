@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useFormSync } from '@/lib/hooks/useFormSync';
+import { useFormSync } from '@/lib/useFormSync';
 import { PrintWrapper } from '@/components/shared/PrintWrapper';
 
 const INITIAL_DATA = {
@@ -36,8 +36,18 @@ const INITIAL_DATA = {
 };
 
 export default function TakeoverUsahaTemplate() {
-  const { data, handleChange, resetForm } = useFormSync(INITIAL_DATA, 'takeover_usaha_data');
+  const [data, setData] = useFormSync<any>(INITIAL_DATA);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+
+  const handleChange = (field: string, value: string) => {
+    setData((prev: any) => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    if (confirm('Reset semua isian data?')) {
+      setData(INITIAL_DATA);
+    }
+  };
 
   const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
     <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-black font-serif leading-relaxed text-[12pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>

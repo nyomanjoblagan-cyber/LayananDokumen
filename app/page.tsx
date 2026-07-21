@@ -34,6 +34,8 @@ export default function HomePage() {
         { name: "Perjanjian Distributor/Reseller", href: "/tools/distributor" },
         { name: "Perjanjian Pemborong (Kontraktor)", href: "/tools/spk-pemborong" },
         { name: "Takeover (Oper Alih) Usaha", href: "/tools/takeover-usaha" },
+        { name: "Kerjasama Vendor/Supplier", href: "/tools/vendor-supplier" },
+        { name: "Kontrak IT Freelance", href: "/tools/kontrak-it" },
         { name: "Perjanjian Bagi Hasil (Syirkah)", href: "/tools/bagi-hasil" },
         { name: "Surat Perintah Bayar", href: "/tools/spb" },
         { name: "Surat Konfirmasi Pesanan", href: "/tools/konfirmasi-order" },
@@ -72,6 +74,7 @@ export default function HomePage() {
         { name: "Surat Perjanjian Jual Beli Tanah", href: "/tools/jual-beli-tanah" },
         { name: "Surat Perjanjian Jual Beli Kendaraan", href: "/tools/jual-beli-kendaraan" },
         { name: "Surat Perjanjian Sewa Rumah / Ruko", href: "/tools/sewa-rumah" },
+        { name: "Perjanjian Sewa Vila (Leasehold)", href: "/tools/sewa-vila" },
         { name: "Surat Perjanjian Hutang Piutang", href: "/tools/hutang-piutang" },
         { name: "Surat Somasi (Teguran Hukum)", href: "/tools/somasi" },
         { name: "Surat Perjanjian Pra-Nikah", href: "/tools/pra-nikah" },
@@ -322,9 +325,9 @@ export default function HomePage() {
                       [
                         { name: "Surat Perjanjian Hutang Piutang", tag: "Legal", href: "/tools/hutang-piutang" },
                         { name: "Surat Jual Beli Tanah", tag: "Legal", href: "/tools/jual-beli-tanah" },
-                        { name: "CV Maker ATS Friendly", tag: "Karir", href: "/tools/cv" },
+                        { name: "Sewa Vila/Properti (Leasehold)", tag: "Properti", href: "/tools/sewa-vila" },
                         { name: "Surat Somasi (Teguran Hukum)", tag: "Legal", href: "/tools/somasi" },
-                        { name: "Surat Izin Orang Tua / Suami", tag: "Karir", href: "/tools/izin-ortu" },
+                        { name: "Kontrak IT Freelancer", tag: "Bisnis", href: "/tools/kontrak-it" },
                         { name: "Draft Gugatan Cerai (Pengadilan)", tag: "Legal", href: "/tools/gugatan-cerai" },
                         { name: "Perjanjian Pemborong (Kontraktor)", tag: "Bisnis", href: "/tools/spk-pemborong" },
                       ].map((item, idx) => (

@@ -109,4 +109,7 @@ export const TemplateRegistry: Record<string, React.ComponentType<any>> = {
   "gugatan-cerai": dynamic(() => import('@/components/templates/gugatan-cerai')),
   "takeover-usaha": dynamic(() => import('@/components/templates/takeover-usaha')),
   "gono-gini": dynamic(() => import('@/components/templates/gono-gini')),
+  "sewa-vila": dynamic(() => import('@/components/templates/sewa-vila')),
+  "vendor-supplier": dynamic(() => import('@/components/templates/vendor-supplier')),
+  "kontrak-it": dynamic(() => import('@/components/templates/kontrak-it')),
 };
