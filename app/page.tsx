@@ -32,6 +32,8 @@ export default function HomePage() {
         { name: "Jaminan (Garansi) Barang", href: "/tools/garansi" },
         { name: "Surat Pengaduan Konsumen", href: "/tools/pengaduan" },
         { name: "Perjanjian Distributor/Reseller", href: "/tools/distributor" },
+        { name: "Perjanjian Pemborong (Kontraktor)", href: "/tools/spk-pemborong" },
+        { name: "Takeover (Oper Alih) Usaha", href: "/tools/takeover-usaha" },
         { name: "Perjanjian Bagi Hasil (Syirkah)", href: "/tools/bagi-hasil" },
         { name: "Surat Perintah Bayar", href: "/tools/spb" },
         { name: "Surat Konfirmasi Pesanan", href: "/tools/konfirmasi-order" },
@@ -78,6 +80,8 @@ export default function HomePage() {
         { name: "MoU Kerjasama", href: "/tools/mou" },
         { name: "Surat Kesepakatan Ahli Waris", href: "/tools/ahli-waris" },
         { name: "Surat Perjanjian Damai", href: "/tools/perjanjian-damai" },
+        { name: "Draft Gugatan Cerai Pengadilan", href: "/tools/gugatan-cerai" },
+        { name: "Kesepakatan Harta Gono-Gini", href: "/tools/gono-gini" },
         { name: "Surat Gadai Aset", href: "/tools/gadai" },
         { name: "Surat Pernyataan Waris", href: "/tools/pernyataan-waris" },
         { name: "Surat Hibah", href: "/tools/hibah" },
@@ -321,7 +325,8 @@ export default function HomePage() {
                         { name: "CV Maker ATS Friendly", tag: "Karir", href: "/tools/cv" },
                         { name: "Surat Somasi (Teguran Hukum)", tag: "Legal", href: "/tools/somasi" },
                         { name: "Surat Izin Orang Tua / Suami", tag: "Karir", href: "/tools/izin-ortu" },
-                        { name: "Kuitansi Pembayaran", tag: "Bisnis", href: "/tools/kuitansi" },
+                        { name: "Draft Gugatan Cerai (Pengadilan)", tag: "Legal", href: "/tools/gugatan-cerai" },
+                        { name: "Perjanjian Pemborong (Kontraktor)", tag: "Bisnis", href: "/tools/spk-pemborong" },
                       ].map((item, idx) => (
                         <li key={idx}>
                            <Link href={item.href} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-500 hover:shadow-md hover:bg-white transition-all group">

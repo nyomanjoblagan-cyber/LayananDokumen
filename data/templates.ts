@@ -628,4 +628,32 @@ export const TEMPLATES: Record<string, any> = {
     seoGuide: "Panduan lengkap mengenai Surat Wasiat. Dokumen ini sangat penting untuk keperluan administrasi resmi. Melalui generator ini, Anda dapat menyusunnya secara instan tanpa perlu repot mengatur format di Microsoft Word. Cukup lengkapi data yang diperlukan pada formulir, dan sistem akan meracik teks beserta tata letaknya secara otomatis menjadi file PDF yang siap cetak.",
     category: "Legal & Aset"
   },
+  "spk-pemborong": {
+    title: "Buat Surat Perjanjian Pemborong Bangunan Otomatis",
+    description: "Generator Surat Perjanjian Pemborong (Kontraktor) Bangunan online. Atur retensi garansi dan denda proyek.",
+    seoGuide: "Surat Perjanjian Pemborong Bangunan sangat krusial untuk mencegah penipuan oleh tukang/kontraktor. Atur termin pembayaran, spesifikasi material, dan denda keterlambatan proyek.",
+    category: "Bisnis & UMKM",
+    price: 15000
+  },
+  "gugatan-cerai": {
+    title: "Draft Gugatan Cerai Pengadilan Agama Otomatis",
+    description: "Generator Surat Gugatan Cerai atau Cerai Talak untuk Pengadilan Agama. Presisi sesuai Kompilasi Hukum Islam.",
+    seoGuide: "Draft Surat Gugatan Cerai (Istri) atau Cerai Talak (Suami) yang siap diajukan ke Pengadilan Agama. Meliputi tuntutan hak asuh anak dan pembagian harta.",
+    category: "Legal & Aset",
+    price: 25000
+  },
+  "takeover-usaha": {
+    title: "Buat Surat Perjanjian Oper Alih (Takeover) Usaha Otomatis",
+    description: "Generator Surat Perjanjian Takeover Kios, Bisnis, atau Franchise online. Lengkap dengan pengalihan aset dan sewa.",
+    seoGuide: "Surat Perjanjian Oper Alih (Takeover) Usaha diperlukan saat membeli bisnis yang sedang berjalan, untuk memindahkan hak sewa, aset, dan mengikat penjual dari potensi sengketa.",
+    category: "Bisnis & UMKM",
+    price: 15000
+  },
+  "gono-gini": {
+    title: "Buat Kesepakatan Pembagian Harta Gono-Gini Otomatis",
+    description: "Generator Surat Kesepakatan Pembagian Harta Bersama (Gono-Gini) di Luar Pengadilan.",
+    seoGuide: "Kesepakatan Harta Gono-Gini digunakan oleh pasangan bercerai untuk membagi rumah, kendaraan, atau melunasi utang bersama secara damai, sebelum dibawa ke ranah hukum.",
+    category: "Legal & Aset",
+    price: 20000
+  }
 };
