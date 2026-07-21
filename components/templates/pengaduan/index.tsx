@@ -439,7 +439,7 @@ function ComplaintBuilder() {
         </aside>
 
         {/* PREVIEW AREA */}
-        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide`}>
+        <main className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-200/50 overflow-y-auto p-4 md:p-8 lg:p-12 justify-center scrollbar-hide print:hidden`}>
            <div className="scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 origin-top">
               <DocumentContent />
            </div>
