@@ -164,7 +164,7 @@ function PenghasilanOrtuBuilder() {
   };
 
   const Kertas = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-[20mm] text-black font-serif leading-relaxed text-[12pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>
+    <div className={`bg-white shadow-2xl print:shadow-none mx-auto p-[20mm] print:p-0 text-black font-serif leading-relaxed text-[12pt] relative box-border mb-8 print:mb-0 print:m-0 w-[210mm] print:w-full print:min-w-0 min-h-[297mm] print:min-h-0 h-auto ${className}`}>
       {children}
     </div>
   );
@@ -635,6 +635,16 @@ function PenghasilanOrtuBuilder() {
           <button onClick={() => setMobileView('preview')} className={`flex-1 rounded-xl text-xs font-bold transition-all duration-300 ${mobileView === 'preview' ? 'bg-emerald-600 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}>PREVIEW</button>
       </div>
 
+      {/* GLOBAL CSS PRINT */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: A4 portrait; margin: 15mm; } 
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .no-print { display: none !important; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
+          * { box-sizing: border-box !important; }
+        }
+      ` }} />
       <div id="print-only-root" className="hidden print:h-auto print:static"><div className="bg-white"><DocumentContent /></div></div>
     
       <div id="print-options" className="no-print w-full max-w-4xl mx-auto p-4 mb-10">

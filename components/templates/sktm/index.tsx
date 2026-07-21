@@ -429,6 +429,16 @@ function SktmBuilder() {
         </div>
       </main>
 
+      {/* GLOBAL CSS PRINT */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: A4 portrait; margin: 15mm; } 
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .no-print { display: none !important; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
+          * { box-sizing: border-box !important; }
+        }
+      ` }} />
     </div>
   );
 }
