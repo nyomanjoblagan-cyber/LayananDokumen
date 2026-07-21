@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { useFormSync } from '@/lib/useFormSync';
 import PrintWrapper from '@/components/PrintWrapper';
+import Link from 'next/link';
+import { Printer, ArrowLeftCircle, Edit3, FileText, RotateCcw, User } from 'lucide-react';
 
 const INITIAL_DATA = {
   kotaPembuatan: 'Jakarta Selatan',
@@ -161,34 +163,69 @@ export default function GugatanCeraiTemplate() {
   );
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-slate-50 font-sans">
-      <main className="flex-1 flex flex-col md:flex-row overflow-hidden h-screen print:h-auto print:overflow-visible">
-        
-        {/* PANEL KIRI - FORM */}
-        <div className={`no-print ${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex w-full md:w-[450px] lg:w-[500px] flex-col bg-white border-r border-slate-200 shadow-xl z-10 h-full`}>
-          <div className="p-5 border-b border-slate-200 bg-white sticky top-0 z-20">
-            <div className="flex justify-between items-center mb-3">
-              <div>
-                <h2 className="text-lg font-bold text-slate-800">Draft Gugatan Cerai</h2>
-                <p className="text-xs text-slate-500">Standar Pengadilan Agama (KHI)</p>
-              </div>
-              <button onClick={resetForm} className="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition-colors">
-                Reset
-              </button>
-            </div>
-            
-            {/* DISCLAIMER EKSTRA KERAS */}
-            <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-r-lg">
-               <p className="text-[10px] font-bold text-red-700 leading-tight">PERINGATAN HUKUM:</p>
-               <p className="text-[10px] text-red-600 leading-tight mt-1">Dokumen ini adalah <b>draf dasar</b> untuk peradilan mandiri tanpa pengacara (Pro Se). Keputusan akhir penerimaan kelengkapan Posita & Petitum sepenuhnya bergantung pada kebijakan Majelis Hakim PA setempat.</p>
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+      {/* BULLETPROOF PRINT CSS */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: A4 portrait; margin: 15mm; } 
+          html, body { height: auto !important; overflow: visible !important; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .no-print { display: none !important; }
+          #print-only-root { display: block !important; position: static !important; width: 100%; background: white; }
+          * { box-sizing: border-box !important; }
+        }
+      ` }} />
+
+      {/* HEADER NAVBAR */}
+      <div className="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-[999] border-b border-slate-800 h-16 flex items-center px-4 justify-between font-sans">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+              <ArrowLeftCircle size={20} className="text-purple-400" />
+              <span className="font-bold tracking-wide text-sm hidden md:inline">Dashboard</span>
+            </Link>
+            <div className="h-6 w-px bg-slate-700 mx-1"></div>
+            <div className="flex flex-col">
+              <h1 className="font-black text-sm tracking-widest uppercase text-white">Draft Gugatan Cerai</h1>
             </div>
           </div>
+          <div className="flex items-center gap-3">
+            <span className="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-300 hidden md:inline-block">
+                LEGAL FORMAL FORMAT
+            </span>
+            <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="bg-purple-600 hover:bg-purple-500 px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-purple-900/50 active:scale-95 flex items-center gap-2 transition-all">
+              <Printer size={16} /> <span className="hidden md:inline">Cetak PDF</span>
+            </button>
+          </div>
+      </div>
 
-          <div className="flex-1 overflow-y-auto p-5 custom-scrollbar pb-24 md:pb-5">
-            <div className="space-y-6">
+      {/* MOBILE TABS */}
+      <div className="md:hidden flex bg-white border-b border-slate-200 sticky top-16 z-[998] no-print font-sans">
+        <button onClick={() => setMobileView('editor')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'editor' ? 'text-purple-700 border-b-2 border-purple-700 bg-purple-50' : 'text-slate-500'}`}>
+          <Edit3 size={16} /> Editor
+        </button>
+        <button onClick={() => setMobileView('preview')} className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${mobileView === 'preview' ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50' : 'text-slate-500'}`}>
+          <Printer size={16} /> Preview
+        </button>
+      </div>
+
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden print:h-auto print:overflow-visible print:block relative">
+        
+        {/* EDITOR SIDEBAR */}
+        <aside className={`${mobileView === 'editor' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-[480px] lg:w-[540px] bg-slate-50 border-r border-slate-200 h-full z-[90] no-print shadow-xl shrink-0`}>
+            <div className="p-5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
+                <h2 className="font-black text-slate-800 uppercase tracking-tight text-sm flex items-center gap-2">
+                  <FileText size={18} className="text-purple-600" /> Editor Legal
+                </h2>
+                <button onClick={resetForm} className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-lg" title="Reset Form">
+                  <RotateCcw size={16}/>
+                </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar pb-32">
               
-              <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 border-b pb-2">Informasi Pendaftaran</h3>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <User size={14} className="text-purple-600"/> Informasi Pendaftaran
+                  </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="block text-xs font-medium text-slate-600 mb-1">Kota Pembuatan</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.kotaPembuatan} onChange={(e) => handleChange('kotaPembuatan', e.target.value)} /></div>
                   <div><label className="block text-xs font-medium text-slate-600 mb-1">Tgl Pembuatan</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.tanggalPembuatan} onChange={(e) => handleChange('tanggalPembuatan', e.target.value)} /></div>
@@ -208,8 +245,10 @@ export default function GugatanCeraiTemplate() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 border-b pb-2">Data {labelPihak1} (Anda)</h3>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <User size={14} className="text-purple-600"/> Data {labelPihak1} (Anda)
+                  </h3>
                 <div><label className="block text-xs font-medium text-slate-600 mb-1">Nama Lengkap Sesuai KTP</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.penggugatNama} onChange={(e) => handleChange('penggugatNama', e.target.value)} /></div>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="block text-xs font-medium text-slate-600 mb-1">Umur</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.penggugatUmur} onChange={(e) => handleChange('penggugatUmur', e.target.value)} /></div>
@@ -218,8 +257,10 @@ export default function GugatanCeraiTemplate() {
                 <div><label className="block text-xs font-medium text-slate-600 mb-1">Tempat Kediaman (Domisili)</label><textarea className="w-full p-2 border border-slate-300 rounded-lg text-sm" rows={2} value={data.penggugatAlamat} onChange={(e) => handleChange('penggugatAlamat', e.target.value)}></textarea></div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 border-b pb-2">Data {labelPihak2} (Pasangan)</h3>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <User size={14} className="text-purple-600"/> Data {labelPihak2} (Pasangan)
+                  </h3>
                 <div><label className="block text-xs font-medium text-slate-600 mb-1">Nama Lengkap Pasangan</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.tergugatNama} onChange={(e) => handleChange('tergugatNama', e.target.value)} /></div>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="block text-xs font-medium text-slate-600 mb-1">Umur</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.tergugatUmur} onChange={(e) => handleChange('tergugatUmur', e.target.value)} /></div>
@@ -228,8 +269,10 @@ export default function GugatanCeraiTemplate() {
                 <div><label className="block text-xs font-medium text-slate-600 mb-1">Tempat Kediaman Terakhir</label><textarea className="w-full p-2 border border-slate-300 rounded-lg text-sm" rows={2} value={data.tergugatAlamat} onChange={(e) => handleChange('tergugatAlamat', e.target.value)}></textarea></div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 border-b pb-2">Fakta Pernikahan & Anak</h3>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <User size={14} className="text-purple-600"/> Fakta Pernikahan & Anak
+                  </h3>
                 <div><label className="block text-xs font-medium text-slate-600 mb-1">Tanggal Menikah</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.tanggalNikah} onChange={(e) => handleChange('tanggalNikah', e.target.value)} /></div>
                 <div><label className="block text-xs font-medium text-slate-600 mb-1">KUA Pencatat Nikah</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.kuaPencatat} onChange={(e) => handleChange('kuaPencatat', e.target.value)} /></div>
                 <div><label className="block text-xs font-medium text-slate-600 mb-1">No. Kutipan Buku Nikah</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.noKutipanNikah} onChange={(e) => handleChange('noKutipanNikah', e.target.value)} /></div>
@@ -240,32 +283,31 @@ export default function GugatanCeraiTemplate() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 border-b pb-2">Posita (Alasan Perceraian Utama)</h3>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <User size={14} className="text-purple-600"/> Posita (Alasan Perceraian Utama)
+                  </h3>
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-1">Deskripsikan alasan pisah secara rinci (Faktor ekonomi, KDRT, Pisah Rumah, dll)</label>
                   <textarea className="w-full p-3 border border-slate-300 rounded-lg text-sm leading-relaxed" rows={7} value={data.alasanCerai} onChange={(e) => handleChange('alasanCerai', e.target.value)}></textarea>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 border-b pb-2">Tuntutan Finansial (Petitum)</h3>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <User size={14} className="text-purple-600"/> Tuntutan Finansial (Petitum)
+                  </h3>
                 {!isTalak && (
                   <div><label className="block text-xs font-medium text-slate-600 mb-1">Tuntutan Nafkah Iddah/Mut'ah (Rp)</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.tuntutanNafkahIddah} onChange={(e) => handleChange('tuntutanNafkahIddah', e.target.value)} /></div>
                 )}
                 <div><label className="block text-xs font-medium text-slate-600 mb-1">Tuntutan Nafkah Anak per Bulan (Rp)</label><input type="text" className="w-full p-2 border border-slate-300 rounded-lg text-sm" value={data.tuntutanNafkahAnak} onChange={(e) => handleChange('tuntutanNafkahAnak', e.target.value)} /></div>
               </div>
 
-            </div>
-          </div>
-        </div>
+                        </div>
+        </aside>
 
-        {/* PANEL KANAN - PREVIEW */}
+        {/* PREVIEW AREA (BULLETPROOF PRINT TARGET) */}
         <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block print:h-auto print:w-full`}>
-           {/* FLOATING PRINT BUTTON */}
-           <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="no-print fixed md:absolute bottom-24 md:bottom-auto md:top-8 right-6 md:right-8 z-[100] bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-2xl shadow-2xl shadow-emerald-900/50 flex items-center gap-2 font-bold uppercase tracking-wider transition-all hover:scale-105 active:scale-95">
-              🖨️ Cetak PDF
-           </button>
            <div id="print-only-root" className="print:w-full print:max-w-none print:min-w-0 print:min-h-0 mx-auto origin-top transition-transform duration-300 scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 mb-[-120mm] md:mb-0 print:scale-100 print:transform-none print:mb-0">
               <DocumentContent />
            </div>
