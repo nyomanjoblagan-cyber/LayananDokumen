@@ -235,6 +235,10 @@ export default function KontrakItTemplate() {
 
         {/* PANEL KANAN - PREVIEW */}
         <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-slate-300 overflow-y-auto p-4 md:p-8 flex-col items-center custom-scrollbar print:overflow-visible print:p-0 print:block print:h-auto print:w-full`}>
+           {/* FLOATING PRINT BUTTON */}
+           <button onClick={() => { if(typeof window !== 'undefined') window.dispatchEvent(new Event('open-print-modal')); }} className="no-print fixed md:absolute bottom-24 md:bottom-auto md:top-8 right-6 md:right-8 z-[100] bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-2xl shadow-2xl shadow-emerald-900/50 flex items-center gap-2 font-bold uppercase tracking-wider transition-all hover:scale-105 active:scale-95">
+              🖨️ Cetak PDF
+           </button>
            <div id="print-only-root" className="print:w-full print:max-w-none print:min-w-0 print:min-h-0 mx-auto origin-top transition-transform duration-300 scale-[0.6] sm:scale-75 md:scale-[0.85] lg:scale-100 mb-[-120mm] md:mb-0 print:scale-100 print:transform-none print:mb-0">
               <DocumentContent />
            </div>
