@@ -137,10 +137,10 @@ function SktmBuilder() {
       {/* KOP SURAT */}
       <div className="flex items-center border-b-4 border-double border-black pb-4 mb-6">
         <div className="flex-1 text-center px-4">
-            <h2 className="text-xl font-bold uppercase tracking-wider">PEMERINTAH KABUPATEN {data.regencyName}</h2>
-            <h2 className="text-xl font-bold uppercase tracking-wider">KECAMATAN {data.subdistrictName}</h2>
-            <h1 className="text-2xl font-black uppercase tracking-widest my-1">DESA {data.villageName}</h1>
-            <p className="text-xs">{data.villageAddress}</p>
+            <h2 className="text-lg font-bold uppercase tracking-wide leading-tight">PEMERINTAH KABUPATEN {data.regencyName}</h2>
+            <h2 className="text-lg font-bold uppercase tracking-wide leading-tight">KECAMATAN {data.subdistrictName}</h2>
+            <h1 className="text-xl font-black uppercase tracking-wider my-1 leading-tight">DESA {data.villageName}</h1>
+            <p className="text-[10px] leading-tight">{data.villageAddress}</p>
         </div>
       </div>
 

@@ -195,10 +195,10 @@ function PenghasilanOrtuBuilder() {
                   
                   {/* TEXT KOP */}
                   <div className="flex-1 text-center px-4">
-                      <h1 className="font-bold text-xl uppercase tracking-wide m-0 leading-tight">{data.kopPemda}</h1>
-                      <h1 className="font-bold text-xl uppercase tracking-wide m-0 leading-tight">{data.kecamatan}</h1>
-                      <h1 className="font-bold text-2xl uppercase tracking-widest m-0 leading-tight mt-1">{data.desa}</h1>
-                      <p className="text-sm mt-2 font-normal m-0">{data.alamatDesa}</p>
+                      <h1 className="font-bold text-lg uppercase tracking-wide m-0 leading-tight">{data.kopPemda}</h1>
+                      <h1 className="font-bold text-lg uppercase tracking-wide m-0 leading-tight">{data.kecamatan}</h1>
+                      <h1 className="font-bold text-xl uppercase tracking-wider m-0 leading-tight mt-1">{data.desa}</h1>
+                      <p className="text-[10px] mt-1 font-normal m-0 leading-tight">{data.alamatDesa}</p>
                   </div>
                   
                   {/* EMPTY SPACE FOR BALANCE */}

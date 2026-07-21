@@ -137,9 +137,9 @@ function PengantarRtBuilder() {
           <Kertas>
               {/* KOP SURAT */}
               <div className="text-center mb-6 pb-2 border-b-[3px] border-black flex flex-col items-center">
-                  <h1 className="font-bold text-xl uppercase tracking-wider">RUKUN TETANGGA (RT) {data.rt} / RUKUN WARGA (RW) {data.rw}</h1>
-                  <h2 className="font-bold text-lg uppercase">DESA/KELURAHAN {data.desa}, KECAMATAN {data.kecamatan}</h2>
-                  <p className="text-sm uppercase">KABUPATEN/KOTA {data.kabupaten}</p>
+                  <h1 className="font-bold text-lg uppercase tracking-wider">RUKUN TETANGGA (RT) {data.rt} / RUKUN WARGA (RW) {data.rw}</h1>
+                  <h2 className="font-bold text-[11pt] uppercase mt-1">DESA/KELURAHAN {data.desa}, KECAMATAN {data.kecamatan}</h2>
+                  <p className="text-[10pt] uppercase mt-0.5">KABUPATEN/KOTA {data.kabupaten}</p>
               </div>
               
               {/* TITLE */}
