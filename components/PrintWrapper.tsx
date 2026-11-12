@@ -29,6 +29,27 @@ export default function PrintWrapper({
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
   const [isRecovering, setIsRecovering] = useState(false);
 
+  // Dapatkan identifier dokumen yang stabil (berbasis slug URL jika ada, fallback ke documentName)
+  const getDocKey = () => {
+    if (typeof window !== 'undefined') {
+      const match = window.location.pathname.match(/\/tools\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    return documentName.toLowerCase().replace(/[^a-zA-Z0-9_-]/g, '_');
+  };
+
+  const getViralUrl = () => {
+    if (typeof window !== 'undefined') {
+      const match = window.location.pathname.match(/\/tools\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        return `https://layanandokumen.com/tools/${match[1]}`;
+      }
+    }
+    return 'https://layanandokumen.com';
+  };
+
   useEffect(() => {
     // 1. Keamanan Dasar: Paksa mode 'print-free' aktif sejak awal (Mencegah bypass Ctrl+P)
     if (!isPremium) {
@@ -58,14 +79,18 @@ export default function PrintWrapper({
     const handleOpen = () => {
       // Cek apakah ada sesi premium aktif untuk dokumen ini (24 jam)
       try {
-        const storageKey = 'layanandokumen_paid_' + documentName.replace(/\s+/g, '_');
-        const expiredAt = localStorage.getItem(storageKey);
+        const docKey = getDocKey();
+        const primaryKey = 'layanandokumen_paid_' + docKey;
+        const legacyKey = 'layanandokumen_paid_' + documentName.replace(/\s+/g, '_');
+        
+        const expiredAt = localStorage.getItem(primaryKey) || localStorage.getItem(legacyKey);
         if (expiredAt && parseInt(expiredAt) > Date.now()) {
           setIsPremium(true);
         }
         
-        const pendingKey = 'layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_');
-        const savedPendingId = localStorage.getItem(pendingKey);
+        const primaryPendingKey = 'layanandokumen_pending_order_' + docKey;
+        const legacyPendingKey = 'layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_');
+        const savedPendingId = localStorage.getItem(primaryPendingKey) || localStorage.getItem(legacyPendingKey);
         if (savedPendingId) {
           setPendingOrderId(savedPendingId);
         }
@@ -132,8 +157,9 @@ export default function PrintWrapper({
 
       // Simpan pending order id sebelum popup Snap terbuka
       try {
-        const pendingKey = 'layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_');
-        localStorage.setItem(pendingKey, resData.order_id);
+        const docKey = getDocKey();
+        localStorage.setItem('layanandokumen_pending_order_' + docKey, resData.order_id);
+        localStorage.setItem('layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_'), resData.order_id);
         setPendingOrderId(resData.order_id);
       } catch(e) {}
 
@@ -141,14 +167,15 @@ export default function PrintWrapper({
         onSuccess: function (result: any) {
           console.log('Payment success:', result);
           
-          // Simpan sesi premium ke localStorage selama 24 jam (Typo Protection)
+          // Simpan sesi premium ke localStorage selama 24 jam (Typo & Edit Protection)
           try {
-            const storageKey = 'layanandokumen_paid_' + documentName.replace(/\s+/g, '_');
+            const docKey = getDocKey();
             const expireTime = Date.now() + (24 * 60 * 60 * 1000); // 24 jam dari sekarang
-            localStorage.setItem(storageKey, expireTime.toString());
+            localStorage.setItem('layanandokumen_paid_' + docKey, expireTime.toString());
+            localStorage.setItem('layanandokumen_paid_' + documentName.replace(/\s+/g, '_'), expireTime.toString());
             
-            const pendingKey = 'layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_');
-            localStorage.removeItem(pendingKey);
+            localStorage.removeItem('layanandokumen_pending_order_' + docKey);
+            localStorage.removeItem('layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_'));
             setPendingOrderId(null);
           } catch (e) {}
           
@@ -185,12 +212,13 @@ export default function PrintWrapper({
       const data = await res.json();
 
       if (res.ok && data.status === 'success') {
-        const storageKey = 'layanandokumen_paid_' + documentName.replace(/\s+/g, '_');
+        const docKey = getDocKey();
         const expireTime = Date.now() + (24 * 60 * 60 * 1000);
-        localStorage.setItem(storageKey, expireTime.toString());
+        localStorage.setItem('layanandokumen_paid_' + docKey, expireTime.toString());
+        localStorage.setItem('layanandokumen_paid_' + documentName.replace(/\s+/g, '_'), expireTime.toString());
         
-        const pendingKey = 'layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_');
-        localStorage.removeItem(pendingKey);
+        localStorage.removeItem('layanandokumen_pending_order_' + docKey);
+        localStorage.removeItem('layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_'));
         setPendingOrderId(null);
         setIsPremium(true);
         alert('Pemulihan berhasil! Akses Cetak Premium Anda telah aktif kembali.');
@@ -207,12 +235,12 @@ export default function PrintWrapper({
   };
 
   if (!isOpen) {
-    return !isPremium ? <ViralWatermark url={`https://layanandokumen.com/tools/${documentName.toLowerCase().replace(/\s+/g, '-')}`} /> : null;
+    return !isPremium ? <ViralWatermark url={getViralUrl()} /> : null;
   }
 
   return (
     <>
-    {!isPremium && <ViralWatermark url={`https://layanandokumen.com/tools/${documentName.toLowerCase().replace(/\s+/g, '-')}`} />}
+    {!isPremium && <ViralWatermark url={getViralUrl()} />}
     <div id="print-modal-overlay" className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl relative animate-in zoom-in-95 duration-200">
         <button onClick={() => setIsOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
@@ -330,12 +358,6 @@ export default function PrintWrapper({
       {/* GLOBAL PRINT STYLES UNTUK NATIVE WINDOW PRINT */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { 
-            size: A4; 
-            margin: 2.54cm !important; 
-            color: black !important;
-          }
-          
           /* Override Tailwind constraints */
           html, body, main, #print-only-root {
             height: auto !important;
@@ -346,22 +368,10 @@ export default function PrintWrapper({
           #print-only-root {
             display: block !important;
           }
-          /* Print Watermark layanandokumen.com dihapus karena duplikat dengan yang kapital */
 
           /* Sembunyikan modal pembayaran saat dialog print muncul (jika eksekusi sinkron) */
           #print-modal-overlay {
             display: none !important;
-          }
-          
-          /* Typography paksa MS Word */
-          body { 
-            background: white !important; 
-            -webkit-print-color-adjust: exact !important; 
-            print-color-adjust: exact !important; 
-            font-family: 'Times New Roman', Times, serif !important;
-            font-size: 12pt !important;
-            line-height: 1.5 !important;
-            color: black !important;
           }
           
           /* Sembunyikan elemen UI */
