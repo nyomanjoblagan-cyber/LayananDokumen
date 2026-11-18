@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Script from 'next/script';
 import { Printer, CheckCircle, Loader2, ShieldCheck, Lightbulb } from 'lucide-react';
 import ViralWatermark from './ViralWatermark';
@@ -23,14 +23,14 @@ export default function PrintWrapper({
 }: PrintWrapperProps) {
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [clientKey, setClientKey] = useState(process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '');
+  const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '';
   const [isOpen, setIsOpen] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
   const [isRecovering, setIsRecovering] = useState(false);
 
   // Dapatkan identifier dokumen yang stabil (berbasis slug URL jika ada, fallback ke documentName)
-  const getDocKey = () => {
+  const getDocKey = useCallback(() => {
     if (typeof window !== 'undefined') {
       const match = window.location.pathname.match(/\/tools\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
@@ -38,9 +38,9 @@ export default function PrintWrapper({
       }
     }
     return documentName.toLowerCase().replace(/[^a-zA-Z0-9_-]/g, '_');
-  };
+  }, [documentName]);
 
-  const getViralUrl = () => {
+  const getViralUrl = useCallback(() => {
     if (typeof window !== 'undefined') {
       const match = window.location.pathname.match(/\/tools\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
@@ -48,16 +48,16 @@ export default function PrintWrapper({
       }
     }
     return 'https://layanandokumen.com';
-  };
+  }, []);
 
   useEffect(() => {
-    // 1. Keamanan Dasar: Paksa mode 'print-free' aktif sejak awal (Mencegah bypass Ctrl+P)
+    // 1. Keamanan Dasar: Paksa mode 'print-free' aktif jika belum premium (Cegah bypass Ctrl+P)
     if (!isPremium) {
       document.body.classList.add('print-free');
       document.body.classList.remove('print-premium');
     }
 
-    // 2. Keamanan Tambahan: Blokir klik kanan (Mempersulit Inspect Element)
+    // 2. Keamanan Tambahan: Blokir klik kanan
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
     };
@@ -80,12 +80,21 @@ export default function PrintWrapper({
       // Cek apakah ada sesi premium aktif untuk dokumen ini (24 jam)
       try {
         const docKey = getDocKey();
-        const primaryKey = 'layanandokumen_paid_' + docKey;
-        const legacyKey = 'layanandokumen_paid_' + documentName.replace(/\s+/g, '_');
+        const primaryAuthKey = 'layanandokumen_auth_' + docKey;
+        const legacyKey = 'layanandokumen_paid_' + docKey;
         
-        const expiredAt = localStorage.getItem(primaryKey) || localStorage.getItem(legacyKey);
-        if (expiredAt && parseInt(expiredAt) > Date.now()) {
-          setIsPremium(true);
+        const rawAuth = localStorage.getItem(primaryAuthKey);
+        if (rawAuth) {
+          const authData = JSON.parse(rawAuth);
+          if (authData.expiresAt && Number(authData.expiresAt) > Date.now() && authData.token && authData.order_id) {
+            setIsPremium(true);
+          }
+        } else {
+          // Backward compatibility check
+          const legacyExpiredAt = localStorage.getItem(legacyKey);
+          if (legacyExpiredAt && parseInt(legacyExpiredAt, 10) > Date.now()) {
+            setIsPremium(true);
+          }
         }
         
         const primaryPendingKey = 'layanandokumen_pending_order_' + docKey;
@@ -94,7 +103,9 @@ export default function PrintWrapper({
         if (savedPendingId) {
           setPendingOrderId(savedPendingId);
         }
-      } catch (e) {}
+      } catch {
+        // Abaikan parsing error
+      }
       setIsOpen(true);
     };
     window.addEventListener('open-print-modal', handleOpen);
@@ -104,7 +115,7 @@ export default function PrintWrapper({
       window.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isPremium, documentName]);
+  }, [isPremium, documentName, getDocKey]);
 
   const executePrint = (isPremiumPrint: boolean) => {
     // 1. Set mode (Premium/Free) ke body untuk trigger CSS watermark
@@ -117,7 +128,6 @@ export default function PrintWrapper({
     }
 
     // 2. Eksekusi print secara sinkron (langsung)
-    // MENCEGAH BUG iOS SAFARI: window.print() di dalam setTimeout sering diblokir popup blocker!
     window.print();
     
     // 3. Tutup popup modal setelah print dialog muncul/ditutup
@@ -135,7 +145,7 @@ export default function PrintWrapper({
       return;
     }
     
-    // Jika ternyata user sudah premium (dari cache/localStorage), langsung cetak
+    // Jika ternyata user sudah premium, langsung cetak
     if (isPremium) {
        executePrint(true);
        return;
@@ -143,44 +153,57 @@ export default function PrintWrapper({
 
     setIsLoading(true);
     try {
+      const docKey = getDocKey();
       const res = await fetch('/api/get-snap-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           documentName,
+          docKey,
           price
         })
       });
       
       const resData = await res.json();
-      if (!res.ok) throw new Error(resData.message || 'Gagal mengambil token');
+      if (!res.ok) throw new Error(resData.message || resData.error || 'Gagal mengambil token transaksi');
 
       // Simpan pending order id sebelum popup Snap terbuka
       try {
-        const docKey = getDocKey();
         localStorage.setItem('layanandokumen_pending_order_' + docKey, resData.order_id);
-        localStorage.setItem('layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_'), resData.order_id);
         setPendingOrderId(resData.order_id);
-      } catch(e) {}
+      } catch {}
 
       window.snap.pay(resData.token, {
-        onSuccess: function (result: any) {
+        onSuccess: async function (result: any) {
           console.log('Payment success:', result);
+          const orderIdToVerify = result?.order_id || resData.order_id;
           
-          // Simpan sesi premium ke localStorage selama 24 jam (Typo & Edit Protection)
           try {
-            const docKey = getDocKey();
-            const expireTime = Date.now() + (24 * 60 * 60 * 1000); // 24 jam dari sekarang
-            localStorage.setItem('layanandokumen_paid_' + docKey, expireTime.toString());
-            localStorage.setItem('layanandokumen_paid_' + documentName.replace(/\s+/g, '_'), expireTime.toString());
+            // Verifikasi resmi status transaksi dari Midtrans API
+            const checkRes = await fetch(`/api/check-payment?order_id=${orderIdToVerify}`);
+            const checkData = await checkRes.json();
             
-            localStorage.removeItem('layanandokumen_pending_order_' + docKey);
-            localStorage.removeItem('layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_'));
-            setPendingOrderId(null);
-          } catch (e) {}
-          
-          alert('Pembayaran Berhasil!\n\nAnda dapat merevisi dan mencetak ulang dokumen ini sepuasnya secara gratis selama 24 jam ke depan.');
+            if (checkData.status === 'success' && checkData.token) {
+              const sessionData = {
+                order_id: checkData.order_id,
+                token: checkData.token,
+                expiresAt: checkData.expiresAt
+              };
+              localStorage.setItem('layanandokumen_auth_' + docKey, JSON.stringify(sessionData));
+              localStorage.removeItem('layanandokumen_pending_order_' + docKey);
+              setPendingOrderId(null);
+              setIsPremium(true);
+              alert('Pembayaran Berhasil!\n\nAnda dapat merevisi dan mencetak ulang dokumen ini sepuasnya secara gratis selama 24 jam ke depan.');
+              executePrint(true);
+              return;
+            }
+          } catch (e) {
+            console.error('Verify token failed:', e);
+          }
 
+          // Fallback lokal
+          const expireTime = Date.now() + (24 * 60 * 60 * 1000);
+          localStorage.setItem('layanandokumen_paid_' + docKey, expireTime.toString());
           setIsPremium(true);
           executePrint(true);
         },
@@ -190,7 +213,7 @@ export default function PrintWrapper({
         },
         onError: function (result: any) {
           console.log('Payment error:', result);
-          alert('Pembayaran gagal. Silakan coba lagi.');
+          alert('Pembayaran dibatalkan atau gagal. Silakan coba lagi.');
         },
         onClose: function () {
           console.log('Payment popup closed');
@@ -213,21 +236,22 @@ export default function PrintWrapper({
 
       if (res.ok && data.status === 'success') {
         const docKey = getDocKey();
-        const expireTime = Date.now() + (24 * 60 * 60 * 1000);
-        localStorage.setItem('layanandokumen_paid_' + docKey, expireTime.toString());
-        localStorage.setItem('layanandokumen_paid_' + documentName.replace(/\s+/g, '_'), expireTime.toString());
-        
+        const sessionData = {
+          order_id: data.order_id,
+          token: data.token,
+          expiresAt: data.expiresAt
+        };
+        localStorage.setItem('layanandokumen_auth_' + docKey, JSON.stringify(sessionData));
         localStorage.removeItem('layanandokumen_pending_order_' + docKey);
-        localStorage.removeItem('layanandokumen_pending_order_' + documentName.replace(/\s+/g, '_'));
         setPendingOrderId(null);
         setIsPremium(true);
-        alert('Pemulihan berhasil! Akses Cetak Premium Anda telah aktif kembali.');
+        alert('Pemulihan berhasil! Akses Cetak Bebas Watermark Anda telah aktif kembali.');
       } else if (data.status === 'pending') {
         alert('Pembayaran Anda masih berstatus tertunda (pending). Silakan selesaikan pembayaran terlebih dahulu.');
       } else {
         alert('Sistem Midtrans melaporkan transaksi tidak berhasil atau kedaluwarsa.');
       }
-    } catch (e: any) {
+    } catch {
       alert('Terjadi kesalahan saat memulihkan pembayaran.');
     } finally {
       setIsRecovering(false);

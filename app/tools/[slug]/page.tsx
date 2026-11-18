@@ -58,7 +58,7 @@ export default async function ToolPage({ params }: Props) {
     'description': templateData.description,
     'offers': {
       '@type': 'Offer',
-      'price': '10000.00',
+      'price': templateData.price ? `${templateData.price}.00` : '5000.00',
       'priceCurrency': 'IDR'
     }
   };
