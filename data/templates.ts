@@ -676,5 +676,26 @@ export const TEMPLATES: Record<string, any> = {
     seoGuide: "Senjata andalan freelancer IT. Tetapkan batasan revisi maksimal, termin pembayaran, dan tahan Source Code sampai pelunasan 100% dari klien diterima.",
     category: "Bisnis & UMKM",
     price: 25000
+  },
+  "over-kredit": {
+    title: "Buat Surat Perjanjian Over Kredit (Alih Debitur) Otomatis",
+    description: "Generator Surat Perjanjian Over Kredit Kendaraan / Rumah KPR. Dilengkapi klausul anti-pidana fidusia, denda, dan kewajiban angsuran.",
+    seoGuide: "Surat Perjanjian Over Kredit melindungi penjual dan pembeli dari risiko kredit macet, penarikan unit oleh leasing, dan tuntutan hukum pidana fidusia.",
+    category: "Legal & Aset",
+    price: 15000
+  },
+  "konsinyasi": {
+    title: "Buat Surat Perjanjian Konsinyasi (Titip Jual UMKM) Otomatis",
+    description: "Generator Kontrak Kerjasama Konsinyasi Produk UMKM di Toko/Kafe. Lengkap dengan sistem komisi, jadwal setoran, dan aturan retur.",
+    seoGuide: "Lindungi bisnis UMKM Anda saat menitipkan produk di toko atau swalayan. Kunci komisi penjualan, tanggal pencairan uang, dan tanggung jawab barang rusak.",
+    category: "Bisnis & UMKM",
+    price: 10000
+  },
+  "pinjam-pakai": {
+    title: "Buat Surat Perjanjian Pinjam Pakai (Tanah / Rumah) Otomatis",
+    description: "Generator Perjanjian Pinjam Pakai Cuma-Cuma Sesuai Pasal 1740 KUHPerdata. Mencegah klaim kepemilikan sepihak atas tanah atau bangunan.",
+    seoGuide: "Surat Perjanjian Pinjam Pakai penting untuk meminjamkan tanah atau rumah kepada kerabat tanpa uang sewa, dengan jaminan aset tetap milik sah Anda dan wajib dikembalikan.",
+    category: "Legal & Aset",
+    price: 10000
   }
 };

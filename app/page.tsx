@@ -34,6 +34,7 @@ export default function HomePage() {
         { name: "Perjanjian Distributor/Reseller", href: "/tools/distributor" },
         { name: "Perjanjian Pemborong (Kontraktor)", href: "/tools/spk-pemborong" },
         { name: "Takeover (Oper Alih) Usaha", href: "/tools/takeover-usaha" },
+        { name: "Perjanjian Titip Jual (Konsinyasi)", href: "/tools/konsinyasi" },
         { name: "Kerjasama Vendor/Supplier", href: "/tools/vendor-supplier" },
         { name: "Kontrak IT Freelance", href: "/tools/kontrak-it" },
         { name: "Perjanjian Bagi Hasil (Syirkah)", href: "/tools/bagi-hasil" },
@@ -73,7 +74,9 @@ export default function HomePage() {
       items: [
         { name: "Surat Perjanjian Jual Beli Tanah", href: "/tools/jual-beli-tanah" },
         { name: "Surat Perjanjian Jual Beli Kendaraan", href: "/tools/jual-beli-kendaraan" },
+        { name: "Perjanjian Over Kredit (Alih Debitur)", href: "/tools/over-kredit" },
         { name: "Surat Perjanjian Sewa Rumah / Ruko", href: "/tools/sewa-rumah" },
+        { name: "Perjanjian Pinjam Pakai Tanah/Rumah", href: "/tools/pinjam-pakai" },
         { name: "Perjanjian Sewa Vila (Leasehold)", href: "/tools/sewa-vila" },
         { name: "Surat Perjanjian Hutang Piutang", href: "/tools/hutang-piutang" },
         { name: "Surat Somasi (Teguran Hukum)", href: "/tools/somasi" },
