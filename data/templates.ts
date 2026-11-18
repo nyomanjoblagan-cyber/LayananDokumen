@@ -697,5 +697,47 @@ export const TEMPLATES: Record<string, any> = {
     seoGuide: "Surat Perjanjian Pinjam Pakai penting untuk meminjamkan tanah atau rumah kepada kerabat tanpa uang sewa, dengan jaminan aset tetap milik sah Anda dan wajib dikembalikan.",
     category: "Legal & Aset",
     price: 10000
+  },
+  "blokir-stnk": {
+    title: "Surat Permohonan Blokir STNK Kendaraan Terjual Otomatis",
+    description: "Surat resmi permohonan pemblokiran registrasi kendaraan bermotor ke Samsat. Bebaskan diri dari pajak progresif dan tilang elektronik ETLE.",
+    seoGuide: "Hindari tagihan pajak progresif dan surat tilang ETLE untuk motor atau mobil yang sudah Anda jual. Lengkap dengan rincian data kendaraan dan alasan penjualan.",
+    category: "Otomotif & Transport",
+    price: 10000
+  },
+  "kuasa-ijazah": {
+    title: "Surat Kuasa Pengambilan Ijazah & Transkrip Akademik Otomatis",
+    description: "Surat kuasa resmi pelimpahan wewenang pengambilan ijazah kelulusan, sertifikat kompetensi, dan transkrip nilai perguruan tinggi/sekolah.",
+    seoGuide: "Format surat kuasa resmi bermeterai untuk perwakilan pengambilan ijazah asli dan transkrip akademik saat pemilik berhalangan karena pekerjaan atau berada di luar kota.",
+    category: "Akademik & Izin",
+    price: 10000
+  },
+  "kuasa-samsat": {
+    title: "Surat Kuasa Pengurusan Pajak STNK Samsat Otomatis",
+    description: "Surat kuasa pengurusan pajak kendaraan bermotor tahunan (PKB), perpanjangan STNK 5 tahunan, dan ganti plat nomor di Kantor Bersama Samsat.",
+    seoGuide: "Surat kuasa sah bermeterai Rp 10.000 untuk pengurusan pajak motor atau mobil atas nama perorangan atau perusahaan di kantor Samsat terdekat.",
+    category: "Otomotif & Transport",
+    price: 10000
+  },
+  "sporadik-tanah": {
+    title: "Surat Pernyataan Penguasaan Fisik Bidang Tanah (Sporadik BPN) Otomatis",
+    description: "Format resmi Surat Sporadik sesuai PP No. 24/1997 untuk pendaftaran sertipikat tanah pertama kali (PTSL/SHM), konversi girik, dan Letter C.",
+    seoGuide: "Surat Sporadik membuktikan penguasaan fisik bidang tanah secara nyata dan terus-menerus. Lengkap dengan batas tetangga, riwayat perolehan, dan pengesahan desa.",
+    category: "Legal & Aset",
+    price: 15000
+  },
+  "cabut-laporan": {
+    title: "Surat Permohonan Pencabutan Laporan Polisi (Restorative Justice) Otomatis",
+    description: "Surat resmi permohonan penghentian perkara pidana (SP3) dan pencabutan LP di Polsek/Polres berdasarkan prinsip Keadilan Restoratif (Perpol No. 8/2021).",
+    seoGuide: "Digunakan pelapor setelah terjadi kesepakatan damai kekeluargaan dan ganti rugi tuntas dengan terlapor, guna menghentikan proses hukum di kepolisian.",
+    category: "Legal & Aset",
+    price: 15000
+  },
+  "hak-asuh-anak": {
+    title: "Surat Kesepakatan Bersama Hak Asuh Anak & Nafkah Otomatis",
+    description: "Perjanjian perdata pengasuhan anak (hadhanah), jadwal kunjungan ayah/ibu, dan komitmen nominal nafkah bulanan pendidikan pasca perceraian.",
+    seoGuide: "Perjanjian mengikat antara orang tua pasca cerai untuk menjamin hak nafkah dan masa depan anak tanpa saling sengketa atau memutus hubungan kasih sayang.",
+    category: "Legal & Aset",
+    price: 15000
   }
 };

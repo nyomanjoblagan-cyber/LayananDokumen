@@ -115,4 +115,10 @@ export const TemplateRegistry: Record<string, React.ComponentType<any>> = {
   "over-kredit": dynamic(() => import('@/components/templates/over-kredit')),
   "konsinyasi": dynamic(() => import('@/components/templates/konsinyasi')),
   "pinjam-pakai": dynamic(() => import('@/components/templates/pinjam-pakai')),
+  "blokir-stnk": dynamic(() => import('@/components/templates/blokir-stnk')),
+  "kuasa-ijazah": dynamic(() => import('@/components/templates/kuasa-ijazah')),
+  "kuasa-samsat": dynamic(() => import('@/components/templates/kuasa-samsat')),
+  "sporadik-tanah": dynamic(() => import('@/components/templates/sporadik-tanah')),
+  "cabut-laporan": dynamic(() => import('@/components/templates/cabut-laporan')),
+  "hak-asuh-anak": dynamic(() => import('@/components/templates/hak-asuh-anak')),
 };

@@ -96,6 +96,9 @@ export default function HomePage() {
         { name: "Surat Perjanjian Joint Venture", href: "/tools/joint-venture" },
         { name: "Surat Kuasa Urus Pajak", href: "/tools/kuasa-pajak" },
         { name: "Surat Perjanjian Franchise", href: "/tools/franchise" },
+        { name: "Pernyataan Penguasaan Tanah (Sporadik)", href: "/tools/sporadik-tanah" },
+        { name: "Pencabutan Laporan Polisi (Restorative)", href: "/tools/cabut-laporan" },
+        { name: "Kesepakatan Hak Asuh Anak & Nafkah", href: "/tools/hak-asuh-anak" },
       ]
     },
     {
@@ -136,6 +139,8 @@ export default function HomePage() {
         { name: "Surat Klaim Asuransi Pengiriman", href: "/tools/klaim-asuransi" },
         { name: "Surat Permohonan Redelivery", href: "/tools/redelivery" },
         { name: "Surat Pernyataan Hilang Kirim", href: "/tools/hilang-kirim" },
+        { name: "Permohonan Blokir STNK Terjual", href: "/tools/blokir-stnk" },
+        { name: "Surat Kuasa Pengurusan STNK Samsat", href: "/tools/kuasa-samsat" },
       ]
     },
     {
@@ -155,6 +160,7 @@ export default function HomePage() {
         { name: "Surat Rekomendasi Dosen/Kepsek", href: "/tools/rekomendasi-akademik" },
         { name: "Surat Pernyataan Tidak Studi", href: "/tools/stop-studi" },
         { name: "Surat Permohonan Penelitian", href: "/tools/penelitian" },
+        { name: "Surat Kuasa Ambil Ijazah", href: "/tools/kuasa-ijazah" },
       ]
     },
     {
