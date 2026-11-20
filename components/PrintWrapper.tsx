@@ -141,7 +141,7 @@ export default function PrintWrapper({
 
   const handleCetakBerbayar = async () => {
     if (!clientKey) {
-      alert('Error: Payment gateway belum siap.');
+      alert('Sistem pembayaran sedang disiapkan. Silakan gunakan opsi Cetak Gratis ber-watermark terlebih dahulu.');
       return;
     }
     
@@ -165,7 +165,7 @@ export default function PrintWrapper({
       });
       
       const resData = await res.json();
-      if (!res.ok) throw new Error(resData.message || resData.error || 'Gagal mengambil token transaksi');
+      if (!res.ok) throw new Error(resData.message || resData.error || 'Gerbang pembayaran sedang sibuk. Silakan coba klik tombol bayar sekali lagi.');
 
       // Simpan pending order id sebelum popup Snap terbuka
       try {
@@ -209,11 +209,11 @@ export default function PrintWrapper({
         },
         onPending: function (result: any) {
           console.log('Payment pending:', result);
-          alert('Pembayaran tertunda. Silakan selesaikan pembayaran Anda.');
+          alert('Menunggu penyelesaian pembayaran Anda.\n\nJika sudah transfer/scan QRIS, silakan klik tombol "Pulihkan Pembayaran" atau refresh halaman ini untuk langsung mencetak dokumen.');
         },
         onError: function (result: any) {
           console.log('Payment error:', result);
-          alert('Pembayaran dibatalkan atau gagal. Silakan coba lagi.');
+          alert('Pembayaran belum berhasil diselesaikan.\n\nSilakan klik tombol "Cetak Tanpa Watermark" sekali lagi untuk mencoba kembali dengan metode pembayaran lainnya.');
         },
         onClose: function () {
           console.log('Payment popup closed');
@@ -221,7 +221,10 @@ export default function PrintWrapper({
       });
     } catch (err: any) {
       console.error(err);
-      alert('Terjadi kesalahan: ' + err.message);
+      alert(
+        'Mohon maaf, gerbang pembayaran sedang mengalami antrean sesaat.\n\n' +
+        'Silakan klik tombol "Cetak Tanpa Watermark" sekali lagi untuk mencoba kembali, atau Anda dapat menggunakan opsi cetak gratis ber-watermark terlebih dahulu.'
+      );
     } finally {
       setIsLoading(false);
     }

@@ -84,7 +84,10 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       console.error('Midtrans API Error:', data);
-      return NextResponse.json({ error: 'Failed to fetch Midtrans token', details: data }, { status: response.status });
+      return NextResponse.json({ 
+        error: 'Gerbang pembayaran sedang sibuk atau mengalami antrean. Silakan coba klik tombol bayar sekali lagi.', 
+        details: data 
+      }, { status: response.status });
     }
 
     return NextResponse.json({ 
@@ -94,6 +97,8 @@ export async function POST(request: Request) {
     });
   } catch (error: any) {
     console.error('Error creating transaction:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Terjadi kendala pada server transaksi. Silakan coba klik tombol bayar sekali lagi.' 
+    }, { status: 500 });
   }
 }
