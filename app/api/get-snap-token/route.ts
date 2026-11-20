@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { TEMPLATES } from '@/data/templates';
 
-// Daftar dokumen kategori premium dengan harga resmi Rp 10.000
+// Daftar dokumen kategori premium dengan harga resmi Rp 10.000 (fallback jika docKey tidak langsung cocok)
 const PREMIUM_DOCS = new Set([
   'wasiat', 'kontrak-kerja', 'joint-venture', 'mou', 'franchise', 
   'jual-beli-tanah', 'jual-beli-kendaraan', 'sewa-rumah', 'sewa-kendaraan', 
@@ -19,12 +20,15 @@ export async function POST(request: Request) {
     }
 
     // PENGAMANAN HARGA (Anti Price-Tampering):
-    // Tentukan harga resmi mutlak di SERVER, abaikan harga yang dikirim dari browser
-    const normalizedKey = (docKey || documentName || '').toLowerCase().trim();
-    const isPremiumDoc = Array.from(PREMIUM_DOCS).some(k => normalizedKey.includes(k));
-    
-    // Standar resmi: Dokumen Premium = Rp 10.000, Dokumen Standar = Rp 5.000
-    const authoritativePrice = isPremiumDoc ? 10000 : 5000;
+    // Tentukan harga resmi mutlak di SERVER dari master data TEMPLATES
+    let authoritativePrice = 5000;
+    if (docKey && TEMPLATES[docKey] && typeof TEMPLATES[docKey].price === 'number') {
+      authoritativePrice = TEMPLATES[docKey].price;
+    } else {
+      const normalizedKey = (docKey || documentName || '').toLowerCase().trim();
+      const isPremiumDoc = Array.from(PREMIUM_DOCS).some(k => normalizedKey.includes(k));
+      authoritativePrice = isPremiumDoc ? 10000 : 5000;
+    }
 
     // Tentukan Environment secara dinamis (Sandbox vs Production)
     const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true' || !serverKey.startsWith('SB-');
@@ -35,6 +39,13 @@ export async function POST(request: Request) {
     // Prefix 'LD-' + Timestamp + Random 5 digit agar tidak bentrok
     const secureOrderId = `LD-${Date.now()}-${Math.floor(Math.random() * 90000) + 10000}`;
 
+    // Midtrans Snap API batasan ketat: item_details[].name MAKSIMAL 50 karakter!
+    let safeItemName = 'Cetak Dokumen Bebas Watermark';
+    if (documentName && typeof documentName === 'string') {
+      const clean = documentName.replace(/[\r\n\t]/g, ' ').trim();
+      safeItemName = clean.length > 50 ? clean.slice(0, 47) + '...' : clean;
+    }
+
     const payload = {
       transaction_details: {
         order_id: secureOrderId,
@@ -42,10 +53,10 @@ export async function POST(request: Request) {
       },
       item_details: [
         {
-          id: isPremiumDoc ? 'DOC-PREMIUM' : 'DOC-STANDARD',
+          id: (authoritativePrice >= 10000 ? 'DOC-PREMIUM' : 'DOC-STANDARD').slice(0, 50),
           price: authoritativePrice,
           quantity: 1,
-          name: documentName ? `${documentName.slice(0, 45)} (Resmi)` : 'Cetak Dokumen Bebas Watermark',
+          name: safeItemName,
         }
       ],
       customer_details: {
