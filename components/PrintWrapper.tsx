@@ -2,12 +2,23 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Script from 'next/script';
-import { Printer, CheckCircle, Loader2, ShieldCheck, Lightbulb } from 'lucide-react';
+import { Printer, CheckCircle, Loader2, ShieldCheck, Lightbulb, AlertTriangle, RefreshCcw, X } from 'lucide-react';
 import ViralWatermark from './ViralWatermark';
 
 interface PrintWrapperProps {
   documentName: string;
   price: number;
+}
+
+interface NoticeModalState {
+  isOpen: boolean;
+  type: 'retry' | 'error' | 'pending' | 'success';
+  title: string;
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
+  secondaryLabel?: string;
+  onSecondary?: () => void;
 }
 
 // Extend Window interface for Midtrans snap
@@ -28,6 +39,7 @@ export default function PrintWrapper({
   const [showTerms, setShowTerms] = useState(false);
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
   const [isRecovering, setIsRecovering] = useState(false);
+  const [noticeModal, setNoticeModal] = useState<NoticeModalState | null>(null);
 
   // Dapatkan identifier dokumen yang stabil (berbasis slug URL jika ada, fallback ke documentName)
   const getDocKey = useCallback(() => {
@@ -141,7 +153,19 @@ export default function PrintWrapper({
 
   const handleCetakBerbayar = async () => {
     if (!clientKey) {
-      alert('Sistem pembayaran sedang disiapkan. Silakan gunakan opsi Cetak Gratis ber-watermark terlebih dahulu.');
+      setNoticeModal({
+        isOpen: true,
+        type: 'error',
+        title: 'Gerbang Pembayaran Sedang Disiapkan',
+        message: 'Sistem pembayaran otomatis sedang dalam pemeliharaan berkala. Anda tetap dapat menggunakan opsi Cetak Gratis ber-watermark sekarang juga.',
+        actionLabel: '🖨️ Cetak Gratis Ber-Watermark',
+        onAction: () => {
+          setNoticeModal(null);
+          handleCetakGratis();
+        },
+        secondaryLabel: 'Tutup',
+        onSecondary: () => setNoticeModal(null)
+      });
       return;
     }
     
@@ -165,7 +189,7 @@ export default function PrintWrapper({
       });
       
       const resData = await res.json();
-      if (!res.ok) throw new Error(resData.message || resData.error || 'Gerbang pembayaran sedang sibuk. Silakan coba klik tombol bayar sekali lagi.');
+      if (!res.ok) throw new Error(resData.message || resData.error || 'Gerbang pembayaran sedang sibuk.');
 
       // Simpan pending order id sebelum popup Snap terbuka
       try {
@@ -193,8 +217,17 @@ export default function PrintWrapper({
               localStorage.removeItem('layanandokumen_pending_order_' + docKey);
               setPendingOrderId(null);
               setIsPremium(true);
-              alert('Pembayaran Berhasil!\n\nAnda dapat merevisi dan mencetak ulang dokumen ini sepuasnya secara gratis selama 24 jam ke depan.');
-              executePrint(true);
+              setNoticeModal({
+                isOpen: true,
+                type: 'success',
+                title: 'Pembayaran Berhasil! 🎉',
+                message: 'Akses Cetak Bebas Watermark Anda telah aktif selama 24 jam ke depan. Anda dapat merevisi dan mencetak ulang dokumen ini sepuasnya secara gratis.',
+                actionLabel: '🖨️ Cetak Dokumen Sekarang',
+                onAction: () => {
+                  setNoticeModal(null);
+                  executePrint(true);
+                }
+              });
               return;
             }
           } catch (e) {
@@ -209,11 +242,35 @@ export default function PrintWrapper({
         },
         onPending: function (result: any) {
           console.log('Payment pending:', result);
-          alert('Menunggu penyelesaian pembayaran Anda.\n\nJika sudah transfer/scan QRIS, silakan klik tombol "Pulihkan Pembayaran" atau refresh halaman ini untuk langsung mencetak dokumen.');
+          setNoticeModal({
+            isOpen: true,
+            type: 'pending',
+            title: 'Menunggu Penyelesaian Pembayaran',
+            message: 'Jika Anda telah menyelesaikan transfer bank atau scan QRIS, silakan tekan tombol di bawah untuk memverifikasi dan membuka cetak bebas watermark.',
+            actionLabel: '🔍 Verifikasi Status Pembayaran',
+            onAction: () => {
+              setNoticeModal(null);
+              handleRestorePayment();
+            },
+            secondaryLabel: 'Tutup',
+            onSecondary: () => setNoticeModal(null)
+          });
         },
         onError: function (result: any) {
           console.log('Payment error:', result);
-          alert('Pembayaran belum berhasil diselesaikan.\n\nSilakan klik tombol "Cetak Tanpa Watermark" sekali lagi untuk mencoba kembali dengan metode pembayaran lainnya.');
+          setNoticeModal({
+            isOpen: true,
+            type: 'error',
+            title: 'Pembayaran Belum Berhasil',
+            message: 'Transaksi belum terselesaikan atau dibatalkan. Anda dapat mencoba kembali dengan metode pembayaran lain seperti QRIS, GoPay, ShopeePay, atau Virtual Account.',
+            actionLabel: '🔄 Coba Bayar Lagi',
+            onAction: () => {
+              setNoticeModal(null);
+              handleCetakBerbayar();
+            },
+            secondaryLabel: 'Tutup',
+            onSecondary: () => setNoticeModal(null)
+          });
         },
         onClose: function () {
           console.log('Payment popup closed');
@@ -221,10 +278,22 @@ export default function PrintWrapper({
       });
     } catch (err: any) {
       console.error(err);
-      alert(
-        'Mohon maaf, gerbang pembayaran sedang mengalami antrean sesaat.\n\n' +
-        'Silakan klik tombol "Cetak Tanpa Watermark" sekali lagi untuk mencoba kembali, atau Anda dapat menggunakan opsi cetak gratis ber-watermark terlebih dahulu.'
-      );
+      setNoticeModal({
+        isOpen: true,
+        type: 'retry',
+        title: 'Gerbang Pembayaran Sedang Antre',
+        message: 'Koneksi ke sistem transaksi sedang mengalami antrean sesaat. Anda dapat mencoba menekan tombol di bawah sekali lagi, atau mencetak versi gratis ber-watermark terlebih dahulu.',
+        actionLabel: '🔄 Coba Bayar Lagi',
+        onAction: () => {
+          setNoticeModal(null);
+          handleCetakBerbayar();
+        },
+        secondaryLabel: '🖨️ Cetak Versi Gratis Dulu',
+        onSecondary: () => {
+          setNoticeModal(null);
+          handleCetakGratis();
+        }
+      });
     } finally {
       setIsLoading(false);
     }
@@ -248,139 +317,249 @@ export default function PrintWrapper({
         localStorage.removeItem('layanandokumen_pending_order_' + docKey);
         setPendingOrderId(null);
         setIsPremium(true);
-        alert('Pemulihan berhasil! Akses Cetak Bebas Watermark Anda telah aktif kembali.');
+        setNoticeModal({
+          isOpen: true,
+          type: 'success',
+          title: 'Pemulihan Berhasil! 🎉',
+          message: 'Akses Cetak Bebas Watermark Anda telah aktif kembali. Silakan langsung cetak dokumen Anda.',
+          actionLabel: '🖨️ Cetak Sekarang',
+          onAction: () => {
+            setNoticeModal(null);
+            executePrint(true);
+          }
+        });
       } else if (data.status === 'pending') {
-        alert('Pembayaran Anda masih berstatus tertunda (pending). Silakan selesaikan pembayaran terlebih dahulu.');
+        setNoticeModal({
+          isOpen: true,
+          type: 'pending',
+          title: 'Pembayaran Masih Tertunda',
+          message: 'Status transaksi Anda masih berstatus pending di sistem Midtrans. Jika Anda baru saja transfer, mohon tunggu 1-2 menit lalu klik periksa kembali.',
+          actionLabel: '🔍 Periksa Ulang',
+          onAction: () => {
+            handleRestorePayment();
+          },
+          secondaryLabel: 'Tutup',
+          onSecondary: () => setNoticeModal(null)
+        });
       } else {
-        alert('Sistem Midtrans melaporkan transaksi tidak berhasil atau kedaluwarsa.');
+        setNoticeModal({
+          isOpen: true,
+          type: 'error',
+          title: 'Status Belum Terverifikasi',
+          message: 'Sistem Midtrans melaporkan transaksi belum berhasil atau kedaluwarsa. Anda dapat mencoba melakukan pembayaran baru.',
+          actionLabel: '🔄 Buat Pembayaran Baru',
+          onAction: () => {
+            setNoticeModal(null);
+            handleCetakBerbayar();
+          },
+          secondaryLabel: 'Tutup',
+          onSecondary: () => setNoticeModal(null)
+        });
       }
     } catch {
-      alert('Terjadi kesalahan saat memulihkan pembayaran.');
+      setNoticeModal({
+        isOpen: true,
+        type: 'error',
+        title: 'Gangguan Pemulihan',
+        message: 'Terjadi kendala saat memeriksa status pembayaran ke server. Silakan coba kembali dalam beberapa saat.',
+        actionLabel: 'Coba Lagi',
+        onAction: () => {
+          handleRestorePayment();
+        },
+        secondaryLabel: 'Tutup',
+        onSecondary: () => setNoticeModal(null)
+      });
     } finally {
       setIsRecovering(false);
     }
   };
 
-  if (!isOpen) {
-    return !isPremium ? <ViralWatermark url={getViralUrl()} /> : null;
-  }
-
   return (
     <>
-    {!isPremium && <ViralWatermark url={getViralUrl()} />}
-    <div id="print-modal-overlay" className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl relative animate-in zoom-in-95 duration-200">
-        <button onClick={() => setIsOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
-           ✕
-        </button>
+      {!isPremium && <ViralWatermark url={getViralUrl()} />}
 
-        <div className="text-center mb-6 mt-2">
-          <h3 className="font-black text-slate-800 text-lg uppercase tracking-tight mb-2">Opsi Cetak Dokumen</h3>
-          <p className="text-slate-500 text-sm">Pilih opsi cetak yang sesuai dengan kebutuhan Anda.</p>
-        </div>
+      {/* Script Snap Midtrans */}
+      <Script 
+        src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true' || (clientKey && !clientKey.startsWith('SB-'))
+          ? 'https://app.midtrans.com/snap/snap.js'
+          : 'https://app.sandbox.midtrans.com/snap/snap.js'}
+        data-client-key={clientKey} 
+        strategy="lazyOnload" 
+      />
 
-        <div className="mb-6 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-left flex items-start gap-3">
-          <div className="mt-0.5 text-amber-500 shrink-0">
-            <Lightbulb size={20} />
-          </div>
-          <div>
-            <h4 className="font-bold text-amber-900 text-xs uppercase tracking-wider mb-1">Tips Cetak Resmi</h4>
-            <p className="text-xs text-amber-800 leading-relaxed">
-              Agar dokumen terlihat bersih dan sah, pastikan Anda <strong>menghilangkan centang (uncheck) "Headers and footers"</strong> pada pengaturan printer Anda sebelum mencetak.
-            </p>
-          </div>
-        </div>
+      {/* MODAL PILIHAN CETAK UTAMA */}
+      {isOpen && (
+        <div id="print-modal-overlay" className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl relative animate-in zoom-in-95 duration-200">
+            <button onClick={() => setIsOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+               ✕
+            </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Opsi 1: Gratis (Watermark) */}
-          <button
-            onClick={handleCetakGratis}
-            className="group relative flex flex-col items-center p-6 border-2 border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
-          >
-            <div className="w-12 h-12 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center mb-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-              <Printer size={24} />
+            <div className="text-center mb-6 mt-2">
+              <h3 className="font-black text-slate-800 text-lg uppercase tracking-tight mb-2">Opsi Cetak Dokumen</h3>
+              <p className="text-slate-500 text-sm">Pilih opsi cetak yang sesuai dengan kebutuhan Anda.</p>
             </div>
-            <h4 className="font-bold text-slate-800 mb-1 text-center">Cetak Gratis</h4>
-            <p className="text-xs text-slate-500 text-center mb-4">Mencetak dokumen dengan tulisan watermark layanandokumen.com</p>
-            <span className="mt-auto font-black text-slate-400">Rp 0</span>
-          </button>
 
-          {/* Opsi 2: Berbayar (Premium / Bebas Iklan & Watermark) */}
-          <button
-            onClick={handleCetakBerbayar}
-            disabled={isLoading || isPremium}
-            className="group relative flex flex-col items-center p-6 border-2 border-emerald-500 rounded-xl bg-emerald-500 hover:bg-emerald-600 transition-all text-left overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            <div className="w-12 h-12 bg-white text-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-sm">
-              {isPremium ? <CheckCircle size={24} /> : <Printer size={24} />}
+            <div className="mb-6 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-left flex items-start gap-3">
+              <div className="mt-0.5 text-amber-500 shrink-0">
+                <Lightbulb size={20} />
+              </div>
+              <div>
+                <h4 className="font-bold text-amber-900 text-xs uppercase tracking-wider mb-1">Tips Cetak Resmi</h4>
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  Agar dokumen terlihat bersih dan sah, pastikan Anda <strong>menghilangkan centang (uncheck) "Headers and footers"</strong> pada pengaturan printer Anda sebelum mencetak.
+                </p>
+              </div>
             </div>
-            <h4 className="font-bold text-white mb-1 text-center">Cetak Premium</h4>
-            <p className="text-xs text-emerald-100 text-center mb-4">
-              Bebas watermark, hasil cetak profesional.
-              <br/><br/>
-              <span className="bg-emerald-700/50 px-2 py-1 rounded text-[10px] font-bold border border-emerald-400/30 inline-block">
-                GARANSI REVISI 24 JAM
-              </span>
-              <br/>
-              <span className="text-[10px] opacity-80 mt-1 inline-block">Edit dan cetak ulang dokumen ini sepuasnya tanpa bayar lagi.</span>
-              <br/>
-              <button 
-                type="button" 
-                onClick={(e) => { e.stopPropagation(); setShowTerms(!showTerms); }} 
-                className="text-[10px] text-emerald-300 underline hover:text-white mt-1.5 inline-block opacity-90 transition-colors"
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Opsi 1: Gratis (Watermark) */}
+              <button
+                onClick={handleCetakGratis}
+                className="group relative flex flex-col items-center p-6 border-2 border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
               >
-                {showTerms ? 'Tutup S&K Garansi' : 'Pelajari S&K Garansi'}
+                <div className="w-12 h-12 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center mb-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                  <Printer size={24} />
+                </div>
+                <h4 className="font-bold text-slate-800 mb-1 text-center">Cetak Gratis</h4>
+                <p className="text-xs text-slate-500 text-center mb-4">Mencetak dokumen dengan tulisan watermark layanandokumen.com</p>
+                <span className="mt-auto font-black text-slate-400">Rp 0</span>
               </button>
-            </p>
-            <span className="mt-auto font-black text-white bg-emerald-600 px-4 py-1 rounded-full text-sm flex items-center gap-2">
-               {isLoading ? <><Loader2 size={16} className="animate-spin" /> Memproses...</> : isPremium ? 'Sudah Dibayar' : `Rp ${price.toLocaleString('id-ID')}`}
-            </span>
-            
-            {isPremium && (
-              <div className="absolute top-2 right-2 bg-emerald-700 text-white text-[10px] font-bold px-2 py-1 rounded-full">
-                AKTIF
+
+              {/* Opsi 2: Berbayar (Premium / Bebas Iklan & Watermark) */}
+              <button
+                onClick={handleCetakBerbayar}
+                disabled={isLoading || isPremium}
+                className="group relative flex flex-col items-center p-6 border-2 border-emerald-500 rounded-xl bg-emerald-500 hover:bg-emerald-600 transition-all text-left overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                <div className="w-12 h-12 bg-white text-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                  {isPremium ? <CheckCircle size={24} /> : <Printer size={24} />}
+                </div>
+                <h4 className="font-bold text-white mb-1 text-center">Cetak Premium</h4>
+                <p className="text-xs text-emerald-100 text-center mb-4">
+                  Bebas watermark, hasil cetak profesional.
+                  <br/><br/>
+                  <span className="bg-emerald-700/50 px-2 py-1 rounded text-[10px] font-bold border border-emerald-400/30 inline-block">
+                    GARANSI REVISI 24 JAM
+                  </span>
+                  <br/>
+                  <span className="text-[10px] opacity-80 mt-1 inline-block">Edit dan cetak ulang dokumen ini sepuasnya tanpa bayar lagi.</span>
+                  <br/>
+                  <button 
+                    type="button" 
+                    onClick={(e) => { e.stopPropagation(); setShowTerms(!showTerms); }} 
+                    className="text-[10px] text-emerald-300 underline hover:text-white mt-1.5 inline-block opacity-90 transition-colors"
+                  >
+                    {showTerms ? 'Tutup S&K Garansi' : 'Pelajari S&K Garansi'}
+                  </button>
+                </p>
+                <span className="mt-auto font-black text-white bg-emerald-600 px-4 py-1 rounded-full text-sm flex items-center gap-2">
+                   {isLoading ? <><Loader2 size={16} className="animate-spin" /> Memproses...</> : isPremium ? 'Sudah Dibayar' : `Rp ${price.toLocaleString('id-ID')}`}
+                </span>
+                
+                {isPremium && (
+                  <div className="absolute top-2 right-2 bg-emerald-700 text-white text-[10px] font-bold px-2 py-1 rounded-full">
+                    AKTIF
+                  </div>
+                )}
+              </button>
+            </div>
+
+            {pendingOrderId && !isPremium && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-center flex flex-col items-center gap-2 animate-in slide-in-from-top-2 duration-200">
+                <span className="text-xs text-blue-700">Sudah bayar tapi gagal cetak karena tab tertutup?</span>
+                <button 
+                  onClick={handleRestorePayment}
+                  disabled={isRecovering}
+                  className="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full transition-colors flex items-center gap-2 disabled:opacity-70"
+                >
+                  {isRecovering ? <Loader2 size={14} className="animate-spin" /> : null}
+                  Pulihkan Pembayaran
+                </button>
               </div>
             )}
-          </button>
+
+            {showTerms && (
+              <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 text-left text-sm animate-in slide-in-from-top-2 duration-200">
+                <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-emerald-500"/> Syarat & Ketentuan Bebas Revisi 24 Jam
+                </h4>
+                <ul className="list-disc pl-5 space-y-1 text-slate-600 text-[11px] leading-relaxed">
+                  <li>Akses berlaku <strong>24 jam penuh</strong> terhitung sejak pembayaran sukses.</li>
+                  <li>Wajib menggunakan <strong>perangkat dan browser yang sama</strong>.</li>
+                  <li>Akses akan <strong>hangus</strong> jika Anda melakukan Clear Cache / Hapus Riwayat.</li>
+                  <li>Selama sesi aktif, Anda bebas menekan "Cetak Premium" berkali-kali secara gratis.</li>
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
+      )}
 
-        {pendingOrderId && !isPremium && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-center flex flex-col items-center gap-2 animate-in slide-in-from-top-2 duration-200">
-            <span className="text-xs text-blue-700">Sudah bayar tapi gagal cetak karena tab tertutup?</span>
+      {/* MODAL PEMBERITAHUAN MODERN (GANTIKAN ALERT JADUL) */}
+      {noticeModal && noticeModal.isOpen && (
+        <div id="notice-modal-overlay" className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md relative border border-slate-100 text-center animate-in zoom-in-95 duration-200">
             <button 
-              onClick={handleRestorePayment}
-              disabled={isRecovering}
-              className="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full transition-colors flex items-center gap-2 disabled:opacity-70"
+              onClick={() => setNoticeModal(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition"
             >
-              {isRecovering ? <Loader2 size={14} className="animate-spin" /> : null}
-              Pulihkan Pembayaran
+              <X size={16} />
             </button>
-          </div>
-        )}
 
-        {showTerms && (
-          <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 text-left text-sm animate-in slide-in-from-top-2 duration-200">
-            <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
-              <ShieldCheck size={16} className="text-emerald-500"/> Syarat & Ketentuan Bebas Revisi 24 Jam
-            </h4>
-            <ul className="list-disc pl-5 space-y-1 text-slate-600 text-[11px] leading-relaxed">
-              <li>Akses berlaku <strong>24 jam penuh</strong> terhitung sejak pembayaran sukses.</li>
-              <li>Wajib menggunakan <strong>perangkat dan browser yang sama</strong>.</li>
-              <li>Akses akan <strong>hangus</strong> jika Anda melakukan Clear Cache / Hapus Riwayat.</li>
-              <li>Selama sesi aktif, Anda bebas menekan "Cetak Premium" berkali-kali secara gratis.</li>
-            </ul>
-          </div>
-        )}
+            {/* Icon Header */}
+            <div className="mx-auto mb-4 flex items-center justify-center">
+              {noticeModal.type === 'retry' && (
+                <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200/80 flex items-center justify-center shadow-lg shadow-amber-500/10 relative">
+                  <RefreshCcw size={28} className="text-amber-500" />
+                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-500 rounded-full border-2 border-white animate-ping"></span>
+                </div>
+              )}
+              {noticeModal.type === 'error' && (
+                <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 border border-rose-200/80 flex items-center justify-center shadow-lg shadow-rose-500/10">
+                  <AlertTriangle size={28} />
+                </div>
+              )}
+              {noticeModal.type === 'pending' && (
+                <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200/80 flex items-center justify-center shadow-lg shadow-blue-500/10">
+                  <Loader2 size={28} className="animate-spin text-blue-500" />
+                </div>
+              )}
+              {noticeModal.type === 'success' && (
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                  <CheckCircle size={28} className="text-emerald-500" />
+                </div>
+              )}
+            </div>
 
-        {/* Script Snap Midtrans */}
-        <Script 
-          src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true' || (clientKey && !clientKey.startsWith('SB-'))
-            ? 'https://app.midtrans.com/snap/snap.js'
-            : 'https://app.sandbox.midtrans.com/snap/snap.js'}
-          data-client-key={clientKey} 
-          strategy="lazyOnload" 
-        />
-      </div>
+            <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight mb-2">
+              {noticeModal.title}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6 whitespace-pre-line">
+              {noticeModal.message}
+            </p>
+
+            <div className="space-y-2">
+              {noticeModal.actionLabel && (
+                <button
+                  onClick={noticeModal.onAction}
+                  className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
+                  {noticeModal.actionLabel}
+                </button>
+              )}
+              {noticeModal.secondaryLabel && (
+                <button
+                  onClick={noticeModal.onSecondary}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition active:scale-[0.98]"
+                >
+                  {noticeModal.secondaryLabel}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* GLOBAL PRINT STYLES UNTUK NATIVE WINDOW PRINT */}
       <style dangerouslySetInnerHTML={{ __html: `
@@ -397,7 +576,7 @@ export default function PrintWrapper({
           }
 
           /* Sembunyikan modal pembayaran saat dialog print muncul (jika eksekusi sinkron) */
-          #print-modal-overlay {
+          #print-modal-overlay, #notice-modal-overlay {
             display: none !important;
           }
           
@@ -419,7 +598,6 @@ export default function PrintWrapper({
           }
         }
       ` }} />
-    </div>
     </>
   );
 }
